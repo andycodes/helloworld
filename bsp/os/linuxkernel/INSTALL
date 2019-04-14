@@ -1,0 +1,15 @@
+##################################################
+## ubuntu 11.10 
+## init.sh is Auto boot code after Linux OS Starting
+##################################################
+
+#!/bin/sh
+
+export WORKING_PATH=/project/andy
+export INIT_PATH=${WORKING_PATH}/init
+export INIT_FILE=${INIT_PATH}/init.sh
+export RC_LOCAL=/etc/rc.local
+
+if [ "`less ${RC_LOCAL} |grep ${INIT_FILE}`" == "" ];then
+  echo "${INIT_FILE}">>${RC_LOCAL}
+fi

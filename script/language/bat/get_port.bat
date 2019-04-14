@@ -1,0 +1,2 @@
+netstat -nao
+pause

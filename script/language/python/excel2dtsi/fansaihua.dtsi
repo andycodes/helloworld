@@ -1,0 +1,20 @@
+   cpu@0 {
+       device_type = "cpu";
+       compatible = "arm,cortex-a15";
+       reg = <0>;
+   };
+   cpu@1 {
+       device_type = "cpu";
+       compatible = "arm,cortex-a15";
+       reg = <1>;
+   };
+   cpu@2 {
+       device_type = "cpu";
+       compatible = "arm,cortex-a15";
+       reg = <2>;
+   };
+   cpu@3 {
+       device_type = "cpu";
+       compatible = "arm,cortex-a15";
+       reg = <3>;
+   };

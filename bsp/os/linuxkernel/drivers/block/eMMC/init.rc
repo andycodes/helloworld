@@ -1,0 +1,17 @@
+#on emmc-fs 
+wait /dev/block/mmcblk0p10 
+mount ext4 /dev/block/mmcblk0p19 /system rw barrier=1 
+chmod 0777 /system/bin/ext4check.sh 
+# 
+wait /dev/block/mmcblk0p11 
+exec /system/bin/sh -c "/system/bin/fixebr.sh mmcblk0" 
+exec /system/bin/sh -c "/system/bin/ext4check.sh USERDATA /dev/block/mmcblk0p22" 
+mount ext4 /dev/block/mmcblk0p22 /data nosuid nodev barrier=1 
+# 
+wait /dev/block/mmcblk0p12 
+exec /system/bin/sh -c "/system/bin/ext4check.sh PERSIST /dev/block/mmcblk0p10" 
+mount ext4 /dev/block/mmcblk0p10 /persist nosuid nodev barrier=1 
+# 
+wait /dev/block/mmcblk0p13 
+exec /system/bin/sh -c "/system/bin/ext4check.sh CACHE /dev/block/mmcblk0p21" 
+mount ext4 /dev/block/mmcblk0p21 /cache nosuid nodev barrier=1 
