@@ -3,11 +3,13 @@
 #include <linux/slab.h>
 #include <linux/printk.h>
 
+#define BUFF_SIZE	(128)
+
 static int __init hello_init(void)
 {
 	void *paddr = NULL;
 	printk(KERN_ALERT "Hello, world!\n");
-	paddr = kzalloc(100, GFP_KERNEL);
+	paddr = kzalloc(BUFF_SIZE, GFP_KERNEL);
 	if(NULL == paddr) {
 		pr_err("[%s]kzalloc err\n", __func__);
 		return -1;
@@ -15,19 +17,22 @@ static int __init hello_init(void)
 
 	pr_info("[%s][%pK]\n", __func__, paddr);
 
-	memset((void*)paddr, 0xaa,100);
-	print_hex_dump(KERN_ERR, "Frame: ",DUMP_PREFIX_NONE, 16, 1,paddr, 100, true);
+	memset((void*)paddr, 0xaa,BUFF_SIZE);
+	/*Frame: aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa  ................*/
+	print_hex_dump(KERN_ERR, "Frame: ",DUMP_PREFIX_NONE, 16, 1,paddr, BUFF_SIZE, true);
 	pr_info("\n****************\n");
-	print_hex_dump(KERN_ERR, "Frame: ",DUMP_PREFIX_ADDRESS, 16, 1,paddr, 100, true);
+	/*Frame: 000000006ee0a4df: aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa  ................*/
+	print_hex_dump(KERN_ERR, "Frame: ",DUMP_PREFIX_ADDRESS, 16, 1,paddr, BUFF_SIZE, true);
 	pr_info("\n****************\n");
-	print_hex_dump(KERN_ERR, "Frame: ",DUMP_PREFIX_OFFSET, 16, 1,paddr, 100, true);
+	/*Frame: 00000070: aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa aa  ................*/
+	print_hex_dump(KERN_ERR, "Frame: ",DUMP_PREFIX_OFFSET, 16, 1,paddr, BUFF_SIZE, true);
 
 	return 0;
 }
 
 static void __exit hello_exit(void)
  {
-    printk(KERN_ALERT "Goodbye, cruel world\n");
+	printk(KERN_ALERT "Goodbye, cruel world\n");
  }
 
 module_init(hello_init);
