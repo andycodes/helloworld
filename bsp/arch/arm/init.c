@@ -2,12 +2,15 @@
 #include "init.h"
 #include "mmu.h"
 
-/* SDRAM 13个寄存器的值 */ 
+
+
+
+/* SDRAM 13个寄存器的值 */
 unsigned long  const	mem_cfg_val[]={	0x22111110,		//BWSCON
 				0x00000700,		//BANKCON0
 				0x00000700,		//BANKCON1
 				0x00000700,		//BANKCON2
-				0x00000700,		//BANKCON3	
+				0x00000700,		//BANKCON3
 				0x00000700,		//BANKCON4
 				0x00000700,		//BANKCON5
 				0x00018005,		//BANKCON6
@@ -25,11 +28,11 @@ void disable_watch_dog()
 	WTCON	= 0;
 }
 
-/**************************************************************************   
+/**************************************************************************
 * 设置控制SDRAM的13个寄存器
 * 含有数组的代码，不是位置无关的，所以memsetup只能在连接位置执行
 * 如果要使用位置无关代码，请使用memsetup_2
-**************************************************************************/   
+**************************************************************************/
 void memsetup()
 {
 	int 	i = 0;
@@ -41,12 +44,12 @@ void memsetup()
 
 void memsetup_2()
 {
-	unsigned long *p = (unsigned long *)MEM_CTL_BASE;	
+	unsigned long *p = (unsigned long *)MEM_CTL_BASE;
 	p[0] = 0x22111110;		//BWSCON
 	p[1] = 0x00000700;		//BANKCON0
 	p[2] = 0x00000700;		//BANKCON1
 	p[3] = 0x00000700;		//BANKCON2
-	p[4] = 0x00000700;		//BANKCON3	
+	p[4] = 0x00000700;		//BANKCON3
 	p[5] = 0x00000700;		//BANKCON4
 	p[6] = 0x00000700;		//BANKCON5
 	p[7] = 0x00018005;		//BANKCON6
@@ -80,7 +83,7 @@ void init_nand()
 *	以下读NAND Flash的代码来自mizi公司的bootloader vivi
 *************************************************************************/
 #define BUSY 1
-inline void wait_idle(void) {
+ void wait_idle(void) {
 	int i;
 
 	while(!(NFSTAT & BUSY))
@@ -134,14 +137,14 @@ void nand_read_ll(unsigned char *buf, unsigned long start_addr, int size)
 ***************************************************************************/
 void copy_vectors_from_nand_to_sdram()
 {
-	nand_read_ll((unsigned char*)(VECTORS_PHY_BASE+0xf0000), 0x0, 512);	
+	nand_read_ll((unsigned char*)(VECTORS_PHY_BASE+0xf0000), 0x0, 512);
 }
 
 void copy_process_from_nand_to_sdram()
 {
 	nand_read_ll((unsigned char*)PROCESS0_BASE, 0x0, 4096);
 //	nand_read_ll((unsigned char*)PROCESS1_BASE, 0x4000, 1024);
-//	nand_read_ll((unsigned char*)PROCESS2_BASE, 0x8000, 1024);	
+//	nand_read_ll((unsigned char*)PROCESS2_BASE, 0x8000, 1024);
 }
 
 
@@ -154,7 +157,7 @@ void init_irq( )
 {
 	GPFCON |= EINT1 | EINT2 | EINT3 | EINT7;
 	GPFUP	 |= (1<<1) | (1<<2) | (1<<3) | (1<<7);
-	
+
 	EINTMASK &= (~0x80);	//EINT7使能
 	INTMSK	&= (~0x1e);	//EINT1-3、EINT7使能
 	PRIORITY &= (~0x03);	//设定优先级

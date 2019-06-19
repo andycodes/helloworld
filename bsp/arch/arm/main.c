@@ -12,7 +12,7 @@ static unsigned long m_RandSeed1 = 0x12345678;
 
 
 /* Ëæ»úº¯Êý */
-inline unsigned long  Rand()
+unsigned long  Rand()
 {
     return (m_RandSeed=1664525L*m_RandSeed+1013904223L)>>5;
 }
