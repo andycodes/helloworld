@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -O2 -Iinclude
-TARGET = cacu
-DIRS = sub add .
+TARGET = out/mcu
+DIRS = bsp app .
 FILES = $(foreach dir, $(DIRS), $(wildcard $(dir)/*.c))
 OBJS = $(patsubst %.c, %.o, $(FILES))
 $(TARGET):$(OBJS)
