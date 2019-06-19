@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -O2 -Iadd -Isub
+CFLAGS = -O2 -Iinclude
 TARGET = cacu
 DIRS = sub add .
 FILES = $(foreach dir, $(DIRS), $(wildcard $(dir)/*.c))
