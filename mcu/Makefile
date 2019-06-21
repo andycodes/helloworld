@@ -33,20 +33,20 @@ LDFLAGS += $(foreach lib, $(LIBS), -l$(lib))
 # foreach表示遍历$(SRC_DIRS)的所有子目录同时把子目录下的.c文件遍历出来
 SRC_FILES = $(foreach dir, $(SRC_DIRS), $(wildcard $(dir)/*.c))
 
-DIR_OBJS = $(patsubst %.c,%.o,$(SRC_FILES))
+SRC_OBJS = $(patsubst %.c,%.o,$(SRC_FILES))
 
-OBJS  = $(addprefix $(OUTPUT)/,$(notdir $(patsubst %.c,%.o,$(SRC_FILES)))) 
-$(info OBJS：$(OBJS))
+OUT_OBJS  = $(addprefix $(OUTPUT)/,$(notdir $(patsubst %.c,%.o,$(SRC_FILES)))) 
+$(info OUT_OBJS：$(OUT_OBJS))
 
 all: $(TARGET)
-$(TARGET):$(OBJS)
-	$(CC) $(OBJS) $(CFLAGS) -o $(TARGET)
-$(OBJS):$(DIR_OBJS)
-$(DIR_OBJS):%.o : %.c
+$(TARGET):$(OUT_OBJS)
+	$(CC) $(OUT_OBJS) -o $(TARGET)
+$(OUT_OBJS):$(SRC_OBJS)
+$(SRC_OBJS):%.o : %.c
 	$(CC) $(CFLAGS) -o $@ -c  $<
 	mv $@ $(OUTPUT)
 
 
 clean:
 	-$(RM) $(TARGET)
-	-$(RM) $(OBJS)
+	-$(RM) $(OUT_OBJS)
