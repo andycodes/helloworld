@@ -1,6 +1,11 @@
 #! /usr/bin/python
 
 import os
+import shutil
+OUT_PATH="./out"
+OBJ_PATH= OUT_PATH +"/obj"
+if os.path.exists(OUT_PATH):
+	shutil.rmtree(OUT_PATH)
 
-print ("Hello World")
-os.popen("make")
+os.makedirs(OBJ_PATH)
+os.system('make')
