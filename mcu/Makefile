@@ -1,22 +1,25 @@
 CC = gcc
-TARGET = mcu
-OUTPUT = ./debug
-DIRS = bsp app .
+TARGET = mcu.elf
+OUTPUT = ./out
+SRC_DIRS = bsp app .
 ## used headers  file path
 INCLUDE_PATH = include
 ## used include librarys file path
 LIBRARY_PATH := /lib
 ## need libs, add at here
 LIBS :=
+##
+CFLAGS :=
 
-CFLAGS = -O2
 
 ## get all include path
 CFLAGS  += $(foreach dir, $(INCLUDE_PATH), -I$(dir))
 
-## debug for debug info, when use gdb to debug
+## debug mode
 ifeq (1, ${DBG_ENABLE}) 
 CFLAGS += -D_DEBUG -O0 -g -DDEBUG=1
+else
+CFLAGS += -O2
 endif
 
 ## get all library path
@@ -27,19 +30,21 @@ LDFLAGS += $(foreach lib, $(LIBS), -l$(lib))
 
 
 
-# foreach表示遍历$(D_SRC)的所有子目录同时把子目录下的.c文件遍历出来
-FILES = $(foreach dir, $(DIRS), $(wildcard $(dir)/*.c))
-#OBJS = $(patsubst %.c, %.o, $(FILES))
-DIR_OBJS        = $(patsubst %.c,%.o,$(FILES))
-OBJS          = $(addprefix $(OUTPUT)/,$(notdir $(patsubst %.c,%.o,$(FILES)))) 
+# foreach表示遍历$(SRC_DIRS)的所有子目录同时把子目录下的.c文件遍历出来
+SRC_FILES = $(foreach dir, $(SRC_DIRS), $(wildcard $(dir)/*.c))
+
+DIR_OBJS = $(patsubst %.c,%.o,$(SRC_FILES))
+
+OBJS  = $(addprefix $(OUTPUT)/,$(notdir $(patsubst %.c,%.o,$(SRC_FILES)))) 
 $(info OBJS：$(OBJS))
+
 all: $(TARGET)
-$(TARGET):$(OUTPUT) $(OBJS)
+$(TARGET):$(OBJS)
 	$(CC) $(OBJS) $(CFLAGS) -o $(TARGET)
 $(OBJS):$(DIR_OBJS)
 $(DIR_OBJS):%.o : %.c
 	$(CC) $(CFLAGS) -o $@ -c  $<
-	mv $@ ./debug/ 
+	mv $@ $(OUTPUT)
 
 
 clean:
