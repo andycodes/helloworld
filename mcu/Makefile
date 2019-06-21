@@ -1,6 +1,7 @@
 CC = gcc
-TARGET = mcu.elf
 OUTPUT = ./out
+TARGET = $(OUTPUT)/mcu.elf
+OUT_OBJS_DIR = $(OUTPUT)/obj
 SRC_DIRS = bsp app .
 ## used headers  file path
 INCLUDE_PATH = include
@@ -35,7 +36,7 @@ SRC_FILES = $(foreach dir, $(SRC_DIRS), $(wildcard $(dir)/*.c))
 
 SRC_OBJS = $(patsubst %.c,%.o,$(SRC_FILES))
 
-OUT_OBJS  = $(addprefix $(OUTPUT)/,$(notdir $(patsubst %.c,%.o,$(SRC_FILES)))) 
+OUT_OBJS  = $(addprefix $(OUT_OBJS_DIR)/,$(notdir $(patsubst %.c,%.o,$(SRC_FILES)))) 
 $(info OUT_OBJS：$(OUT_OBJS))
 
 all: $(TARGET)
@@ -44,7 +45,7 @@ $(TARGET):$(OUT_OBJS)
 $(OUT_OBJS):$(SRC_OBJS)
 $(SRC_OBJS):%.o : %.c
 	$(CC) $(CFLAGS) -o $@ -c  $<
-	mv $@ $(OUTPUT)
+	mv $@ $(OUT_OBJS_DIR)
 
 
 clean:
