@@ -1,7 +1,8 @@
-CC = gcc
-OUTPUT = ./out
-TARGET = $(OUTPUT)/mcu.elf
-OUT_OBJS_DIR = $(OUTPUT)/obj
+CC = arm-linux-gnueabi-gcc
+IMAGE = mcu
+OUTPUT_DIR = ./out
+TARGET = $(OUTPUT_DIR)/$(IMAGE).elf
+OUT_OBJS_DIR = $(OUTPUT_DIR)/obj
 SRC_DIRS = bsp app .
 ## used headers  file path
 INCLUDE_PATH = include
@@ -20,7 +21,7 @@ CFLAGS  += $(foreach dir, $(INCLUDE_PATH), -I$(dir))
 ifeq (1, ${DBG_ENABLE}) 
 CFLAGS += -D_DEBUG -O0 -g -DDEBUG=1
 else
-CFLAGS += -O2
+CFLAGS += -O3
 endif
 
 ## get all library path
@@ -43,6 +44,7 @@ $(info OUT_OBJS：$(OUT_OBJS))
 all: $(TARGET)
 $(TARGET):$(OUT_OBJS)
 	$(CC) $(OUT_OBJS) -o $(TARGET)
+	readelf -s $(TARGET) >$(OUTPUT_DIR)/$(IMAGE).sym
 $(OUT_OBJS):$(SRC_OBJS)
 $(SRC_OBJS):%.o : %.c
 	$(CC) $(CFLAGS) -o $@ -c  $<
