@@ -37,6 +37,7 @@ SRC_FILES = $(foreach dir, $(SRC_DIRS), $(wildcard $(dir)/*.c))
 SRC_OBJS = $(patsubst %.c,%.o,$(SRC_FILES))
 
 OUT_OBJS  = $(addprefix $(OUT_OBJS_DIR)/,$(notdir $(patsubst %.c,%.o,$(SRC_FILES)))) 
+##Makefile 调试工具
 $(info OUT_OBJS：$(OUT_OBJS))
 
 all: $(TARGET)
