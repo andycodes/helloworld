@@ -1,5 +1,6 @@
 CC = arm-linux-gnueabi-gcc
 NM = arm-linux-gnueabi-gcc-nm
+OBJDUMP = arm-linux-gnueabi-objdump
 IMAGE = mcu
 OUTPUT_DIR = ./out
 TARGET = $(OUTPUT_DIR)/$(IMAGE).elf
@@ -48,6 +49,7 @@ $(TARGET):$(OUT_OBJS)
 	$(CC) $(OUT_OBJS) -o $(TARGET)	
 	readelf -s $(TARGET) >$(OUTPUT_DIR)/$(IMAGE).sym
 	$(NM) $(TARGET) >$(OUTPUT_DIR)/$(IMAGE).nm
+	$(OBJDUMP) -j .text -l -C -S $(TARGET) >$(OUTPUT_DIR)/$(IMAGE).asm
 $(OUT_OBJS):$(SRC_OBJS)
 $(SRC_OBJS):%.o : %.c
 	$(CC) $(CFLAGS) -o $@ -c  $<
