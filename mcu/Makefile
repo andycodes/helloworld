@@ -1,4 +1,5 @@
 CC = arm-linux-gnueabi-gcc
+NM = arm-linux-gnueabi-gcc-nm
 IMAGE = mcu
 OUTPUT_DIR = ./out
 TARGET = $(OUTPUT_DIR)/$(IMAGE).elf
@@ -43,8 +44,10 @@ $(info OUT_OBJS：$(OUT_OBJS))
 
 all: $(TARGET)
 $(TARGET):$(OUT_OBJS)
-	$(CC) $(OUT_OBJS) -o $(TARGET)
+	#$(CC) $(OUT_OBJS) -T$(IMAGE).lds -o $(TARGET)
+	$(CC) $(OUT_OBJS) -o $(TARGET)	
 	readelf -s $(TARGET) >$(OUTPUT_DIR)/$(IMAGE).sym
+	$(NM) $(TARGET) >$(OUTPUT_DIR)/$(IMAGE).nm
 $(OUT_OBJS):$(SRC_OBJS)
 $(SRC_OBJS):%.o : %.c
 	$(CC) $(CFLAGS) -o $@ -c  $<
