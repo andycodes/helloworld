@@ -10,7 +10,6 @@ void func1(int i)
 
 int main(void)
 {
-	char *str = "hello";
 	static int static_var = 85;
 	static int static_var2;
 	int a = 1;
