@@ -6,7 +6,7 @@ OUTPUT_DIR = ./out
 TARGET = $(OUTPUT_DIR)/$(IMAGE).elf
 OUT_OBJS_DIR = $(OUTPUT_DIR)/obj
 OUT_LIBS_DIR = $(OUTPUT_DIR)/libs
-SRC_DIRS = bsp app .
+SRC_DIRS = bsp app
 LIBS_DIRS = libs
 ## used headers  file path
 INCLUDE_PATH = include
