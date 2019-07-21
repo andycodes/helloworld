@@ -58,5 +58,8 @@ $(LIBS_SRC_OBJS):%.o : %.c
 	$(CC) $(CFLAGS) -o $@ -c  $<
 	mv $@ $(LIBS_OUT_OBJS)
 
+#.PHONY是一个伪目标，可以防止在Makefile中定义的只执行命令的目标和工作目录下的实际文件出现名字冲突，
+#另一种是提交执行makefile时的效率。
+.PHONY:clean
 clean:
 	rm -rf $(OUTPUT_DIR)
