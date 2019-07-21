@@ -1,0 +1,110 @@
+
+main.o：     文件格式 elf32-littlearm
+main.o
+体系结构：armv5t， 标志 0x00000011：
+HAS_RELOC, HAS_SYMS
+起始地址 0x00000000
+私有标志 = 5000000： [Version5 EABI]
+
+节：
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .text         000000f0  00000000  00000000  00000034  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+  1 .data         00000004  00000000  00000000  00000124  2**2
+                  CONTENTS, ALLOC, LOAD, DATA
+  2 .bss          00000004  00000000  00000000  00000128  2**2
+                  ALLOC
+  3 .comment      0000002b  00000000  00000000  00000128  2**0
+                  CONTENTS, READONLY
+  4 .note.GNU-stack 00000000  00000000  00000000  00000153  2**0
+                  CONTENTS, READONLY
+  5 .ARM.attributes 0000002a  00000000  00000000  00000153  2**0
+                  CONTENTS, READONLY
+SYMBOL TABLE:
+00000000 l    df *ABS*	00000000 main.c
+00000000 l    d  .text	00000000 .text
+00000000 l    d  .data	00000000 .data
+00000000 l    d  .bss	00000000 .bss
+00000000 l     O .bss	00000004 m_RandSeed
+00000000 l     O .data	00000004 m_RandSeed1
+00000000 l    d  .note.GNU-stack	00000000 .note.GNU-stack
+00000000 l    d  .comment	00000000 .comment
+00000000 l    d  .ARM.attributes	00000000 .ARM.attributes
+00000000 g     F .text	00000050 Rand
+00000050 g     F .text	0000003c wait
+0000008c g     F .text	00000064 main
+00000000         *UND*	00000000 init_uart
+
+
+
+Disassembly of section .text:
+
+00000000 <Rand>:
+   0:	e52db004 	push	{fp}		; (str fp, [sp, #-4]!)
+   4:	e28db000 	add	fp, sp, #0
+   8:	e59f3034 	ldr	r3, [pc, #52]	; 44 <Rand+0x44>
+   c:	e5933000 	ldr	r3, [r3]
+  10:	e59f2030 	ldr	r2, [pc, #48]	; 48 <Rand+0x48>
+  14:	e0010293 	mul	r1, r3, r2
+  18:	e59f302c 	ldr	r3, [pc, #44]	; 4c <Rand+0x4c>
+  1c:	e0813003 	add	r3, r1, r3
+  20:	e59f201c 	ldr	r2, [pc, #28]	; 44 <Rand+0x44>
+  24:	e5823000 	str	r3, [r2]
+  28:	e59f3014 	ldr	r3, [pc, #20]	; 44 <Rand+0x44>
+  2c:	e5933000 	ldr	r3, [r3]
+  30:	e1a032a3 	lsr	r3, r3, #5
+  34:	e1a00003 	mov	r0, r3
+  38:	e28bd000 	add	sp, fp, #0
+  3c:	e49db004 	pop	{fp}		; (ldr fp, [sp], #4)
+  40:	e12fff1e 	bx	lr
+  44:	00000000 	.word	0x00000000
+			44: R_ARM_ABS32	.bss
+  48:	0019660d 	.word	0x0019660d
+  4c:	3c6ef35f 	.word	0x3c6ef35f
+
+00000050 <wait>:
+  50:	e52db004 	push	{fp}		; (str fp, [sp, #-4]!)
+  54:	e28db000 	add	fp, sp, #0
+  58:	e24dd00c 	sub	sp, sp, #12
+  5c:	e50b0008 	str	r0, [fp, #-8]
+  60:	ea000002 	b	70 <wait+0x20>
+  64:	e51b3008 	ldr	r3, [fp, #-8]
+  68:	e2433001 	sub	r3, r3, #1
+  6c:	e50b3008 	str	r3, [fp, #-8]
+  70:	e51b3008 	ldr	r3, [fp, #-8]
+  74:	e3530000 	cmp	r3, #0
+  78:	1afffff9 	bne	64 <wait+0x14>
+  7c:	e1a00000 	nop			; (mov r0, r0)
+  80:	e28bd000 	add	sp, fp, #0
+  84:	e49db004 	pop	{fp}		; (ldr fp, [sp], #4)
+  88:	e12fff1e 	bx	lr
+
+0000008c <main>:
+  8c:	e92d4800 	push	{fp, lr}
+  90:	e28db004 	add	fp, sp, #4
+  94:	e24dd008 	sub	sp, sp, #8
+  98:	e3a03000 	mov	r3, #0
+  9c:	e50b300c 	str	r3, [fp, #-12]
+  a0:	e3a03000 	mov	r3, #0
+  a4:	e50b3008 	str	r3, [fp, #-8]
+  a8:	ebfffffe 	bl	0 <Rand>
+			a8: R_ARM_CALL	Rand
+  ac:	e59f3030 	ldr	r3, [pc, #48]	; e4 <main+0x58>
+  b0:	e3a02955 	mov	r2, #1392640	; 0x154000
+  b4:	e5832000 	str	r2, [r3]
+  b8:	ebfffffe 	bl	0 <init_uart>
+			b8: R_ARM_CALL	init_uart
+  bc:	e59f0024 	ldr	r0, [pc, #36]	; e8 <main+0x5c>
+  c0:	ebfffffe 	bl	50 <wait>
+			c0: R_ARM_CALL	wait
+  c4:	e51b300c 	ldr	r3, [fp, #-12]
+  c8:	e2832001 	add	r2, r3, #1
+  cc:	e50b200c 	str	r2, [fp, #-12]
+  d0:	e1a03383 	lsl	r3, r3, #7
+  d4:	e59f2010 	ldr	r2, [pc, #16]	; ec <main+0x60>
+  d8:	e1e03003 	mvn	r3, r3
+  dc:	e5823000 	str	r3, [r2]
+  e0:	eafffff5 	b	bc <main+0x30>
+  e4:	56000010 	.word	0x56000010
+  e8:	000186a0 	.word	0x000186a0
+  ec:	56000014 	.word	0x56000014

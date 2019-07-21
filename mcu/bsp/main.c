@@ -1,16 +1,40 @@
-#include<stdio.h>
+#include "s3c2410.h"
+#include "serial.h"
 
-#include "add.h"
-#include "sub.h"
+#define	GPB7_out	(1<<(7*2))
+#define	GPB8_out	(1<<(8*2))
+#define	GPB9_out	(1<<(9*2))
+#define	GPB10_out	(1<<(10*2))
+
+
+static unsigned long m_RandSeed;
+static unsigned long m_RandSeed1 = 0x12345678;
+
+
+/* 随机函数 */
+unsigned long  Rand()
+{
+    return (m_RandSeed=1664525L*m_RandSeed+1013904223L)>>5;
+}
+
+void wait(unsigned long dly)
+{
+	for(; dly > 0; dly--);
+}
 
 int main()
 {
-	int a = 10, b = 12;
-	float x = 1.234f, y = 9.876f;
+	unsigned long i = 0, cnt = 0;
+	unsigned char c;
+	Rand();
+	GPBCON	 = GPB7_out|GPB8_out|GPB9_out|GPB10_out;
 
-	printf("int a+b IS:%d\n", add_int(a, b));
-	printf("int a-b IS:%d\n", sub_int(a, b));
-	printf("float x+y IS:%f\n", add_float(x, y));
+	init_uart( );	//波特率57600，8N1(8个数据位，无校验位，1个停止位)
+
+	while(1){
+		wait(100000);
+		GPBDAT = (~( (i++)<<7));
+	}
 
 	return 0;
 }

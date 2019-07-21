@@ -1,0 +1,7 @@
+
+重定位节 '.rel.text' at offset 0x300 contains 4 entries:
+ 偏移量     信息    类型              符号值      符号名称
+00000044  00000402 R_ARM_ABS32       00000000   .bss
+000000a8  0000101c R_ARM_CALL        00000000   Rand
+000000b8  0000131c R_ARM_CALL        00000000   init_uart
+000000c0  0000111c R_ARM_CALL        00000050   wait

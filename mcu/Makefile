@@ -44,7 +44,7 @@ LIBS_OUT_OBJS  = $(addprefix $(OUT_LIBS_DIR)/,$(notdir $(patsubst %.c,%.o,$(LIBS
 
 all: $(TARGET)
 $(TARGET):$(OUT_OBJS) $(LIBS_OUT_OBJS)
-	#$(CC) $(OUT_OBJS) -T$(IMAGE).lds -o $(TARGET)
+	@#$(CC) $(OUT_OBJS) -T$(IMAGE).lds -o $(TARGET)
 	$(CC) $(OUT_OBJS) -o $(TARGET)	
 	readelf -s $(TARGET) >$(OUTPUT_DIR)/$(IMAGE).sym
 	$(NM) $(TARGET) >$(OUTPUT_DIR)/$(IMAGE).nm
