@@ -59,5 +59,4 @@ $(LIBS_SRC_OBJS):%.o : %.c
 	mv $@ $(LIBS_OUT_OBJS)
 
 clean:
-	-$(RM) $(TARGET)
-	-$(RM) $(OUT_OBJS)
+	rm -rf $(OUTPUT_DIR)
