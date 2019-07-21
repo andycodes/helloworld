@@ -1,17 +1,17 @@
 IMAGE = mcu
 
-ARCH :=arm
+ARCH :=x86
 
 ifeq ($(ARCH),arm) 
 CC = arm-linux-gnueabi-gcc
 NM = arm-linux-gnueabi-gcc-nm
 OBJDUMP = arm-linux-gnueabi-objdump
-SRC_DIRS = bsp app
+SRC_DIRS = arch/arm app
 else
 CC = gcc
 NM = nm
 OBJDUMP = objdump
-SRC_DIRS = x86 app
+SRC_DIRS = arch/x86 app
 endif
 
 LDFLAGS :=
