@@ -1,12 +1,24 @@
+IMAGE = mcu
+
+ARCH :=arm
+
+ifeq ($(ARCH),arm) 
 CC = arm-linux-gnueabi-gcc
 NM = arm-linux-gnueabi-gcc-nm
 OBJDUMP = arm-linux-gnueabi-objdump
-IMAGE = mcu
+SRC_DIRS = bsp app
+else
+CC = gcc
+NM = nm
+OBJDUMP = objdump
+SRC_DIRS = x86 app
+endif
+
+LDFLAGS :=
 OUTPUT_DIR = ./out
 TARGET = $(OUTPUT_DIR)/$(IMAGE).elf
 OUT_OBJS_DIR = $(OUTPUT_DIR)/obj
 OUT_LIBS_DIR = $(OUTPUT_DIR)/libs
-SRC_DIRS = bsp app
 LIBS_DIRS = libs
 ## used headers  file path
 INCLUDE_PATH = include
@@ -54,8 +66,7 @@ $(info OUT_OBJS：$(OUT_OBJS))
 
 all: $(TARGET)
 $(TARGET):$(OUT_OBJS) $(LIBS_OUT_OBJS)
-	@#$(CC) $(OUT_OBJS) -T$(IMAGE).lds -o $(TARGET)
-	$(CC) $(OUT_OBJS) -o $(TARGET)	
+	$(CC) $(OUT_OBJS) $(LDFLAGS) -o $(TARGET)	
 	readelf -s $(TARGET) >$(OUTPUT_DIR)/$(IMAGE).sym
 	$(NM) $(TARGET) >$(OUTPUT_DIR)/$(IMAGE).nm
 	$(OBJDUMP) -j .text -l -C -S $(TARGET) >$(OUTPUT_DIR)/$(IMAGE).asm
