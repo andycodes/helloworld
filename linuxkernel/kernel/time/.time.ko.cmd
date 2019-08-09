@@ -1,1 +1,0 @@
-cmd_/project/andy/helloworld/linuxkernel/kernel/time/time.ko := ld -r -m elf_x86_64  -z max-page-size=0x200000 -T ./scripts/module-common.lds  --build-id  -o /project/andy/helloworld/linuxkernel/kernel/time/time.ko /project/andy/helloworld/linuxkernel/kernel/time/time.o /project/andy/helloworld/linuxkernel/kernel/time/time.mod.o ;  true

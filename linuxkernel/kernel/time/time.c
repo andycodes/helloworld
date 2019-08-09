@@ -7,7 +7,7 @@
 
 void print_time(void)
 {
-	time64_t local_time;
+	time64_t utc_time;
 	struct tm tm;
 
 	/*√Î= jiffies/HZ*/
@@ -17,8 +17,9 @@ void print_time(void)
 	ssleep(1);
 	pr_info("jiffies/HZ %lu\n",jiffies/HZ);
 
-	local_time = ktime_get_real_seconds();
-	time64_to_tm(local_time, -sys_tz.tz_minuteswest * 60, &tm);
+	utc_time = ktime_get_real_seconds();
+	/* -sys_tz.tz_minuteswest * 60:change timezone*/
+	time64_to_tm(utc_time, -sys_tz.tz_minuteswest * 60, &tm);
 	pr_info("%04ld.%02d.%02d %02d:%02d:%02d\n",
 		 tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday,
 		 tm.tm_hour, tm.tm_min, tm.tm_sec);
