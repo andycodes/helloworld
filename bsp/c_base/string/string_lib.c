@@ -1,5 +1,44 @@
 #include <stdio.h>
 #include <string.h>
+#include<stdlib.h>
+
+size_t strlen(const char *str) {
+	const char *s;
+	for (s = str; *s; ++s) {}
+	return(s - str);
+}
+
+
+char* strcpy(char *to, const char *from) {
+assert(to != NULL && from != NULL);
+char *p = to;
+while ((*p++ = *from++) != '\0')
+;
+return to;
+}
+
+/*暴力算法的复杂度是O(m  n)*/
+char *strstr(const char *haystack, const char *needle) {
+// if needle is empty return the full string
+if (!*needle) return (char*) haystack;
+const char *p1;
+const char *p2;
+const char *p1_advance = haystack;
+for (p2 = &needle[1]; *p2; ++p2) {
+p1_advance++; // advance p1_advance M-1 times
+}
+for (p1 = haystack; *p1_advance; p1_advance++) {
+char *p1_old = (char*) p1;
+p2 = needle;
+while (*p1 && *p2 && *p1 == *p2) {
+p1++;
+p2++;
+}
+if (!*p2) return p1_old;
+p1 = p1_old + 1;
+}
+return NULL;
+}
 
 /*
 将一个无符号短整形数从网络字
@@ -107,6 +146,31 @@ void ultostr(char *s, unsigned long data)
     }
 }
 
+#define INT_MAX 2147483647
+int atoi(const char *str) {
+int num = 0;
+int sign = 1;
+const int len = strlen(str);
+int i = 0;
+while (str[i] == ' ' && i < len) i++;
+if (str[i] == '+') i++;
+if (str[i] == '-') {
+sign = -1;
+i++;
+}
+for (; i < len; i++) {
+if (str[i] < '0' || str[i] > '9')
+break;
+if (num > INT_MAX / 10 ||
+(num == INT_MAX / 10 &&
+(str[i] - '0') > INT_MAX % 10)) {
+return sign == -1 ? INT_MIN : INT_MAX;
+}
+num = num * 10 + str[i] - '0';
+}
+return num * sign;
+}
+
 /********************************************
                                 sscanf
 从一个字符串中读进与指定格式相符的数据
@@ -197,10 +261,6 @@ int sscanf_test(void)
  * 数字串赋给其中一个函数参数outputstr所指内存.例如:"abcd12345ed125ss123456789"
  * 的首地址传给inputstr后,函数将返回9,outputstr所指的值为123456789
  */
-#include<stdio.h>
-#include<stdlib.h>
-#include<string.h>
-
 /*abcd12345ed125ss123456789*/
 int continummax(char *outputstr,char *inputstr)
 {
