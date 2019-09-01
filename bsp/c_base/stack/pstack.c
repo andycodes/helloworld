@@ -17,8 +17,8 @@
 	printf(fmt, ##__VA_ARGS__)
 
 struct pstack {
-	unsigned short	top;
-	unsigned short	max_nr_entries;
+	unsigned short	 top;
+	unsigned short	 max_nr_entries;
 	void		*entries[0];
 };
 
@@ -27,13 +27,13 @@ struct pstack *pstack__new(unsigned short max_nr_entries)
 	struct pstack *self = (struct pstack *)malloc((sizeof(*self) +
 				     max_nr_entries * sizeof(void *)));
 	if (self != NULL)
-	    {   
+	    {
 	        memset((void*)self,0,(sizeof(*self) +
 				     max_nr_entries * sizeof(void *)));
-    
+
 		    self->max_nr_entries = max_nr_entries;
 	    }
-    
+
 	return self;
 }
 
@@ -92,7 +92,7 @@ void *pstack__pop(struct pstack *self)
 /* gdb is good*/
 
 void pstack_debugfun(struct pstack *self)
-{    
+{
     int i = 0;
     for(i = 0;i<self->top;i++)
     {
