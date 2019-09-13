@@ -10,11 +10,12 @@ size_t strlen(const char *str) {
 
 
 char* strcpy(char *to, const char *from) {
-assert(to != NULL && from != NULL);
-char *p = to;
-while ((*p++ = *from++) != '\0')
-;
-return to;
+    if(to == NULL && from == NULL) return 0;
+
+    char *p = to;
+    while ((*p++ = *from++) != '\0')
+    ;
+    return to;
 }
 
 
@@ -58,18 +59,18 @@ unsigned long htonl(unsigned long l)
     return ntohl(l);
 }
 
-char *strupr( char *Str )       //将一组字符串里面的小写字母变为大写
+
+/*大小写字母相差32,又因为异或重要特性:不进位加法,
+所以大写字母和(1<<5)异或变成变成小写字母,
+小写字母和(1<<5)异或变成大写字母*/
+char *str_letter_big_little( char *Str )
 {
     char *cp;
     cp = Str;
 
     while (*cp != 0)
     {
-        if (*cp >= 'a' && *cp <= 'z' )
-        {
-            *cp -= 'a' - 'A';
-        }
-
+        *cp^=(1<<5);
         cp++;
     }
 
@@ -125,28 +126,29 @@ void ultostr(char *s, unsigned long data)
 }
 
 #define INT_MAX 2147483647
+#define INT_MIN -2147483648
 int atoi(const char *str) {
-int num = 0;
-int sign = 1;
-const int len = strlen(str);
-int i = 0;
-while (str[i] == ' ' && i < len) i++;
-if (str[i] == '+') i++;
-if (str[i] == '-') {
-sign = -1;
-i++;
-}
-for (; i < len; i++) {
-if (str[i] < '0' || str[i] > '9')
-break;
-if (num > INT_MAX / 10 ||
-(num == INT_MAX / 10 &&
-(str[i] - '0') > INT_MAX % 10)) {
-return sign == -1 ? INT_MIN : INT_MAX;
-}
-num = num * 10 + str[i] - '0';
-}
-return num * sign;
+    int num = 0;
+    int sign = 1;
+    const int len = strlen(str);
+    int i = 0;
+    while (str[i] == ' ' && i < len) i++;
+    if (str[i] == '+') i++;
+    if (str[i] == '-') {
+    sign = -1;
+    i++;
+    }
+    for (; i < len; i++) {
+        if (str[i] < '0' || str[i] > '9')
+        break;
+        if (num > INT_MAX / 10 ||
+        (num == INT_MAX / 10 &&
+        (str[i] - '0') > INT_MAX % 10)) {
+            return sign == -1 ? INT_MIN : INT_MAX;
+        }
+        num = num * 10 + str[i] - '0';
+    }
+    return num * sign;
 }
 
 /********************************************
@@ -310,14 +312,14 @@ int main(int argc, char* argv[])
 {
 	switch(atoi(argv[1]))
 	{
-		case 1:
-			str_to_hex_by_sscanf(argv[2]);
-		break;
-		case 2:
-			str_to_hex_by_strtol(argv[2]);
-		break;
-		default:
-		break;
+            case 1:
+            str_to_hex_by_sscanf(argv[2]);
+            break;
+            case 2:
+            str_to_hex_by_strtol(argv[2]);
+            break;
+            default:
+            break;
 	}
 }
 
