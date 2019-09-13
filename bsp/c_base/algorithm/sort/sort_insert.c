@@ -1,8 +1,6 @@
 /**
  * ÷±Ω”≤Â»Î≈≈–Ú£∫C ”Ô—‘
  *
- * @author skywang
- * @date 2014/03/11
  */
 
 #include <stdio.h>
