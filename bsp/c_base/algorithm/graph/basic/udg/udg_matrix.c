@@ -1,8 +1,6 @@
 /**
  * C: 邻接矩阵图表示的"无向图(Matrix Undirected Graph)"
  *
- * @author skywang
- * @date 2014/04/18
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -58,7 +56,7 @@ Graph* create_graph()
     int v, e;
     int i, p1, p2;
     Graph* pG;
-    
+
     // 输入"顶点数"和"边数"
     printf("input vertex number: ");
     scanf("%d", &v);
@@ -69,7 +67,7 @@ Graph* create_graph()
         printf("input error: invalid parameters!\n");
         return NULL;
     }
-    
+
     if ((pG=(Graph*)malloc(sizeof(Graph))) == NULL )
         return NULL;
     memset(pG, 0, sizeof(Graph));
@@ -115,18 +113,18 @@ Graph* create_example_graph()
 {
     char vexs[] = {'A', 'B', 'C', 'D', 'E', 'F', 'G'};
     char edges[][2] = {
-        {'A', 'C'}, 
-        {'A', 'D'}, 
-        {'A', 'F'}, 
-        {'B', 'C'}, 
-        {'C', 'D'}, 
-        {'E', 'G'}, 
-        {'F', 'G'}}; 
+        {'A', 'C'},
+        {'A', 'D'},
+        {'A', 'F'},
+        {'B', 'C'},
+        {'C', 'D'},
+        {'E', 'G'},
+        {'F', 'G'}};
     int vlen = LENGTH(vexs);
     int elen = LENGTH(edges);
     int i, p1, p2;
     Graph* pG;
-    
+
     // 输入"顶点数"和"边数"
     if ((pG=(Graph*)malloc(sizeof(Graph))) == NULL )
         return NULL;
