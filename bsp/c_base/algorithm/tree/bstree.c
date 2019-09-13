@@ -1,8 +1,6 @@
 /**
  * 二叉搜索树(C语言): C语言实现的二叉搜索树。
  *
- * @author skywang
- * @date 2013/11/07
  */
 
 #include <stdio.h>
@@ -79,7 +77,7 @@ Node* iterative_bstree_search(BSTree x, Type key)
 	return x;
 }
 
-/* 
+/*
  * 查找最小结点：返回tree为根结点的二叉树的最小结点。
  */
 Node* bstree_minimum(BSTree tree)
@@ -91,8 +89,8 @@ Node* bstree_minimum(BSTree tree)
 		tree = tree->left;
 	return tree;
 }
- 
-/* 
+
+/*
  * 查找最大结点：返回tree为根结点的二叉树的最大结点。
  */
 Node* bstree_maximum(BSTree tree)
@@ -105,7 +103,7 @@ Node* bstree_maximum(BSTree tree)
 	return tree;
 }
 
-/* 
+/*
  * 找结点(x)的后继结点。即，查找"二叉树中数据值大于该结点"的"最小结点"。
  */
 Node* bstree_successor(Node *x)
@@ -126,8 +124,8 @@ Node* bstree_successor(Node *x)
 
 	return y;
 }
- 
-/* 
+
+/*
  * 找结点(x)的前驱结点。即，查找"二叉树中数据值小于该结点"的"最大结点"。
  */
 Node* bstree_predecessor(Node *x)
@@ -172,7 +170,7 @@ static Node* create_bstree_node(Type key, Node *parent, Node *left, Node* right)
 	return p;
 }
 
-/* 
+/*
  * 将结点插入到二叉树中
  *
  * 参数说明：
@@ -207,7 +205,7 @@ static Node* bstree_insert(BSTree tree, Node *z)
 	return tree;
 }
 
-/* 
+/*
  * 新建结点(key)，并将其插入到二叉树中
  *
  * 参数说明：
@@ -227,7 +225,7 @@ Node* insert_bstree(BSTree tree, Type key)
 	return bstree_insert(tree, z);
 }
 
-/* 
+/*
  * 删除结点(z)，并返回根节点
  *
  * 参数说明：
@@ -261,7 +259,7 @@ static Node* bstree_delete(BSTree tree, Node *z)
 	else
 		y->parent->right = x;
 
-	if (y != z) 
+	if (y != z)
 		z->key = y->key;
 
 	if (y!=NULL)
@@ -270,7 +268,7 @@ static Node* bstree_delete(BSTree tree, Node *z)
 	return tree;
 }
 
-/* 
+/*
  * 删除结点(key为节点的键值)，并返回根节点
  *
  * 参数说明：
@@ -281,7 +279,7 @@ static Node* bstree_delete(BSTree tree, Node *z)
  */
 Node* delete_bstree(BSTree tree, Type key)
 {
-	Node *z, *node; 
+	Node *z, *node;
 
 	if ((z = bstree_search(tree, key)) != NULL)
 		tree = bstree_delete(tree, z);
@@ -309,7 +307,7 @@ void destroy_bstree(BSTree tree)
  * 打印"二叉树"
  *
  * tree       -- 二叉树的节点
- * key        -- 节点的键值 
+ * key        -- 节点的键值
  * direction  --  0，表示该节点是根节点;
  *               -1，表示该节点是它的父结点的左孩子;
  *                1，表示该节点是它的父结点的右孩子。
