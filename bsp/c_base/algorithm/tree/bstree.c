@@ -10,6 +10,7 @@
 
 /*
  * 前序遍历"二叉树"
+ 前序遍历 - 根->左->右
  */
 void preorder_bstree(BSTree tree)
 {
@@ -23,6 +24,7 @@ void preorder_bstree(BSTree tree)
 
 /*
  * 中序遍历"二叉树"
+ 中序遍历 - 左->根->右
  */
 void inorder_bstree(BSTree tree)
 {
@@ -36,6 +38,7 @@ void inorder_bstree(BSTree tree)
 
 /*
  * 后序遍历"二叉树"
+ 后序遍历 - 左->右->根
  */
 void postorder_bstree(BSTree tree)
 {
