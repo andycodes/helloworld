@@ -99,26 +99,26 @@ void display(link *p){
 
 int main() {
     //初始化链表（1，2，3，4）
-    printf("初始化链表为：\n");
+    //printf("初始化链表为：\n");
     link *p=initLink();
     display(p);
 
-    printf("在第4的位置插入元素5：\n");
+    //printf("在第4的位置插入元素5：\n");
     p=insertElem(p, 5, 4);
     display(p);
 
-    printf("删除元素3:\n");
+    //printf("删除元素3:\n");
     p=delElem(p, 3);
     display(p);
 
-    printf("查找元素2的位置为：\n");
+    //printf("查找元素2的位置为：\n");
     int address=selectElem(p, 2);
     if (address==-1) {
-        printf("没有该元素");
+        printf("not find\n");
     }else{
-        printf("元素2的位置为：%d\n",address);
+        printf("num 2 is at address %d\n",address);
     }
-    printf("更改第3的位置的数据为7:\n");
+    //printf("更改第3的位置的数据为7:\n");
     p=amendElem(p, 3, 7);
     display(p);
 
