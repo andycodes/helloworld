@@ -10,8 +10,6 @@ typedef struct Link{
 link * initLink();
 //链表插入的函数，p是链表，elem是插入的结点的数据域，add是插入的位置
 link * insertElem(link * p,int elem,int add);
-//删除结点的函数，p代表操作链表，add代表删除节点的位置
-link * delElem(link * p,int add);
 //查找结点的函数，elem为目标结点的数据域的值
 int selectElem(link * p,int elem);
 //更新结点的函数，newElem为新的数据域的值
@@ -49,6 +47,10 @@ link * insertElem(link * p,int elem,int add){
     temp->next=c;
     return  p;
 }
+
+/*
+删除结点的函数，p代表操作链表，add代表删除节点的位置
+*/
 link * delElem(link * p,int add){
     link * temp=p;
     //遍历到被删除结点的上一个结点
@@ -60,6 +62,8 @@ link * delElem(link * p,int add){
     free(del);//手动释放该结点，防止内存泄漏
     return p;
 }
+
+
 int selectElem(link * p,int elem){
     link * t=p;
     int i=1;
