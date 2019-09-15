@@ -64,6 +64,34 @@ link * delElem(link * p,int add){
 }
 
 
+//考虑删除节点为尾节点
+void delete_node(link * head,link *p_cur_node)
+{
+    if(p_cur_node != NULL)
+    {
+        if(p_cur_node->next != NULL)
+        {
+            link * pTemp = p_cur_node->next;
+            p_cur_node->elem = pTemp->elem;
+            p_cur_node->next = pTemp->next;
+        }
+        else
+        {
+            link * temp = head;
+            while(temp != NULL)
+            {
+                if(temp->next == p_cur_node)
+                {
+                    free(p_cur_node);
+                    temp->next = NULL;
+                }
+                temp = temp->next;
+            }
+        }
+    }
+}
+
+
 int selectElem(link * p,int elem){
     link * t=p;
     int i=1;
