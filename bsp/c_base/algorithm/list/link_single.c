@@ -7,7 +7,7 @@ typedef struct Link{
     struct Link *next;
 }link;
 
-link * initLink();
+
 //链表插入的函数，p是链表，elem是插入的结点的数据域，add是插入的位置
 link * insertElem(link * p,int elem,int add);
 //查找结点的函数，elem为目标结点的数据域的值
@@ -70,10 +70,11 @@ void delete_node(link * head,link *p_cur_node)
     if(p_cur_node != NULL)
     {
         if(p_cur_node->next != NULL)
-        {
+        {//不考虑删除节点为尾节点
             link * pTemp = p_cur_node->next;
             p_cur_node->elem = pTemp->elem;
             p_cur_node->next = pTemp->next;
+            free(pTemp);
         }
         else
         {
@@ -91,6 +92,41 @@ void delete_node(link * head,link *p_cur_node)
     }
 }
 
+
+link *delete_node1(link *head,int key)
+{
+	link *node1=head;
+	link *node2=NULL;
+	if (head==NULL)
+	{
+		return NULL;
+	}
+	else
+	{
+		if (node1->elem==key)
+		{
+			head=head->next;
+			free(node1);
+			return head;
+		}
+		else
+		{
+			while (node1!=NULL)
+			{
+				node2=node1;
+				node2=node2->next;
+				if (node2->elem==key)
+				{
+					node1->next=node2->next;
+					free(node2);
+					break;
+				}
+				node1=node1->next;
+			}
+			return head;
+		}
+    }
+}
 
 int selectElem(link * p,int elem){
     link * t=p;
@@ -148,6 +184,10 @@ int main() {
     }
     //printf("更改第3的位置的数据为7:\n");
     p=amendElem(p, 3, 7);
+    display(p);
+
+     p = delete_node1(p,7);
+     p = delete_node1(p,4);
     display(p);
 
     return 0;
