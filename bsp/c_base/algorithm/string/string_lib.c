@@ -2,6 +2,9 @@
 #include <string.h>
 #include<stdlib.h>
 
+//The strchr() function returns a pointer to the first occurrence of the character c in the string s.
+
+
 size_t strlen(const char *str) {
 	const char *s;
 	for (s = str; *s; ++s) {}
