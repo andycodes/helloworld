@@ -34,13 +34,13 @@ void display(struct node *pHead)
 //µÝ¹éÊµÏÖ
 struct node * reverse(struct node *pHead)
 {
-    if (pHead == NULL || pHead -> pNext == NULL)
+    if (pHead == NULL || pHead->pNext == NULL)
     {
         return pHead;
     }
-    struct node *p = pHead -> pNext;
+    struct node *p = pHead->pNext;
     struct node *pNewHead =  reverse(p);
-    p -> pNext = pHead;
+    p->pNext = pHead;
     pHead ->pNext = NULL;
     return pNewHead;
 }
