@@ -69,7 +69,8 @@ void heap_sort_asc(int a[], int n)
 /*
  * (最小)堆的向下调整算法
  *
- * 注：数组实现的堆中，第N个节点的左孩子的索引值是(2N+1)，右孩子的索引是(2N+2)。
+ * 注：数组实现的堆中，第N个节点的左孩子的索引值是(2N+1)，
+ 右孩子的索引是(2N+2)。
  *     其中，N为数组下标索引值，如数组中第1个数对应的N为0。
  *
  * 参数说明：
@@ -135,8 +136,8 @@ void main()
 		printf("%d ", a[i]);
 	printf("\n");
 
-	heap_sort_asc(a, ilen);			// 升序排列
-	//heap_sort_desc(a, ilen);		// 降序排列
+	//heap_sort_asc(a, ilen);			// 升序排列
+	heap_sort_desc(a, ilen);		// 降序排列
 
 	printf("after  sort:");
 	for (i=0; i<ilen; i++)
