@@ -8,14 +8,6 @@ typedef struct Link{
 }link;
 
 
-//链表插入的函数，p是链表，elem是插入的结点的数据域，add是插入的位置
-link * insertElem(link * p,int elem,int add);
-//查找结点的函数，elem为目标结点的数据域的值
-int selectElem(link * p,int elem);
-//更新结点的函数，newElem为新的数据域的值
-link *amendElem(link * p,int add,int newElem);
-void display(link *p);
-
 link * initLink(){
     link * p=(link*)malloc(sizeof(link));//创建一个头结点
     link * temp=p;//声明一个指针指向头结点，用于遍历链表
@@ -160,36 +152,4 @@ void display(link *p){
     printf("\n");
 }
 
-
-int main() {
-    //初始化链表（1，2，3，4）
-    //printf("初始化链表为：\n");
-    link *p=initLink();
-    display(p);
-
-    //printf("在第4的位置插入元素5：\n");
-    p=insertElem(p, 5, 4);
-    display(p);
-
-    //printf("删除元素3:\n");
-    p=delElem(p, 3);
-    display(p);
-
-    //printf("查找元素2的位置为：\n");
-    int address=selectElem(p, 2);
-    if (address==-1) {
-        printf("not find\n");
-    }else{
-        printf("num 2 is at address %d\n",address);
-    }
-    //printf("更改第3的位置的数据为7:\n");
-    p=amendElem(p, 3, 7);
-    display(p);
-
-     p = delete_node1(p,7);
-     p = delete_node1(p,4);
-    display(p);
-
-    return 0;
-}
 

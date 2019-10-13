@@ -57,32 +57,6 @@ struct ListNode* mergeTwoLists(struct ListNode* l1, struct ListNode* l2){
 
 
 /*
-给定一个排序链表，删除所有重复的元素，使得每个元素只出现一次。
-
-示例 1:
-
-输入: 1->1->2
-输出: 1->2
-示例 2:
-
-输入: 1->1->2->3->3
-输出: 1->2->3
-
-*/
-struct ListNode* deleteDuplicates(struct ListNode* head) {
-    struct ListNode* current = head;
-    while (current != NULL && current->next != NULL) {
-        if (current->next->val == current->val) {
-            current->next = current->next->next;
-        } else {
-            current = current->next;
-        }
-    }
-    return head;
-}
-
-
-/*
 给定一个链表，判断链表中是否有环。
 
 为了表示给定链表中的环，
@@ -215,6 +189,136 @@ void myLinkedListFree(MyLinkedList* obj) {
 
  * myLinkedListFree(obj);
 */
+
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     struct ListNode *next;
+ * };
+ */
+
+/*
+请判断一个链表是否为回文链表。
+
+示例 1:
+
+输入: 1->2
+输出: false
+示例 2:
+
+输入: 1->2->2->1
+输出: true
+*/
+bool isPalindrome(struct ListNode* head){
+    // 特殊情况的排除
+    if(head == NULL || head->next == NULL)
+        return true;
+    if(head->next->next == NULL){
+        if(head->val == head->next->val)
+            return true;
+        else
+            return false;
+    }
+
+    struct ListNode *fastp, *slowp;
+    fastp = head->next->next;
+    slowp = head->next;
+
+    // 快慢指针找到尾部及中部位置
+/*
+我们可以指定一个快指针每次以两个步长后移，
+慢指针每次以一个步长后移，这样当快指针走到尾部时，
+慢指针刚好走到中部
+*/
+    while(fastp && fastp->next != NULL){
+        fastp = fastp->next->next;
+        slowp = slowp->next;
+    }
+
+//而后我们可以翻转中部之前的链表，以便于后续比较。
+    // 翻转中部前链表序列
+    struct ListNode *prep, *nextp;
+    prep = nextp = NULL;
+    while(head != slowp){
+        nextp = head->next;
+        head->next = prep;
+        prep = head;
+        head = nextp;
+    }
+
+    // 若结点个数为奇数，则舍弃中间结点
+    if(fastp != NULL && fastp->next == NULL)
+        slowp = slowp->next;
+
+    // 回文匹配比较
+    while(prep != NULL){
+        if(prep->val != slowp->val)
+            return false;
+        prep = prep->next;
+        slowp = slowp->next;
+    }
+    return true;
+}
+
+
+struct ListNode* removeElements(struct ListNode* head, int val){
+       //删除值相同的头结点后，可能新的头结点也值相等，用循环解决
+        while(head!=NULL&&head->val==val){
+            head=head->next;
+        }
+        if(head==NULL)
+            return head;
+        struct ListNode *prev=head;
+        //确保当前结点后还有结点
+        while(prev->next!=NULL){
+            if(prev->next->val==val){
+                prev->next=prev->next->next;
+            }else{
+                prev=prev->next;
+            }
+        }
+        return head;
+
+}
+
+
+/*
+给定一个排序链表，删除所有重复的元素，使得每个元素只出现一次。
+
+示例 1:
+
+输入: 1->1->2
+输出: 1->2
+示例 2:
+
+输入: 1->1->2->3->3
+输出: 1->2->3
+
+*/
+struct ListNode* deleteDuplicates(struct ListNode* head) {
+    struct ListNode* current = head;
+    while (current != NULL && current->next != NULL) {
+        if (current->next->val == current->val) {
+            current->next = current->next->next;
+        } else {
+            current = current->next;
+        }
+    }
+    return head;
+}
+
+//编写一个程序，找到两个单链表相交的起始节点。
+struct ListNode *getIntersectionNode(struct ListNode *headA, struct ListNode *headB) {
+    if (headA == NULL || headB == NULL) return NULL;
+    struct ListNode *pA = headA, *pB = headB;
+    while (pA != pB) {
+        pA = pA == NULL ? headB : pA->next;
+        pB = pB == NULL ? headA : pB->next;
+    }
+    return pA;
+}
+
 
 int main()
 {
