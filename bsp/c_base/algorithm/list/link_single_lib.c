@@ -4,6 +4,29 @@ typedef  struct ListNode {
 }MyLinkedList;
 
 
+
+void display(struct node *pHead)
+{
+    while( pHead != NULL)
+    {
+        printf("%d ", pHead->val);
+        pHead = pHead->pNext;
+    }
+    printf("\n");
+}
+
+
+void display2(MyLinkedList*obj){
+    link* temp=obj;//将temp指针重新指向头结点
+    //只要temp指针指向的结点的next不是Null，就执行输出语句。
+    while (temp->next) {
+        temp=temp->next;
+        printf("%d",temp->val);
+    }
+    printf("\n");
+}
+
+
 /*
 将两个有序链表合并为一个新的有序链表并返回。新链表是通过拼接给定的两个链表的所有节点组成的。?
 
@@ -82,14 +105,14 @@ bool hasCycle(struct ListNode *head) {
 
 
 /** Initialize your data structure here. */
-MyLinkedList* myLinkedListCreate() {
+MyLinkedList* link_single_init_head() {
     MyLinkedList* head = malloc(sizeof(MyLinkedList));
     head->next = NULL;
     return head;
 }
 
 /** Get the value of the index-th node in the linked list. If the index is invalid, return -1. */
-int myLinkedListGet(MyLinkedList* obj, int index) {
+int link_single_get_val(MyLinkedList* obj, int index) {
     int i = 0;
     MyLinkedList* entry = obj;
 
@@ -102,8 +125,36 @@ int myLinkedListGet(MyLinkedList* obj, int index) {
     return -1;
 }
 
-/** Add a node of value val before the first element of the linked list. After the insertion, the new node will be the first node of the linked list. */
-void myLinkedListAddAtHead(MyLinkedList* obj, int val) {
+
+MyLinkedList*link_single_amend_value(MyLinkedList* obj,int index,int newElem){
+    MyLinkedList* temp=obj;
+    temp=temp->next;//tamp指向首元结点
+    //temp指向被删除结点
+    for (int i=1; i<index; i++) {
+        temp=temp->next;
+    }
+    temp->val=newElem;
+    return obj;
+}
+
+
+int link_single_get_index(MyLinkedList* obj,int val){
+    MyLinkedList* t=obj;
+    int i=1;
+    while (t->next) {
+        t=t->next;
+        if (t->val==val) {
+            return i;
+        }
+        i++;
+    }
+    return -1;
+}
+
+
+/** Add a node of value val before the first element of the linked list.
+After the insertion, the new node will be the first node of the linked list. */
+void link_single_push_new_head(MyLinkedList* obj, int val) {
     MyLinkedList* tmp = obj;
 
     MyLinkedList* newNode = (MyLinkedList*)malloc(sizeof(MyLinkedList));
@@ -114,8 +165,9 @@ void myLinkedListAddAtHead(MyLinkedList* obj, int val) {
     obj->next = newNode;
 }
 
+
 /** Append a node of value val to the last element of the linked list. */
-void myLinkedListAddAtTail(MyLinkedList* obj, int val) {
+void link_single_push_new_tail(MyLinkedList* obj, int val) {
     MyLinkedList* tmp = obj;
     MyLinkedList* newNode = (MyLinkedList*)malloc(sizeof(MyLinkedList));
      newNode->val = val;
@@ -130,15 +182,17 @@ void myLinkedListAddAtTail(MyLinkedList* obj, int val) {
     }
 }
 
+
 /** Add a node of value val before the index-th node in the linked list.
 If index equals to the length of linked list,
 the node will be appended to the end of linked list.
 If index is greater than the length, the node will not be inserted. */
-void myLinkedListAddAtIndex(MyLinkedList* obj, int index, int val) {
+void link_single_insert_new_node_before_index
+    (MyLinkedList* obj, int index, int val) {
     int i = 0;
 
     if(index < 0){
-        myLinkedListAddAtHead(obj,val);
+        link_single_push_new_head(obj,val);
         return;
     }
 
@@ -146,22 +200,72 @@ void myLinkedListAddAtIndex(MyLinkedList* obj, int index, int val) {
     newNode->val = val;
 
     MyLinkedList* entry = obj;
-
     while(entry !=  NULL){
             if(i++ == index){
-                newNode->next = entry->next;
-                entry->next = newNode;
+                newNode->next = entry->next;//?
+                entry->next = newNode;//?
                 break;
             }
             entry = entry->next;
     }
 }
 
+
+void  link_single_insert_new_node_before_index_2
+    (MyLinkedList* obj,int index,int val){
+    MyLinkedList* temp=obj;//创建临时结点temp
+    //首先找到要插入位置的上一个结点
+    for (int i=1; i<index; i++) {
+        if (temp==NULL) {
+            printf("插入位置无效\n");
+            return;
+        }
+        temp=temp->next;
+    }
+    //创建插入结点c
+    MyLinkedList* c=(link*)malloc(sizeof(link));
+    c->val=val;
+    //向链表中插入结点
+    c->next=temp->next;
+    temp->next=c;
+    return ;
+}
+
+
+//考虑删除节点为尾节点
+void link_single_del_node(MyLinkedList* head,MyLinkedList*p_cur_node)
+{
+    if(p_cur_node != NULL)
+    {
+        if(p_cur_node->next != NULL)
+        {//不考虑删除节点为尾节点
+            MyLinkedList* pTemp = p_cur_node->next;
+            p_cur_node->val = pTemp->val;
+            p_cur_node->next = pTemp->next;
+            free(pTemp);
+        }
+        else
+        {
+            MyLinkedList* temp = head;
+            while(temp != NULL)
+            {
+                if(temp->next == p_cur_node)
+                {
+                    free(p_cur_node);
+                    temp->next = NULL;
+                }
+                temp = temp->next;
+            }
+        }
+    }
+}
+
+
 /** Delete the index-th node in the linked list, if the index is valid. */
-void myLinkedListDeleteAtIndex(MyLinkedList* obj, int index) {
+void link_single_del_node_by_index(MyLinkedList* obj, int index) {
         int i = 0;
         MyLinkedList* list = obj;
-        while(list->next!=NULL){
+        while(list->next != NULL){
             if(i++ == index){
                 list->next = list->next->next;
                 break;
@@ -170,22 +274,93 @@ void myLinkedListDeleteAtIndex(MyLinkedList* obj, int index) {
         }
 }
 
+void link_single_del_node_by_index_2(MyLinkedList* obj,int index){
+    MyLinkedList* temp=obj;
+    //遍历到被删除结点的上一个结点
+    for (int i=1; i<index; i++) {
+        temp=temp->next;
+    }
+    MyLinkedList* del=temp->next;//单独设置一个指针指向被删除结点，以防丢失
+    temp->next=temp->next->next;//删除某个结点的方法就是更改前一个结点的指针域
+    free(del);//手动释放该结点，防止内存泄漏
+    return ;
+}
+
+
+void link_single_del_node_by_key(MyLinkedList*head,int key)
+{
+	MyLinkedList*node1=head;
+	MyLinkedList*node2=NULL;
+	if (head==NULL)
+	{
+		return;
+	}
+	else
+	{
+		if (node1->val==key)
+		{
+			head=head->next;
+			free(node1);
+			return;
+		}
+		else
+		{
+			while (node1!=NULL)
+			{
+				node2=node1;
+				node2=node2->next;
+				if (node2->val==key)
+				{
+					node1->next=node2->next;
+					free(node2);
+					break;
+				}
+				node1=node1->next;
+			}
+			return;
+		}
+    }
+}
+
+
+struct ListNode* link_single_del_node_by_key_2(struct ListNode* head, int val){
+       //删除值相同的头结点后，可能新的头结点也值相等，用循环解决
+        while(head!=NULL&&head->val==val){
+            head=head->next;
+        }
+        if(head==NULL)
+            return head;
+        struct ListNode *prev=head;
+        //确保当前结点后还有结点
+        while(prev->next!=NULL){
+            if(prev->next->val==val){
+                prev->next=prev->next->next;
+            }else{
+                prev=prev->next;
+            }
+        }
+        return head;
+
+}
+
+
+
 void myLinkedListFree(MyLinkedList* obj) {
 
 }
 
 /**
  * Your MyLinkedList struct will be instantiated and called as such:
- * MyLinkedList* obj = myLinkedListCreate();
- * int param_1 = myLinkedListGet(obj, index);
+ * MyLinkedList* obj = link_single_init_head();
+ * int param_1 = link_single_get_val(obj, index);
 
- * myLinkedListAddAtHead(obj, val);
+ * link_single_push_new_head(obj, val);
 
- * myLinkedListAddAtTail(obj, val);
+ * link_single_push_new_tail(obj, val);
 
- * myLinkedListAddAtIndex(obj, index, val);
+ * link_single_insert_new_node_before_index(obj, index, val);
 
- * myLinkedListDeleteAtIndex(obj, index);
+ * link_single_del_node_by_index(obj, index);
 
  * myLinkedListFree(obj);
 */
@@ -262,27 +437,6 @@ bool isPalindrome(struct ListNode* head){
 }
 
 
-struct ListNode* removeElements(struct ListNode* head, int val){
-       //删除值相同的头结点后，可能新的头结点也值相等，用循环解决
-        while(head!=NULL&&head->val==val){
-            head=head->next;
-        }
-        if(head==NULL)
-            return head;
-        struct ListNode *prev=head;
-        //确保当前结点后还有结点
-        while(prev->next!=NULL){
-            if(prev->next->val==val){
-                prev->next=prev->next->next;
-            }else{
-                prev=prev->next;
-            }
-        }
-        return head;
-
-}
-
-
 /*
 给定一个排序链表，删除所有重复的元素，使得每个元素只出现一次。
 
@@ -320,17 +474,85 @@ struct ListNode *getIntersectionNode(struct ListNode *headA, struct ListNode *he
 }
 
 
+//递归实现
+struct node * reverse(struct node *pHead)
+{
+    if (pHead == NULL || pHead->pNext == NULL)
+    {
+        return pHead;
+    }
+    struct node *p = pHead->pNext;
+    struct node *pNewHead =  reverse(p);
+    p->pNext = pHead;
+    pHead ->pNext = NULL;
+    return pNewHead;
+}
+
+
+//尾递归实现
+struct node * do_reverse_tail(struct node *pHead, struct node *pNewHead)
+{
+    if(pHead == NULL)
+    {
+        return pNewHead;
+    }
+    else
+    {
+        struct node *pNext = pHead->pNext;
+        pHead->pNext = pNewHead;
+        return do_reverse_tail(pNext, pHead);
+    }
+}
+
+struct node * reverse_tail(struct node *pHead)
+{
+    return do_reverse_tail(pHead, NULL);
+}
+
+//迭代实现
+struct node * reverse_it(struct node *pHead)
+{
+    struct node *pNewHead = NULL;
+    struct node *pPrev = NULL;
+    struct node *pCur = pHead;
+    while(pCur != NULL)
+    {
+        struct node *pTmp = pCur->pNext;
+        if(pTmp == NULL)
+        {
+            pNewHead = pCur;
+        }
+        pCur->pNext = pPrev;
+        pPrev = pCur;
+        pCur = pTmp;
+    }
+
+    return pNewHead;
+}
+
+
+struct ListNode* middleNode(struct ListNode* head){
+        struct ListNode* slow = head;
+        struct ListNode* fast = head;
+        while (fast != NULL && fast->next != NULL) {
+            slow = slow->next;
+            fast = fast->next->next;
+        }
+        return slow;
+}
+
+
 int main()
 {
-    MyLinkedList* obj = myLinkedListCreate();
+    MyLinkedList* obj = link_single_init_head();
 
-    myLinkedListAddAtHead(obj,1);
-    myLinkedListAddAtTail(obj,3);
-    myLinkedListAddAtIndex(obj,1,2);
-    int ret = myLinkedListGet(obj,1);
+    link_single_push_new_head(obj,1);
+    link_single_push_new_tail(obj,3);
+    link_single_insert_new_node_before_index(obj,1,2);
+    int ret = link_single_get_val(obj,1);
     printf("%d\n",ret);
-    myLinkedListDeleteAtIndex(obj,1);
-    ret = myLinkedListGet(obj,1);
+    link_single_del_node_by_index(obj,1);
+    ret = link_single_get_val(obj,1);
     printf("%d\n",ret);
 }
 
