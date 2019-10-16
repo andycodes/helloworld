@@ -4,6 +4,10 @@
 
 //The strchr() function returns a pointer to the first occurrence of the character c in the string s.
 
+
+#define isLetter(a)  ((((a)>='a')&&((a)<='z')) || (((a)>='A')&&((a)<='Z')))
+
+
 /*
 CÓïÑÔstrrev()º¯Êý£º×Ö·û´®ÄæÖÃ£¨µ¹Ðò¡¢ÄæÐò£©
 */

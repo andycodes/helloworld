@@ -21,7 +21,7 @@ void Swap(int *lhs, int *rhs)
 /*       begin --查找一个排列的开始位置
 /*       end   --查找一个排列的结束位置，当begin=end时，表明完成一个排列
 /************************************************************************/
-void FullPermutation(int source[], int begin, int end)
+void numbers_FullPermutation(int source[], int begin, int end)
 {
 	int i;
 
@@ -43,7 +43,7 @@ void FullPermutation(int source[], int begin, int end)
 			}
 
 			// 递归排列剩余的从begin+1到end的元素
-			FullPermutation(source, begin + 1, end);
+			numbers_FullPermutation(source, begin + 1, end);
 
 			if (begin != i)
 			{
@@ -53,7 +53,7 @@ void FullPermutation(int source[], int begin, int end)
 	}
 }
 
-int main()
+int test_numbers_FullPermutation(void)
 {
 	int source[30];
 	int i, count;
@@ -66,7 +66,47 @@ int main()
 		source[i] = i + 1;
 	}
 
-	FullPermutation(source, 0, count);
+	numbers_FullPermutation(source, 0, count);
 
 	return 0;
 }
+
+char **result;
+char out[10240][10240];
+int j = 0;
+void dfs(char * S, int i)
+{
+	if(i == strlen(S)) {
+		strcpy(out[j++],S);
+		return;
+	}
+
+	dfs(S,i+1);
+
+	if(S[i] < '0' || S[i] > '9'){
+		S[i] ^= (1<<5);
+		dfs(S,i+1);
+	}
+}
+
+
+
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+char ** letterCasePermutation(char * S, int* returnSize){
+	int i;
+	j = 0;
+	memset((void*)out,'\0',sizeof(out));
+	dfs(S,0);
+	*returnSize = j;
+	result = (char**)malloc(j* sizeof(char *));
+
+	for(i = 0; i<j;i++){
+		result[i] = (char*)malloc(10240);
+		strcpy(result[i],out[i]);
+	}
+
+	return result;
+}
+
