@@ -16,15 +16,15 @@ static struct task_struct * task_two = NULL;
 int thread_one(void *p)
 {
 	unsigned long timeleft;
-	printk(KERN_ALERT"DRIVER:I AM WAITING FOR SALEMAN CLOSED THE DOOR\n");
+	pr_err("DRIVER:I AM WAITING FOR SALEMAN CLOSED THE DOOR\n");
 	reinit_completion(&my_completion1);
 	timeleft = wait_for_completion_timeout(&my_completion1,msecs_to_jiffies(200));
 	if (!timeleft) {
 		pr_err("[%s]wait_for_completion_timeout\n", __func__);
 	}
 
-	printk(KERN_ALERT"DRIVER:OK , LET'S GO!NOW~\n");
-	printk(KERN_ALERT"DRIVER:ARRIVE THE STATION.STOPED CAR!\n");
+	pr_err("DRIVER:OK , LET'S GO!NOW~\n");
+	pr_err("DRIVER:ARRIVE THE STATION.STOPED CAR!\n");
 	complete(&my_completion2);//唤醒完成量completion2
 
 	return 0;
@@ -34,12 +34,12 @@ int thread_one(void *p)
 {
 	if (!completion_done(&my_completion1)) {
 		complete(&my_completion1);
-		printk(KERN_ALERT"SALEMAN:YOU CAN GO NOW!\n");
+		pr_err("SALEMAN:YOU CAN GO NOW!\n");
 	}
 
 	reinit_completion(&my_completion2);
 	wait_for_completion(&my_completion2);//等待完成量completion2
-	printk(KERN_ALERT"SALEMAN:OK,THE DOOR BE OPENED!\n");
+	pr_err("SALEMAN:OK,THE DOOR BE OPENED!\n");
 	return 0;
  }
 
