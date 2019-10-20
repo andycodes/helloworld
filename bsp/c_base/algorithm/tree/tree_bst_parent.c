@@ -1,11 +1,60 @@
 /**
- * 二叉搜索树(C语言): C语言实现的二叉搜索树。
- *
+二叉查找树(Binary Search Tree)，
+(又:二叉搜索树，二叉排序树)它或者是一棵空树，
+或者是具有下列性质的二叉树:
+若它的左子树不空，
+则左子树上所有结点的值均小于它的根结点的值;
+若它的右子树不空，
+则右子树上所有结点的值均大于它的根结点的值;
+它的左、右子树也分别为二叉排序树。
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include "bstree.h"
+
+typedef int Type;
+
+typedef struct BSTreeNode{
+	Type   key;					// 关键字(键值)
+	struct BSTreeNode *left;	// 左孩子
+	struct BSTreeNode *right;	// 右孩子
+	struct BSTreeNode *parent;	// 父结点
+}Node, *BSTree;
+
+// 前序遍历"二叉树"
+void preorder_bstree(BSTree tree);
+// 中序遍历"二叉树"
+void inorder_bstree(BSTree tree);
+// 后序遍历"二叉树"
+void postorder_bstree(BSTree tree);
+
+// (递归实现)查找"二叉树x"中键值为key的节点
+Node* bstree_search(BSTree x, Type key);
+// (非递归实现)查找"二叉树x"中键值为key的节点
+Node* iterative_bstree_search(BSTree x, Type key);
+
+// 查找最小结点：返回tree为根结点的二叉树的最小结点。
+Node* bstree_minimum(BSTree tree);
+// 查找最大结点：返回tree为根结点的二叉树的最大结点。
+Node* bstree_maximum(BSTree tree);
+
+// 找结点(x)的后继结点。即，查找"二叉树中数据值大于该结点"的"最小结点"。
+Node* bstree_successor(Node *x);
+// 找结点(x)的前驱结点。即，查找"二叉树中数据值小于该结点"的"最大结点"。
+Node* bstree_predecessor(Node *x);
+
+// 将结点插入到二叉树中，并返回根节点
+Node* insert_bstree(BSTree tree, Type key);
+
+// 删除结点(key为节点的值)，并返回根节点
+Node* delete_bstree(BSTree tree, Type key);
+
+// 销毁二叉树
+void destroy_bstree(BSTree tree);
+
+// 打印二叉树
+void print_bstree(BSTree tree, Type key, int direction);
 
 
 /*
