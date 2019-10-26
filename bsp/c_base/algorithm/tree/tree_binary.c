@@ -186,4 +186,67 @@ int** levelOrderBottom(struct TreeNode* root, int* returnSize, int** returnColum
     return res;
 }
 
+/*
+给定一个二叉树，找到最长的路径，这个路径中的每个节点具有相同值。 这条路径可以经过也可以不经过根节点。
+
+注意：两个节点之间的路径长度由它们之间的边数表示。
+
+示例 1:
+
+输入:
+
+              5
+             / \
+            4   5
+           / \   \
+          1   1   5
+输出:
+
+2
+示例 2:
+
+输入:
+
+              1
+             / \
+            4   5
+           / \   \
+          4   4   5
+输出:
+
+2
+
+*/
+
+int result = 0;
+#define MAX(a, b) (a > b ? a : b)
+int dfs(struct TreeNode* root)
+{
+    int left, right;
+
+    if (root == NULL)
+        return 0;
+    left = dfs(root->left);
+    right = dfs(root->right);
+    if (root->left != NULL && root->left->val == root->val && root->right != NULL && root->right->val == root->val) {
+        result = MAX(result, left + right + 2);
+        return MAX(left + 1, right + 1);
+    } else if (root->left != NULL && root->left->val == root->val) {
+        result = MAX(result, left + 1);
+        return left + 1;
+    } else if (root->right != NULL && root->right->val == root->val) {
+        result = MAX(result, right + 1);
+        return right + 1;
+    } else {
+        return 0;
+    }
+}
+int longestUnivaluePath(struct TreeNode* root){
+    result = 0;
+    if (root == NULL || (root->left == NULL && root->right == NULL))
+        return 0;
+
+    dfs(root);
+    return result;
+}
 
