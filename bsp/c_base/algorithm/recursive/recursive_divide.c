@@ -15,17 +15,11 @@ int cmp(const void* i,const void* j){
         return -1 ;
     return 0 ;
 }
-bool isdigital(char symbol){
-    if(symbol>='0'&&symbol<='9'){
-        return true ;
-    }
-    return false ;
-}
+
 
 bool computeTerminate(char* input){
-    int length = strlen(input) ;
-    for(int i=0;i<length;i++){
-        if(!isdigital(input[i]))
+    for(int i=0;i<strlen(input);i++){
+        if(ispunct(input[i]))
             return false ;
     }
     return true ;
@@ -63,7 +57,7 @@ int* diffWaysToCompute(char* input,int* returnSize){
 
     int* result = (int *)malloc(sizeof(int)*1500) ;
     for(int i=0;i<strlen(input);i++){
-        if(!isdigital(input[i])){
+        if(ispunct(input[i])){
             int lSize = 0 ;
             int RSize = 0 ;
             char* left = subString(input,0,i) ;
