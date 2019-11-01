@@ -25,14 +25,34 @@ bool computeTerminate(char* input){
     return true ;
 }
 
-char* subString(char* input,int start ,int end){
-    char* temp = (char*)malloc(sizeof(char)*(end-start+1)) ;
-    for(int i=0;i<(end-start);i++){
-        temp[i] = input[start+i] ;
-    }
-    temp[end-start] = '\0' ;
-    return temp ;
+void substr(char dst[], char src[],int start,int len)
+{
+	char* sc = src+start;
+	int n = strlen(sc);
+	int i = 0;
+	//assert(dst != NULL );
+	//assert(src != NULL );
+	if(n < len)
+	{
+		len = n;
+	}
+	while(len)
+	{
+		dst[i] = sc[i];
+		len--;
+		i++;
+	}
+	dst[i] = '\0';
 }
+
+
+char* subString(char* input,int start ,int end){
+	//char* temp = (char*)malloc(sizeof(char)*(end-start+2)) ;
+	char* temp = (char*)malloc(1024) ;
+	substr(temp,input,start,end-start);
+	return temp ;
+}
+
 
 int computeResult(int a,int b,char op){
     switch(op){
@@ -46,13 +66,13 @@ int computeResult(int a,int b,char op){
 int* diffWaysToCompute(char* input,int* returnSize){
     //只包含了一个数
     if(computeTerminate(input)){
-	int* result = (int *)malloc(sizeof(int)*1) ;
+	int* result = (int *)malloc(sizeof(int)*1024) ;
 	result[0] = atoi(input) ;
 	*returnSize = 1 ;
 	return result ;
     }
 
-    int* result = (int *)malloc(sizeof(int)*1500) ;
+    int* result = (int *)malloc(sizeof(int)*1024) ;
     for(int i=0;i<strlen(input);i++){
         if(ispunct(input[i])){
             int lSize = 0 ;
@@ -69,7 +89,7 @@ int* diffWaysToCompute(char* input,int* returnSize){
         }
     }
 
-    int* temp = (int*)malloc(sizeof(int)*(*returnSize-1)) ;
+    int* temp = (int*)malloc(1024) ;
     for(int i=0;i<*returnSize;i++){
         temp[i] = result[i] ;
     }

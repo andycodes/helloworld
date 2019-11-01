@@ -8,6 +8,29 @@
 #define isLetter(a)  ((((a)>='a')&&((a)<='z')) || (((a)>='A')&&((a)<='Z')))
 
 
+void substr(char dst[], char src[],int start,int len)
+{
+	char* sc = src+start;
+	int n = strlen(sc);
+	int i = 0;
+	int **ret=NULL;
+	//assert(dst != NULL );
+	//assert(src != NULL );
+    if(n < len)
+    {
+        len = n;
+    }
+    while(len)
+    {
+        dst[i] = sc[i];
+        len--;
+        i++;
+    }
+    dst[i] = '\0';
+
+}
+
+
 /*
 CÓïÑÔstrrev()º¯Êý£º×Ö·û´®ÄæÖÃ£¨µ¹Ðò¡¢ÄæÐò£©
 */
