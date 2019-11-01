@@ -46,13 +46,10 @@ int computeResult(int a,int b,char op){
 int* diffWaysToCompute(char* input,int* returnSize){
     //只包含了一个数
     if(computeTerminate(input)){
-//      result[*returnSize] = atoi(input) ;
-//      (*returnSize)++ ;
-//      return result ;
-        int* result = (int *)malloc(sizeof(int)*1) ;
-        result[0] = atoi(input) ;
-                *returnSize = 1 ;
-                return result ;
+	int* result = (int *)malloc(sizeof(int)*1) ;
+	result[0] = atoi(input) ;
+	*returnSize = 1 ;
+	return result ;
     }
 
     int* result = (int *)malloc(sizeof(int)*1500) ;
@@ -71,6 +68,7 @@ int* diffWaysToCompute(char* input,int* returnSize){
                 }
         }
     }
+
     int* temp = (int*)malloc(sizeof(int)*(*returnSize-1)) ;
     for(int i=0;i<*returnSize;i++){
         temp[i] = result[i] ;
