@@ -12,9 +12,13 @@
 因此，将 nn 和 n - 1n?1 与运算总是能把 nn 中最低位的 11 变成 00 ，
 并保持其他位不变。使用这个小技巧，代码变得非常简单。
 
+
+统计一个位数组中非0位的数量，数学上称作：
+”Hanmming Weight“，汉明重量
 */
 
-int hammingWeight(uint32_t n) {
+int hammingWeight(uint32_t n)
+{
     int sum = 0;
     while (n != 0) {
         sum++;
