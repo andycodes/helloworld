@@ -38,11 +38,16 @@ int maxSubArray(int* nums, int numsSize){
 
 
 /*
-动态规划，用dp[i]表示以i结尾的最大子序列和。初始值 dp[0] = nums[0]，然后从第二个数开始遍历
+动态规划，用dp[i]表示以i结尾的最大子序列和。
+初始值 dp[0] = nums[0]，然后从第二个数开始遍历
 
-if 当前数加上前一个最大序列和大于当前数，则将当前数加到序列和中，nums[i] + dp[i-1] > nums[i]，则 dp[i] = nums[i] + dp[i-1];
-else 以当前数结尾的最大序列和即为当前数本身 dp[i] = nums[i]
-然后判断以当前数结尾的最大序列和是否大于最大序列和
+if 当前数加上前一个最大序列和大于当前数，
+则将当前数加到序列和中，nums[i] + dp[i-1] > nums[i]，
+则 dp[i] = nums[i] + dp[i-1];
+else 以当前数结尾的最大序列和即为当前数本身
+dp[i] = nums[i]
+然后判断以当前数结尾的最大序列和是
+否大于最大序列和
 */
 int maxSubArray(int* nums, int numsSize){
     int size = numsSize;
