@@ -117,7 +117,8 @@ struct TreeNode* mergeTrees(struct TreeNode* t1, struct TreeNode* t2){
 
 
 /**
-给定一个二叉树，返回其按层次遍历的节点值。 （即逐层地，从左到右访问所有节点）。
+给定一个二叉树，返回其按层次遍历的节点值。
+（即逐层地，从左到右访问所有节点）。
 
 例如:
 给定二叉树: [3,9,20,null,null,15,7],
@@ -187,9 +188,12 @@ int** levelOrderBottom(struct TreeNode* root, int* returnSize, int** returnColum
 }
 
 /*
-给定一个二叉树，找到最长的路径，这个路径中的每个节点具有相同值。 这条路径可以经过也可以不经过根节点。
+给定一个二叉树，找到最长的路径，
+这个路径中的每个节点具有相同值。
+这条路径可以经过也可以不经过根节点。
 
-注意：两个节点之间的路径长度由它们之间的边数表示。
+注意：两个节点之间的路径长度由它们
+之间的边数表示。
 
 示例 1:
 
@@ -248,5 +252,48 @@ int longestUnivaluePath(struct TreeNode* root){
 
     dfs(root);
     return result;
+}
+
+
+
+/*
+叶子相似的树
+请考虑一颗二叉树上所有的叶子，
+这些叶子的值按从左到右的顺序排列形成一个 叶值序列 。
+
+*/
+
+void  dfs(struct TreeNode* root ,int *array, int *cnt)
+{
+	int left,right;
+	if (root == NULL)
+		return 0;
+
+	if (root->left == NULL && root->right == NULL){
+		array[*cnt] = root->val;
+		 (*cnt)++;
+	}
+
+
+	dfs(root->left,array,cnt);
+	dfs(root->right,array,cnt);
+}
+
+
+bool leafSimilar(struct TreeNode* root1, struct TreeNode* root2){
+	int ret =0;
+	int array1[100] = {0};
+	int cnt1 = 0;
+	int array2[100] = {0};
+	int cnt2 = 0;
+
+	dfs(root1,array1,&cnt1);
+	dfs(root2,array2,&cnt2);
+
+	ret = memcmp(array1,array2,sizeof(array1));
+	if (ret == 0)
+		return true;
+	else
+		return false;
 }
 
