@@ -7,12 +7,16 @@ isalpha
 
 函数名称: isalpha
 
-函数原型: int isalpha(char ch);
+函数原型:
 
 函数功能: 检查ch是否是字母.
 
 函数返回: 是字母返回非0(在vs2015中为2) ,否则返回 0.
+*/
+int isalpha(char ch);
 
+
+/*
 
 iscntrl
 

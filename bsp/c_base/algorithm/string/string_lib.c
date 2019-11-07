@@ -2,10 +2,66 @@
 #include <string.h>
 #include<stdlib.h>
 
-//The strchr() function returns a pointer to the first occurrence of the character c in the string s.
+
+/*
+该库函数包含在<string.h>头文件中，函数原型：
+
+意义为 判断str2是否为str1的字串，
+若是则返回str2在str1中首次出现的指针位置，
+若不是返回NULL；
+
+*/
+extern char *strstr(char *str1, const char *str2);
+/*
+语法/原型：
+
+参数说明：
+str：被查找的字符串。
+c：要查找的字符。
+
+strchr() 函数会依次检索字符串 str 中的每一个字符，
+直到遇见字符 c，或者到达字符串末尾（遇见\0）。
+
+返回值：返回在字符串 str 中第一次出现字符 c 的位置，
+如果未找到该字符 c 则返回 NULL。
+*/
+char* strchr(const char* str, int c);
 
 
-#define isLetter(a)  ((((a)>='a')&&((a)<='z')) || (((a)>='A')&&((a)<='Z')))
+/*
+● itoa()：将整型值转换为字符串。
+原型说明：
+
+value：欲转换的数据。
+string：目标字符串的地址。
+radix：转换后的进制数，可以是10进制、16进制等，范围必须在 2-36。
+
+功能：将整数value 转换成字符串存入string 指向的内存空间 ,radix 为转换时所用基数(保存到字符串中的数据的进制基数)。
+返回值：函数返回一个指向 str，无错误返回。
+
+*/
+char *itoa( int value, char *string,int radix);
+
+
+/*
+C语言提供了几个标准库函数，可以将任意类型(整型、长整型、浮点型等)的数字转换为字符串，下面列举了各函数的方法及其说明。
+● ltoa()：将长整型值转换为字符串。
+● ultoa()：将无符号长整型值转换为字符串。
+● gcvt()：将浮点型数转换为字符串，取四舍五入。
+● ecvt()：将双精度浮点型值转换为字符串，转换结果中不包含十进制小数点。
+● fcvt()：指定位数为转换精度，其余同ecvt()。
+
+除此外，还可以使用sprintf系列函数把数字转换成字符串，其比itoa()系列函数运行速度慢
+
+2. string/array to int/float
+C/C++语言提供了几个标准库函数，可以将字符串转换为任意类型(整型、长整型、浮点型等)。
+● atof()：将字符串转换为双精度浮点型值。
+● atoi()：将字符串转换为整型值。
+● atol()：将字符串转换为长整型值。
+● strtod()：将字符串转换为双精度浮点型值，并报告不能被转换的所有剩余数字。
+● strtol()：将字符串转换为长整值，并报告不能被转换的所有剩余数字。
+● strtoul()：将字符串转换为无符号长整型值，并报告不能被转换的所有剩余数字。
+*/
 
 
 void substr(char dst[], char src[],int start,int len)
