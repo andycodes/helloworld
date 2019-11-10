@@ -6,104 +6,108 @@
  *
  */
 
-// 保存数据的数组
-static int *arr=NULL;
-// 队列的实际大小
-static int count;
 
-// 创建“队列”
-int create_array_queue(int sz)
+struct queue_blk{
+	int count;
+	int arr[0];
+};
+
+struct queue_blk * create_array_queue(int sz)
 {
-	arr = (int *)malloc(sz*sizeof(int));
-	if (!arr)
-	{
-		printf("arr malloc error!");
-		return -1;
-	}
-	count = 0;
+	struct queue_blk * queue;
 
-	return 0;
-}
-
-// 销毁“队列”
-int destroy_array_queue()
-{
-	if (arr)
-	{
-		free(arr);
-		arr = NULL;
+	queue = (struct queue_blk * )malloc(sizeof(struct queue_blk) + sz*sizeof(int));
+	if(queue == NULL) {
+		printf(" malloc error!");
+		return  NULL;
 	}
 
-	return 0;
+	queue->count = 0;
+
+	return queue;
 }
 
-// 将val添加到队列的末尾
-void add(int val)
+
+void destroy_array_queue(struct queue_blk * queue)
 {
-	arr[count++] = val;
+	if (queue)
+	{
+		free((void*)queue);
+		queue = NULL;
+	}
 }
 
-// 返回“队列开头元素”
-int front()
+
+void push(struct queue_blk * queue,int val)
 {
-	return arr[0];
+	queue->arr[queue->count++] = val;
 }
+
+
+int front(struct queue_blk * queue)
+{
+	return queue->arr[0];
+}
+
 
 // 返回并删除“队列开头元素”
-int pop()
+int pop(struct queue_blk * queue)
 {
 	int i = 0;;
-	int ret = arr[0];
+	int ret = queue->arr[0];
 
-	count--;
-	while (i++<count)
-		arr[i-1] = arr[i];
+	queue->count--;
+	while (i++<queue->count)
+		queue->arr[i-1] = queue->arr[i];
 
 	return ret;
 }
 
+
 // 返回“队列”的大小
-int size()
+int size(struct queue_blk * queue)
 {
-	return count;
+	return queue->count;
 }
 
 // 返回“队列”是否为空
-int is_empty()
+int is_empty(struct queue_blk * queue)
 {
-	return count==0;
+	return queue->count==0;
 }
 
 void main()
 {
 	int tmp=0;
+	struct queue_blk *q_test1;
 
 	// 创建“队列”
-	create_array_queue(12);
+	q_test1 = create_array_queue(12);
 
 	// 将10, 20, 30 依次推入队列中
-	add(10);
-	add(20);
-	add(30);
+	push(q_test1,10);
+	push(q_test1,20);
+	push(q_test1,30);
 
 	// 将“队列开头的元素”赋值给tmp，并删除“该元素”
-	tmp = pop();
+	tmp = pop(q_test1);
 	printf("tmp=%d\n", tmp);
 
 	// 只将“队列开头的元素”赋值给tmp，不删除该元素.
-	tmp = front();
+	tmp = front(q_test1);
 	printf("tmp=%d\n", tmp);
 
-	add(40);
+	push(q_test1,40);
 
 	// 打印队列
-	printf("is_empty()=%d\n", is_empty());
-	printf("size()=%d\n", size());
-	while (!is_empty())
+	printf("is_empty()=%d\n", is_empty(q_test1));
+	printf("size()=%d\n", size(q_test1));
+	while (!is_empty(q_test1))
 	{
-		printf("%d\n", pop());
+		printf("%d\n", pop(q_test1));
 	}
 
 	// 销毁队列
-	destroy_array_queue();
+	destroy_array_queue(q_test1);
 }
+
