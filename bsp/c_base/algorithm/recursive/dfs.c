@@ -2,19 +2,24 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#define VERTEX_NUM 9 /*实际8个点，位置0不使用*/
+
+
 struct node                       /* 图顶点结构定义     */
 {
    int vertex;                    /* 顶点数据信息       */
    struct node *nextnode;         /* 指下一顶点的指标   */
 };
 typedef struct node *graph;       /* 图形的结构新型态   */
-struct node head[9];              /* 图形顶点数组       */
-int visited[9];/* To determine whether a vertex has been visited, if you have visited, no longer visit*/
+struct node head[VERTEX_NUM];              /* 图形顶点数组       */
+
+/* To determine whether a vertex has been visited, if you have visited, no longer visit*/
+int visited[VERTEX_NUM];
 
 /********************根据已有的信息建立邻接表********************/
 /*each starting point to build list
 The list maintains the edge starting from the starting point*/
-void creategraph(int node[20][2],int num)/*num指的是图的边数*/
+void creategraph(int node[ ][2],int num)/*num指的是图的边数*/
 {
 	graph newnode;                 /*指向新节点的指针定义*/
 	graph ptr;
@@ -58,7 +63,9 @@ void dfs(int current)
 int main()
 {
 	graph ptr;
-	int node[20][2] = { {1, 2}, {2, 1},  /* 边线数组     */
+	 /* 边线数组     */
+	int node[ ][2] = {
+		{1, 2}, {2, 1},
 		{1, 3}, {3, 1},
 		{1, 4}, {4, 1},
 		{2, 5}, {5, 2},
@@ -67,18 +74,21 @@ int main()
 		{4, 7}, {4, 4},
 		{5, 8}, {8, 5},
 		{6, 7}, {7, 6},
-		{7, 8}, {8, 7} };
+		{7, 8}, {8, 7}
+	};
+
+
 	int i;
 	//clrscr();
-	for ( i = 1; i <= 8; i++ )      /*   顶点数组初始化  */
+	for ( i = 1; i < VERTEX_NUM; i++ )      /*   顶点数组初始化  */
 	{
 		head[i].vertex = i;         /*    设定顶点值      */
 		head[i].nextnode = NULL;    /*       指针为空     */
 		visited[i] = 0;             /* 设定遍历初始标志   */
 	}
-	creategraph(node,20);          /*    建立邻接表      */
+	creategraph(node,sizeof(node)/(2*sizeof(int)));          /*    建立邻接表      */
 	printf("Content of the gragh's ADlist is:\n");
-	for ( i = 1; i <= 8; i++ ) {
+	for ( i = 1; i <VERTEX_NUM; i++ ) {
 		printf("vertex%d ->",head[i].vertex); /* 顶点值    */
 		ptr = head[i].nextnode;             /* 顶点位置   */
 		while ( ptr != NULL ){     /* 遍历至链表尾       */
@@ -93,3 +103,5 @@ int main()
 	printf("\n");                  /* 换行               */
 	puts(" Press any key to quit...");
 }
+
+

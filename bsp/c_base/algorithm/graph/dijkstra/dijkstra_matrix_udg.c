@@ -571,7 +571,7 @@ void main()
     //DFSTraverse(*pG);       // 深度优先遍历
     //BFS(*pG);               // 广度优先遍历
     //prim(*pG, 0);           // prim算法生成最小生成树
-    //kruskal(*pG);           // kruskal算法生成最小生成树
+    kruskal(*pG);           // kruskal算法生成最小生成树
 
     // dijkstra算法获取"第4个顶点"到其它各个顶点的最短距离
     dijkstra(*pG, 3, prev, dist);
