@@ -39,7 +39,9 @@ void qsort_int_test(void)
 	for(int i =0;i < 100;i++){
 		num[i] = 100 -i;
 	}
-	qsort(num,100,sizeof(num[0]),cmp_int);
+
+	qsort(num,sizeof(num)/sizeof(num[0]),sizeof(num[0]),cmp_int);
+
 	for(int i =0;i < 100;i++){
 		printf("%d \n",num[i]);
 	}
@@ -241,12 +243,14 @@ void qsort_string_test(void)
 
 int main()
 {
-	//qsort_int_test();
+	printf("qsort_int_test\n");
+	qsort_int_test();
 	//qsort_array_test();
 	//qsort_char_test();
 	//qsort_double_test();
 	//qsort_struct_test();
 	//qsort_struct2_test();
+	printf("qsort_string_test\n");
 	qsort_string_test();
 }
 
