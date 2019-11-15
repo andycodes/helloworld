@@ -41,9 +41,9 @@ void push(struct queue_blk * queue,struct queue_load load)
 }
 
 
-struct queue_load *front(struct queue_blk * queue)
+struct queue_load  front(struct queue_blk * queue)
 {
-	return &queue->load[0];
+	return  queue->load[0];
 }
 
 
@@ -80,7 +80,7 @@ void main()
 
 	struct queue_load load1;
 	struct queue_load load2;
-	struct queue_load *pload;
+	struct queue_load load3;
 
 	load1.data = 10;
 	push(q_test1,load1);
@@ -94,8 +94,8 @@ void main()
 	printf("tmp=%d\n", load2.data);
 
 	// 只将“队列开头的元素”赋值给tmp，不删除该元素.
-	pload = front(q_test1);
-	printf("tmp=%d\n", pload->data);
+	load3 = front(q_test1);
+	printf("tmp=%d\n", load3.data);
 
 	load1.data = 40;
 	push(q_test1,load1);
