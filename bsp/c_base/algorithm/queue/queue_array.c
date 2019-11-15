@@ -48,15 +48,17 @@ struct queue_load  front(struct queue_blk * queue)
 
 
 // 返回并删除“队列开头元素”
-void pop(struct queue_blk * queue, struct queue_load *head)
+struct queue_load pop(struct queue_blk * queue)
 {
 	int i = 0;
 
-	*head = queue->load[0];
+	struct queue_load head = queue->load[0];
 
 	queue->count--;
 	while (i++<queue->count)
 		queue->load[i-1] = queue->load[i];
+
+	return head;
 }
 
 
@@ -90,7 +92,7 @@ void main()
 	push(q_test1,load1);
 
 	// 将“队列开头的元素”赋值给tmp，并删除“该元素”
-	pop(q_test1,&load2);
+	load2 = pop(q_test1);
 	printf("tmp=%d\n", load2.data);
 
 	// 只将“队列开头的元素”赋值给tmp，不删除该元素.
@@ -107,7 +109,7 @@ void main()
 	while (!is_empty(q_test1)) {
 		struct queue_load tmp_load;
 
-		pop(q_test1,&tmp_load);
+		tmp_load = pop(q_test1);
 		printf("%d\n", tmp_load.data);
 	}
 
