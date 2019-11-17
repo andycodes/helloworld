@@ -54,7 +54,9 @@ a+i == p+i
 a[i] == p[i] == *(a+i) == *(p+i)
 a[i][j] == p[i][j] == *(a[i]+j) == *(p[i]+j) == *(*(a+i)+j) == *(*(p+i)+j)
 */
-int main(){
+
+int tow_array_access()
+{
     int a[3][4]={0,1,2,3,4,5,6,7,8,9,10,11};
     int(*p)[4];
     int i,j;
@@ -65,5 +67,39 @@ int main(){
 		printf("\n");
 	}
 	return 0;
+}
+/*
+变长数组(variable-length array,VLA)(C99）
+C99标准引入了变长数组，它允许使用变量定义数组各维
+int quarters = 4;
+int regions = 5;
+double sales[quarters][regions]; //一个变长数组VAL
+
+变长数组有一些限制：变长数组必须是自动存储类的，
+意味着它们必须在函数内部或作为函数参数声明，
+而且声明时不可以进行初始化。
+
+C99标准规定，可以省略函数原型中的名称，
+但是如果省略名称，则需要用星号来代替省略的维数:
+int sum2d(int , int, int ar[*][*]);
+
+6.7.5.2 Array declarators
+Array objects declared with the static or extern storage-class specifier
+cannot have a variable length array (VLA) type
+*/
+
+void array_vla(int tmp)
+    {
+            int a;
+
+            scanf("%d", &a);
+            int b[tmp];
+            int c[a];
+            printf ("size(b) = %lu, size(c) = %lu\n", sizeof(b)/sizeof(int), sizeof(c)/sizeof(int));
+    }
+
+int main()
+{
+	array_vla(2);
 }
 
