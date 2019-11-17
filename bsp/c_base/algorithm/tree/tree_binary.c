@@ -38,7 +38,8 @@ int maxDepth(struct TreeNode* root){
 
 /*
 给定一个二叉树，找出其最小深度。
-二叉树的最小深度为根节点到最近叶子节点的距离。
+二叉树的最小深度为根节点
+到最近叶子节点的距离。
 
 两种实现方法：
 
@@ -62,7 +63,7 @@ int minDepth(TreeNode *root) {
             rightDepth = INT_MAX;
 
         return leftDepth < rightDepth ? (leftDepth + 1) : (rightDepth + 1);
-    }
+}
 
 /*
 第二种就是判断左子树或右子树是否为空，
@@ -324,4 +325,47 @@ bool isSymmetric(struct TreeNode* root){
 	return isMirror(root, root);
 }
 
+/*
+在二叉树中，根节点位于深度 0 处，每个深度为 k 的节点的子节点位于深度 k+1 处。
+
+如果二叉树的两个节点深度相同，但父节点不同，则它们是一对堂兄弟节点。
+
+我们给出了具有唯一值的二叉树的根节点 root，以及树中两个不同节点的值 x 和 y。
+
+只有与值 x 和 y 对应的节点是堂兄弟节点时，才返回 true。否则，返回 false
+
+*/
+struct TreeNode* x_f = NULL;
+struct TreeNode* y_f = NULL;
+
+int find_depth_x(struct TreeNode* f_node, struct TreeNode* root, int node_val)
+{
+    if (root == NULL)  return -1;
+    if (root->val == node_val) {
+        x_f = f_node;
+        return 0;
+    }
+    int ret;
+    if ((ret = find_depth_x(root, root->left,  node_val)) >= 0) return ret+1;
+    if ((ret = find_depth_x(root, root->right, node_val)) >= 0) return ret+1;
+    return -1;
+}
+int find_depth_y(struct TreeNode* f_node, struct TreeNode* root, int node_val)
+{
+    if (root == NULL)  return -1;
+    if (root->val == node_val) {
+        y_f = f_node;
+        return 0;
+    }
+    int ret;
+    if ((ret = find_depth_y(root, root->left,  node_val)) >= 0) return ret+1;
+    if ((ret = find_depth_y(root, root->right, node_val)) >= 0) return ret+1;
+    return -1;
+}
+
+bool isCousins(struct TreeNode* root, int x, int y){
+    int x_depth = find_depth_x(NULL, root, x);
+    int y_depth = find_depth_y(NULL, root, y);
+    return (x_f != y_f && x_depth == y_depth);
+}
 
