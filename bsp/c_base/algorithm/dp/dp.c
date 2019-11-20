@@ -89,8 +89,41 @@ int maxSubArray(int* nums, int numsSize){
     return max;
 }
 
-int main()
-{
+/*
+给定一个整数数组 nums ，找出一个序列中乘积最大的连续子序列（该序列至少包含一个数）。
 
+示例 1:
 
+输入: [2,3,-2,4]
+输出: 6
+解释: 子数组 [2,3] 有最大乘积 6。
+示例 2:
+
+输入: [-2,0,-1]
+输出: 0
+解释: 结果不能为 2, 因为 [-2,-1] 不是子数组。
+*/
+
+#define math_max(a, b) ((a) > (b) ? (a) : (b))
+#define match_min(a, b) ((a) < (b) ? (a) : (b))
+#define INT_MAX		((int)(~0U >> 1))
+#define INT_MIN		(-INT_MAX - 1)
+int maxProduct(int* nums, int numsSize){
+        const int N=numsSize;
+
+	int d[numsSize];
+	int e[numsSize];
+
+	d[0]=nums[0];
+        e[0]=nums[0];
+
+        int ans=INT_MIN;
+        ans=math_max(ans,math_max(d[0],e[0]));
+        for(int i=1;i<N;++i){
+            d[i]=math_max(nums[i],math_max(nums[i]*d[i-1],nums[i]*e[i-1]));
+            e[i]=match_min(nums[i],match_min(nums[i]*d[i-1],nums[i]*e[i-1]));
+            ans = math_max(ans,math_max(d[i],e[i]));
+        }
+        return ans;
 }
+

@@ -4,17 +4,18 @@
 
 
 /*
-该库函数包含在<string.h>头文件中，函数原型：
-
+#include <string.h>
+查找子字符串
 意义为 判断str2是否为str1的字串，
 若是则返回str2在str1中首次出现的指针位置，
 若不是返回NULL；
 
 */
 extern char *strstr(char *str1, const char *str2);
-/*
-语法/原型：
 
+
+/*
+查找字符
 参数说明：
 str：被查找的字符串。
 c：要查找的字符。
@@ -28,19 +29,7 @@ strchr() 函数会依次检索字符串 str 中的每一个字符，
 char* strchr(const char* str, int c);
 
 
-/*
-● itoa()：将整型值转换为字符串。
-原型说明：
 
-value：欲转换的数据。
-string：目标字符串的地址。
-radix：转换后的进制数，可以是10进制、16进制等，范围必须在 2-36。
-
-功能：将整数value 转换成字符串存入string 指向的内存空间 ,radix 为转换时所用基数(保存到字符串中的数据的进制基数)。
-返回值：函数返回一个指向 str，无错误返回。
-
-*/
-char *itoa( int value, char *string,int radix);
 
 
 /*
@@ -63,7 +52,10 @@ C/C++语言提供了几个标准库函数，可以将字符串转换为任意类型(整型、长整型、浮点型等
 ● strtoul()：将字符串转换为无符号长整型值，并报告不能被转换的所有剩余数字。
 */
 
-
+/*
+提取字符串
+从src start 位置提取长度为len的字符串到dst
+*/
 void substr(char dst[], char src[],int start,int len)
 {
 	char* sc = src+start;
@@ -83,8 +75,107 @@ void substr(char dst[], char src[],int start,int len)
         i++;
     }
     dst[i] = '\0';
-
 }
+
+
+//字符串替换函数
+// 参数说明:
+// in， 源字符串
+// out, 存放最后结果的字符串
+// outlen，out最大的大小
+// src，要替换的字符串
+// dst，替换成什么字符串
+char *strrpl(char *in, char *out, int outlen, const char *src, char *dst)
+{
+    char *p = in;
+    unsigned int  len = outlen - 1;
+
+    // 这几段检查参数合法性
+    if((NULL == src) || (NULL == dst) || (NULL == in) || (NULL == out))
+    {
+        return NULL;
+    }
+    if((strcmp(in, "") == 0) || (strcmp(src, "") == 0))
+    {
+        return NULL;
+    }
+    if(outlen <= 0)
+    {
+        return NULL;
+    }
+
+    while((*p != '\0') && (len > 0))
+    {
+        if(strncmp(p, src, strlen(src)) != 0)
+        {
+            int n = strlen(out);
+
+            out[n] = *p;
+            out[n + 1] = '\0';
+
+            p++;
+            len--;
+        }
+        else
+        {
+            strcat(out, dst);
+            p += strlen(src);
+            len -= strlen(dst);
+        }
+    }
+
+    return out;
+}
+
+
+void test_strrpl(void)
+{
+	char ss[] = "abcd";
+	char out[32] = {'\0'};
+	strrpl(ss,out,sizeof(out),"ab","ff");
+
+	printf("%s\n",out);
+}
+
+
+/*
+子序列
+给定字符串 s 和 t ，判断 s 是否为 t 的子序列。
+
+你可以认为 s 和 t 中仅包含英文小写字母。字符串 t 可能会很长（长度 ~= 500,000），而 s 是个短字符串（长度 <=100）。
+
+字符串的一个子序列是原始字符串删除一些（也可以不删除）字符而不改变剩余字符相对位置形成的新字符串。（例如，"ace"是"abcde"的一个子序列，而"aec"不是）。
+
+示例 1:
+s = "abc", t = "ahbgdc"
+
+返回 true.
+
+示例 2:
+s = "axc", t = "ahbgdc"
+
+返回 false.
+
+*/
+bool isSubsequence(char * s, char * t){
+	unsigned int i;
+	unsigned int j;
+	unsigned int s_size = strlen(s);
+	unsigned int t_size = strlen(t);
+
+    if(s_size == 0)
+        return true;
+
+	for(i = 0,j = 0; i< t_size;i++) {
+		if(t[i] == s[j]){
+			j++;
+		}
+        if(j == s_size) return true;
+	}
+
+	return false;
+}
+
 
 
 /*
@@ -129,6 +220,20 @@ char* strcpy(char *to, const char *from) {
     ;
     return to;
 }
+
+/*
+● itoa()：将整型值转换为字符串。
+原型说明：
+
+value：欲转换的数据。
+string：目标字符串的地址。
+radix：转换后的进制数，可以是10进制、16进制等，范围必须在 2-36。
+
+功能：将整数value 转换成字符串存入string 指向的内存空间 ,radix 为转换时所用基数(保存到字符串中的数据的进制基数)。
+返回值：函数返回一个指向 str，无错误返回。
+
+*/
+char *itoa( int value, char *string,int radix);
 
 
 /*
@@ -334,65 +439,6 @@ void str_to_hex_by_strtol(char * str)
 	long value = strtol(str, &p, 16);
 
 	printf("0x%lx\n",value);
-}
-
-
-//字符串替换函数
-// 参数说明:
-// in， 源字符串
-// out, 存放最后结果的字符串
-// outlen，out最大的大小
-// src，要替换的字符串
-// dst，替换成什么字符串
-char *strrpl(char *in, char *out, int outlen, const char *src, char *dst)
-{
-    char *p = in;
-    unsigned int  len = outlen - 1;
-
-    // 这几段检查参数合法性
-    if((NULL == src) || (NULL == dst) || (NULL == in) || (NULL == out))
-    {
-        return NULL;
-    }
-    if((strcmp(in, "") == 0) || (strcmp(src, "") == 0))
-    {
-        return NULL;
-    }
-    if(outlen <= 0)
-    {
-        return NULL;
-    }
-
-    while((*p != '\0') && (len > 0))
-    {
-        if(strncmp(p, src, strlen(src)) != 0)
-        {
-            int n = strlen(out);
-
-            out[n] = *p;
-            out[n + 1] = '\0';
-
-            p++;
-            len--;
-        }
-        else
-        {
-            strcat(out, dst);
-            p += strlen(src);
-            len -= strlen(dst);
-        }
-    }
-
-    return out;
-}
-
-void test_strrpl(void)
-{
-	char ss[] = "abcd";
-	char out[32] = {'\0'};
-	strrpl(ss,out,sizeof(out),"ab","ff");
-
-	printf("%s\n",out);
 }
 
 
