@@ -1,107 +1,96 @@
-/*图的深度优先遍历*/
-#include <stdlib.h>
-#include <stdio.h>
-
-#define VERTEX_NUM 9 /*实际8个点，位置0不使用*/
-
-
-struct node                       /* 图顶点结构定义     */
-{
-   int vertex;                    /* 顶点数据信息       */
-   struct node *nextnode;         /* 指下一顶点的指标   */
-};
-typedef struct node *graph;       /* 图形的结构新型态   */
-struct node head[VERTEX_NUM];              /* 图形顶点数组       */
-
-/* To determine whether a vertex has been visited, if you have visited, no longer visit*/
-int visited[VERTEX_NUM];
-
-/********************根据已有的信息建立邻接表********************/
-/*each starting point to build list
-The list maintains the edge starting from the starting point*/
-void creategraph(int node[ ][2],int num)/*num指的是图的边数*/
-{
-	graph newnode;                 /*指向新节点的指针定义*/
-	graph ptr;
-	int from;                      /* 边的起点          */
-	int to;                        /* 边的终点          */
-	int i;
-
-	/* 读取边线信息，插入邻接表*/
-	for ( i = 0; i < num; i++ ) {
-		from = node[i][0];         /*    边线的起点            */
-		to = node[i][1];           /*   边线的终点             */
-
-		/* 建立新顶点 */
-		newnode = (graph)malloc(sizeof(struct node));
-		newnode->vertex = to;        /*next vertex id, dfs use it*/
-		newnode->nextnode = NULL;    /* 设定指标初值       */
-		ptr = &(head[from]);         /* 顶点位置           */
-		while (ptr->nextnode != NULL ) /* 遍历至链表尾   */
-			ptr = ptr->nextnode;     /* 下一个顶点         */
-		ptr->nextnode = newnode;    /* 插入节点        */
-	}
+void dfs(int** M, int MColSize, int* visited, int i) {
+        for (int j = 0; j < MColSize; j++) {
+            if (M[i][j] == 1 && visited[j] == 0) {
+                visited[j] = 1;
+                dfs(M, MColSize,visited, j);
+            }
+        }
 }
 
-/**********************  图的深度优先搜寻法********************/
-/*Loop through head lists*/
-void dfs(int current)
-{
-	graph ptr;
-	visited[current] = 1;          /* 记录已遍历过       */
-	printf("vertex[%d]\n",current);   /* 输出遍历顶点值     */
-	ptr = head[current].nextnode;  /* 顶点位置           */
-	while ( ptr != NULL ) {
-		/*Make sure that each vertex is accessed only once*/
-		if (visited[ptr->vertex] == 0)
-			dfs(ptr->vertex);              /* 递回遍历呼叫 */
-		ptr = ptr->nextnode;              /* 下一个顶点   */
-	}
-}
+int findCircleNum(int** M, int MSize, int* MColSize){
 
-/****************************** 主程序******************************/
-int main()
-{
-	graph ptr;
-	 /* 边线数组     */
-	int node[ ][2] = {
-		{1, 2}, {2, 1},
-		{1, 3}, {3, 1},
-		{1, 4}, {4, 1},
-		{2, 5}, {5, 2},
-		{2, 6}, {6, 2},
-		{3, 7}, {7, 3},
-		{4, 7}, {4, 4},
-		{5, 8}, {8, 5},
-		{6, 7}, {7, 6},
-		{7, 8}, {8, 7}
-	};
-
-
-	int i;
-	//clrscr();
-	for ( i = 1; i < VERTEX_NUM; i++ )      /*   顶点数组初始化  */
-	{
-		head[i].vertex = i;         /*    设定顶点值      */
-		head[i].nextnode = NULL;    /*       指针为空     */
-		visited[i] = 0;             /* 设定遍历初始标志   */
-	}
-	creategraph(node,sizeof(node)/(2*sizeof(int)));          /*    建立邻接表      */
-	printf("Content of the gragh's ADlist is:\n");
-	for ( i = 1; i <VERTEX_NUM; i++ ) {
-		printf("vertex%d ->",head[i].vertex); /* 顶点值    */
-		ptr = head[i].nextnode;             /* 顶点位置   */
-		while ( ptr != NULL ){     /* 遍历至链表尾       */
-			printf(" %d ",ptr->vertex);  /* 印出顶点内容   */
-			ptr = ptr->nextnode;         /* 下一个顶点     */
+	int *visited = malloc(MSize * sizeof(visited));
+	int count = 0;
+	memset((void*)visited,0,MSize * sizeof(visited));
+	for (int i = 0; i < MSize; i++){
+		if(visited[i] == 0){
+			dfs(M,MColSize[i],visited,i);
+			count++;
 		}
-		printf("\n");               /*   换行             */
 	}
-	printf("\nThe end of the dfs are:\n");
 
-	dfs(1);/*Starting from vertex 1*/
-	printf("\n");                  /* 换行               */
-	puts(" Press any key to quit...");
+	return count;
 }
 
+
+/*
+有一幅以二维整数数组表示的图画，每一个整数表示该图画的像素值大小，数值在 0 到 65535 之间。
+
+给你一个坐标 (sr, sc) 表示图像渲染开始的像素值（行 ，列）和一个新的颜色值 newColor，让你重新上色这幅图像。
+
+为了完成上色工作，从初始坐标开始，记录初始坐标的上下左右四个方向上像素值与初始坐标相同的相连像素点，接着再记录这四个方向上符合条件的像素点与他们对应四个方向上像素值与初始坐标相同的相连像素点，……，重复该过程。将所有有记录的像素点的颜色值改为新的颜色值。
+
+最后返回经过上色渲染后的图像。
+
+输入:
+image = [[1,1,1],[1,1,0],[1,0,1]]
+sr = 1, sc = 1, newColor = 2
+输出: [[2,2,2],[2,2,0],[2,0,1]]
+解析:
+在图像的正中间，(坐标(sr,sc)=(1,1)),
+在路径上所有符合条件的像素点的颜色都被更改成2。
+注意，右下角的像素没有更改为2，
+因为它不是在上下左右四个方向上与初始点相连的像素点。
+
+*/
+
+/**
+ * Return an array of arrays of size *returnSize.
+ * The sizes of the arrays are returned as *returnColumnSizes array.
+ * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ */
+void changeValue(int** image, int imageSize, int* imageColSize, int sr, int sc, int newColor, int** res, bool** flag, int* returnSize, int** returnColumnSizes) {
+    res[sr][sc] = newColor;
+    if (sr > 0 && image[sr - 1][sc] == image[sr][sc] && !flag[sr - 1][sc])  {
+        flag[sr - 1][sc] = true;
+        changeValue(image, imageSize, imageColSize, sr - 1, sc, newColor, res, flag, returnSize, returnColumnSizes);
+    }
+    if (sc > 0 && image[sr][sc - 1] == image[sr][sc] && !flag[sr][sc - 1])  {
+        flag[sr][sc - 1] = true;
+        changeValue(image, imageSize, imageColSize, sr, sc - 1, newColor, res, flag, returnSize, returnColumnSizes);
+    }
+    if (sr < imageSize - 1 && image[sr + 1][sc] == image[sr][sc] && !flag[sr + 1][sc])  {
+        flag[sr + 1][sc] = true;
+        changeValue(image, imageSize, imageColSize, sr + 1, sc, newColor, res, flag, returnSize, returnColumnSizes);
+    }
+    if (sc < imageColSize[sr] - 1 && image[sr][sc + 1] == image[sr][sc] && !flag[sr][sc + 1])  {
+        flag[sr][sc + 1] = true;
+        changeValue(image, imageSize, imageColSize, sr, sc + 1, newColor, res, flag, returnSize, returnColumnSizes);
+    }
+}
+
+int** floodFill(int** image, int imageSize, int* imageColSize, int sr, int sc, int newColor, int* returnSize, int** returnColumnSizes){
+    int** res = malloc(sizeof(int*) * imageSize);
+    bool** flag = malloc(sizeof(bool*) * imageSize);
+    *returnSize = imageSize;
+    *returnColumnSizes = malloc(sizeof(int) * imageSize);
+
+    for (int i = 0; i < imageSize; i++) {
+        res[i] = malloc(sizeof(int) * imageColSize[i]);
+        flag[i] = malloc(sizeof(bool) * imageColSize[i]);
+        memset(res[i], 0, sizeof(int) * imageColSize[i]);
+        memset(flag[i], 0, sizeof(bool) * imageColSize[i]);
+        (*returnColumnSizes)[i] = imageColSize[i];
+    }
+    flag[sr][sc] = true;
+    changeValue(image, imageSize, imageColSize, sr, sc, newColor, res, flag, returnSize, returnColumnSizes);
+    for (int i = 0; i < imageSize; i++) {
+        for (int j = 0; j < imageColSize[i]; j++) {
+            if (flag[i][j] == false) res[i][j] = image[i][j];
+        }
+        free(flag[i]);
+    }
+    free(flag);
+    return res;
+}
 
