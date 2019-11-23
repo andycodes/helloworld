@@ -369,3 +369,53 @@ bool isCousins(struct TreeNode* root, int x, int y){
     return (x_f != y_f && x_depth == y_depth);
 }
 
+/*
+给定一个二叉树，返回所有从根节点到叶子节点的路径。
+
+说明: 叶子节点是指没有子节点的节点。
+
+示例:
+
+输入:
+
+   1
+ /   \
+2     3
+ \
+  5
+
+输出: ["1->2->5", "1->3"]
+
+解释: 所有根节点到叶子节点的路径为: 1->2->5, 1->3
+
+*/
+void _binaryTreePaths(struct TreeNode* root, int* buf, int bufSize, char** res, int* returnSize){
+    if(!root){
+	return;
+    }
+
+    buf[bufSize++] = root->val;
+
+    if(!root->left && !root->right){
+        res[*returnSize] = (char*)malloc(256);
+	sprintf(res[*returnSize], "%d", buf[0]);
+	for(int i = 1; i < bufSize; i++){
+	    sprintf(res[*returnSize], "%s->%d", res[*returnSize], buf[i]);
+	}
+	(*returnSize)++;
+	return;
+    }
+
+    _binaryTreePaths(root->left, buf, bufSize, res, returnSize);
+    _binaryTreePaths(root->right, buf, bufSize, res, returnSize);
+}
+
+char ** binaryTreePaths(struct TreeNode* root, int* returnSize){
+   char** res = (char**)malloc(sizeof(char*) * 256);
+   *returnSize = 0;
+   int buf[256];
+   _binaryTreePaths(root, buf, 0, res, returnSize);
+
+   return res;
+}
+
