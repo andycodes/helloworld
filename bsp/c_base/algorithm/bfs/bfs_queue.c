@@ -202,14 +202,12 @@ int** floodFill(int** image, int imageSize, int* imageColSize, int sr, int sc,
 	while(!is_empty(queue)) {
 		struct queue_load cur = pop(queue);
 		image[cur.row][cur.col] = newColor;
-		printf("pop %d %d %d\n",cur.row,cur.col,image[cur.row][cur.col]);
 
 		for(int i = 0; i < 4; i++) {
 			int new_i = cur.row + directions[i][0];
 			int new_j = cur.col + directions[i][1];
 			if ((0 <= new_i) && (new_i < imageSize)  && (0 <= new_j) &&
 				(new_j < imageColSize[0]) && image[new_i][new_j] == originalcolor) {
-				printf("push %d %d %d\n",new_i,new_j,originalcolor);
 				start.row = new_i;
 				start.col = new_j;
 				push(queue,start);
