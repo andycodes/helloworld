@@ -7,8 +7,10 @@ struct queue_load{
 
 struct queue_blk{
 	int count;
+	int size;
 	struct queue_load load[0];
 };
+
 
 struct queue_blk * create_array_queue(int sz)
 {
@@ -21,6 +23,7 @@ struct queue_blk * create_array_queue(int sz)
 	}
 
 	queue->count = 0;
+	queue->size = sz;
 
 	return queue;
 }
@@ -38,6 +41,11 @@ void destroy_array_queue(struct queue_blk * queue)
 void push(struct queue_blk * queue,struct queue_load load)
 {
 	queue->load[queue->count++] = load;
+	if (queue->count > queue->size) {
+		printf("[%s] push count[%d] too big\n", __func__, queue->count);
+		queue->count = queue->count % queue->size;
+		return;
+	}
 }
 
 
@@ -93,24 +101,24 @@ void main()
 
 	// 将“队列开头的元素”赋值给tmp，并删除“该元素”
 	load2 = pop(q_test1);
-	printf("tmp=%d\n", load2.data);
+	printf("load2 10 =%d\n", load2.data);
 
 	// 只将“队列开头的元素”赋值给tmp，不删除该元素.
 	load3 = front(q_test1);
-	printf("tmp=%d\n", load3.data);
+	printf("load3 20=%d\n", load3.data);
 
 	load1.data = 40;
 	push(q_test1,load1);
 
 	// 打印队列
-	printf("is_empty()=%d\n", is_empty(q_test1));
-	printf("size()=%d\n", size(q_test1));
+	printf("is_empty() false =%d\n", is_empty(q_test1));
+	printf("size() 3 =%d\n", size(q_test1));
 
 	while (!is_empty(q_test1)) {
 		struct queue_load tmp_load;
 
 		tmp_load = pop(q_test1);
-		printf("%d\n", tmp_load.data);
+		printf("20 30 40  ==%d\n", tmp_load.data);
 	}
 
 	// 销毁队列
