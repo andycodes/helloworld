@@ -1,123 +1,134 @@
 #include <stdio.h>
 #include <malloc.h>
 
-/**
- * C 语言: 数组实现的栈，只能存储int数据。
- *
- * @author skywang
- * @date 2013/11/07
- */
 
-// 保存数据的数组
-static int *arr=NULL;
-// 栈的实际大小
-static int count;
 
-// 创建“栈”，默认大小是12
-int create_array_stack(int sz) 
+
+struct stack_load{
+	int data;
+};
+
+struct stack_blk{
+	int count;
+	int size;
+	struct stack_load load[0];
+};
+
+
+struct stack_blk *create_array_stack(int sz)
 {
-	arr = (int *)malloc(sz*sizeof(int));
-	if (!arr) 
-	{
+	struct stack_blk * stack =
+		(struct stack_blk  *)malloc(sizeof(struct stack_blk) + sz*sizeof(struct stack_load));
+	if (stack == NULL) {
 		printf("arr malloc error!");
-		return -1;
+		return NULL;
 	}
 
-	return 0;
+	stack->size = sz;
+	stack->count = 0;
+
+	return stack;
 }
 
-// 销毁“栈”
-int destroy_array_stack() 
+
+void destroy_array_stack(struct stack_blk * stack)
 {
-	if (arr) 
-	{
-		free(arr);
-		arr = NULL;
+	if (stack != NULL) {
+		free(stack);
+		stack = NULL;
 	}
-
-	return 0;
 }
 
-// 将val添加到栈中
-void push(int val) 
+
+void push(struct stack_blk * stack,struct stack_load load)
 {
-	arr[count++] = val;
+	stack->load[stack->count++] = load;
+	if (stack->count > stack->size) {
+		printf("[%s] push count[%d] too big\n", __func__, stack->count);
+		stack->count = stack->count % stack->size;
+	}
 }
 
 // 返回“栈顶元素值”
-int peek() 
+struct stack_load  peek(struct stack_blk * stack)
 {
-	return arr[count-1];
+	return stack->load[stack->count-1];
 }
 
 // 返回“栈顶元素值”，并删除“栈顶元素”
-int pop() 
+struct stack_load  pop(struct stack_blk * stack)
 {
-	int ret = arr[count-1];
-	count--;
+	struct stack_load  ret = stack->load[stack->count-1];
+	stack->count--;
 	return ret;
 }
 
 // 返回“栈”的大小
-int size() 
+int size(struct stack_blk * stack)
 {
-	return count;
+	return stack->count;
 }
 
 // 返回“栈”是否为空
-int is_empty()
+int is_empty(struct stack_blk * stack)
 {
-	return size()==0;
+	return size(stack)==0;
 }
 
 // 打印“栈”
-void print_array_stack()
+void print_array_stack(struct stack_blk * stack)
 {
-	if (is_empty()) 
-	{
+	if (is_empty(stack)) {
 		printf("stack is Empty\n");
 		return ;
 	}
 
-	printf("stack size()=%d\n", size());
+	printf("stack size()=%d\n", size(stack));
 
-	int i=size()-1;
+	int i=size(stack)-1;
 	while (i>=0)
 	{
-		printf("%d\n", arr[i]);
+		printf("%d\n", stack->load[i].data);
 		i--;
 	}
 }
 
 
-void main() 
+void main()
 {
-	int tmp=0;
+	struct stack_load tmp;
 
 	// 创建“栈”
-	create_array_stack(12);
+	struct stack_blk * stack = create_array_stack(12);
 
 	// 将10, 20, 30 依次推入栈中
-	push(10);
-	push(20);
-	push(30);
+	struct stack_load load;
+	load.data =10;
+	push(stack,load);
+	load.data =20;
+	push(stack,load);
+	load.data =30;
+	push(stack,load);
 
 	//print_array_stack();	// 打印栈
 
 	// 将“栈顶元素”赋值给tmp，并删除“栈顶元素”
-	tmp = pop();
-	printf("tmp=%d\n", tmp);
+	tmp = pop(stack);
+	printf("tmp=%d\n", tmp.data);
 	//print_array_stack();	// 打印栈
 
 	// 只将“栈顶”赋值给tmp，不删除该元素.
-	tmp = peek();
-	printf("tmp=%d\n", tmp);
+	tmp = peek(stack);
+	printf("tmp=%d\n", tmp.data);
 	//print_array_stack();	// 打印栈
 
-	push(40);
-	print_array_stack();	// 打印栈
+	load.data =40;
+	push(stack,load);
+	print_array_stack(stack);	// 打印栈
 
 	// 销毁栈
-	destroy_array_stack();
+	destroy_array_stack(stack);
 }
+
+
 
