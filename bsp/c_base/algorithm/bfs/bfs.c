@@ -21,8 +21,10 @@ struct queue_load{
 
 struct queue_blk{
 	int count;
+	int size;
 	struct queue_load load[0];
 };
+
 
 struct queue_blk * create_array_queue(int sz)
 {
@@ -35,6 +37,7 @@ struct queue_blk * create_array_queue(int sz)
 	}
 
 	queue->count = 0;
+	queue->size = sz;
 
 	return queue;
 }
@@ -52,6 +55,11 @@ void destroy_array_queue(struct queue_blk * queue)
 void push(struct queue_blk * queue,struct queue_load load)
 {
 	queue->load[queue->count++] = load;
+	if (queue->count > queue->size) {
+		printf("[%s] push count[%d] too big\n", __func__, queue->count);
+		queue->count = queue->count % queue->size;
+		return;
+	}
 }
 
 
@@ -157,5 +165,58 @@ int orangesRotting(int** grid, int gridSize, int* gridColSize){
 
 
 
+struct queue_load{
+	int row;
+	int col;
+};
+/*tile see dfs floodFill*/
+int** floodFill(int** image, int imageSize, int* imageColSize, int sr, int sc,
+	int newColor, int* returnSize, int** returnColumnSizes)
+{
+	*returnSize = imageSize;
+	*returnColumnSizes = malloc(sizeof(int) * imageSize);
 
+	for (int i = 0; i < imageSize; i++) {
+		(*returnColumnSizes)[i] = imageColSize[i];
+	}
+
+	if (newColor == image[sr][sc])
+		return image;
+
+	int directions[4][2] = {
+		{1,0},
+		{-1,0},
+		{0,1},
+		{0,-1}
+	};
+	int originalcolor = image[sr][sc];
+
+	struct queue_blk * queue = create_array_queue(50);
+
+	struct queue_load start;
+	start.row = sr;
+	start.col = sc;
+
+	push(queue,start);
+
+	while(!is_empty(queue)) {
+		struct queue_load cur = pop(queue);
+		image[cur.row][cur.col] = newColor;
+		printf("pop %d %d %d\n",cur.row,cur.col,image[cur.row][cur.col]);
+
+		for(int i = 0; i < 4; i++) {
+			int new_i = cur.row + directions[i][0];
+			int new_j = cur.col + directions[i][1];
+			if ((0 <= new_i) && (new_i < imageSize)  && (0 <= new_j) &&
+				(new_j < imageColSize[0]) && image[new_i][new_j] == originalcolor) {
+				printf("push %d %d %d\n",new_i,new_j,originalcolor);
+				start.row = new_i;
+				start.col = new_j;
+				push(queue,start);
+			}
+		}
+	}
+
+	return image;
+}
 
