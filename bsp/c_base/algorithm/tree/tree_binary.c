@@ -392,24 +392,25 @@ bool isCousins(struct TreeNode* root, int x, int y){
 
 */
 void _binaryTreePaths(struct TreeNode* root, int* buf, int bufSize, char** res, int* returnSize){
-    if(!root){
-	return;
-    }
 
-    buf[bufSize++] = root->val;
-
-    if(!root->left && !root->right){
-        res[*returnSize] = (char*)malloc(256);
-	sprintf(res[*returnSize], "%d", buf[0]);
-	for(int i = 1; i < bufSize; i++){
-	    sprintf(res[*returnSize], "%s->%d", res[*returnSize], buf[i]);
+	if(root == NULL) {
+		return;
 	}
-	(*returnSize)++;
-	return;
-    }
 
-    _binaryTreePaths(root->left, buf, bufSize, res, returnSize);
-    _binaryTreePaths(root->right, buf, bufSize, res, returnSize);
+	buf[bufSize++] = root->val;
+
+	if((root->left == NULL) && (root->right == NULL)){
+		res[*returnSize] = (char*)malloc(256);
+		sprintf(res[*returnSize], "%d", buf[0]);
+		for(int i = 1; i < bufSize; i++) {
+			sprintf(res[*returnSize], "%s->%d", res[*returnSize], buf[i]);
+		}
+		(*returnSize)++;
+		return;
+	}
+
+	_binaryTreePaths(root->left, buf, bufSize, res, returnSize);
+	_binaryTreePaths(root->right, buf, bufSize, res, returnSize);
 }
 
 char ** binaryTreePaths(struct TreeNode* root, int* returnSize){
@@ -570,5 +571,80 @@ bool  isBalanced(struct TreeNode* root)
 			(isBalanced(root->left))&&
 			(isBalanced(root->right));
 }
+
+
+/*
+给定一个二叉树和一个目标和，判断该树中是否存在根节点
+到叶子节点的路径，这条路径上所有节点值相加等于目标和。
+
+说明: 叶子节点是指没有子节点的节点。
+
+示例:
+给定如下二叉树，以及目标和 sum = 22，
+
+              5
+             / \
+            4   8
+           /   / \
+          11  13  4
+         /  \      \
+        7    2      1
+返回 true, 因为存在目标和为 22 的根节点到叶子节点的
+路径 5->4->11->2。
+
+*/
+/*
+最直接的方法就是利用递归，遍历整棵树：
+如果当前节点不是叶子，对它的所有孩子节点，
+递归调用 hasPathSum 函数，其中 sum 值减去当前节点的权值；
+如果当前节点是叶子，检查 sum 值是否为 0，
+也就是是否找到了给定的目标和。
+
+复杂度分析
+
+时间复杂度：我们访问每个节点一次，时间复杂度为 O(N)O(N) ，
+其中 NN 是节点个数。
+空间复杂度：最坏情况下，整棵树是非平衡的，
+例如每个节点都只有一个孩子，递归会调用 NN 次（树的高度），
+因此栈的空间开销是 O(N)O(N) 。但在最好情况下，
+树是完全平衡的，高度只有 \log(N)log(N)，因此在这种情况
+下空间复杂度只有 O(\log(N))O(log(N)) 。
+
+*/
+bool hasPathSum(struct TreeNode* root, int sum){
+	if(root == NULL)
+		return false;
+
+	sum -= root->val;
+
+	if ((root->left == NULL) && (root->right == NULL))
+		return  sum == 0;
+
+	return hasPathSum(root->left,sum) || hasPathSum(root->right,sum);
+}
+
+/*
+第二种方法是，声明一个变量记录已经经过的节点的值之和，
+每经过一个节点就加上这个节点的值，
+在叶子节点判断变量值是否为目标值。
+*/
+bool dfs(struct TreeNode* root, int cur, int sum)
+{
+	if (root == NULL)
+		return false;
+
+	cur += root->val;
+
+	if (root->left == NULL && root->right == NULL) {
+		return cur == sum;
+	} else {
+		return dfs(root->left,cur,sum) ||dfs(root->right,cur,sum);
+	}
+}
+
+bool hasPathSum(struct TreeNode* root, int sum){
+	return dfs(root,0,sum);
+}
+
 
 
