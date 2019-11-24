@@ -1,8 +1,14 @@
 #include <stdio.h>
-#include <malloc.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#include <stdbool.h>
+#include <ctype.h>
+
 
 struct stack_load{
-	int data;
+	int row;
+	int col;
 };
 
 struct stack_blk{
@@ -72,59 +78,56 @@ int is_empty(struct stack_blk * stack)
 	return size(stack)==0;
 }
 
-// 打印“栈”
-void print_array_stack(struct stack_blk * stack)
+
+/*tile see dfs floodFill*/
+int** floodFill(int** image, int imageSize, int* imageColSize,
+	int sr, int sc,
+	int newColor, int* returnSize, int** returnColumnSizes)
 {
-	if (is_empty(stack)) {
-		printf("stack is Empty\n");
-		return ;
+	*returnSize = imageSize;
+	*returnColumnSizes = malloc(sizeof(int) * imageSize);
+
+	for (int i = 0; i < imageSize; i++) {
+		(*returnColumnSizes)[i] = imageColSize[i];
 	}
 
-	printf("stack size()=%d\n", size(stack));
+	if (newColor == image[sr][sc])
+		return image;
 
-	int i=size(stack)-1;
-	while (i>=0)
-	{
-		printf("%d\n", stack->load[i].data);
-		i--;
+	int directions[4][2] = {
+		{1,0},
+		{-1,0},
+		{0,1},
+		{0,-1}
+	};
+
+	int originalcolor = image[sr][sc];
+
+	struct stack_blk * stack = create_array_stack(50);
+
+	struct stack_load start;
+	start.row = sr;
+	start.col = sc;
+
+	push(stack,start);
+
+	while(!is_empty(stack)) {
+		struct stack_load cur = pop(stack);
+		image[cur.row][cur.col] = newColor;
+
+		for(int i = 0; i < 4; i++) {
+			int new_i = cur.row + directions[i][0];
+			int new_j = cur.col + directions[i][1];
+			if ((0 <= new_i) && (new_i < imageSize)  && (0 <= new_j) &&
+				(new_j < imageColSize[0]) && image[new_i][new_j] == originalcolor) {
+				start.row = new_i;
+				start.col = new_j;
+				push(stack,start);
+			}
+		}
 	}
-}
 
-
-void main()
-{
-	struct stack_load tmp;
-
-	// 创建“栈”
-	struct stack_blk * stack = create_array_stack(12);
-
-	// 将10, 20, 30 依次推入栈中
-	struct stack_load load;
-	load.data =10;
-	push(stack,load);
-	load.data =20;
-	push(stack,load);
-	load.data =30;
-	push(stack,load);
-
-	//print_array_stack();	// 打印栈
-
-	// 将“栈顶元素”赋值给tmp，并删除“栈顶元素”
-	tmp = pop(stack);
-	printf("tmp=%d\n", tmp.data);
-	//print_array_stack();	// 打印栈
-
-	// 只将“栈顶”赋值给tmp，不删除该元素.
-	tmp = peek(stack);
-	printf("tmp=%d\n", tmp.data);
-	//print_array_stack();	// 打印栈
-
-	load.data =40;
-	push(stack,load);
-	print_array_stack(stack);	// 打印栈
-
-	// 销毁栈
-	destroy_array_stack(stack);
+	return image;
 }
 
 

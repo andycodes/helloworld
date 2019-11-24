@@ -1,3 +1,13 @@
+/*
+DFS模板
+
+dfs出口，不满足条件就退出
+
+操作
+
+递归，接着进一步DFS
+*/
+
 void dfs(int** M, int MColSize, int* visited, int i) {
         for (int j = 0; j < MColSize; j++) {
             if (M[i][j] == 1 && visited[j] == 0) {
@@ -50,23 +60,25 @@ sr = 1, sc = 1, newColor = 2
  * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
  */
 void changeValue(int** image, int imageSize, int* imageColSize, int sr, int sc, int newColor, int** res, bool** flag, int* returnSize, int** returnColumnSizes) {
-    res[sr][sc] = newColor;
-    if (sr > 0 && image[sr - 1][sc] == image[sr][sc] && !flag[sr - 1][sc])  {
-        flag[sr - 1][sc] = true;
-        changeValue(image, imageSize, imageColSize, sr - 1, sc, newColor, res, flag, returnSize, returnColumnSizes);
-    }
-    if (sc > 0 && image[sr][sc - 1] == image[sr][sc] && !flag[sr][sc - 1])  {
-        flag[sr][sc - 1] = true;
-        changeValue(image, imageSize, imageColSize, sr, sc - 1, newColor, res, flag, returnSize, returnColumnSizes);
-    }
-    if (sr < imageSize - 1 && image[sr + 1][sc] == image[sr][sc] && !flag[sr + 1][sc])  {
-        flag[sr + 1][sc] = true;
-        changeValue(image, imageSize, imageColSize, sr + 1, sc, newColor, res, flag, returnSize, returnColumnSizes);
-    }
-    if (sc < imageColSize[sr] - 1 && image[sr][sc + 1] == image[sr][sc] && !flag[sr][sc + 1])  {
-        flag[sr][sc + 1] = true;
-        changeValue(image, imageSize, imageColSize, sr, sc + 1, newColor, res, flag, returnSize, returnColumnSizes);
-    }
+
+	res[sr][sc] = newColor;
+
+	if (sr > 0 && image[sr - 1][sc] == image[sr][sc] && !flag[sr - 1][sc])  {
+	    flag[sr - 1][sc] = true;
+	    changeValue(image, imageSize, imageColSize, sr - 1, sc, newColor, res, flag, returnSize, returnColumnSizes);
+	}
+	if (sc > 0 && image[sr][sc - 1] == image[sr][sc] && !flag[sr][sc - 1])  {
+	    flag[sr][sc - 1] = true;
+	    changeValue(image, imageSize, imageColSize, sr, sc - 1, newColor, res, flag, returnSize, returnColumnSizes);
+	}
+	if (sr < imageSize - 1 && image[sr + 1][sc] == image[sr][sc] && !flag[sr + 1][sc])  {
+	    flag[sr + 1][sc] = true;
+	    changeValue(image, imageSize, imageColSize, sr + 1, sc, newColor, res, flag, returnSize, returnColumnSizes);
+	}
+	if (sc < imageColSize[sr] - 1 && image[sr][sc + 1] == image[sr][sc] && !flag[sr][sc + 1])  {
+	    flag[sr][sc + 1] = true;
+	    changeValue(image, imageSize, imageColSize, sr, sc + 1, newColor, res, flag, returnSize, returnColumnSizes);
+	}
 }
 
 int** floodFill(int** image, int imageSize, int* imageColSize, int sr, int sc, int newColor, int* returnSize, int** returnColumnSizes){
