@@ -1,3 +1,16 @@
+#include <stddef.h>
+#include <stdio.h>
+#include <math.h>
+#include <stdlib.h>
+
+/*  Definition for a binary tree node.*/
+struct TreeNode {
+	int val;
+	struct TreeNode *left;
+	struct TreeNode *right;
+};
+
+
 /*
 给定一个二叉搜索树，同时给定最小边界L?和
 最大边界?R。通过修剪二叉搜索树，使得所有
@@ -19,16 +32,6 @@
 
 
 */
-
-/**
- * Definition for a binary tree node.
- * struct TreeNode {
- *     int val;
- *     struct TreeNode *left;
- *     struct TreeNode *right;
- * };
- */
-
 
 struct TreeNode* trimBST(struct TreeNode* root, int L, int R){
         if (root ==  NULL) return root;
@@ -52,16 +55,6 @@ struct TreeNode* trimBST(struct TreeNode* root, int L, int R){
 两个元素差的最小值。
 
 */
-#include <stddef.h>
-#include <stdio.h>
-#include <math.h>
-#include <stdlib.h>
-
-  struct TreeNode {
-      int val;
-      struct TreeNode *left;
-      struct TreeNode *right;
-  };
 
 
 #define min(a, b) ((a) < (b) ? (a) : (b))
@@ -186,6 +179,34 @@ struct TreeNode* ToBST(int nums[],int left,int right){
 
 struct TreeNode* sortedArrayToBST(int* nums, int numsSize){
     return ToBST(nums,0,numsSize-1);
+}
+
+/*
+给定一个二叉搜索树，编写一个函数 kthSmallest 来查找其中第 k 个最小的元素。
+
+说明：
+你可以假设 k 总是有效的，1 ≤ k ≤ 二叉搜索树元素个数。
+
+*/
+/*中序遍历(生成器)+提前终止*/
+void dfs(struct TreeNode* root, int k, int *cnt, int *ret)
+{
+    if(root == NULL)
+        return;
+
+    dfs(root->left, k, cnt, ret);
+    if(++ (*cnt) ==k) {
+        *ret = root->val;
+        return;
+    }
+    dfs(root->right, k, cnt, ret);
+}
+
+int kthSmallest(struct TreeNode* root, int k){
+    int ret = 0;
+    int i = 0;
+    dfs(root,k, &i,&ret);
+    return ret;
 }
 
 
