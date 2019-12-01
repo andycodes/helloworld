@@ -4,9 +4,11 @@
 #include <math.h>
 
 /*
-我们这样来看这个问题，公司首先将这 2N 个人全都安排飞往 B 市，
+我们这样来看这个问题，
+公司首先将这 2N 个人全都安排飞往 B 市，
 再选出 N 个人改变它们的行程，让他们飞往 A 市。
-如果选择改变一个人的行程，那么公司将会额外付出 price_A - price_B 的费用，
+如果选择改变一个人的行程，
+那么公司将会额外付出 price_A - price_B 的费用，
 这个费用可正可负。
 
 
@@ -103,4 +105,40 @@ int maxProfit(int* prices, int pricesSize){
         return profit;
 }
 
+
+/*
+在一个「平衡字符串」中，'L' 和 'R' 字符的数量是相同的。
+
+给出一个平衡字符串 s，请你将它分割成尽可能多的平衡字符串。
+
+返回可以通过分割得到的平衡字符串的最大数量。
+
+问题分析：分割平衡串，得到尽可能多的平衡串。这是一个适用贪心算法的问题，在适当的位置截断源串得到平衡子串，截断后前后子串的计数不互相影响（无后效性），且所有局部最优相加即为整体的最优解。
+解决思路：
+
+设置一个'L'与'R'的差值计数器diffCount，设置一个平衡子串计数器count；
+顺序遍历源串字符，遇L则diffCount+1，遇到R则diffCount-1；
+每遍历一个字符检查一次diffCount是否为0，若为0则count+1
+
+*/
+
+int balancedStringSplit(char * s){
+	int diffCnt = 0;
+	int count = 0;
+
+	if (s == NULL)
+		return 0;
+
+	for (int i = 0; i < strlen(s); i++) {
+		if (s[i] == 'L')
+			diffCnt++;
+		else
+			diffCnt--;
+
+		if (diffCnt == 0)
+			count++;
+	}
+
+	return count;
+}
 
