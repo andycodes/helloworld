@@ -142,3 +142,139 @@ int balancedStringSplit(char * s){
 	return count;
 }
 
+/*
+假设你是一位很棒的家长，想要给你的孩子们一些小饼干。但是，每个孩子最多只能给一块饼干。对每个孩子 i ，都有一个胃口值 gi ，这是能让孩子们满足胃口的饼干的最小尺寸；并且每块饼干 j ，都有一个尺寸 sj 。如果 sj >= gi ，我们可以将这个饼干 j 分配给孩子 i ，这个孩子会得到满足。你的目标是尽可能满足越多数量的孩子，并输出这个最大数值。
+
+注意：
+
+你可以假设胃口值为正。
+一个小朋友最多只能拥有一块饼干。
+
+示例 1:
+
+输入: [1,2,3], [1,1]
+
+输出: 1
+
+解释:
+你有三个孩子和两块小饼干，3个孩子的胃口值分别是：1,2,3。
+虽然你有两块小饼干，由于他们的尺寸都是1，你只能让胃口值是1的孩子满足。
+所以你应该输出1。
+示例 2:
+
+输入: [1,2], [1,2,3]
+
+输出: 2
+
+*/
+
+int cmp_int ( const void *a , const void *b){
+        return *(int *)a - *(int *)b;
+}
+
+int findContentChildren(int* g, int gSize, int* s, int sSize){
+
+	int ig = 0;
+	int is = 0;
+	int out = 0;
+
+	qsort(g,gSize,sizeof(int),cmp_int);
+	qsort(s,sSize,sizeof(int),cmp_int);
+
+	while((ig < gSize) && (is < sSize)) {
+		if (g[ig] <= s[is]) {
+			out++;
+			ig++;
+			is++;
+		}else {
+			is++;
+		}
+	}
+
+	return out;
+}
+
+/*
+给定一个整数数组 A，我们只能用以下方法修
+改该数组：我们选择某个个索引 i 并将 A[i] 替换为 -A[i]，
+然后总共重复这个过程 K 次。
+（我们可以多次选择同一个索引 i。）
+
+以这种方式修改数组后，返回数组可能的最大和。
+
+*/
+int cmp_int ( const void *a , const void *b){
+        return *(int *)a - *(int *)b;
+}
+
+/*第一种：每次取反前，将数组排序，
+取反最小值，速度最慢*/
+int largestSumAfterKNegations(int* A, int ASize, int K){
+	int sum = 0;
+	int tmp;
+
+	if (A == NULL || ASize <= 0)
+		return 0;
+
+	for (int i = 0; i < K; i++) {
+		qsort(A,ASize,sizeof(int),cmp_int);
+		A[0] = -A[0];
+	}
+
+	for (int i = 0; i < ASize; i++) {
+		sum += A[i];
+	}
+
+	return sum;
+}
+
+/*
+对K做分析，分3种情况：
+1，k小于负数的个数：直接将最小的负数取反
+2，k多于负数个数，但是多出来的部分是偶数：
+所有负数取反后，直接返回和
+3，多出负数的部分是奇数：
+将非负数数字排序，把最小数字取反，返回和
+*/
+
+#define m_sum()\
+	for (int i = 0; i < ASize; i++) {\
+		sum += A[i];\
+	}\
+
+int largestSumAfterKNegations(int* A, int ASize, int K){
+	int tmp;
+	int sum = 0;
+	int i = 0;
+
+	if (A == NULL || ASize <= 0)
+		return 0;
+
+	qsort(A,ASize,sizeof(int),cmp_int);
+
+	if (A[K -1] <= 0) {
+		for (; i < K;i++) {
+			A[i] = -A[i];
+		}
+
+		m_sum();
+		return sum;
+	}
+
+	for (i = 0; i < K && A[i] < 0; i++) {
+			A[i] = -A[i];
+	}
+
+	if ((K -i)%2 == 0) {
+		m_sum();
+		return sum;
+	}
+
+	qsort(A,ASize,sizeof(int),cmp_int);
+	A[0] = -A[0];
+
+	m_sum();
+	return sum;
+}
+
+
