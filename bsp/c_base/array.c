@@ -98,6 +98,39 @@ void array_vla(int tmp)
             printf ("size(b) = %lu, size(c) = %lu\n", sizeof(b)/sizeof(int), sizeof(c)/sizeof(int));
     }
 
+/*
+给定一个数组 A，将其划分为两个不相交（没有公共元素）的连续子数组 left 和 right， 使得：
+
+left 中的每个元素都小于或等于 right 中的每个元素。
+left 和 right 都是非空的。
+left 要尽可能小。
+在完成这样的分组后返回 left 的长度。可以保证存在这样的划分方法。
+*/
+int partitionDisjoint(int* A, int ASize){
+	int *left_max = malloc(ASize * sizeof(int));
+	int *right_min = malloc(ASize * sizeof(int));
+
+	int tmp = A[0];
+	for (int i = 0; i < ASize; i++) {
+		tmp = tmp > A[i] ? tmp : A[i];
+		left_max[i] = tmp;
+	}
+
+	tmp = A[ASize - 1];
+	for (int i = ASize -1; i >= 0; i--) {
+		tmp = tmp < A[i] ? tmp : A[i];
+		right_min[i] = tmp;
+	}
+
+	for (int i = 1; i < ASize; i++){
+		if (left_max[i -1] <= right_min[i])
+			return i;
+	}
+
+	return ASize;
+}
+
+
 int main()
 {
 	array_vla(2);
