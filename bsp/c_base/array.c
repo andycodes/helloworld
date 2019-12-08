@@ -1,10 +1,105 @@
 /*
+
+
+一维数组的两种访问方式。
+以int b[10]为例, int *p = b;。
+b[0] 等同于 *(p+0);
+b[9] 等同于 *(p+9);
+b[i] 等同于 *(p+i)
+
+
+
+二维数组的表示
+二维数组的数组名表示二维数组的
+第一维数组中首元素（也就是第二维的数组）的首地址
+a+i == p+i
+a[i] == p[i] == *(a+i) == *(p+i)
+a[i][j] == p[i][j] == *(a[i]+j) == *(p[i]+j) == *(*(a+i)+j) == *(*(p+i)+j)
+
 二维数组作为参数传递给函数
 有以下三种形式:
 void Func(int array[3][10]);
 void Func(int array[ ][10]);
 void Func(int (*array)[10]);
 */
+
+
+#include <stdio.h>
+int tow_array_access()
+{
+    int a[3][4]={0,1,2,3,4,5,6,7,8,9,10,11};
+    int(*p)[4];
+    int i,j;
+    p=a;
+    for(i=0; i<3; i++){
+		for(j=0; j<4; j++)
+			printf("%2d  ",*(*(p+i)+j));
+		printf("\n");
+	}
+	return 0;
+}
+/*
+变长数组(variable-length array,VLA)(C99）
+C99标准引入了变长数组，它允许使用变量定义数组各维
+int quarters = 4;
+int regions = 5;
+double sales[quarters][regions]; //一个变长数组VAL
+
+变长数组有一些限制：变长数组必须是自动存储类的，
+意味着它们必须在函数内部或作为函数参数声明，
+而且声明时不可以进行初始化。
+
+C99标准规定，可以省略函数原型中的名称，
+但是如果省略名称，则需要用星号来代替省略的维数:
+int sum2d(int , int, int ar[*][*]);
+
+6.7.5.2 Array declarators
+Array objects declared with the static or extern storage-class specifier
+cannot have a variable length array (VLA) type
+*/
+void array_vla(int tmp)
+    {
+            int a;
+
+            scanf("%d", &a);
+            int b[tmp];
+            int c[a];
+            printf ("size(b) = %lu, size(c) = %lu\n", sizeof(b)/sizeof(int), sizeof(c)/sizeof(int));
+    }
+
+
+/*
+给定一个数组 A，将其划分为两个不相交（没有公共元素）的连续子数组 left 和 right， 使得：
+
+left 中的每个元素都小于或等于 right 中的每个元素。
+left 和 right 都是非空的。
+left 要尽可能小。
+在完成这样的分组后返回 left 的长度。可以保证存在这样的划分方法。
+*/
+int partitionDisjoint(int* A, int ASize){
+	int *left_max = malloc(ASize * sizeof(int));
+	int *right_min = malloc(ASize * sizeof(int));
+
+	int tmp = A[0];
+	for (int i = 0; i < ASize; i++) {
+		tmp = tmp > A[i] ? tmp : A[i];
+		left_max[i] = tmp;
+	}
+
+	tmp = A[ASize - 1];
+	for (int i = ASize -1; i >= 0; i--) {
+		tmp = tmp < A[i] ? tmp : A[i];
+		right_min[i] = tmp;
+	}
+
+	for (int i = 1; i < ASize; i++){
+		if (left_max[i -1] <= right_min[i])
+			return i;
+	}
+
+	return ASize;
+}
+
 
 /*
 给定一个包含 m × n 个格子的面板，每一个格子都可以看成是一个细胞。每个细胞具有一个初始状态 live（1）即为活细胞， 或 dead（0）即为死细胞。每个细胞与其八个相邻位置（水平，垂直，对角线）
@@ -47,88 +142,6 @@ void gameOfLife(int** board, int boardSize, int* boardColSize){
     }
 }
 
-
-#include <stdio.h>
-/*
-a+i == p+i
-a[i] == p[i] == *(a+i) == *(p+i)
-a[i][j] == p[i][j] == *(a[i]+j) == *(p[i]+j) == *(*(a+i)+j) == *(*(p+i)+j)
-*/
-
-int tow_array_access()
-{
-    int a[3][4]={0,1,2,3,4,5,6,7,8,9,10,11};
-    int(*p)[4];
-    int i,j;
-    p=a;
-    for(i=0; i<3; i++){
-		for(j=0; j<4; j++)
-			printf("%2d  ",*(*(p+i)+j));
-		printf("\n");
-	}
-	return 0;
-}
-/*
-变长数组(variable-length array,VLA)(C99）
-C99标准引入了变长数组，它允许使用变量定义数组各维
-int quarters = 4;
-int regions = 5;
-double sales[quarters][regions]; //一个变长数组VAL
-
-变长数组有一些限制：变长数组必须是自动存储类的，
-意味着它们必须在函数内部或作为函数参数声明，
-而且声明时不可以进行初始化。
-
-C99标准规定，可以省略函数原型中的名称，
-但是如果省略名称，则需要用星号来代替省略的维数:
-int sum2d(int , int, int ar[*][*]);
-
-6.7.5.2 Array declarators
-Array objects declared with the static or extern storage-class specifier
-cannot have a variable length array (VLA) type
-*/
-
-void array_vla(int tmp)
-    {
-            int a;
-
-            scanf("%d", &a);
-            int b[tmp];
-            int c[a];
-            printf ("size(b) = %lu, size(c) = %lu\n", sizeof(b)/sizeof(int), sizeof(c)/sizeof(int));
-    }
-
-/*
-给定一个数组 A，将其划分为两个不相交（没有公共元素）的连续子数组 left 和 right， 使得：
-
-left 中的每个元素都小于或等于 right 中的每个元素。
-left 和 right 都是非空的。
-left 要尽可能小。
-在完成这样的分组后返回 left 的长度。可以保证存在这样的划分方法。
-*/
-int partitionDisjoint(int* A, int ASize){
-	int *left_max = malloc(ASize * sizeof(int));
-	int *right_min = malloc(ASize * sizeof(int));
-
-	int tmp = A[0];
-	for (int i = 0; i < ASize; i++) {
-		tmp = tmp > A[i] ? tmp : A[i];
-		left_max[i] = tmp;
-	}
-
-	tmp = A[ASize - 1];
-	for (int i = ASize -1; i >= 0; i--) {
-		tmp = tmp < A[i] ? tmp : A[i];
-		right_min[i] = tmp;
-	}
-
-	for (int i = 1; i < ASize; i++){
-		if (left_max[i -1] <= right_min[i])
-			return i;
-	}
-
-	return ASize;
-}
 
 
 int main()
