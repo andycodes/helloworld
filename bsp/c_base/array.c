@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 /*
 
 
@@ -8,14 +10,6 @@ b[9] 等同于 *(p+9);
 b[i] 等同于 *(p+i)
 
 
-
-二维数组的表示
-二维数组的数组名表示二维数组的
-第一维数组中首元素（也就是第二维的数组）的首地址
-a+i == p+i
-a[i] == p[i] == *(a+i) == *(p+i)
-a[i][j] == p[i][j] == *(a[i]+j) == *(p[i]+j) == *(*(a+i)+j) == *(*(p+i)+j)
-
 二维数组作为参数传递给函数
 有以下三种形式:
 void Func(int array[3][10]);
@@ -24,11 +18,33 @@ void Func(int (*array)[10]);
 */
 
 
-#include <stdio.h>
-int tow_array_access()
+
+
+/*
+二维数组指针
+指向数组     的     指针
+*/
+int two_dimensional_array_point_access(void)
 {
-    int a[3][4]={0,1,2,3,4,5,6,7,8,9,10,11};
+    int a[3][4]={{1,2,3,4},{5,6,7,8},{9,10,11,12}};
+
+/*括号中的*表明 p 是一个指针，它指向一个数组，
+数组的类型为int [4]，
+这正是 a 所包含的每个一维数组的类型。
+
+p 指向的数据类型是int [4]，那么p+1就前进 4×4 = 16 个字节，
+p-1就后退 16 个字节，这正好是数组 a 所包含的每
+个一维数组的长度。也就是说，
+p+1会使得指针指向二维数组的下一行，
+p-1会使得指针指向数组的上一行。
+数组名 a 在表达式中也会被转换为和 p 等价的指针！
+
+a+i == p+i
+a[i] == p[i] == *(a+i) == *(p+i)
+a[i][j] == p[i][j] == *(a[i]+j) == *(p[i]+j) == *(*(a+i)+j) == *(*(p+i)+j)
+*/
     int(*p)[4];
+
     int i,j;
     p=a;
     for(i=0; i<3; i++){
@@ -38,6 +54,18 @@ int tow_array_access()
 	}
 	return 0;
 }
+
+
+/*
+储存指针的数组
+int *(p1[5]);  //指针数组，可以去掉括号直接写作 int *p1[5];
+*/
+
+
+
+
+
+
 /*
 变长数组(variable-length array,VLA)(C99）
 C99标准引入了变长数组，它允许使用变量定义数组各维
@@ -143,9 +171,27 @@ void gameOfLife(int** board, int boardSize, int* boardColSize){
 }
 
 
-
-int main()
+int main(int argc, char* argv[])
 {
-	array_vla(2);
+	if (argc != 2) {
+		printf("argc err\n");
+		return -1;
+	}
+
+	switch(atoi(argv[1])) {
+	case 1:
+		two_dimensional_array_point_access();
+	break;
+	case 2:
+	break;
+	case 3:
+	break;
+	case 4:
+	default:
+	break;
+	}
+
+	return 0;
 }
+
 
