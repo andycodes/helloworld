@@ -234,3 +234,81 @@ int** floodFill(int** image, int imageSize, int* imageColSize, int sr, int sc,
 	return image;
 }
 
+
+/*
+给定一个由 '1'（陆地）和 '0'（水）组成的的二维网格，计算岛屿的数量。一个岛被水包围，并且它是通过水平方向或垂直方向上相邻的陆地连接而成的。你可以假设网格的四个边均被水包围。
+
+示例 1:
+
+输入:
+11110
+11010
+11000
+00000
+
+输出: 1
+
+struct queue_load{
+	int x;
+	int y;
+};
+*/
+int numIslands(char** grid, int gridSize, int* gridColSize){
+	int num = 0;
+
+	if(grid == NULL  || gridSize == 0 || gridColSize == NULL)
+		return num;
+
+	int visited[gridSize][*gridColSize];
+	memset((void*)visited,0,sizeof(visited));
+
+
+
+	struct queue_blk *qe = create_array_queue(gridSize*(* gridColSize));
+
+
+	int d[4][2] = {
+			{0,1},
+			{1,0},
+			{0,-1},
+			{-1,0},
+	};
+
+	for(int i = 0; i < gridSize; i++) {
+		for (int j = 0; j < *gridColSize;j++) {
+			if (grid[i][j] == '1') {
+				if ((visited[i][j]) == 0) {
+					visited[i][j] = 1;
+					num++;
+				}
+
+				struct queue_load load;
+				load.x = i;
+				load.y = j;
+				push(qe,load);
+
+				while(!is_empty(qe)) {
+					struct queue_load get = pop(qe);
+
+					for(int k = 0; k < 4; k++) {
+						int nX = get.x + d[k][0];
+						int nY = get.y + d[k][1];
+						if (nX >=0 && nX < gridSize && nY >=0 && nY < *gridColSize){
+							if (grid[nX][nY] == '1' && visited[nX][nY] == 0) {
+								visited[nX][nY] = 1;
+								struct queue_load load;
+								load.x = nX;
+								load.y = nY;
+								push(qe, load);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return num;
+}
+
+
