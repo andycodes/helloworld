@@ -82,6 +82,15 @@ int is_empty(struct queue_blk * queue)
 	return queue->count==0;
 }
 
+int is_full(struct queue_blk * queue)
+{
+	return queue->count >= queue->size;
+}
+
+#define for_queue_entry(queue) \
+for(int i = 0; i < size(queue); i++)
+
+
 void main()
 {
 	struct queue_blk *q_test1;

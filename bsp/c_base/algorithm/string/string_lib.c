@@ -167,31 +167,54 @@ bool isSubsequence(char * s, char * t){
 }
 
 
+#define swap(a,b) (a^=b,b^=a,a^=b)
+void strrev_pos(char* s, int begin, int end)
+{
+	char* h = s + begin;
+	char* t = s + end;
+
+	if (begin == end)
+		return;
+
+	while(h < t) {
+		swap(*h, *t);
+		h++;
+		t--;
+	}
+}
+
+
+void strrev(char* s)
+{
+	strrev_pos(s, 0, strlen(s) -1);
+}
 
 /*
-C语言strrev()函数：字符串逆置（倒序、逆序）
+给定一个字符串，逐个翻转字符串中的每个单词。
+
+示例：
+
+输入: ["t","h","e"," ","s","k","y"," ","i","s"," ","b","l","u","e"]
+输出: ["b","l","u","e"," ","i","s"," ","s","k","y"," ","t","h","e"]
+注意：
+
+单词的定义是不包含空格的一系列字符
+输入字符串中不会包含前置或尾随的空格
+单词与单词之间永远是以单个空格隔开的
+
 */
-char* strrev(char* s)
-{
-    /* h指向s的头部 */
-    char* h = s;
-    char* t = s;
-    char ch;
+void reverseWords(char* s, int sSize){
+    	int len = 0;
 
-    /* t指向s的尾部 */
-    while(*t++){};
-    t--;    /* 与t++抵消 */
-    t--;    /* 回跳过结束符'\0' */
-
-    /* 当h和t未重合时，交换它们所指向的字符 */
-    while(h < t)
-    {
-        ch = *h;
-        *h++ = *t;    /* h向尾部移动 */
-        *t-- = ch;    /* t向头部移动 */
-    }
-
-    return(s);
+	strrev_pos(s, 0, sSize -1);
+	for (int i = 0; i < sSize; ) {
+		len = 0;
+		while ((i + len) < sSize && s[i + len] != ' ') {
+			len++;
+		}
+		strrev_pos(s, i, i + len - 1);
+		i = i + len + 1;
+	}
 }
 
 
@@ -400,6 +423,52 @@ int continummax(char *outputstr,char *inputstr)
     return max;
 }
 
+/*
+给定一个字符串 s ，找出 至多 包含两个不同字符的最长子串 t 。
+
+示例 1:
+
+输入: "eceba"
+输出: 3
+解释: t 是 "ece"，长度为3。
+示例 2:
+
+输入: "ccaabbb"
+输出: 5
+解释: t 是 "aabbb"，长度为5。
+
+*/
+int lengthOfLongestSubstringTwoDistinct(char * s){
+
+	int sSize = strlen(s);
+	if (sSize <= 2)
+		return sSize;
+
+	int left = 0;
+	int max = 0;
+
+	while( left + max < sSize) {
+		int tempLeft = left;
+
+		while(left < sSize && s[left] == s[tempLeft]) {
+			left++;
+		}
+
+		int right = left;
+		int tempRight = right;
+
+		while(right < sSize && (s[right] == s[tempRight] || s[right] == s[tempLeft] )) {
+			right++;
+		}
+
+		max = max > (right - tempLeft) ? max :(right - tempLeft);
+		left = tempRight;
+	}
+
+	return max;
+}
+
+
 
 void str_to_hex_by_sscanf(char * str)
 {
@@ -439,7 +508,7 @@ char *strtok_r(char *str, const char *delim, char **saveptr);
 例子：
 */
 
-void test_strtok(void)
+void strtok_test(void)
 {
     char str[]="ab,cd,ef";
     char *ptr;
@@ -454,6 +523,66 @@ void test_strtok(void)
         ptr = strtok_r(NULL, ",", &p);
     }
 }
+
+/*
+给出 字符串 text 和 字符串列表 words, 返回所有的索引对 [i, j] 使得在索引对范围内的子字符串 text[i]...text[j]（包括 i 和 j）属于字符串列表 words。
+
+
+
+示例 1:
+
+输入: text = "thestoryofleetcodeandme", words = ["story","fleet","leetcode"]
+输出: [[3,7],[9,13],[10,17]]
+示例 2:
+
+输入: text = "ababa", words = ["aba","ab"]
+输出: [[0,1],[0,2],[2,3],[2,4]]
+解释:
+注意，返回的配对可以有交叉，比如，"aba" 既在 [0,2] 中也在 [2,4] 中
+
+*/
+int cmp(const void *a,const void *b)
+{
+    int *ap = *(int **)a;
+    int *bp = *(int **)b;
+
+    if(ap[0] == bp[0])
+        return ap[1] - bp[1];
+    else
+        return ap[0] - bp[0];
+}
+
+int** indexPairs(char * text, char ** words, int wordsSize, int* returnSize, int** returnColumnSizes){
+    int i, j;
+    int** res = (int **)malloc(sizeof(int *) * 1000);
+    int cnt = 0;
+    int len1 = strlen(text);
+
+    for (i = 0; i < wordsSize; i++) {
+        int len2 = strlen(words[i]);
+        if(len2 > len1)
+		continue;
+
+	for (j = 0; j < len1 - len2 + 1; j++) {
+            if (strncmp(text + j, words[i], strlen(words[i])) == 0) {
+                res[cnt] = (int *)malloc(sizeof(int) * 2);
+                res[cnt][0] = j;
+                res[cnt][1] = j + strlen(words[i]) - 1;
+                cnt++;
+                //printf("j = %d endIdx = %d cnt = %d\n", j, j + strlen(words[i]) - 1, cnt);
+            }
+        }
+	}
+
+    qsort(res, cnt, sizeof(res[0]), cmp); // 二维数组排序
+    *returnSize = cnt;
+    returnColumnSizes[0] = (int *)malloc(sizeof(int) * cnt);
+    for (i = 0; i < cnt; i++) {
+        returnColumnSizes[0][i] = 2;
+    }
+    return res;
+}
+
 
 
 int main(int argc, char* argv[])
@@ -474,7 +603,7 @@ int main(int argc, char* argv[])
 		test_strrpl();
 	break;
 	case 4:
-		test_strtok();
+		strtok_test();
 	default:
 	break;
 	}
