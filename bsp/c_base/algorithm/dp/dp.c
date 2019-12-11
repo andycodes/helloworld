@@ -127,3 +127,82 @@ int maxProduct(int* nums, int numsSize){
         return ans;
 }
 
+
+#define MIN3(a,b,c) ((a)<(b)?((a)<(c)?(a):(c)):((b)<(c)?(b):(c)))
+int minDistance(char * word1, char * word2)
+{
+	int row = (word1 == NULL) ? 0: strlen(word1);
+	int col =  (word2 == NULL) ? 0: strlen(word2);
+
+	row++;
+	col++;
+
+    int mat[row][col];                  /* C99 - variable-length array */
+
+
+    for( int i=0; i<row; ++i ) {        /* 数组的行 */
+        for( int j=0; j<col; ++j ) {    /* 数组的列 */
+            if( i == 0 ) {
+                mat[i][j] = j;          /* 初始化第1行为 [ 0 1 2 ... ] */
+            }
+            else if( j == 0 ) {
+                mat[i][j] = i;          /* 初始化第1列为 [ 0 1 2 ... ] */
+            }
+            else {
+                int cost = ( word1[i-1] == word2[j-1] ) ? 0 : 1;     /* 记录word1[i-1]与word2[j-1]是否相等 */
+                mat[i][j] = MIN3( mat[i-1][j  ] + 1,           /* 取三者的最小值 */
+                                  mat[i  ][j-1] + 1,
+                                  mat[i-1][j-1] + cost);
+            }
+        }
+    }
+
+    return mat[row-1][col-1];
+}}
+
+
+int main()
+{
+	int w[5] = { 0 , 2 , 3 , 4 , 5 };			//商品的体积2、3、4、5
+	int v[5] = { 0 , 3 , 4 , 5 , 6 };			//商品的价值3、4、5、6
+	int bagV = 8;					        //背包大小
+
+        /*
+        动态规划表
+        dp[ i ][ j ] 表示 在面对第 i 件物品，
+        且背包剩余容量为  j 时所能获得的最大价值 */
+	int dp[5][9] = { { 0 } };
+
+	for (int i = 1; i <= 4; i++) {
+		for (int j = 1; j <= bagV; j++) {
+          /* j < w[i] 的情况，这时候背包容量不足以放下第 i 件物品，
+          只能选择不拿m[ i ][ j ] = m[ i-1 ][ j ]*/
+			if (j < w[i])
+				dp[i][j] = dp[i - 1][j];
+            /*
+ j>=w[i] 的情况，这时背包容量可以放下第 i 件物品，
+ 我们就要考虑拿这件物品是否能获取更大的价值。
+ 如果拿取，m[ i ][ j ]=m[ i-1 ][ j-w[ i ] ] + v[ i ]。
+ 这里的m[ i-1 ][ j-w[ i ] ]指的就是考虑了i-1件物品，
+ 背包容量为j-w[i]时的最大价值，
+ 也是相当于为第i件物品腾出了w[i]的空间。
+ 如果不拿，m[ i ][ j ] = m[ i-1 ][ j ] , 同（1）究竟是拿还是不拿，
+ 自然是比较这两种情况那种价值最大。
+            */
+			else
+				dp[i][j] = max(dp[i - 1][j], dp[i - 1][j - w[i]] + v[i]);
+		}
+	}
+
+	//动态规划表的输出
+	for (int i = 0; i < 5; i++) {
+		for (int j = 0; j < 9; j++) {
+			printf("%d ",dp[i][j]);
+		}
+		printf("\n");
+	}
+
+	return 0;
+}
+
+
