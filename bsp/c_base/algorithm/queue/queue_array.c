@@ -38,6 +38,20 @@ void destroy_array_queue(struct queue_blk * queue)
 }
 
 
+struct queue_load  front(struct queue_blk * queue)
+{
+	return  queue->load[0];
+}
+
+
+struct queue_load  back(struct queue_blk * queue)
+{
+	return  queue->load[queue->count - 1];
+}
+
+/*
+	load[0|1|2|3|4]  <--push
+*/
 void push(struct queue_blk * queue,struct queue_load load)
 {
 	queue->load[queue->count++] = load;
@@ -46,12 +60,6 @@ void push(struct queue_blk * queue,struct queue_load load)
 		queue->count = queue->count % queue->size;
 		return;
 	}
-}
-
-
-struct queue_load  front(struct queue_blk * queue)
-{
-	return  queue->load[0];
 }
 
 
@@ -82,10 +90,12 @@ int is_empty(struct queue_blk * queue)
 	return queue->count==0;
 }
 
+
 int is_full(struct queue_blk * queue)
 {
 	return queue->count >= queue->size;
 }
+
 
 #define for_queue_entry(queue) \
 for(int i = 0; i < size(queue); i++)
