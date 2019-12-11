@@ -115,28 +115,16 @@ void qsort_double_test(void)
 }
 
 
-/*
-
-四、对结构体一级排序
+/*对结构体一级排序*/
 struct In{
-double data;
-int other;
-}s[100]
-
-//按照data的值从小到大将结构体排序,关于结构体内的排序关键数据data的类型可以很多种，参考上面的例子写
-
-int cmp( const void *a ,const void *b){
-        return (*(In *)a).data > (*(In *)b).data ? 1 : -1;
-}
-qsort(s,100,sizeof(s[0]),cmp);
-*/
-struct In{
-double data;
-int other;
+	double data;
+	int other;
 }s[100];
 
 int cmp_struct( const void *a ,const void *b){
-        return (*(struct In *)a).data > (*(struct In *)b).data ? 1 : -1;
+	struct In *c = (struct In *)a;
+	struct In *d = (struct In *)b;
+	return c->data > d->data;
 }
 
 
@@ -145,7 +133,9 @@ void qsort_struct_test(void)
 	for(int i =0;i < 100;i++){
 		s[i].data = 100.5 -i;
 	}
-	qsort(s,100,sizeof(s[0]),cmp_struct);
+
+	qsort(s,sizeof(s)/sizeof(s[0]),sizeof(s[0]),cmp_struct);
+
 	for(int i =0;i < 100;i++){
 		printf("%f \n",s[i].data);
 	}
@@ -241,16 +231,27 @@ void qsort_string_test(void)
 }
 
 
-int main()
+int main(int argc, char* argv[])
 {
-	printf("qsort_int_test\n");
-	qsort_int_test();
-	//qsort_array_test();
-	//qsort_char_test();
-	//qsort_double_test();
-	//qsort_struct_test();
-	//qsort_struct2_test();
-	printf("qsort_string_test\n");
-	qsort_string_test();
+	if (argc != 2) {
+		printf("argc err\n");
+		return -1;
+	}
+
+	switch(atoi(argv[1])) {
+	case 1:
+		qsort_struct_test();
+	break;
+	case 2:
+	break;
+	case 3:
+	break;
+	case 4:
+	default:
+	break;
+	}
+
+	return 0;
 }
+
 
