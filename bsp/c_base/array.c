@@ -300,6 +300,102 @@ int** indexPairs(char * text, char ** words, int wordsSize, int* returnSize, int
     return res;
 }
 
+/*
+给定一个有 n 个整数的数组，你需要找到满足以下条件的三元组 (i, j, k) ：
+
+0 < i, i + 1 < j, j + 1 < k < n - 1
+子数组 (0, i - 1)，(i + 1, j - 1)，(j + 1, k - 1)，(k + 1, n - 1) 的和应该相等。
+这里我们定义子数组 (L, R) 表示原数组从索引为L的元素开始至索引为R的元素。
+
+
+
+示例:
+
+输入: [1,2,1,2,1,2,1]
+输出: True
+解释:
+i = 1, j = 3, k = 5.
+sum(0, i - 1) = sum(0, 0) = 1
+sum(i + 1, j - 1) = sum(2, 2) = 1
+sum(j + 1, k - 1) = sum(4, 4) = 1
+sum(k + 1, n - 1) = sum(6, 6) = 1
+
+*/
+bool splitArray(int* nums, int numsSize){
+    if (numsSize < 7) {
+        return false;
+    }
+    int min = nums[0];
+    int max = nums[0];
+    for (int i = 1; i < numsSize; i++) {
+        min = fmin(min, nums[i]);
+        max = fmax(max, nums[i]);
+        nums[i] += nums[i - 1];
+    }
+    for (int j = 3; j < numsSize - 3; j++) {
+        if (abs(nums[j - 1] - (nums[numsSize - 1] - nums[j])) > max - min) {
+            continue;
+        }
+        for (int i = 1; i < j - 1; i++) {
+            if (nums[i - 1] != nums[j - 1] - nums[i]) {
+                continue;
+            }
+            for (int k = j + 2; k < numsSize - 1; k++) {
+                int a = nums[k - 1] - nums[j];
+                int b = nums[numsSize - 1] - nums[k];
+                if (a == b && a == nums[i - 1]) {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+
+
+/*
+给定一个单词列表和两个单词 word1 和 word2，返回列表中这两个单词之间的最短距离。
+
+示例:
+假设 words = ["practice", "makes", "perfect", "coding", "makes"]
+
+输入: word1 = "coding", word2 = "practice"
+输出: 3
+输入: word1 = "makes", word2 = "coding"
+输出: 1
+
+*/
+int shortestDistance(char ** words, int wordsSize, char * word1, char * word2){
+	int word1Record[wordsSize];
+	int word2Record[wordsSize];
+	int word1Cnt = 0;
+	int word2Cnt = 0;
+	int juli = wordsSize;
+
+	if (words == NULL || wordsSize == 0 || word1 == NULL || word2 == NULL)
+		return wordsSize;
+
+	memset((void*)word1Record, 0, sizeof(word1Record));
+	memset((void*)word2Record, 0, sizeof(word2Record));
+
+	for(int i = 0; i < wordsSize; i++) {
+		if (strcmp(words[i], word1) == 0) {
+			word1Record[word1Cnt++] = i;
+		} else if (strcmp(words[i], word2) == 0) {
+			word2Record[word2Cnt++] = i;
+		}
+	}
+
+	for(int i = 0; i < word1Cnt; i++) {
+		for (int j = 0; j < word2Cnt;j++){
+			juli = juli > abs(word2Record[j] - word1Record[i]) ?  abs(word2Record[j] - word1Record[i]) : juli;
+		}
+	}
+
+	return juli;
+}
+
 
 
 int main(int argc, char* argv[])

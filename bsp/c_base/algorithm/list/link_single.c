@@ -1,3 +1,9 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+#include "../../flag_type.h"
+
 typedef  struct ListNode {
       int val;
       struct ListNode *next;
@@ -5,19 +11,19 @@ typedef  struct ListNode {
 
 
 
-void display(struct node *pHead)
+void display(MyLinkedList *pHead)
 {
     while( pHead != NULL)
     {
         printf("%d ", pHead->val);
-        pHead = pHead->pNext;
+        pHead = pHead->next;
     }
     printf("\n");
 }
 
 
-void display2(MyLinkedList*obj){
-    link* temp=obj;//将temp指针重新指向头结点
+void display2(MyLinkedList *obj){
+    MyLinkedList *temp = obj;//将temp指针重新指向头结点
     //只要temp指针指向的结点的next不是Null，就执行输出语句。
     while (temp->next) {
         temp=temp->next;
@@ -155,14 +161,10 @@ int link_single_get_index(MyLinkedList* obj,int val){
 /** Add a node of value val before the first element of the linked list.
 After the insertion, the new node will be the first node of the linked list. */
 void link_single_push_new_head(MyLinkedList* obj, int val) {
-    MyLinkedList* tmp = obj;
-
-    MyLinkedList* newNode = (MyLinkedList*)malloc(sizeof(MyLinkedList));
-    newNode->val = val;
-
-    newNode->next = obj->next;
-
-    obj->next = newNode;
+	MyLinkedList* newNode = (MyLinkedList*)malloc(sizeof(MyLinkedList));
+	newNode->val = val;
+	newNode->next = obj->next;
+	obj->next = newNode;
 }
 
 
@@ -223,7 +225,7 @@ void  link_single_insert_new_node_before_index_2
         temp=temp->next;
     }
     //创建插入结点c
-    MyLinkedList* c=(link*)malloc(sizeof(link));
+    MyLinkedList* c=(MyLinkedList*)malloc(sizeof(MyLinkedList));
     c->val=val;
     //向链表中插入结点
     c->next=temp->next;
@@ -475,22 +477,22 @@ struct ListNode *getIntersectionNode(struct ListNode *headA, struct ListNode *he
 
 
 //递归实现
-struct node * reverse(struct node *pHead)
+struct ListNode * reverse(struct ListNode *pHead)
 {
-    if (pHead == NULL || pHead->pNext == NULL)
+    if (pHead == NULL || pHead->next == NULL)
     {
         return pHead;
     }
-    struct node *p = pHead->pNext;
-    struct node *pNewHead =  reverse(p);
-    p->pNext = pHead;
-    pHead ->pNext = NULL;
+    struct ListNode *p = pHead->next;
+    struct ListNode *pNewHead =  reverse(p);
+    p->next = pHead;
+    pHead ->next = NULL;
     return pNewHead;
 }
 
 
 //尾递归实现
-struct node * do_reverse_tail(struct node *pHead, struct node *pNewHead)
+struct ListNode * do_reverse_tail(struct ListNode *pHead, struct ListNode *pNewHead)
 {
     if(pHead == NULL)
     {
@@ -498,31 +500,31 @@ struct node * do_reverse_tail(struct node *pHead, struct node *pNewHead)
     }
     else
     {
-        struct node *pNext = pHead->pNext;
-        pHead->pNext = pNewHead;
+        struct ListNode *pNext = pHead->next;
+        pHead->next = pNewHead;
         return do_reverse_tail(pNext, pHead);
     }
 }
 
-struct node * reverse_tail(struct node *pHead)
+struct ListNode * reverse_tail(struct ListNode *pHead)
 {
     return do_reverse_tail(pHead, NULL);
 }
 
 //迭代实现
-struct node * reverse_it(struct node *pHead)
+struct ListNode * reverse_it(struct ListNode *pHead)
 {
-    struct node *pNewHead = NULL;
-    struct node *pPrev = NULL;
-    struct node *pCur = pHead;
+    struct ListNode *pNewHead = NULL;
+    struct ListNode *pPrev = NULL;
+    struct ListNode *pCur = pHead;
     while(pCur != NULL)
     {
-        struct node *pTmp = pCur->pNext;
+        struct ListNode *pTmp = pCur->next;
         if(pTmp == NULL)
         {
             pNewHead = pCur;
         }
-        pCur->pNext = pPrev;
+        pCur->next = pPrev;
         pPrev = pCur;
         pCur = pTmp;
     }
