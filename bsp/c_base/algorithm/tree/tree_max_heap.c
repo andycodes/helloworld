@@ -1,161 +1,145 @@
-#include<stdio.h>
-#include<stdlib.h>
+#include "stdio.h"
+#include "stdlib.h"
+
+typedef int ElementType;
+struct HeapStruct {
+    //指向一个数组
+    ElementType *Element;
+    //堆当前元素的个数
+    int size;
+    //堆的最大容量
+    int capacity;
+};
+typedef struct HeapStruct *MaxHeap;
+
+
+int maxIndex(int left, int right, MaxHeap heap);
+
+MaxHeap  initHeap(int *arr, int size,  int maxCapacity) {
+
+    MaxHeap heap = (MaxHeap)malloc(sizeof(struct HeapStruct ));
+    heap->capacity = maxCapacity;
+ //   heap->Element = new ElementType[maxCapacity+1];
+ heap->Element = (ElementType *)malloc(sizeof(ElementType) * (maxCapacity+1));
+    heap->size = size;
+    //第一个位置不存任何数据,交换结点时可以作为中间变量
+    heap->Element[0] = 0;
+    //构建完全二叉树
+    for (int i = 0; i < size; i++) {
+        heap->Element[i+1] = arr[i];
+    }
+
+    //寻找最后一个结点的父结点,作为初始值
+    for (int pIndex = heap->size / 2; pIndex >= 1; pIndex--) {
+        int tmp = pIndex;
+        while ((tmp<<1) <= heap->size) { //表示该结点有孩子结点-->当该结点时叶子结点时,循环结束
+            //寻找这个结点的最大子结点
+            int maxChildIndex = 0;
+            if ((tmp<<1) + 1 > heap->size) { //没有右孩子,则左孩子就是最大子结点
+                maxChildIndex = (tmp<<1);
+            } else {//从左右孩子中寻找最大子结点
+                maxChildIndex = maxIndex(tmp<<1,  (tmp<<1) + 1, heap);
+            }
+            //比较最大子结点和当前父结点,如果父结点的值小于最大子结点的值,则交换两个结点
+            if (heap->Element[tmp] < heap->Element[maxChildIndex]) {
+                //交换两个结点
+                heap->Element[0] = heap->Element[tmp];
+                heap->Element[tmp] = heap->Element[maxChildIndex];
+                heap->Element[maxChildIndex] = heap->Element[0];
+                heap->Element[0] = 0;
+                tmp = maxChildIndex;
+            } else {
+                break;//当该结点不需要在交换时,结束向下查找
+            }
+        }
+    }
+
+	return heap;
+}
+
+int maxIndex(int left, int right, MaxHeap heap) {
+    return heap->Element[left] > heap->Element[right] ? left : right;
+}
+
 
 /*
-最大堆和最小堆是二叉堆的两种形式。
-
-最大堆：根结点的键值是所有堆结点键值中最大者，
-且每个结点的值都比其孩子的值大。
-
-最小堆：根结点的键值是所有堆结点键值中最小者，
-且每个结点的值都比其孩子的值小。
+最大堆中插入一个结点
+原理:现在堆的最后增加一个结点,然后沿这堆树上升.
 */
+void maxHeapInsert(ElementType e, MaxHeap heap) {
+    //检查是否到达了堆的最大容量
+    if (heap->capacity == heap->size) {
+        return ;
+    }
 
-#define MinData -100//哨兵元素的值
-typedef struct HeapStruct{
-	int *p;
-	int size;
-	int capacity;
-} *MinHeap;
-
-MinHeap Init_MinHeap(int MaxSize);
-int IsFull(MinHeap H);
-int IsEmpty(MinHeap H);
-void Insert(MinHeap H, int data);
-int Delete(MinHeap H);
-void BuildMinHeap(MinHeap H, int N);
-void PrintValue(MinHeap H);
-
-int IsFull(MinHeap H)
-{
-	return (H->size == H->capacity) ? 1 : 0;
+    heap->size++;
+    heap->Element[heap->size] = e;
+    for (int sIndex = heap->size; sIndex > 1;) {
+        //寻找这个结点的父结点
+        int pIndex = sIndex / 2;
+        if (heap->Element[pIndex] < heap->Element[sIndex]) {
+            heap->Element[0] = heap->Element[pIndex];
+            heap->Element[pIndex] = heap->Element[sIndex];
+            heap->Element[sIndex] = heap->Element[0];
+            heap->Element[0] = 0;
+            sIndex = pIndex;
+        } else {
+            break;
+        }
+    }
 }
 
-int IsEmpty(MinHeap H)
-{
-	return (H->size == 0) ? 1 : 0;
+/*
+最大堆中删除一个元素
+原理:将堆的最后的结点提到根结点，
+然后删除最大值，然后再把新的根结点向下进行调整,
+直到找到其符合的的位置.
+*/
+void maxHeapPopE(MaxHeap heap, ElementType *e) {
+    if (heap->size == 0) {
+        return;
+    }
+    *e = heap->Element[1];
+    heap->Element[1] = heap->Element[heap->size];
+    heap->size--;
+    int pIndex = 1;
+    while (pIndex <<1 <= heap->size) { //有子结点
+        int maxChild = 0;
+        if ((pIndex << 1) + 1 > heap->size) { //没有右孩子
+            maxChild = pIndex << 1;
+        } else {
+            maxChild = maxIndex(pIndex << 1, (pIndex << 1) + 1, heap);
+        }
+        if (heap->Element[pIndex] < heap->Element[maxChild]) {
+            heap->Element[0] = heap->Element[pIndex];
+            heap->Element[pIndex] = heap->Element[maxChild];
+            heap->Element[maxChild] = heap->Element[0];
+            heap->Element[0] = 0;
+            pIndex = maxChild;
+        } else {
+            break;
+        }
+    }
 }
 
-void PrintValue(MinHeap H)
-{
-	int i;
-//	printf("最小堆中的元素依次为：");
-        printf("show:");
-	for (i = 1; i <= H->size; i++)
-		printf("%d ", H->p[i]);
+
+int main() {
+    int arr[] = { 5, 1, 13, 3, 16, 7, 10, 14, 6, 9 };
+
+    MaxHeap heap = initHeap(arr, sizeof(arr) / sizeof(int),20);
+
+     maxHeapInsert(18, heap);
+
+     ElementType e;
+     maxHeapPopE(heap, &e);
+
+	 printf("e = %d\n",e);
+
+    for (int i = 1; i <= heap->size; i++) {
+		printf("%d ",heap->Element[i]);
+    }
+
 	printf("\n");
-}
 
-MinHeap Init_MinHeap(int MaxSize)
-{
-	MinHeap H = (MinHeap)malloc(sizeof(struct HeapStruct));
-	H->p = (int*)malloc((MaxSize + 1) * sizeof(int));
-	H->p[0] = MinData;
-	H->size = 0;
-	H->capacity = MaxSize;
-	return H;
-}
-
-void Insert(MinHeap H, int data)
-{
-	int i;
-	if (IsFull(H))
-	{
-//		printf("最小堆已满，无法插入元素");
-              printf("full");
-		return;
-	}
-	for (i = ++H->size; data < H->p[i / 2]; i /= 2)
-		H->p[i] = H->p[i / 2];
-	H->p[i] = data;
-}
-
-int Delete(MinHeap H)
-{
-	int minvalue , lastvalue, child, parent;
-	if (IsEmpty(H))
-	{
-	//	printf("最小堆已满，无法删除元素");
-        printf("null");
-        return -999;
-	}
-
-	minvalue = H->p[1];
-	lastvalue = H->p[H->size--];
-	for (parent = 1; 2 * parent <= H->size; parent = child)
-	{
-		child = 2 * parent;/*默认左结点的元素值更小*/
-		if (child != H->size && H->p[child + 1] < H->p[child])/*若右节点的元素值更小，则调整child*/
-			child++;
-		if (lastvalue < H->p[child])
-			break;
-		else
-			H->p[parent] = H->p[child];
-	}
-	H->p[parent] = lastvalue;
-	return minvalue;
-}
-
-void BuildMinHeap(MinHeap H, int N)
-{
-	int i, num, parent, child, root, lastvalue;
-	if (N > H->capacity)
-	{
-            //printf("要创建的元素个数超过堆的最大容量，创建失败");
-            printf("create err\n");
-            return;
-	}
-
-       printf("pls input data:");
-	for (i = 1; i <= N; i++)
-	{
-            //printf("请输入要插入的元素值:");
-            scanf("%d", &num);
-            H->p[i] = num;
-	}
-	H->size = N;
-
-	root = N / 2;/*从第N/2个结点到第1个结点依次进行下滤 近似N/2次删除操作*/
-	while (root)
-	{
-		lastvalue = H->p[root];
-		for (parent = root; 2 * parent <= H->size; parent = child)
-		{
-			child = 2 * parent;/*默认左结点的元素值更小*/
-			if (child != H->size && H->p[child + 1] < H->p[child])/*右结点元素值更小*/
-				child++;
-			if (lastvalue < H->p[child])
-				break;
-			else
-				H->p[parent] = H->p[child];
-		}
-		H->p[parent] = lastvalue;
-		--root;
-	}
-}
-
-
-void main()
-{
-	int num;
-	MinHeap H;
-	H = Init_MinHeap(100);
-	BuildMinHeap(H, 15);
-	PrintValue(H);
-
-//	printf("请输入你要插入的数据：");
-	printf("insert you data:");
-	scanf("%d", &num);
-	Insert(H, num);
-	PrintValue(H);
-//	printf("请输入你要插入的数据：");
-       printf("insert your data:");
-	scanf("%d", &num);
-	Insert(H, num);
-	PrintValue(H);
-
-	num = Delete(H);
-//	printf("删除的元素为：%d\n", num);
-       printf("del data:");
-	PrintValue(H);
+    return 0;
 }
