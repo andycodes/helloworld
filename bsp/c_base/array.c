@@ -530,6 +530,90 @@ void wiggleSort(int* nums, int numsSize){
 }
 
 
+/*
+给定一个会议时间安排的数组，每个会议时间都会包括开始和结束的时间 [[s1,e1],[s2,e2],...] (si < ei)，为避免会议冲突，同时要考虑充分利用会议室资源，请你计算至少需要多少间会议室，才能满足这些会议安排。
+
+示例 1:
+
+输入: [[0, 30],[5, 10],[15, 20]]
+输出: 2
+示例 2:
+
+输入: [[7,10],[2,4]]
+输出: 1
+
+
+有序化
+直觉
+
+提供给我们的会议时间可以确定一天中所有事件的时间顺序。我们拿到了每个会议的开始和结束时间，这有助于我们定义此顺序。
+
+根据会议的开始时间来安排会议有助于我们了解这些会议的自然顺序。然而，仅仅知道会议的开始时间，还不足以告诉我们会议的持续时间。我们还需要按照结束时间排序会议，因为一个"会议结束"事件告诉我们必然有对应的"会议开始"事件，更重要的是，"会议结束"事件可以告诉我们，一个之前被占用的会议室现在空闲了。
+
+一个会议由其开始和结束时间定义。然而，在本算法中，我们需要 分别 处理开始时间和结束时间。这乍一听可能不太合理，毕竟开始和结束时间都是会议的一部分，如果我们将两个属性分离并分别处理，会议自身的身份就消失了。但是，这样做其实是可取的，因为：
+
+当我们遇到"会议结束"事件时，意味着一些较早开始的会议已经结束。我们并不关心到底是哪个会议结束。我们所需要的只是 一些 会议结束,从而提供一个空房间。
+
+考虑上一方法中使用的案例。 要考虑的会议为： (1, 10), (2, 7), (3, 19), (8, 12), (10, 20), (11, 30)。像之前那样，第一张图说明前三个会议彼此冲突，需要分别分配房间。
+
+
+算法
+
+分别将开始时间和结束时间存进两个数组。
+分别对开始时间和结束时间进行排序。请注意，这将打乱开始时间和结束时间的原始对应关系。它们将被分别处理。
+考虑两个指针： s_ptr 和 e_ptr，分别代表开始指针和结束指针。开始指针遍历每个会议，结束指针帮助我们跟踪会议是否结束。
+当考虑 s_ptr 指向的特定会议时，检查该开始时间是否大于 e_ptr 指向的会议。若如此，则说明 s_ptr 开始时，已经有会议结束。于是我们可以重用房间。否则，我们就需要开新房间。
+若有会议结束，换而言之， start[s_ptr] >= end[e_ptr]，则自增 e_ptr。
+重复这一过程，直到 s_ptr 处理完所有会议。
+
+*/
+int cmp_int ( const void *a , const void *b){
+        return *(int *)a - *(int *)b;
+}
+
+
+int minMeetingRooms(int** intervals, int intervalsSize, int* intervalsColSize){
+	if (intervals ==  NULL || intervalsSize <= 0 || intervalsColSize == NULL)
+		return 0;
+
+	int startArr[intervalsSize];
+	int endArr[intervalsSize];
+
+	for (int i = 0; i < intervalsSize; i++) {
+		startArr[i] = intervals[i][0];
+		endArr[i] = intervals[i][1];
+	}
+
+	qsort(startArr,sizeof(startArr)/sizeof(startArr[0]),sizeof(startArr[0]),cmp_int);
+	qsort(endArr,sizeof(endArr)/sizeof(endArr[0]),sizeof(endArr[0]),cmp_int);
+
+	// The two pointers in the algorithm: e_ptr and s_ptr.
+	  int startPointer = 0, endPointer = 0;
+
+	    // Variables to keep track of maximum number of rooms used.
+	    int usedRooms = 0;
+
+	    // Iterate over intervals.
+	    while (startPointer < intervalsSize) {
+
+	      // If there is a meeting that has ended by the time the meeting at `start_pointer` starts
+	      if (startArr[startPointer] >= endArr[endPointer]) {
+		        usedRooms -= 1;
+		        endPointer += 1;
+	      }
+
+	      // We do this irrespective of whether a room frees up or not.
+	      // If a room got free, then this used_rooms += 1 wouldn't have any effect. used_rooms would
+	      // remain the same in that case. If no room was free, then this would increase used_rooms
+	      usedRooms += 1;
+	      startPointer += 1;
+
+	    }
+
+	    return usedRooms;
+}
+
+
 
 int main(int argc, char* argv[])
 {
