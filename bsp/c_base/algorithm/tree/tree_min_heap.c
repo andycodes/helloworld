@@ -14,8 +14,8 @@
 
 
 typedef struct minHeap{
-	int heap[HeapSize];    //存放小根堆中元素的数组
-	int n;                  //小根堆当前元素的个数，初始值为0
+	int heap[HeapSize];
+	int cnt;
 }minHeap;
 
 
@@ -27,8 +27,9 @@ typedef struct minHeap{
 void shifDown(minHeap *H, int m) {
 	//m是开始调整的结点,n是调整结束的点
 	int tmp = H->heap[m];  //j是i的左子女
-	for (int j = 2 * m + 1; j <= H->n-1; j=2*j+1) {
-		if (j<H->n-1 && H->heap[j] > H->heap[j + 1])
+
+	for (int j = 2 * m + 1; j <= H->cnt-1; j=2*j+1) {
+		if (j<H->cnt-1 && H->heap[j] > H->heap[j + 1])
 			j++;
 
 		if (tmp <= H->heap[j])
@@ -49,11 +50,12 @@ void createMinHeap(minHeap *H, int arr[], int n) {
 	/*init*/
 	for ( int i = 0; i < n; i++)
 		H->heap[i] = arr[i];
-	H->n = n;
+	H->cnt= n;
 
 	//自底向上逐步扩大小根堆
-	for (int i = (H->n - 2) / 2; i >=0;i--) {
-		shifDown(H,i);                       //局部自上向下筛选
+	for (int i = (H->cnt - 2) / 2; i >=0;i--) {
+		//局部自上向下筛选
+		shifDown(H,i);
 	}
 }
 
@@ -80,32 +82,42 @@ void shifUp(minHeap *H,int start) {
 
 //小根堆的插入,采用局部自下而上得调整算法
 void Insert(minHeap *H,int x) {
-	if (H->n == HeapSize) {
+	if (H->cnt== HeapSize) {
 		printf("heap is full\n");
 	}
 
-	H->heap[H->n] = x;
+	H->heap[H->cnt] = x;
 
-	shifUp(H, H->n);
+	shifUp(H, H->cnt);
 
-	H->n++;
+	H->cnt++;
+}
+
+
+int isEmpty(minHeap *H)
+{
+	return H->cnt == 0;
 }
 
 
 //小根堆的删除
 int Remove(minHeap *H) {
 	int min;
-	if (!H->n)
-		return 0;               //堆空返回0
+
+	if(isEmpty(H))
+		return 0;
+
 	min = H->heap[0];
-	H->heap[0] = H->heap[H->n - 1];
-	H->n--;
+	H->heap[0] = H->heap[H->cnt - 1];
+	H->cnt--;
 	 //自底向上逐步扩大小根堆
-	for (int i = (H->n - 2) / 2; i >= 0; i--) {
+	for (int i = (H->cnt - 2) / 2; i >= 0; i--) {
 		shifDown(H, i); //局部自上向下筛选
 	}
 	return min;
 }
+
+
 
 
 int main() {
@@ -125,14 +137,13 @@ int main() {
 		printf(" %d ", H.heap[i]);
 	}
 
-	int x;
-	x=Remove(&H);
-	printf("\n del \n");
-	printf("del data is :%d\n",x);
-	printf("after del \n");
-	for (int i = 0; i < 8; i++) {
-		printf(" %d ", H.heap[i]);
+	printf("\n Remove test:\n");
+	while(!isEmpty(&H)) {
+		printf(" %d ", Remove(&H));
 	}
+
 	printf(" \n");
 	return 0;
  }
+
+
