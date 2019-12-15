@@ -395,6 +395,139 @@ int shortestDistance(char ** words, int wordsSize, char * word1, char * word2){
 
 	return juli;
 }
+/*
+给定一个单词列表和两个单词 word1 和 word2，返回列表中这两个单词之间的最短距离。
+
+word1 和 word2 是有可能相同的，并且它们将分别表示为列表中两个独立的单词。
+
+示例:
+假设 words = ["practice", "makes", "perfect", "coding", "makes"].
+
+输入: word1 = "makes", word2 = "coding"
+输出: 1
+输入: word1 = "makes", word2 = "makes"
+输出: 3
+
+*/
+int shortestWordDistance(char ** words, int wordsSize, char * word1, char * word2){
+
+	if (words == NULL || wordsSize == 0 || word1 == NULL || word2 == NULL)
+		return 0;
+
+	int word1L[wordsSize];
+	int word2L[wordsSize];
+	int cnt1 = 0;
+	int cnt2 = 0;
+	int min = 0xFFFF;
+
+	memset((void*)word1L, 0 ,sizeof(word1L));
+	memset((void*)word2L, 0, sizeof(word2L));
+
+	for (int i = 0; i < wordsSize; i++) {
+		if (strcmp(words[i],word1) == 0) {
+			word1L[cnt1++] = i;
+		}
+
+		if (strcmp(words[i],word2) == 0) {
+			word2L[cnt2++] = i;
+		}
+	}
+
+	for (int i = 0; i < cnt1; i++) {
+		for (int j = 0; j < cnt2; j++) {
+			if (word1L[i] !=  word2L[j])
+				min = min > abs(word1L[i] - word2L[j]) ? abs(word1L[i] - word2L[j]) : min;
+		}
+	}
+
+	return min;
+}
+/*
+给定一幅黑白像素组成的图像, 计算黑色孤独像素的数量。
+
+图像由一个由'B'和'W'组成二维字符数组表示, 'B'和'W'分别代表黑色像素和白色像素。
+
+黑色孤独像素指的是在同一行和同一列不存在其他黑色像素的黑色像素。
+
+示例:
+
+输入:
+[['W', 'W', 'B'],
+ ['W', 'B', 'W'],
+ ['B', 'W', 'W']]
+
+输出: 3
+解析: 全部三个'B'都是黑色孤独像素。
+
+*/
+int findLonelyPixel(char** picture, int pictureSize, int* pictureColSize){
+	int line[pictureSize];
+	int row_size = 0;
+	int cnt = 0;
+
+	for(int i = 0; i < pictureSize; i++) {
+		row_size = row_size < pictureColSize[i] ? pictureColSize[i] : row_size;
+	}
+
+	int row[row_size];
+
+	memset((void*)line, 0 ,sizeof(line));
+	memset((void*)row, 0 , sizeof(row));
+
+	for(int i = 0; i < pictureSize; i++) {
+		for (int j = 0; j < pictureColSize[i]; j++) {
+			if (picture[i][j] == 'B') {
+				line[i]++;
+				row[j]++;
+			}
+		}
+	}
+
+	for(int i = 0; i < pictureSize; i++) {
+		for (int j = 0; j < pictureColSize[i]; j++) {
+
+			if (picture[i][j] == 'B' && line[i] == 1 && row[j] == 1) {
+				cnt++;
+			}
+		}
+	}
+
+    return cnt;
+}
+
+
+/*
+给你一个无序的数组 nums, 将该数字 原地 重排后使得 nums[0] <= nums[1] >= nums[2] <= nums[3]...。
+
+示例:
+
+输入: nums = [3,5,2,1,6,4]
+输出: 一个可能的解答是 [3,5,1,6,2,4]
+
+*/
+void swap(int *a, int *b){
+	int tmp = *a;
+	*a = *b;
+	*b = tmp;
+}
+
+
+void wiggleSort(int* nums, int numsSize){
+	bool flag = true;
+	for(int i = 0; i + 1 < numsSize; i++){
+		if (flag == true) {
+			if (nums[i] > nums[i + 1]) {
+				swap(nums + i, nums + i + 1);
+			}
+		}else {
+			if (nums[i] < nums[i + 1]) {
+				swap(nums + i, nums + i + 1);
+			}
+		}
+
+		flag = !flag;
+	}
+}
 
 
 
