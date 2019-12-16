@@ -368,59 +368,71 @@ int atoi(const char *str) {
 }
 
 
-/*
- * 写一个函数,它的原型是int continummax(char *outputstr,char *inputstr)
- * 功能：在字符串中找出连续最长的数字串,并把这个串的长度返回,并把这个最长
- * 数字串赋给其中一个函数参数outputstr所指内存.例如:"abcd12345ed125ss123456789"
- * 的首地址传给inputstr后,函数将返回9,outputstr所指的值为123456789
- */
-/*abcd12345ed125ss123456789*/
-int continummax(char *outputstr,char *inputstr)
+/* 最长带+-符号 小数点的连续数字串*/
+int max_num_in_string(char *inputstr, char *outputstr)
 {
-    //当前的连续数字个数
-   int count=0;
-    //字符串中连续数字个数的最大值
-    int max=0;
-    //保存取得最大值的指针
-    char *m;
-    char *s=inputstr;
-    int i=0;
+	int count=0;
+	int numCnt = 0;
+	int pointCnt = 0;
+	//字符串中连续数字个数的最大值
+	int max=0;
+	//保存取得最大值的指针
+	char *mPos;
+	char *s = inputstr;
+	int i = 0;
 
-    while(*s != '\0')
-    {
-        if(*s>='0'&&*s<='9')
-        {
-            count++;
-        }
-        else
-        {
-            if(count>max)
-            {
-                max=count;
-                m=s-max;
+    while(*s != '\0') {
+	if (count == 0 && (*s == '+' || *s == '-')) {
+		count++;
+	} else if (*s == '.' && numCnt > 0 && pointCnt == 0) {
+		count++;
+		pointCnt = 1;
+	}else if(*s >= '0' && *s <= '9') {/*上面两个分支去掉就是纯数字子串*/
+		count++;
+		numCnt++;
+	} else {
+            if(count > max) {
+                max = count;
+		 /*s当前位置回退count字符到max子串开始位置*/
+                mPos = s - count;
             }
-            count=0;
+
+		count = 0;
+		numCnt = 0;
+		pointCnt = 0;
         }
 
         s++;
     }
 
     //有可能字符串末尾取到最大值
-    if(count>max)
-    {
+    if(count>max) {
         max=count;
-        m=s-max;
+        mPos=s-max;
     }
 
-    while(i<max)
-    {
-        *outputstr=*(m+i);
-        outputstr++;
-        i++;
-    }
+#if 1
+	memcpy(outputstr, mPos,max);
+	outputstr[max] = '\0';
+#else
+	while(i<max) {
+		*outputstr=*(mPos+i);
+		outputstr++;
+		i++;
+	}
 
-    *outputstr='\0';
+	*outputstr='\0';
+#endif
     return max;
+}
+
+
+void max_num_in_string_test(void)
+{
+	char input[] = "q21u+231y-123.456789y-0.23";
+	char output[1024];
+	int ret = max_num_in_string(input,output);
+	printf("%d:%s\n",ret,output);
 }
 
 /*
@@ -584,7 +596,6 @@ int** indexPairs(char * text, char ** words, int wordsSize, int* returnSize, int
 }
 
 
-
 int main(int argc, char* argv[])
 {
 	if (argc != 2) {
@@ -604,6 +615,9 @@ int main(int argc, char* argv[])
 	break;
 	case 4:
 		strtok_test();
+	break;
+	case 5: max_num_in_string_test();
+	break;
 	default:
 	break;
 	}
