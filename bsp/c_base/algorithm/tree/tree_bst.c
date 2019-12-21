@@ -57,7 +57,6 @@ struct TreeNode* trimBST(struct TreeNode* root, int L, int R){
 */
 
 
-#define min(a, b) ((a) < (b) ? (a) : (b))
 int ret = 2147483647;
 bool first = true;
 int last;//上一个结点的值

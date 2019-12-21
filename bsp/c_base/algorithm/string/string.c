@@ -368,8 +368,7 @@ void ultostr(char *s, unsigned long data)
     }
 }
 
-#define INT_MAX 2147483647
-#define INT_MIN -2147483648
+
 int atoi(const char *str) {
     int num = 0;
     int sign = 1;

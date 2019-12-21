@@ -104,10 +104,7 @@ int maxSubArray(int* nums, int numsSize){
 解释: 结果不能为 2, 因为 [-2,-1] 不是子数组。
 */
 
-#define math_max(a, b) ((a) > (b) ? (a) : (b))
-#define match_min(a, b) ((a) < (b) ? (a) : (b))
-#define INT_MAX		((int)(~0U >> 1))
-#define INT_MIN		(-INT_MAX - 1)
+
 int maxProduct(int* nums, int numsSize){
         const int N=numsSize;
 

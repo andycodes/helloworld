@@ -226,7 +226,6 @@ int** levelOrderBottom(struct TreeNode* root, int* returnSize, int** returnColum
 */
 
 int result = 0;
-#define MAX(a, b) (a > b ? a : b)
 int dfs(struct TreeNode* root)
 {
     int left, right;
