@@ -48,26 +48,67 @@ void qsort_int_test(void)
 }
 
 
-/*对一个二维数组的进行排序：*/
-int comp_array(const void *a,const void *b){
-     return ((int *)a)[0]-((int *)b)[0];
+int comp_array(const void *a,const void *b)
+{
+	if (((int *)a)[0] != ((int *)b)[0]) {
+		return ((int *)a)[0]-((int *)b)[0];//first cow
+	} else {
+		return ((int *)a)[1]-((int *)b)[1];//Second column
+	}
 }
 
 
 void qsort_array_test(void)
 {
 	int a[100][2];
-	for(int i =0;i < 100;i++){
+	for(int i =0;i < 50; i++){
 		a[i][0] = 100 -i;
 		a[i][1] = 200 -i;
 	}
+
+	for(int i = 50;i < 100; i++){
+		a[i][0] = 100;
+		a[i][1] = 200 -i;
+	}
+
 	qsort(a,100,sizeof(int)*2,comp_array);
+
 	for(int i =0;i < 100;i++){
 		printf("%d %d\n",a[i][0],a[i][1]);
 	}
 }
 
 
+int cmp_point_array(const void *a,const void *b)
+{
+    int *ap = *(int **)a;
+    int *bp = *(int **)b;
+
+    if(ap[0] == bp[0])
+        return ap[1] - bp[1];
+    else
+        return ap[0] - bp[0];
+}
+
+
+void qsort_point_array(void)
+{
+	int **a = (int **)malloc(100 * sizeof(int *));
+	for (int i = 0; i < 100; i++) {
+		a[i] = malloc(2 * sizeof(int));
+
+		a[i][0] = rand()%100;
+		a[i][1] = rand()%100;
+	}
+
+	qsort(a, 100, sizeof(a[0]), cmp_point_array);
+
+	for (int i = 0; i < 100; i++) {
+		printf("%d %d\n", a[i][0], a[i][1]);
+	}
+
+	//free
+}
 
 /*
 二、对char类型数组排序（同int类型）
@@ -115,58 +156,16 @@ void qsort_double_test(void)
 }
 
 
-/*对结构体一级排序*/
-struct In{
-	double data;
-	int other;
-}s[100];
-
-int cmp_struct( const void *a ,const void *b){
-	struct In *c = (struct In *)a;
-	struct In *d = (struct In *)b;
-	return c->data > d->data;
-}
-
-
-void qsort_struct_test(void)
-{
-	for(int i =0;i < 100;i++){
-		s[i].data = 100.5 -i;
-	}
-
-	qsort(s,sizeof(s)/sizeof(s[0]),sizeof(s[0]),cmp_struct);
-
-	for(int i =0;i < 100;i++){
-		printf("%f \n",s[i].data);
-	}
-}
-
-
-/*
-五、对结构体二级排序
-struct In{
-int x;
-int y;
-}s[100];
-
-//按照x从小到大排序，当x相等时按照y从大到小排序
-
-int cmp( const void *a , const void *b){
-struct In *c = (In *)a;
-struct In *d = (In *)b;
-if(c->x != d->x) return c->x - d->x;
-else return d->y - c->y;
-}
-qsort(s,100,sizeof(s[0]),cmp);
-*/
 struct St{
 int x;
 int y;
 }ss[100];
 
-int cmp_strcut2( const void *a , const void *b){
+int cmp_struct( const void *a , const void *b){
 	struct St *c = (struct St *)a;
 	struct St *d = (struct St *)b;
+
+//按照x从小到大排序，当x相等时按照y从大到小排序
 	if(c->x != d->x)
 		return c->x - d->x;
 	else
@@ -174,7 +173,7 @@ int cmp_strcut2( const void *a , const void *b){
 }
 
 
-void qsort_struct2_test(void)
+void qsort_struct_test(void)
 {
 	for(int i =0;i < 50;i++){
 		ss[i].x = 100 -i;
@@ -186,7 +185,7 @@ void qsort_struct2_test(void)
 		ss[i].y = 200 -i;
 	}
 
-	qsort(ss,100,sizeof(ss[0]),cmp_strcut2);
+	qsort(ss,100,sizeof(ss[0]),cmp_struct);
 	for(int i =0;i < 100;i++){
 		printf("%d %d \n",ss[i].x,ss[i].y);
 	}
@@ -224,7 +223,7 @@ void qsort_string_test(void)
 	strcpy(str[3].str , "dd");
 	strcpy(str[4].str , "ee");
 
-	qsort(str,5,sizeof(s[0]),cmp_str);
+	qsort(str,5,sizeof(str[0]),cmp_str);
 	for(int i =0;i < 5;i++){
 		printf("%s \n",str[i].str);
 	}
@@ -243,8 +242,10 @@ int main(int argc, char* argv[])
 		qsort_struct_test();
 	break;
 	case 2:
+		qsort_array_test();
 	break;
 	case 3:
+		qsort_point_array();
 	break;
 	case 4:
 	default:

@@ -291,7 +291,7 @@ int** indexPairs(char * text, char ** words, int wordsSize, int* returnSize, int
         }
 	}
 
-    qsort(res, cnt, sizeof(res[0]), cmp); // 二维数组排序
+    qsort(res, cnt, sizeof(res[0]), cmp); // 二维指针数组排序
     *returnSize = cnt;
     returnColumnSizes[0] = (int *)malloc(sizeof(int) * cnt);
     for (i = 0; i < cnt; i++) {
