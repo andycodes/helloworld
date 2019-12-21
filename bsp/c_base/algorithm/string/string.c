@@ -46,25 +46,36 @@ C/C++语言提供了几个标准库函数，可以将字符串转换为任意类型(整型、长整型、浮点型等
 提取字符串
 从src start 位置提取长度为len的字符串到dst
 */
-void substr(char dst[], char src[],int start,int len)
+void substr(char dst[], char src[],int start,int cpLen)
 {
-	char* sc = src+start;
-	int n = strlen(sc);
+	char* sc = src + start;
+	int srcLen = strlen(sc);
 	int i = 0;
-	int **ret=NULL;
-	//assert(dst != NULL );
-	//assert(src != NULL );
-    if(n < len)
-    {
-        len = n;
-    }
-    while(len)
-    {
-        dst[i] = sc[i];
-        len--;
-        i++;
-    }
-    dst[i] = '\0';
+
+#if 1
+	if(srcLen < cpLen) {
+		cpLen = srcLen;
+	}
+
+	while(srcLen) {
+		dst[i] = sc[i];
+		srcLen--;
+		i++;
+	}
+	dst[i] = '\0';
+#else
+	strncpy(dst, sc, cpLen);
+#endif
+}
+
+
+void substr_test(void)
+{
+	char *src = "hello felix";
+	char dst[128];
+	memset(dst, '\0', sizeof(dst));
+	substr(dst, src, 6, 100);
+	printf("%s\n", dst);
 }
 
 
@@ -226,7 +237,8 @@ size_t strlen(const char *str) {
 
 
 char* strcpy(char *to, const char *from) {
-    if(to == NULL && from == NULL) return 0;
+    if(to == NULL && from == NULL)
+		return 0;
 
     char *p = to;
     while ((*p++ = *from++) != '\0')
@@ -234,6 +246,21 @@ char* strcpy(char *to, const char *from) {
     return to;
 }
 
+/*
+maxlen：表示复制的字符串长度
+（c/c++）复制字符串source中的内容（字符，数字、汉字....）
+到字符串destinin中，复制多少由maxlen的值决定。
+如果source的前n个字符不含NULL字符，
+则结果不会以NULL字符结束。
+如果n<source的长度，只是将source的前n个字符复制到
+destinin的前n个字符，不自动添加'\0'，
+也就是结果destinin不包括'\0'，需要再手动添加一个'\0'。
+如果source的长度小于n个字节，则以NULL填充
+destinin直到复制完n个字节。
+source和destinin所指内存区域不可以重叠且
+destinin必须有足够的空间来容纳source的字符长度+'\0'。
+*/
+//char *strncpy(char *destinin, char *source, int maxlen);
 
 /*
 将一个无符号短整形数从网络字
@@ -617,6 +644,8 @@ int main(int argc, char* argv[])
 		strtok_test();
 	break;
 	case 5: max_num_in_string_test();
+	break;
+	case 6: substr_test();
 	break;
 	default:
 	break;
