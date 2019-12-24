@@ -100,6 +100,12 @@ int isEmpty(minHeap *H)
 }
 
 
+int minHeapGetSize(minHeap *H)
+{
+	return H->cnt;
+}
+
+
 //Ğ¡¸ù¶ÑµÄÉ¾³ı
 int Remove(minHeap *H) {
 	int min;
