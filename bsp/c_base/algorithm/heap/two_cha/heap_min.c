@@ -19,9 +19,9 @@
 
 
 typedef struct minHeap{
-	int cnt;
-	int size;
-	int heap[0];
+	long int cnt;
+	long int size;
+	long int heap[0];
 }minHeap;
 
 
@@ -32,9 +32,9 @@ typedef struct minHeap{
  *     存在 -- 返回data在数组中的索引
  *     不存在 -- -1
  */
-int minHeapGetIndex(minHeap *H, int data)
+long int minHeapGetIndex(minHeap *H, long int data)
 {
-	int i=0;
+	long int i=0;
 
 	for(i=0; i<H->cnt; i++)
 		if (data==H->heap[i])
@@ -53,11 +53,11 @@ int minHeapGetIndex(minHeap *H, int data)
  *     start -- 被下调节点的起始位置(一般为0，表示从第1个开始)
  *     end   -- 截至范围(一般为数组中最后一个元素的索引)
  */
-static void minheap_filterdown(minHeap *H, int start, int end)
+static void minheap_filterdown(minHeap *H, long int start, long int end)
 {
-    int c = start; 	 	// 当前(current)节点的位置
-    int l = 2*c + 1; 	// 左(left)孩子的位置
-    int tmp = H->heap[c];	// 当前(current)节点的大小
+    long int c = start; 	 	// 当前(current)节点的位置
+    long int l = 2*c + 1; 	// 左(left)孩子的位置
+    long int tmp = H->heap[c];	// 当前(current)节点的大小
 
     while(l <= end)
     {
@@ -84,9 +84,9 @@ static void minheap_filterdown(minHeap *H, int start, int end)
  *      0，成功
  *     -1，失败
  */
-int minheap_remove(minHeap *H, int data)
+long int minheap_remove(minHeap *H, long int data)
 {
-	int index;
+	long int index;
 	// 如果"堆"已空，则返回-1
 	if(H->cnt == 0)
 		return -1;
@@ -103,20 +103,20 @@ int minheap_remove(minHeap *H, int data)
 	return 0;
 }
 
-int isEmpty(minHeap *H)
+long int isEmpty(minHeap *H)
 {
 	return H->cnt == 0;
 }
 
 
-int minHeapGetSize(minHeap *H)
+long int minHeapGetSize(minHeap *H)
 {
 	return H->cnt;
 }
 
 //小根堆的删除
-int minHeapPop(minHeap *H) {
-	int min;
+long int minHeapPop(minHeap *H) {
+	long int min;
 
 	if(isEmpty(H))
 		return 0;
@@ -137,11 +137,11 @@ int minHeapPop(minHeap *H) {
  *     start -- 被上调节点的起始位置
  (一般为数组中最后一个元素的索引)
  */
-static void filter_up(minHeap *H, int start)
+static void filter_up(minHeap *H, long int start)
 {
-    int c = start;			// 当前节点(current)的位置
-    int p = (c-1)/2;		// 父(parent)结点的位置
-    int tmp = H->heap[c];		// 当前节点(current)的大小
+    long int c = start;			// 当前节点(current)的位置
+    long int p = (c-1)/2;		// 父(parent)结点的位置
+    long int tmp = H->heap[c];		// 当前节点(current)的大小
 
     while(c > 0)
     {
@@ -164,7 +164,7 @@ static void filter_up(minHeap *H, int start)
  *     0，表示成功
  *    -1，表示失败
  */
-int minHeapPush(minHeap *H, int data)
+long int minHeapPush(minHeap *H, long int data)
 {
 	// 如果"堆"已满，则返回
 	if(H->cnt >= H->size) {
@@ -189,15 +189,15 @@ int minHeapPush(minHeap *H, int data)
  */
 void minheap_print(minHeap *H)
 {
-	int i;
+	long int i;
 	for (i=0; i<H->cnt; i++)
-		printf("%d ", H->heap[i]);
+		printf("%ld ", H->heap[i]);
 }
 
 
-minHeap * minheap_init(int size) {
+minHeap * minheap_init(long int size) {
 	minHeap * H = NULL;
-	H = malloc(sizeof(minHeap) + sizeof(int) * size);
+	H = malloc(sizeof(minHeap) + sizeof(long int) * size);
 	H->cnt = 0;
 	H->size = size;
 	return H;
@@ -208,12 +208,12 @@ int main(void)
 {
 	minHeap *H = minheap_init(1024);
 
-	int a[] = {80, 40, 30, 60, 90, 70, 10, 50, 20};
-	int i, len=LENGTH(a);
+	long int a[] = {80, 40, 30, 60, 90, 70, 10, 50, 20};
+	long int i, len=LENGTH(a);
 
 	printf("== minHeapPush: ");
 	for(i=0; i<len; i++) {
-		printf("%d ", a[i]);
+		printf("%ld ", a[i]);
 		minHeapPush(H, a[i]);
 	}
 
@@ -222,20 +222,20 @@ int main(void)
 
 	i=15;
 	minHeapPush(H, i);
-	printf("\n== minHeapPush: %d", i);
+	printf("\n== minHeapPush: %ld", i);
 	printf("\n== minheap_print: \n10 15 30 50 20 70 40 80 60 90:\n");
 	minheap_print(H);
 
 	i=10;
 	minheap_remove(H, i);
-	printf("\n== minheap_remove: %d", i);
+	printf("\n== minheap_remove: %ld", i);
 	printf("\n== minheap_print: \n15 20 30 50 90 70 40 80 60 :\n");
 	minheap_print(H);
 	printf("\n");
 
 	printf("\n minHeapPop test:\n");
 	while(!isEmpty(H)) {
-		printf(" %d ", minHeapPop(H));
+		printf(" %ld ", minHeapPop(H));
 	}
 
 	printf("\n");
