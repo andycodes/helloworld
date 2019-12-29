@@ -8,6 +8,11 @@
 它是一颗完全二叉树,它可以是空
 树中结点的值总是不大于其孩子结点的值
 每一个结点的子树也是一个堆
+
+最小堆的优点在于它的动态可维护性。
+
+当前实现是存在重复数
+
 */
 
 #define HeapSize 128
@@ -81,7 +86,7 @@ void shifUp(minHeap *H,int start) {
 
 
 //小根堆的插入,采用局部自下而上得调整算法
-void Insert(minHeap *H,int x) {
+void minHeapPush(minHeap *H,int x) {
 	if (H->cnt== HeapSize) {
 		printf("heap is full\n");
 	}
@@ -107,7 +112,7 @@ int minHeapGetSize(minHeap *H)
 
 
 //小根堆的删除
-int Remove(minHeap *H) {
+int minHeapPop(minHeap *H) {
 	int min;
 
 	if(isEmpty(H))
@@ -138,14 +143,14 @@ int main() {
 	}
 
 	printf("\n insert 10\n");
-	Insert(&H,10);
+	minHeapPush(&H,10);
 	for (int i = 0; i < 9; i++) {
 		printf(" %d ", H.heap[i]);
 	}
 
-	printf("\n Remove test:\n");
+	printf("\n minHeapPop test:\n");
 	while(!isEmpty(&H)) {
-		printf(" %d ", Remove(&H));
+		printf(" %d ", minHeapPop(&H));
 	}
 
 	printf(" \n");
