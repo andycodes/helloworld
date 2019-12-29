@@ -18,10 +18,10 @@
 #define LENGTH(a) ( (sizeof(a)) / (sizeof(a[0])) )
 
 
-#define HeapSize 128
 typedef struct minHeap{
-	int heap[HeapSize];
 	int cnt;
+	int size;
+	int heap[0];
 }minHeap;
 
 
@@ -167,7 +167,7 @@ static void filter_up(minHeap *H, int start)
 int minHeapPush(minHeap *H, int data)
 {
 	// 如果"堆"已满，则返回
-	if(H->cnt >= HeapSize) {
+	if(H->cnt >= H->size) {
 		printf("heap is full\n");
 		return -1;
 	}
@@ -195,15 +195,18 @@ void minheap_print(minHeap *H)
 }
 
 
-void minheap_init(minHeap *H) {
+minHeap * minheap_init(int size) {
+	minHeap * H = NULL;
+	H = malloc(sizeof(minHeap) + sizeof(int) * size);
 	H->cnt = 0;
+	H->size = size;
+	return H;
 }
 
 
 int main(void)
 {
-	minHeap H;
-	minheap_init(&H);
+	minHeap *H = minheap_init(1024);
 
 	int a[] = {80, 40, 30, 60, 90, 70, 10, 50, 20};
 	int i, len=LENGTH(a);
@@ -211,28 +214,28 @@ int main(void)
 	printf("== minHeapPush: ");
 	for(i=0; i<len; i++) {
 		printf("%d ", a[i]);
-		minHeapPush(&H, a[i]);
+		minHeapPush(H, a[i]);
 	}
 
 	printf("\n== minheap_print: \n10 20 30 50 90 70 40 80 60 :\n");
-	minheap_print(&H);
+	minheap_print(H);
 
 	i=15;
-	minHeapPush(&H, i);
+	minHeapPush(H, i);
 	printf("\n== minHeapPush: %d", i);
 	printf("\n== minheap_print: \n10 15 30 50 20 70 40 80 60 90:\n");
-	minheap_print(&H);
+	minheap_print(H);
 
 	i=10;
-	minheap_remove(&H, i);
+	minheap_remove(H, i);
 	printf("\n== minheap_remove: %d", i);
 	printf("\n== minheap_print: \n15 20 30 50 90 70 40 80 60 :\n");
-	minheap_print(&H);
+	minheap_print(H);
 	printf("\n");
 
 	printf("\n minHeapPop test:\n");
-	while(!isEmpty(&H)) {
-		printf(" %d ", minHeapPop(&H));
+	while(!isEmpty(H)) {
+		printf(" %d ", minHeapPop(H));
 	}
 
 	printf("\n");
