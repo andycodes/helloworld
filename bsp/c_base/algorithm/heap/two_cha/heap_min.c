@@ -32,7 +32,7 @@ typedef struct minHeap{
  *     存在 -- 返回data在数组中的索引
  *     不存在 -- -1
  */
-int get_index(minHeap *H, int data)
+int minHeapGetIndex(minHeap *H, int data)
 {
 	int i=0;
 
@@ -92,7 +92,7 @@ int minheap_remove(minHeap *H, int data)
 		return -1;
 
 	// 获取data在数组中的索引
-	index = get_index(H, data);
+	index = minHeapGetIndex(H, data);
 	if (index==-1)
 		return -1;
 
