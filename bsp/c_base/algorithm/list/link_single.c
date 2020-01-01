@@ -544,6 +544,65 @@ struct ListNode* middleNode(struct ListNode* head){
 }
 
 
+/** Initialize your data structure here. */
+struct ListNode* link_single_init_head() {
+    struct ListNode* head = (struct ListNode*)malloc(sizeof(struct ListNode));
+    head->next = NULL;
+    return head;
+}
+
+/** Append a node of value val to the last element of the linked list. */
+void link_single_push_new_tail(struct ListNode* obj, int val) {
+    struct ListNode* tmp = obj;
+    struct ListNode* newNode = (struct ListNode*)malloc(sizeof(struct ListNode));
+    newNode->val = val;
+    newNode->next = NULL;
+
+    while (tmp) {
+        if (tmp->next == NULL) {
+            tmp->next = newNode;
+            return;
+        }
+        tmp = tmp->next;
+    }
+}
+
+/*
+给出两个?非空 的链表用来表示两个非负的整数。其中，它们各自的位数是按照?逆序?的方式存储的，并且它们的每个节点只能存储?一位?数字。
+
+如果，我们将这两个数相加起来，则会返回一个新的链表来表示它们的和。
+
+您可以假设除了数字 0 之外，这两个数都不会以 0?开头。
+
+示例：
+
+输入：(2 -> 4 -> 3) + (5 -> 6 -> 4)
+输出：7 -> 0 -> 8
+原因：342 + 465 = 807
+*/
+struct ListNode* addTwoNumbers(struct ListNode* l1, struct ListNode* l2) {
+    struct ListNode* res = link_single_init_head();
+    struct ListNode* p = l1;
+    struct ListNode* q = l2;
+    int carry = 0;
+    while (p != NULL || q != NULL) {
+        int x = (p != NULL) ? p->val : 0;
+        int y = (q != NULL) ? q->val : 0;
+        int sum = carry + x + y;
+        carry = sum / 10;
+        link_single_push_new_tail(res, sum % 10);
+        if (p != NULL) p = p->next;
+        if (q != NULL) q = q->next;
+    }
+
+    if (carry > 0) {
+        link_single_push_new_tail(res, carry);
+    }
+
+    return res->next;
+}
+
+
 int main()
 {
     MyLinkedList* obj = link_single_init_head();
