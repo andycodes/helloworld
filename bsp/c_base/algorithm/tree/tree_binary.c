@@ -228,25 +228,26 @@ int** levelOrderBottom(struct TreeNode* root, int* returnSize, int** returnColum
 int result = 0;
 int dfs(struct TreeNode* root)
 {
-    int left, right;
+	int left, right;
 
-    if (root == NULL)
-        return 0;
-    left = dfs(root->left);
-    right = dfs(root->right);
-    if (root->left != NULL && root->left->val == root->val && root->right != NULL && root->right->val == root->val) {
-        result = MAX(result, left + right + 2);
-        return MAX(left + 1, right + 1);
-    } else if (root->left != NULL && root->left->val == root->val) {
-        result = MAX(result, left + 1);
-        return left + 1;
-    } else if (root->right != NULL && root->right->val == root->val) {
-        result = MAX(result, right + 1);
-        return right + 1;
-    } else {
-        return 0;
-    }
+	if (root == NULL)
+		return 0;
+	left = dfs(root->left);
+	right = dfs(root->right);
+	if (root->left != NULL && root->left->val == root->val && root->right != NULL && root->right->val == root->val) {
+		result = MAX(result, left + right + 2);
+		return MAX(left + 1, right + 1);
+	} else if (root->left != NULL && root->left->val == root->val) {
+		result = MAX(result, left + 1);
+		return left + 1;
+	} else if (root->right != NULL && root->right->val == root->val) {
+		result = MAX(result, right + 1);
+		return right + 1;
+	} else {
+		return 0;
+	}
 }
+
 int longestUnivaluePath(struct TreeNode* root){
     result = 0;
     if (root == NULL || (root->left == NULL && root->right == NULL))
@@ -255,8 +256,75 @@ int longestUnivaluePath(struct TreeNode* root){
     dfs(root);
     return result;
 }
+/*
+给你一棵二叉树的根节点 root，找出这棵树的 每一棵 子树的 平均值 中的 最大 值。
+
+子树是树中的任意节点和它的所有后代构成的集合。
+
+树的平均值是树中节点值的总和除以节点数。
 
 
+
+示例：
+
+
+
+输入：[5,6,1]
+输出：6.00000
+解释：
+以 value = 5 的节点作为子树的根节点，得到的平均值为 (5 + 6 + 1) / 3 = 4。
+以 value = 6 的节点作为子树的根节点，得到的平均值为 6 / 1 = 6。
+以 value = 1 的节点作为子树的根节点，得到的平均值为 1 / 1 = 1。
+所以答案取最大值 6。
+
+*/
+double result = 0;
+int dfs(struct TreeNode* root)
+{
+	int left, right;
+	double sum = 0;
+
+	if (root == NULL)
+		return 0;
+	left = dfs(root->left);
+	right = dfs(root->right);
+	if (root->left != NULL  && root->right != NULL) {
+		sum = left + right + root->val;
+        sum /= 3;
+		result = max(result, sum);
+		return sum;
+	}
+	else if (root->left != NULL) {
+		sum = left + root->val;
+        sum /= 2;
+		result = max(result, sum);
+		return sum;
+	}
+	else if (root->right != NULL) {
+		sum = right + root->val;
+        sum /= 2;
+		result = max(result, sum);
+		return sum;
+	}
+	else {
+		sum = root->val;
+		result = max(result, sum);
+		return sum;
+	}
+}
+
+double maximumAverageSubtree(struct TreeNode* root) {
+	result = 0;
+	if (root == NULL)
+		return 0;
+
+	if (root->left == NULL && root->right == NULL) {
+		return root->val;
+	}
+
+	dfs(root);
+	return result;
+}
 
 /*
 叶子相似的树
@@ -521,7 +589,6 @@ bool isSameTree(struct TreeNode* p, struct TreeNode* q){
 最差情况是对树做一遍完整DFS，时间复杂度为 O(N)。
 
 */
-#define max(a, b) ((a) > (b) ? (a) : (b))
 int  dfs(struct TreeNode* root)
 {
 	if (root == NULL)
@@ -550,9 +617,6 @@ bool  isBalanced(struct TreeNode* root){
 本方法产生大量重复的节点访问和计算，最差情况下时间复杂度 O(N^2)。
 
 */
-
-#define max(a, b) ((a) > (b) ? (a) : (b))
-
 int  dfs_depth(struct TreeNode* root)
 {
 	if (root == NULL)
@@ -646,7 +710,10 @@ bool hasPathSum(struct TreeNode* root, int sum){
 }
 
 /*
-给定一个二叉树，其中所有的右节点要么是具有兄弟节点（拥有相同父节点的左节点）的叶节点，要么为空，将此二叉树上下翻转并将它变成一棵树， 原来的右节点将转换成左叶节点。返回新的根。
+给定一个二叉树，其中所有的右节点
+要么是具有兄弟节点（拥有相同父节点的左节点）的叶节点，
+要么为空，将此二叉树上下翻转并将它变成一棵树，
+原来的右节点将转换成左叶节点。返回新的根。
 
 例子:
 
