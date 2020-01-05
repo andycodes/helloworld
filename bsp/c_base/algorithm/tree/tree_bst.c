@@ -91,7 +91,9 @@ int minDiffInBST(struct TreeNode* root){
 }
 
 /*
-给定一个树，按中序遍历重新排列树，使树中最左边的结点现在是树的根，并且每个结点没有左子结点，只有一个右子结点。
+给定一个树，按中序遍历重新排列树，
+使树中最左边的结点现在是树的根，
+并且每个结点没有左子结点，只有一个右子结点。
 
 示例 ：
 
@@ -149,15 +151,19 @@ struct TreeNode* increasingBST(struct TreeNode* root){
 
 
 /*
-将一个按照升序排列的有序数组，转换为一棵高度平衡二叉搜索树。
+将一个按照升序排列的有序数组，
+转换为一棵高度平衡二叉搜索树。
 
-本题中，一个高度平衡二叉树是指一个二叉树每个节点 的左右两个子树的高度差的绝对值不超过 1。
+本题中，一个高度平衡二叉树是指
+一个二叉树每个节点 的左右两个子树的
+高度差的绝对值不超过 1。
 
 示例:
 
 给定有序数组: [-10,-3,0,5,9],
 
-一个可能的答案是：[0,-3,9,-10,null,5]，它可以表示下面这个高度平衡二叉搜索树：
+一个可能的答案是：[0,-3,9,-10,null,5]，
+它可以表示下面这个高度平衡二叉搜索树：
 
       0
      / \
@@ -181,7 +187,8 @@ struct TreeNode* sortedArrayToBST(int* nums, int numsSize){
 }
 
 /*
-给定一个二叉搜索树，编写一个函数 kthSmallest 来查找其中第 k 个最小的元素。
+给定一个二叉搜索树，
+编写一个函数 kthSmallest 来查找其中第 k 个最小的元素。
 
 说明：
 你可以假设 k 总是有效的，1 ≤ k ≤ 二叉搜索树元素个数。
@@ -208,4 +215,72 @@ int kthSmallest(struct TreeNode* root, int k){
     return ret;
 }
 
+/*
+给你一个二叉搜索树和其中的某一个结点，请你找出该结点在树中顺序后继的节点。
+
+结点 p 的后继是值比 p.val 大的结点中键值最小的结点。
+
+
+
+示例 1:
+
+
+
+输入: root = [2,1,3], p = 1
+输出: 2
+解析: 这里 1 的顺序后继是 2。请注意 p 和返回值都应是 TreeNode 类型。
+
+*/
+/*
+递归执行中序遍历，在递归过程中获取x的下一个。如果当前值是<=x的，那么根据BST的特性只需要在右子树中找。如果当前值>x，则当前值有可能，它的左子树也有可能有更小的但是也>x的，对左子递归后，选择更接近的（更小的).
+时间O(logN)，空间O(logN)调用栈的深度。
+*/
+struct TreeNode* inorderSuccessor(struct TreeNode* root, struct TreeNode* p) {
+	if (root == NULL || p == NULL) {
+		return NULL;
+	}
+
+	//当前和左边都不可能>p
+	if (root->val <= p->val) {
+		return inorderSuccessor(root->right, p);
+	}
+
+	//root>p
+	struct TreeNode* tmp = inorderSuccessor(root->left, p);
+	if (tmp != NULL && tmp->val < root->val) {
+		return tmp;
+	}
+	else {
+		return root;
+	}
+}
+
+/*
+循环实现
+如果当前值是<=x的，那么根据BST的特性只需要在右子树中找：cur=cur.right。
+如果当前值>x，则当前值有可能，它的左子树也有可能有更小的但是也>x的。则每次走入这个分支时，当前点是一个候选点，记录该节点的值和历史最小节点的值。
+时间O(logN)，空间O(1）
+
+*/
+struct rootNode* inorderSuccessor(struct rootNode* root, struct rootNode* p) {
+	if (root == NULL || p == NULL) {
+		return NULL;
+	}
+
+	struct rootNode* cur = root;
+	struct rootNode* res = NULL;
+
+	while (cur != NULL) {
+		if (cur->val <= p->val) {
+			cur = cur->right;
+		} else {
+			if (res == NULL || res->val > cur->val) {
+				res = cur;
+			}
+			cur = cur->left;
+		}
+	}
+
+	return res;
+}
 
