@@ -107,7 +107,10 @@ int** floodFill(int** image, int imageSize, int* imageColSize, int sr, int sc, i
 }
 
 /*
-给定一个由 '1'（陆地）和 '0'（水）组成的的二维网格，计算岛屿的数量。一个岛被水包围，并且它是通过水平方向或垂直方向上相邻的陆地连接而成的。你可以假设网格的四个边均被水包围。
+给定一个由 '1'（陆地）和 '0'（水）组成的的二维网格，
+计算岛屿的数量。一个岛被水包围，
+并且它是通过水平方向或垂直方向上相邻的陆地连接而成的。
+你可以假设网格的四个边均被水包围。
 
 示例 1:
 
@@ -123,15 +126,8 @@ int** floodFill(int** image, int imageSize, int* imageColSize, int sr, int sc, i
 */
 void dfs(char** grid, int gridSize, int gridColSize, int x ,int y)
 {
-	int d[4][2] = {
-			{0,1},
-			{1,0},
-			{0,-1},
-			{-1,0},
-	};
-
+	int d[4][2] = {{0,1}, {1,0}, {0,-1}, {-1,0}};
 	grid[x][y] = '0';
-
 	for(int k = 0; k < 4; k++) {
 		int nX = x + d[k][0];
 		int nY = y + d[k][1];
