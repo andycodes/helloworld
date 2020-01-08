@@ -178,7 +178,6 @@ bool isSubsequence(char * s, char * t){
 }
 
 
-#define swap(a,b) (a^=b,b^=a,a^=b)
 void strrev_pos(char* s, int begin, int end)
 {
 	char* h = s + begin;

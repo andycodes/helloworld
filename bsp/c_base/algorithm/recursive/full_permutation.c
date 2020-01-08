@@ -14,44 +14,41 @@ void Swap(int *lhs, int *rhs)
 	*rhs = t;
 }
 
+
 /************************************************************************/
 /* 功能：实现全排列功能
 /* 参数：
 /*       source--整数数组，存放需要全排列的元素
 /*       begin --查找一个排列的开始位置
-/*       end   --查找一个排列的结束位置，当begin=end时，表明完成一个排列
+/*       end   --查找一个排列的结束位置，当begin=end时，
+		表明完成一个排列
 /************************************************************************/
 void numbers_FullPermutation(int source[], int begin, int end)
 {
 	int i;
-
-	if (begin >= end) // 找到一个排列
-	{
-		for (i = 0; i < end; i++)
-		{
+	// 找到一个排列
+	if (begin >= end) {
+		for (i = 0; i < end; i++) {
 			printf("%d", source[i]);
 		}
 		printf("\n");
-	}
-	else// 没有找完一个排列，则继续往下找下一个元素
-	{
-		for (i = begin; i < end; i++)
-		{
-			if (begin != i)
-			{
+	} else {
+	// 没有找完一个排列，则继续往下找下一个元素
+		for (i = begin; i < end; i++) {
+			if (begin != i) {
 				Swap(&source[begin], &source[i]); // 交换
 			}
 
 			// 递归排列剩余的从begin+1到end的元素
 			numbers_FullPermutation(source, begin + 1, end);
 
-			if (begin != i)
-			{
+			if (begin != i) {
 				Swap(&source[begin], &source[i]); // 回溯时还原
 			}
 		}
 	}
 }
+
 
 int test_numbers_FullPermutation(void)
 {

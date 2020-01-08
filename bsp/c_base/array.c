@@ -505,13 +505,6 @@ int findLonelyPixel(char** picture, int pictureSize, int* pictureColSize){
 输出: 一个可能的解答是 [3,5,1,6,2,4]
 
 */
-void swap(int *a, int *b){
-	int tmp = *a;
-	*a = *b;
-	*b = tmp;
-}
-
-
 void wiggleSort(int* nums, int numsSize){
 	bool flag = true;
 	for(int i = 0; i + 1 < numsSize; i++){

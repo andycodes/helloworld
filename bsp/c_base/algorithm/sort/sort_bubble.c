@@ -6,8 +6,6 @@
 
 // 数组长度
 #define LENGTH(array) ( (sizeof(array)) / (sizeof(array[0])) )
-// 交互数值
-#define swap(a,b)	(a^=b,b^=a,a^=b)
 
 /*
  * 冒泡排序

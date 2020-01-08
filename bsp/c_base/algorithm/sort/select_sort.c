@@ -9,7 +9,6 @@
 
 // 数组长度
 #define LENGTH(array) ( (sizeof(array)) / (sizeof(array[0])) )
-#define swap(a,b) (a^=b,b^=a,a^=b)
 
 /*
  * 选择排序
