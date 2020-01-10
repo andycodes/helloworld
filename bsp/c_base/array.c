@@ -1,8 +1,6 @@
 #include <stdio.h>
 
 /*
-
-
 一维数组的两种访问方式。
 以int b[10]为例, int *p = b;。
 b[0] 等同于 *(p+0);
@@ -15,20 +13,10 @@ b[i] 等同于 *(p+i)
 void Func(int array[3][10]);
 void Func(int array[ ][10]);
 void Func(int (*array)[10]);
-*/
 
-
-
-
-/*
-二维数组指针
-指向数组     的     指针
-*/
-int two_dimensional_array_point_access(void)
-{
-    int a[3][4]={{1,2,3,4},{5,6,7,8},{9,10,11,12}};
-
-/*括号中的*表明 p 是一个指针，它指向一个数组，
+int a[3][4]={{1,2,3,4},{5,6,7,8},{9,10,11,12}};
+int(*p)[4];
+括号中的*表明 p 是一个指针，它指向一个数组，
 数组的类型为int [4]，
 这正是 a 所包含的每个一维数组的类型。
 
@@ -43,6 +31,9 @@ a+i == p+i
 a[i] == p[i] == *(a+i) == *(p+i)
 a[i][j] == p[i][j] == *(a[i]+j) == *(p[i]+j) == *(*(a+i)+j) == *(*(p+i)+j)
 */
+int two_dimensional_array_point_access(void)
+{
+    int a[3][4]={{1,2,3,4},{5,6,7,8},{9,10,11,12}};
     int(*p)[4];
 
     int i,j;
@@ -61,10 +52,11 @@ a[i][j] == p[i][j] == *(a[i]+j) == *(p[i]+j) == *(*(a+i)+j) == *(*(p+i)+j)
 int *(p1[5]);  //指针数组，可以去掉括号直接写作 int *p1[5];
 */
 
+/*
+二维指针
+int **a;
 
-
-
-
+*/
 
 /*
 变长数组(variable-length array,VLA)(C99）
@@ -242,9 +234,9 @@ int* profit, int profitSize, int* worker, int workerSize){
 
 
 /*
-给出 字符串 text 和 字符串列表 words, 返回所有的索引对 [i, j] 使得在索引对范围内的子字符串 text[i]...text[j]（包括 i 和 j）属于字符串列表 words。
-
-
+给出 字符串 text 和 字符串列表 words,
+返回所有的索引对 [i, j] 使得在索引对范围内的
+子字符串 text[i]...text[j]（包括 i 和 j）属于字符串列表 words。
 
 示例 1:
 
@@ -255,7 +247,8 @@ int* profit, int profitSize, int* worker, int workerSize){
 输入: text = "ababa", words = ["aba","ab"]
 输出: [[0,1],[0,2],[2,3],[2,4]]
 解释:
-注意，返回的配对可以有交叉，比如，"aba" 既在 [0,2] 中也在 [2,4] 中
+注意，返回的配对可以有交叉，
+比如，"aba" 既在 [0,2] 中也在 [2,4] 中
 */
 int cmp(const void *a,const void *b)
 {
@@ -269,7 +262,8 @@ int cmp(const void *a,const void *b)
 
 }
 
-int** indexPairs(char * text, char ** words, int wordsSize, int* returnSize, int** returnColumnSizes){
+int** indexPairs(char * text, char ** words, int wordsSize,
+	int* returnSize, int** returnColumnSizes){
     int i, j;
     int** res = (int **)malloc(sizeof(int *) * 1000);
     int cnt = 0;
