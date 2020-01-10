@@ -1,7 +1,13 @@
 
 
 /*绝对值*/
-int abs(int)
+int abs(int);
+
+/* sqrt() 用来求给定值的平方根 */
+double sqrt(double x);
+
+/*pow() 函数用来求 x 的 y 次幂（次方）*/
+double pow(double x, double y);
 
 /*
 这里有 n 个航班，它们分别从 1 到 n 进行编号。
