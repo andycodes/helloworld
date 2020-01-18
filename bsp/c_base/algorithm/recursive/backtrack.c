@@ -1,4 +1,21 @@
 /*
+回溯法的基本思想：
+
+针对所给问题，定义问题的解空间；
+确定易于搜索的解空间结构；
+以深度优先方式搜索解空间，
+并在搜索过程中用剪枝函数避免无效搜索。
+
+
+回溯法是求问题的解，
+使用的是DFS（深度优先搜索）。
+在DFS的过程中发现不是问题的解，
+那么就开始回溯到上一层或者上一个节点。
+DFS是遍历整个搜索空间，
+而不管是否是问题的解。
+所以更觉得回溯法是DFS的一种应用，
+DFS更像是一种工具。
+
 result = []
 def backtrack(路径, 选择列表):
     if 满足「结束条件」:
@@ -126,6 +143,73 @@ char ** readBinaryWatch(int num, int* returnSize)
 	backtrack(num, res, returnSize, 0, 0, 0);
 
 	return res;
+}
+
+
+/*
+黄金矿工
+你要开发一座金矿，地质勘测学家已经探明了
+这座金矿中的资源分布，并用大小为 m * n 的网格
+grid 进行了标注。每个单元格中的整数就表示这一
+单元格中的黄金数量；如果该单元格是空的，那么就是 0。
+
+为了使收益最大化，矿工需要按以下规则来开采黄金：
+
+每当矿工进入一个单元，就会收集该单元格中的所有黄金。
+矿工每次可以从当前位置向上下左右四个方向走。
+每个单元格只能被开采（进入）一次。
+不得开采（进入）黄金数目为 0 的单元格。
+矿工可以从网格中 任意一个 有黄金的单元格出发或者是停止。
+
+
+示例 1：
+
+输入：grid = [[0,6,0],[5,8,7],[0,9,0]]
+输出：24
+解释：
+[[0,6,0],
+ [5,8,7],
+ [0,9,0]]
+一种收集最多黄金的路线是：9 -> 8 -> 7。
+
+*/
+
+int backtrack(int ** grid, int gridSize, int* gridColSize,int i, int j)
+{
+	if (i < 0 || i >= gridSize || j < 0 || j >= gridColSize[0] || grid[i][j] == 0)
+		return 0;
+
+	int v = grid[i][j];
+	grid[i][j] = 0;
+	int ret = 0;
+
+	int d[4][2] = {{0,1}, {1,0}, {0,-1}, {-1,0}};
+	for(int k = 0; k < 4; k++) {
+		int nX = i + d[k][0];
+		int nY = j + d[k][1];
+		ret = fmax(ret, v + backtrack(grid,gridSize,gridColSize,nX,nY));
+	}
+
+	grid[i][j] = v;
+
+	return ret;
+}
+
+
+int getMaximumGold(int** grid, int gridSize, int* gridColSize){
+    if (grid == NULL || gridSize < 0 || gridColSize == NULL)
+        return 0;
+
+    int sumMax = 0;
+
+//矿工可以从网格中 任意一个 有黄金的单元格出发或者是停止。
+    for (int i = 0; i < gridSize; i++) {
+        for (int j = 0; j < gridColSize[i]; j++) {
+            sumMax = fmax(sumMax, backtrack(grid, gridSize, gridColSize, i, j));
+        }
+    }
+
+    return sumMax;
 }
 
 
