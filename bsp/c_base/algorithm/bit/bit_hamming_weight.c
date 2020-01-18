@@ -17,7 +17,7 @@
 ¡±Hanmming Weight¡°£¬ººÃ÷ÖØÁ¿
 */
 
-int hammingWeight(uint32_t n)
+int hammingWeight(unsigned int n)
 {
     int sum = 0;
     while (n != 0) {
@@ -26,3 +26,5 @@ int hammingWeight(uint32_t n)
     }
     return sum;
 }
+
+

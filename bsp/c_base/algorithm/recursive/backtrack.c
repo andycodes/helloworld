@@ -5,7 +5,7 @@ def backtrack(路径, 选择列表):
         result.add(「路径」)
         return
 
-    for 选择 in 「选择列表」:
+    for 选择 in 「选择列表」:  (类似N叉树)
         #做选择
 	 将该选择从选择列表移除
 	 「路径」.add(选择)
@@ -61,4 +61,71 @@ int** permute(int* nums, int numsSize, int* returnSize, int** returnColumnSizes)
 
 	return res;
 }
+
+
+/*
+401. 二进制手表
+二进制手表顶部有 4 个 LED 代表小时（0-11），
+底部的 6 个 LED 代表分钟（0-59）。
+每个 LED 代表一个 0 或 1，最低位在右侧。
+
+例如，上面的二进制手表读取 "3:25"。
+
+给定一个非负整数 n 代表当前 LED 亮着的数量，
+返回所有可能的时间。
+
+案例:
+
+输入: n = 1
+返回: ["1:00", "2:00", "4:00", "8:00", "0:01", "0:02", "0:04", "0:08", "0:16", "0:32"]
+*/
+
+void backtrack(int num, char ** res, int* returnSize, int curH, int curM, int pos)
+{
+	if (num == 0) {
+		res[*returnSize] = (char *)calloc(10, sizeof(char *));
+		sprintf(res[*returnSize] , "%d:%02d", curH, curM);
+		(*returnSize)++;
+		return;
+	}
+/*
+其实这个题目可以归于有多少 n个1的二进制组合。
+转换为字符串即可。
+这里将 0 - 9，划分一下
+0 - 5 是 分钟
+6 - 9 是小时计算。
+*/
+	for (int i = pos; i < 10; i++) {
+		if (i <= 5) {
+			curM += (1 << i);
+			if (curM > 59) {
+				curM -= (1 << i);
+				continue;
+			}
+		} else {
+			curH += (1 << i - 6);
+			if (curH > 11)
+				return;
+		}
+
+		backtrack(num -1, res,  returnSize, curH,  curM, i + 1);
+
+		if (i <= 5)
+			curM -= (1 << i);
+		else
+			curH -= (1 << i - 6);
+	}
+}
+
+
+char ** readBinaryWatch(int num, int* returnSize)
+{
+	char ** res = (char **)calloc(1024, sizeof(char *));
+
+	*returnSize = 0;
+	backtrack(num, res, returnSize, 0, 0, 0);
+
+	return res;
+}
+
 
