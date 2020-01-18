@@ -1,7 +1,10 @@
 
 /*
-	for ()
-		for ()
+void traverse(int[] arr) {
+    for (int i = 0; i < arr.length; i++) {
+        // ทรฮส arr[i]
+    }
+}
 */
 
 

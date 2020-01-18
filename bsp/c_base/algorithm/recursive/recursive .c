@@ -1,3 +1,11 @@
+/*
+void traverse(TreeNode root) {
+    traverse(root.left)
+    traverse(root.right)
+}
+
+*/
+
 #include <stdio.h>
 /*
 * @brief 将塔座x 上按直径有小到大且自上而下编号

@@ -1,9 +1,19 @@
+
+/*
+Interval Scheduling 区间调度问题
+
+1) 排序(很多场景)
+2) 迭代
+
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
 
 /*
+1029. 两地调度
 我们这样来看这个问题，
 公司首先将这 2N 个人全都安排飞往 B 市，
 再选出 N 个人改变它们的行程，让他们飞往 A 市。
@@ -25,28 +35,17 @@ struct obj{
     int diff;
 };
 
-void bubble_sort(struct obj  *data,int size)
-{
-    for (int i=size;i>0;i--)
-    {
-        for (int j=0;j<(i-1);j++)
-            {
-                if (data[j].diff >data[j+1].diff)
-                    {
-                        struct obj  tmp;
-                        tmp=data[j];
-                        data[j]=data[j+1];
-                        data[j+1]=tmp;
-                    }
-            }
-       }
+
+int cmp_struct( const void *a , const void *b){
+	struct obj *c = (struct obj *)a;
+	struct obj *d = (struct obj *)b;
+
+	return c->diff - d->diff;
 }
 
-
-
-int twoCitySchedCost(int costs[][2], int costsSize, int* costsColSize){
+int twoCitySchedCost(int** costs, int costsSize, int* costsColSize){
         int i;
-        struct obj ob[100];
+        struct obj ob[costsSize];
         int sum = 0;
 
         for(i = 0; i < costsSize; i++){
@@ -55,8 +54,7 @@ int twoCitySchedCost(int costs[][2], int costsSize, int* costsColSize){
                 ob[i].diff = ob[i].a - ob[i].b;
         }
 
-        bubble_sort(ob,costsSize);
-
+	qsort(ob, costsSize, sizeof(struct obj), cmp_struct);
         for (i = 0;i<costsSize/2;i++){
             sum += ob[i].a;
         }
@@ -69,16 +67,21 @@ int twoCitySchedCost(int costs[][2], int costsSize, int* costsColSize){
 }
 
 
-int main()
-{
-    int a[][2] = {{259,770},{448,54},{926,667},{184,139},{840,118},{577,469}};
-    int b;
-    printf("%d\n",twoCitySchedCost(a,6,&b));
-    return 0;
-}
-
-
 /*
+121. 买卖股票的最佳时机
+给定一个数组，它的第 i 个元素是一支给定股票第 i 天的价格。
+
+如果你最多只允许完成一笔交易（即买入和卖出一支股票），
+设计一个算法来计算你所能获取的最大利润。
+
+注意你不能在买入股票前卖出股票。
+输入: [7,1,5,3,6,4]
+输出: 5
+解释: 在第 2 天（股票价格 = 1）的时候买入，
+在第 5 天（股票价格 = 6）的时候卖出，最大利润 = 6-1 = 5 。
+     注意利润不能是 7-1 = 6, 因为卖出价格需要大于买入价格。
+
+
 解题思路： 股票买卖策略：
 单独交易日：设今天价格 p1、明天价格 p2，则今天买入、
 明天卖出可赚取金额 p2-p1（负值代表亏损）。
@@ -107,22 +110,28 @@ int maxProfit(int* prices, int pricesSize){
 
 
 /*
+1221. 分割平衡字符串
 在一个「平衡字符串」中，'L' 和 'R' 字符的数量是相同的。
 
-给出一个平衡字符串 s，请你将它分割成尽可能多的平衡字符串。
+给出一个平衡字符串 s，
+请你将它分割成尽可能多的平衡字符串。
 
 返回可以通过分割得到的平衡字符串的最大数量。
 
-问题分析：分割平衡串，得到尽可能多的平衡串。这是一个适用贪心算法的问题，在适当的位置截断源串得到平衡子串，截断后前后子串的计数不互相影响（无后效性），且所有局部最优相加即为整体的最优解。
+问题分析：分割平衡串，得到尽可能多的平衡串。
+这是一个适用贪心算法的问题，
+在适当的位置截断源串得到平衡子串，
+截断后前后子串的计数不互相影响（无后效性），
+且所有局部最优相加即为整体的最优解。
 解决思路：
 
-设置一个'L'与'R'的差值计数器diffCount，设置一个平衡子串计数器count；
+设置一个'L'与'R'的差值计数器diffCount，
+设置一个平衡子串计数器count；
 顺序遍历源串字符，遇L则diffCount+1，遇到R则diffCount-1；
 每遍历一个字符检查一次diffCount是否为0，若为0则count+1
-
 */
 
-int balancedStringSplit(char * s){
+int balancedStringSplit(char * s) {
 	int diffCnt = 0;
 	int count = 0;
 
@@ -142,8 +151,17 @@ int balancedStringSplit(char * s){
 	return count;
 }
 
+
 /*
-假设你是一位很棒的家长，想要给你的孩子们一些小饼干。但是，每个孩子最多只能给一块饼干。对每个孩子 i ，都有一个胃口值 gi ，这是能让孩子们满足胃口的饼干的最小尺寸；并且每块饼干 j ，都有一个尺寸 sj 。如果 sj >= gi ，我们可以将这个饼干 j 分配给孩子 i ，这个孩子会得到满足。你的目标是尽可能满足越多数量的孩子，并输出这个最大数值。
+假设你是一位很棒的家长，想要给你的孩子们一些小饼干。
+但是，每个孩子最多只能给一块饼干。对每个孩子 i ，
+都有一个胃口值 gi ，这是能让孩子们满足胃口的饼干
+的最小尺寸；并且每块饼干 j ，都有一个尺寸 sj 。
+如果 sj >= gi ，
+我们可以将这个饼干 j 分配给孩子 i ，
+这个孩子会得到满足。
+你的目标是尽可能满足越多数量的孩子，
+并输出这个最大数值。
 
 注意：
 
@@ -157,8 +175,10 @@ int balancedStringSplit(char * s){
 输出: 1
 
 解释:
-你有三个孩子和两块小饼干，3个孩子的胃口值分别是：1,2,3。
-虽然你有两块小饼干，由于他们的尺寸都是1，你只能让胃口值是1的孩子满足。
+你有三个孩子和两块小饼干，
+3个孩子的胃口值分别是：1,2,3。
+虽然你有两块小饼干，
+由于他们的尺寸都是1，你只能让胃口值是1的孩子满足。
 所以你应该输出1。
 示例 2:
 
@@ -277,4 +297,63 @@ int largestSumAfterKNegations(int* A, int ASize, int K){
 	return sum;
 }
 
+
+/*
+870. 优势洗牌
+给定两个大小相等的数组 A 和 B，A 相对于
+B 的优势可以用满足 A[i] > B[i] 的索引 i 的数目来描述。
+
+返回 A 的任意排列，使其相对于 B 的优势最大化。
+
+
+
+示例 1：
+
+输入：A = [2,7,11,15], B = [1,10,4,11]
+输出：[2,11,7,15]
+
+*/
+struct obj {
+	int data;
+	int index;
+};
+
+int cmp_struct( const void *a , const void *b){
+	struct obj *c = (struct obj *)a;
+	struct obj *d = (struct obj *)b;
+
+	return c->data- d->data;
+}
+
+int* advantageCount(int* A, int ASize, int* B, int BSize, int* returnSize){
+    int l = 0;
+    int r = ASize - 1;
+	struct obj *ao = (struct obj *)malloc(sizeof(struct obj) * ASize);
+	struct obj *bo = (struct obj *)malloc(sizeof(struct obj) * BSize);
+	int *ret = (int *)malloc(sizeof(int) * ASize);
+
+	for (int i = 0; i < ASize; i++) {
+		ao[i].data = A[i];
+		ao[i].index = i;
+
+		bo[i].data = B[i];
+		bo[i].index = i;
+	}
+
+	qsort(ao, ASize, sizeof(struct obj), cmp_struct);
+	qsort(bo, ASize, sizeof(struct obj), cmp_struct);
+    	int j = BSize - 1;
+	for (int i = 0; i < ASize; i++) {
+		if (ao[i].data > bo[l].data) {
+			ret[bo[l].index] = ao[i].data;
+            		l++;
+		} else {
+			ret[bo[r].index] = ao[i].data;
+            		r--;
+		}
+	}
+
+	*returnSize = ASize;
+	return ret;
+}
 

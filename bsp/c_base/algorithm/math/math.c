@@ -1,3 +1,10 @@
+/*判断两个数是否异号*/
+int x = -1, y = 2;
+bool f = ((x ^ y) < 0); // true
+
+int x = 3, y = 2;
+bool f = ((x ^ y) < 0); // false
+
 
 
 /*绝对值*/

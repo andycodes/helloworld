@@ -1,3 +1,20 @@
+/*
+链表遍历框架，
+兼具线性和非线性遍历结构：
+
+void traverse(ListNode head) {
+    for (ListNode p = head; p != null; p = p.next) {
+        // 访问 p.val
+    }
+}
+
+void traverse(ListNode head) {
+    // 访问 head.val
+    traverse(head.next)
+}
+
+*/
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
