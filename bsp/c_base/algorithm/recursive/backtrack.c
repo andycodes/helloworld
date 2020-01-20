@@ -147,7 +147,7 @@ char ** readBinaryWatch(int num, int* returnSize)
 
 
 /*
-黄金矿工
+1219. 黄金矿工
 你要开发一座金矿，地质勘测学家已经探明了
 这座金矿中的资源分布，并用大小为 m * n 的网格
 grid 进行了标注。每个单元格中的整数就表示这一
@@ -183,7 +183,7 @@ int backtrack(int ** grid, int gridSize, int* gridColSize,int i, int j)
 	grid[i][j] = 0;
 	int ret = 0;
 
-	int d[4][2] = {{0,1}, {1,0}, {0,-1}, {-1,0}};
+	int d[4][2] = {{0,1}, {1,0}, {0,-1}, {-1,0}};/*上右下左*/
 	for(int k = 0; k < 4; k++) {
 		int nX = i + d[k][0];
 		int nY = j + d[k][1];

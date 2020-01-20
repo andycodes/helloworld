@@ -15,13 +15,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+typedef long int HEAP_DTYPE;
+
 #define LENGTH(a) ( (sizeof(a)) / (sizeof(a[0])) )
 
 
 typedef struct minHeap{
 	long int cnt;
 	long int size;
-	long int heap[0];
+	HEAP_DTYPE heap[0];
 }minHeap;
 
 
@@ -32,7 +34,7 @@ typedef struct minHeap{
  *     存在 -- 返回data在数组中的索引
  *     不存在 -- -1
  */
-long int minHeapGetIndex(minHeap *H, long int data)
+long int minHeapGetIndex(minHeap *H, HEAP_DTYPE data)
 {
 	long int i=0;
 
@@ -57,7 +59,7 @@ static void minheap_filterdown(minHeap *H, long int start, long int end)
 {
     long int c = start; 	 	// 当前(current)节点的位置
     long int l = 2*c + 1; 	// 左(left)孩子的位置
-    long int tmp = H->heap[c];	// 当前(current)节点的大小
+    HEAP_DTYPE tmp = H->heap[c];	// 当前(current)节点的大小
 
     while(l <= end)
     {
@@ -116,7 +118,7 @@ long int minHeapGetSize(minHeap *H)
 
 //小根堆的删除
 long int minHeapPop(minHeap *H) {
-	long int min;
+	HEAP_DTYPE min;
 
 	if(isEmpty(H))
 		return 0;
@@ -141,7 +143,7 @@ static void filter_up(minHeap *H, long int start)
 {
     long int c = start;			// 当前节点(current)的位置
     long int p = (c-1)/2;		// 父(parent)结点的位置
-    long int tmp = H->heap[c];		// 当前节点(current)的大小
+    HEAP_DTYPE tmp = H->heap[c];		// 当前节点(current)的大小
 
     while(c > 0)
     {
@@ -196,8 +198,7 @@ void minheap_print(minHeap *H)
 
 
 minHeap * minheap_init(long int size) {
-	minHeap * H = NULL;
-	H = malloc(sizeof(minHeap) + sizeof(long int) * size);
+	minHeap * H = (minHeap *)malloc(sizeof(minHeap) + sizeof(long int) * size);
 	H->cnt = 0;
 	H->size = size;
 	return H;
@@ -208,7 +209,7 @@ int main(void)
 {
 	minHeap *H = minheap_init(1024);
 
-	long int a[] = {80, 40, 30, 60, 90, 70, 10, 50, 20};
+	HEAP_DTYPE a[] = {80, 40, 30, 60, 90, 70, 10, 50, 20};
 	long int i, len=LENGTH(a);
 
 	printf("== minHeapPush: ");
@@ -242,3 +243,4 @@ int main(void)
 
 	return 0;
 }
+

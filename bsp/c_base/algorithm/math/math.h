@@ -1,4 +1,8 @@
 
+/*
+INT_MAX
+INT_MIN
+*/
 #define INT_MAX ((int)(~0U >> 1))
 #define INT_MIN (-INT_MAX - 1)
 
