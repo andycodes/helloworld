@@ -63,3 +63,81 @@ char* parseTernary(char* expression) {
 	return  outstr;
 }
 
+
+/*
+1249. 移除无效的括号
+给你一个由 '('、')' 和小写字母组成的字符串 s。
+
+你需要从字符串中删除最少数目的 '(' 或者 ')' （可以删除任意位置的括号)，使得剩下的「括号字符串」有效。
+
+请返回任意一个合法字符串。
+
+有效「括号字符串」应当符合以下 任意一条 要求：
+
+空字符串或只包含小写字母的字符串
+可以被写作 AB（A 连接 B）的字符串，其中 A 和 B 都是有效「括号字符串」
+可以被写作 (A) 的字符串，其中 A 是一个有效的「括号字符串」
+
+
+示例 1：
+
+输入：s = "lee(t(c)o)de)"
+输出："lee(t(c)o)de"
+解释："lee(t(co)de)" , "lee(t(c)ode)" 也是一个可行答案。
+
+struct stack_load{
+	char data;
+	int pos;
+};
+
+*/
+
+char * minRemoveToMakeValid(char * s){
+
+	struct stack_blk * stack = create_array_stack(strlen(s));
+	char *res = (char *)calloc(1, strlen(s) + 1);
+
+	for (int i = 0; i < strlen(s); i++){
+		if (s[i] == '(') {
+			struct stack_load load;
+			load.data = s[i];
+			load.pos = i;
+			push(stack,load);
+		}else if(s[i] == ')') {
+			if (!is_empty(stack)) {
+				struct stack_load load = peek(stack);
+				if (load.data == '(')
+					(void)pop(stack);
+				else {
+					struct stack_load load;
+					load.data = s[i];
+					load.pos = i;
+					push(stack,load);
+				}
+			} else {
+				struct stack_load load;
+				load.data = s[i];
+				load.pos = i;
+				push(stack,load);
+			}
+		}
+	}
+
+	//print_array_stack(stack);
+
+	int i = 0;
+	int j = 0;
+	int k = 0;
+	while(s[i] != '\0') {
+		if (i == stack->load[k].pos && k < size(stack)){
+			k++;
+		} else {
+			res[j++] = s[i];
+		}
+
+		i++;
+	}
+
+	return res;
+}
+
