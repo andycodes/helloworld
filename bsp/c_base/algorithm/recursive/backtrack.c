@@ -213,3 +213,103 @@ int getMaximumGold(int** grid, int gridSize, int* gridColSize){
 }
 
 
+/*
+17. 电话号码的字母组合
+给定一个仅包含数字 2-9 的字符串，
+返回所有它能表示的字母组合。
+
+给出数字到字母的映射如下（与电话按键相同）。
+注意 1 不对应任何字母。
+
+
+
+示例:
+
+输入："23"
+输出：["ad", "ae", "af", "bd", "be", "bf", "cd", "ce", "cf"].
+
+题解
+第一时间想到回溯，因为这种找全部的解，常规都是使用回溯
+
+回溯
+初始化词典phone=\{"2":["a","b","c"],\cdots\}phone={"2":["a","b","c"],?}，初始化res=[]res=[]
+
+特判，若字符串为空，返回[][]
+
+定义回溯函数helper(s,tmp)helper(s,tmp)：ss表示待匹配的字符串，tmptmp表示之前匹配的结果
+
+若s==""s==""：表示匹配完毕，此时将tmptmp加入resres，并返回
+遍历s[0]s[0]对应的所有可能的字母cc：
+执行helper(s[i+1,...],tmp+c)helper(s[i+1,...],tmp+c)
+执行helper(digits,"")helper(digits,"")
+
+返回resres
+
+
+也可以选择BFS
+就是一个环形队列的感觉，左边进，右边出，
+循环一圈开始下一轮：
+比如题目中给的'23'：
+第一次跑'2'，队列变成【c,b,a】
+然后跑'3'，弹出队队尾的元素【a】，
+看这个元素的长度是不是等于2，如果不是，
+就分别把3对应的字母【d,e,f】分别和弹出的【a】拼起来，
+从队首插进去，这样再跑完一圈，
+队列变成了【cf,ce,cd,bf,be,bd,af,ae,ad】
+
+如果输入的是'234'，那下一轮就继续跑'4'。
+弹出队尾的元素【ad】，看长度是否等于3，
+如果不是，就把4对应的【h,i,g】分别和弹出的【ad】，
+拼起来，从队首往回插。
+
+*/
+char letter[][4] = {
+    {'a', 'b', 'c', 0},
+    {'d', 'e', 'f', 0},
+    {'g', 'h', 'i', 0},
+    {'j', 'k', 'l', 0},
+    {'m', 'n', 'o', 0},
+    {'p', 'q', 'r', 's'},
+    {'t', 'u', 'v', 0},
+    {'w', 'x', 'y', 'z'}
+};
+
+int nums[] = { 3,3,3,3,3,4,3,4 };
+
+void backtrack(char* digits, int srcSize, int* returnSize,
+    char* tmp, int *tmpIdx, int start, char** res)
+{
+    if (start == srcSize) {
+        res[*returnSize] = (char*)calloc(1024, sizeof(char));
+        //strcpy_s(res[*returnSize],1024, tmp);
+        strcpy(res[*returnSize], tmp);
+        (*returnSize)++;
+        return;
+    }
+
+    int leSize = nums[digits[start] - '2'];
+    for (int i = 0; i < leSize; i++) { /*每一层leSize种case */
+        tmp[*tmpIdx] = letter[digits[start] - '2'][i];
+        (*tmpIdx)++;/*前进一层*/
+        backtrack(digits, srcSize, returnSize, tmp, tmpIdx, start + 1, res);
+        (*tmpIdx)--;/*回溯反悔一层*/
+    }
+}
+
+
+char** letterCombinations(char* digits, int* returnSize) {
+    if (digits == NULL || 0 == strcmp(digits, "")) {
+        *returnSize = 0;
+        return NULL;
+    }
+
+    char** res = (char **)calloc(1024, sizeof(char*));
+    char* tmp = (char*)calloc(1024, sizeof(char));
+    int strSize = strlen(digits);
+
+    *returnSize = 0;
+    int tmpIdx = 0;
+    backtrack(digits, strSize, returnSize, tmp, &tmpIdx, 0, res);
+
+    return res;
+}
