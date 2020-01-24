@@ -168,3 +168,230 @@ int numIslands(char** grid, int gridSize, int* gridColSize){
 	return num;
 }
 
+/*
+22. 括号生成
+给出 n 代表生成括号的对数，请你写出一个函数，
+使其能够生成所有可能的并且有效的括号组合。
+
+例如，给出 n = 3，生成结果为：
+
+[
+  "((()))",
+  "(()())",
+  "(())()",
+  "()(())",
+  "()()()"
+]
+
+方法一：暴力法
+思路
+
+我们可以生成所有 2^{2n}2
+2n
+  个 '(' 和 ')' 字符构成的序列。然后，我们将检查每一个是否有效。
+
+算法
+
+为了生成所有序列，我们使用递归。长度为 n 的序列就是 '(' 加上所有长度为 n-1 的序列，以及 ')' 加上所有长度为 n-1 的序列。
+
+为了检查序列是否为有效的，我们会跟踪 平衡，也就是左括号的数量减去右括号的数量的净值。如果这个值始终小于零或者不以零结束，该序列就是无效的，否则它是有效的。
+
+*/
+
+bool isValid(char* str, int strSize)
+{
+    int balance = 0;
+
+    for (unsigned int i = 0; i < strlen(str); i++) {
+        if (str[i] == '(')
+            balance++;
+        else
+            balance--;
+
+        if (balance < 0)
+            return false;
+    }
+
+    return (balance == 0);
+}
+
+void generateAll(char* current, int currentSize,
+    int pos, char** res, int* returnSize)
+{
+    if (pos == currentSize) {
+        if (isValid(current, currentSize)) {
+            res[*returnSize] = (char*)calloc(1024 * 1024, sizeof(char));
+            strcpy(res[*returnSize], current);
+            //strcpy_s(res[*returnSize], 1024 * 1024, current);
+            (*returnSize)++;
+        }
+
+        return;
+    }
+
+    current[pos] = '(';
+    generateAll(current, currentSize, pos + 1, res, returnSize);
+    current[pos] = ')';
+    generateAll(current, currentSize, pos + 1, res, returnSize);
+}
+
+char** generateParenthesis(int n, int* returnSize) {
+
+    *returnSize = 0;
+    if (n == 0) {
+        return NULL;
+    }
+
+    char** res = (char**)calloc(1024 * 1024, sizeof(char*));
+    char* current = (char*)calloc(1024 * 1024, sizeof(char));
+
+    generateAll(current, 2 * n, 0, res, returnSize);
+
+    return res;
+}
+
+/*
+方法二：DFS
+思路和算法
+
+加法
+
+只有在我们知道序列仍然保持有效时才添加 '(' or ')'，
+而不是像 方法一 那样每次添加。
+我们可以通过跟踪到目前为止放置的左括号和
+右括号的数目来做到这一点，
+
+如果我们还剩一个位置，我们可以开始放一个左括号。
+如果它不超过左括号的数量，我们可以放一个右括号。
+
+*/
+
+void dfs(char** res, int* returnSize,
+    char* current, int currentSize, int left, int right, int max)
+{
+    if (currentSize == max * 2) {
+        res[*returnSize] = (char*)calloc(1024 * 1024, sizeof(char));
+        strcpy(res[*returnSize], current);
+        //strcpy_s(res[*returnSize], 1024 * 1024, current);
+        (*returnSize)++;
+        return;
+    }
+
+    if (left < max) {
+        current[currentSize] = '(';
+        dfs(res, returnSize, current, currentSize + 1, left + 1, right, max);
+    }
+
+    if (right < left) {
+        current[currentSize] = ')';
+        dfs(res, returnSize, current, currentSize + 1, left, right + 1, max);
+    }
+}
+
+char** generateParenthesis(int n, int* returnSize) {
+
+    *returnSize = 0;
+    if (n == 0) {
+        return NULL;
+    }
+
+    char** res = (char**)calloc(1024 * 1024, sizeof(char*));
+    char* current = (char*)calloc(1024 * 1024, sizeof(char));
+
+    dfs(res, returnSize, current, 0, 0, 0, n);
+
+    return res;
+}
+
+/*
+减法
+
+画图以后，可以分析出的结论：
+
+当前左右括号都有大于 00 个可以使用的时候，才产生分支；
+
+产生左分支的时候，只看当前是否还有左括号可以使用；
+
+产生右分支的时候，还受到左分支的限制，
+右边剩余可以使用的括号数量一定得在严格
+大于左边剩余的数量的时候，才可以产生分支；
+
+在左边和右边剩余的括号数都等于 00 的时候结算。
+
+*/
+
+/*bfs
+此处撰写解题思路
+模拟将 n个'(' 和 n个')' 分别放入两个栈中left和right。每次从两个栈中取值,并且到str中
+如果left==right，此时我们只能从left中出栈，
+如果left<=right 那么就有两种选择，要么从left中出栈，要么充right中出栈。
+整个过程，要保证left<=right。
+
+我们知道，所有的正确的括号都可以用栈来判断（入栈左括号，出栈右括号），所以可以使用栈+回溯的方法实现
+PS：其实这里栈的作用和数字一样，因为只有一种括号，
+但是如果以后题目拓展成 大中小三种括号，那么使用栈只用改很少的代码。（加"）"变成加pop）
+
+写一个递归，每次可以有入栈和出栈操作，遍历所有可能性。
+
+var ans []string
+
+func dfs(n int, cur string, stack []byte) {    // 当前字符串组合 cur，当前前括号栈（只存储前括号）stack
+    if len(cur)>=n*2 {
+        if len(stack)==0 {
+            ans = append(ans, cur)
+        }
+        return
+    }
+    // 两种操作：入栈和出栈
+    if len(stack) <= n && len(cur) <=n*2 {   // 入栈，代表当前字符串 cur 累加一个前括号；前括号栈只存储前括号，大小不能超过3
+        dfs(n, cur+"(", append(stack, '('))
+    }
+    if len(stack) > 0 {                     // 出栈，代表当前字符串 cur 累加一个后括号；前括号栈此时不能为空
+        dfs(n, cur+")", stack[:len(stack)-1])
+    }
+}
+
+func generateParenthesis(n int) []string {
+    ans = []string{}
+    dfs(n, "", []byte{})
+    return ans
+}
+
+
+*/
+
+/*
+设所求序列为S[n]，记其序号为n，则S[n]可以来自于之前求出的序列的组合再加上左右括号。
+
+比如 n = 3 时，我们要求3对括号能组成的有效组合，现在我们先摆好1对括号" （）"，思考是否能利用之前的组合填充这个括号，使其组成3对括号？ 可以得出这个填充是： "（2对括号的有效组合）"，"（1对括号的有效组合）1对括号的有效组合"，"（）2对括号的有效组合"。
+
+不用考虑"2对括号的有效组合（）"，因为已经包含在上述情况"（1对括号的有效组合）1对括号的有效组合"。
+
+将S[n]表示为"（左序列）右序列 " ，并且左右序列的序号之和为n-1，即 S[n] = { '(' + S[n-1] + ')' + S[0] , '(' + S[n-2] + ')' + S[1] , '(' + S[n-2] + ')' + S[1] ...... '(' + S[0]+ ')' + S[n - 1] }
+可知S[0] = "" ;
+
+  S[0]         S[1]         S[2]
+  { }          { "()" }       {"()()","(())"}
+S[3] = { '(' + S[2] + ')' + S[0] ， '(' + S[1] + ')' + S[1] , '(' + S[0] + ')' + S[2] }
+
+      =   {         "(()())" ,"((()))",     "(())()",    "()()()","()(())"      }
+class Solution {
+public:
+    vector<string> generateParenthesis(int n) {
+             vector<string> ans ;
+        if (n == 0) {
+            ans.push_back("");
+        } else {
+            for (int c = n-1; c >= 0; --c)
+                for (string left: generateParenthesis(c))
+                    for (string right: generateParenthesis(n-1-c))
+                        ans.push_back("(" + left + ")" + right);
+        }
+        return ans;
+    }
+
+};
+
+*/
+
+
