@@ -314,4 +314,184 @@ char** letterCombinations(char* digits, int* returnSize) {
     return res;
 }
 
+/*
+39. 组合总和
+给定一个无重复元素的数组 candidates 和一个目标数 target ，找出 candidates 中所有可以使数字和为 target 的组合。
 
+candidates 中的数字可以无限制重复被选取。
+
+说明：
+
+所有数字（包括 target）都是正整数。
+解集不能包含重复的组合。
+示例 1:
+
+输入: candidates = [2,3,6,7], target = 7,
+所求解集为:
+[
+  [7],
+  [2,2,3]
+]
+
+思路：以 target = 7 为根结点，每一个分支做减法。
+减到 00 或者负数的时候，剪枝。其中，
+减到 00 的时候结算，这里 "结算" 的意思是添加到结果集。
+*/
+
+int cmp_int(const void* a, const void* b) {
+    return *(int*)a - *(int*)b;
+}
+
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+
+	按层回溯
+ */
+
+void backtrack(int* candidates, int candidatesSize, int start,
+    int target, int* returnSize, int** returnColumnSizes,
+    int **res, int *current, int curIdx)
+{
+    if (target == 0) {
+        res[*returnSize] = (int*)calloc(1024, sizeof(int));
+        memcpy(res[*returnSize], current, sizeof(int) * curIdx);
+        (*returnColumnSizes)[*returnSize] = curIdx;
+        (*returnSize)++;
+        return;
+    }
+
+	if (start == candidatesSize) {
+        return;
+    }
+
+    for (int i = start; i < candidatesSize && target - candidates[i] >= 0; i++) {
+        current[curIdx++] = candidates[i];
+        backtrack(candidates, candidatesSize, i, target - candidates[i],
+            returnSize, returnColumnSizes, res, current, curIdx);
+        curIdx--;
+    }
+}
+
+int** combinationSum(int* candidates, int candidatesSize,
+    int target, int* returnSize, int** returnColumnSizes) {
+
+    *returnSize = 0;
+    if (candidates == NULL || candidatesSize <= 0) {
+        return NULL;
+    }
+
+    qsort(candidates, candidatesSize, sizeof(int), cmp_int);
+    int** res = (int**)calloc(1024, sizeof(int*));
+    *returnColumnSizes = (int*)calloc(1024, sizeof(int));
+    int* current = (int*)calloc(1024, sizeof(int));
+    backtrack(candidates, candidatesSize, 0, target, returnSize,
+        returnColumnSizes, res, current, 0);
+    return res;
+}
+
+/*
+这道题我用的是减法，有兴趣的朋友还可以使用加法，
+加到 target 的时候结算，超过 target 的时候剪枝。
+*/
+int cmp_int(const void* a, const void* b) {
+    return *(int*)a - *(int*)b;
+}
+
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ 按层回溯
+ */
+
+void backtrack(int* candidates, int candidatesSize, int start,
+    int target, int* returnSize, int** returnColumnSizes,
+    int **res, int *current, int curIdx, int sum)
+{
+    if (sum > target) {
+        return;
+    } else if (sum == target) {
+        res[*returnSize] = (int*)calloc(1024, sizeof(int));
+        memcpy(res[*returnSize], current, sizeof(int) * curIdx);
+        (*returnColumnSizes)[*returnSize] = curIdx;
+        (*returnSize)++;
+        return;
+    }
+
+    for (int i = start; i < candidatesSize &&  sum + candidates[i] <= target; i++) {
+        current[curIdx++] = candidates[i];
+        backtrack(candidates, candidatesSize, i, target,
+            returnSize, returnColumnSizes, res, current, curIdx, sum + candidates[i]);
+	// 无论是该路径大于target还是等于target，
+	//都需要对其删除最后一个元素，进行其余支路的搜索
+        curIdx--;
+    }
+}
+
+int** combinationSum(int* candidates, int candidatesSize,
+    int target, int* returnSize, int** returnColumnSizes) {
+
+    *returnSize = 0;
+    if (candidates == NULL || candidatesSize <= 0) {
+        return NULL;
+    }
+
+    qsort(candidates, candidatesSize, sizeof(int), cmp_int);
+    int** res = (int**)calloc(1024, sizeof(int*));
+    *returnColumnSizes = (int*)calloc(1024, sizeof(int));
+    int* current = (int*)calloc(1024, sizeof(int));
+    backtrack(candidates, candidatesSize, 0, target, returnSize,
+        returnColumnSizes, res, current, 0, 0);
+    return res;
+}
+
+
+
+int cmp_int(const void* a, const void* b) {
+    return *(int*)a - *(int*)b;
+}
+
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+	金典回溯
+ */
+
+void backtrack(int* candidates, int candidatesSize, int start,
+    int target, int* returnSize, int** returnColumnSizes,
+    int** res, int* current, int curIdx)
+{
+    if (target == 0) {
+        res[*returnSize] = (int*)calloc(1024, sizeof(int));
+        memcpy(res[*returnSize], current, sizeof(int) * curIdx);
+        (*returnColumnSizes)[*returnSize] = curIdx;
+        (*returnSize)++;
+        return;
+    }
+
+    if (start == candidatesSize || candidates[start] > target) {
+        return;
+    }
+
+    current[curIdx++] = candidates[start];
+    backtrack(candidates, candidatesSize, start, target - candidates[start],
+        returnSize, returnColumnSizes, res, current, curIdx);
+    curIdx--;
+    //继续搜索此时达到target的下一个
+    backtrack(candidates, candidatesSize, start + 1, target,
+        returnSize, returnColumnSizes, res, current, curIdx);
+}
+
+int** combinationSum(int* candidates, int candidatesSize,
+    int target, int* returnSize, int** returnColumnSizes) {
+
+    *returnSize = 0;
+    if (candidates == NULL || candidatesSize <= 0) {
+        return NULL;
+    }
+
+    qsort(candidates, candidatesSize, sizeof(int), cmp_int);
+    int** res = (int**)calloc(1024, sizeof(int*));
+    *returnColumnSizes = (int*)calloc(1024, sizeof(int));
+    int* current = (int*)calloc(1024, sizeof(int));
+    backtrack(candidates, candidatesSize, 0, target, returnSize,
+        returnColumnSizes, res, current, 0);
+    return res;
+}
