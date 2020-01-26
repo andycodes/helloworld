@@ -6,116 +6,99 @@
 #include <ctype.h>
 
 
-int cmp(const void* i,const void* j){
-    int* a = (int *) i ;
-    int* b = (int *) j ;
-    if(*a>*b)
-        return 1 ;
-    if(*a<*b)
-        return -1 ;
-    return 0 ;
-}
-
-
-bool computeTerminate(char* input){
-    for(int i=0;i<strlen(input);i++){
-        if(ispunct(input[i]))
-            return false ;
-    }
-    return true ;
-}
-
-void substr(char dst[], char src[],int start,int len)
+int GetNum(char* input, int begin, int end)
 {
-	char* sc = src+start;
-	int n = strlen(sc);
-	int i = 0;
-	//assert(dst != NULL );
-	//assert(src != NULL );
-	if(n < len)
-	{
-		len = n;
-	}
-	while(len)
-	{
-		dst[i] = sc[i];
-		len--;
-		i++;
-	}
-	dst[i] = '\0';
-}
+    int i;
+    int num = 0;
 
-
-char* subString(char* input,int start ,int end){
-	//char* temp = (char*)malloc(sizeof(char)*(end-start+2)) ;
-	char* temp = (char*)malloc(1024) ;
-	substr(temp,input,start,end-start);
-	return temp ;
-}
-
-
-int computeResult(int a,int b,char op){
-    switch(op){
-        case '+': return a+b ;
-        case '-': return a-b ;
-        case '*': return a*b ;
-    }
-}
-
-//左右递归，终止条件只包含一个数，不包含符号时
-int* diffWaysToCompute(char* input,int* returnSize){
-    //只包含了一个数
-    if(computeTerminate(input)){
-	int* result = (int *)malloc(sizeof(int)*1024) ;
-	result[0] = atoi(input) ;
-	*returnSize = 1 ;
-	return result ;
+    for (i = begin; i <= end; i++) {
+        num = num * 10 + input[i] - '0';
     }
 
-    int* result = (int *)malloc(sizeof(int)*1024) ;
-    for(int i=0;i<strlen(input);i++){
-        if(ispunct(input[i])){
-            int lSize = 0 ;
-            int RSize = 0 ;
-            char* left = subString(input,0,i) ;
-            char* right = subString(input,i+1,strlen(input)) ;
-            int* l = diffWaysToCompute(left,&lSize) ;
-            int* r = diffWaysToCompute(right,&RSize) ;
-            for(int j=0;j<lSize;j++)
-                for(int k=0;k<RSize;k++){
-                    result[*returnSize] = computeResult(l[j],r[k],input[i]) ;
-                    (*returnSize)++ ;
+    return num;
+}
+
+int* CalNum(char* input, int begin, int end, int* num)
+{
+    int i;
+    int m, n;
+    int* out = NULL;
+    int* leftOut = NULL;
+    int* rightOut = NULL;
+    int leftNum = 0;
+    int rightNum = 0;
+    bool isNum = true;
+    int res = 0;
+
+    out = (int*)malloc(sizeof(int) * 2000);
+    *num = 0;
+
+    for (i = begin; i <= end; i++) {
+        //if (input[i] == '+' || input[i] == '-' || input[i] == '*') {
+           if (ispunct(input[i])) {
+            leftOut = CalNum(input, begin, i - 1, &leftNum);
+            rightOut = CalNum(input, i + 1, end, &rightNum);
+
+            for (m = 0; m < leftNum; m++) {
+                for (n = 0; n < rightNum; n++) {
+                    switch (input[i]) {
+                    case '+':
+                        res = leftOut[m] + rightOut[n];
+                        break;
+                    case '-':
+                        res = leftOut[m] - rightOut[n];
+                        break;
+                    case '*':
+                        res = leftOut[m] * rightOut[n];
+                        break;
+                    default:
+                        break;
+                    }
+                    out[*num] = res;
+                    *num += 1;
                 }
+            }
+            free(leftOut);
+            free(rightOut);
+            leftOut = NULL;
+            rightOut = NULL;
+            isNum = false;
         }
     }
 
-    int* temp = (int*)malloc(1024) ;
-    for(int i=0;i<*returnSize;i++){
-        temp[i] = result[i] ;
+    if (isNum) {
+        out[*num] = GetNum(input, begin, end);
+        *num += 1;
     }
-    free(result) ;
-    //释放result所指向的空间----告诉系统，这个空间可以被重新分配了。此时result本身的值（即所指向的空间不变）
-    //所以为了保证指针的安全性，通常都会在free(result);之后紧跟一句result=NULL,避免result再次操作到原来的空间。
-    result = NULL ;
-    return temp ;
+    return out;
 }
 
-int main(void){
+
+/**
+* Note: The returned array must be malloced, assume caller calls free().
+*/
+int* diffWaysToCompute(char* input, int* returnSize) {
+    return CalNum(input, 0, strlen(input) - 1, returnSize);
+}
+
+
+
+
+int main(void) {
     char array[2][20] = {
-		"2-1-1",
-		"2*3-4*5"
-	};
+        "2-1-1",
+        "2*3-4*5"
+    };
 
-for(int j = 0; j <2; j++) {
-    int returnSize = 0 ;
-    int* result = NULL ;
-    result = diffWaysToCompute(array[j],&returnSize) ;
-    qsort(result,returnSize,sizeof(int),cmp) ;
-    for(int i=0;i<returnSize;i++){
-        printf("%d ",result[i]) ;
+    for (int j = 0; j < 2; j++) {
+        int returnSize = 0;
+        int* result = NULL;
+        result = diffWaysToCompute(array[j], &returnSize);
+        qsort(result, returnSize, sizeof(int), cmp_int);
+        for (int i = 0; i < returnSize; i++) {
+            printf("%d ", result[i]);
+        }
+        printf("\n");
     }
-    printf("\n") ;
+    return 0;
 }
-    return 0 ;
-}
-

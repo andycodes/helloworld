@@ -46,25 +46,26 @@ C/C++语言提供了几个标准库函数，可以将字符串转换为任意类型(整型、长整型、浮点型等
 提取字符串
 从src start 位置提取长度为len的字符串到dst
 */
-void substr(char dst[], char src[],int start,int cpLen)
+void substr(char* dst, char* src, int start, int cpLen)
 {
-	char* sc = src + start;
-	int srcLen = strlen(sc);
-	int i = 0;
+#if 0
+    char* sc = src + start;
+    int srcLen = strlen(sc);
+    int i = 0;
 
-#if 1
-	if(srcLen < cpLen) {
-		cpLen = srcLen;
-	}
 
-	while(srcLen) {
-		dst[i] = sc[i];
-		srcLen--;
-		i++;
-	}
-	dst[i] = '\0';
+    if (srcLen < cpLen) {
+        cpLen = srcLen;
+    }
+
+    while (srcLen) {
+        dst[i] = sc[i];
+        srcLen--;
+        i++;
+    }
+    dst[i] = '\0';
 #else
-	strncpy(dst, sc, cpLen);
+    strncpy_s(dst,1024, src + start, cpLen);
 #endif
 }
 

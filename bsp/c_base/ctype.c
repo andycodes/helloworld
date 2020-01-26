@@ -124,8 +124,10 @@ isprint
 
 函数返回: 是返回非0,否则返回0
 
+*/
 
-ispunct
+
+/*
 
 函数名称: ispunct
 
@@ -135,7 +137,11 @@ ispunct
 即除字母,数字和空格以外的所有可打印字符
 
 函数返回: 是返回非0,否则返回0
+*/
+int ispunct(int ch);
 
+
+/*
 isspace
 
 函数名称: isspace
