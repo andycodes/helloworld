@@ -267,3 +267,46 @@ int nthUglyNumber(int n){
 }
 
 
+/*
+1292. 元素和小于等于阈值的正方形的最大边长
+给你一个大小为 m x n 的矩阵 mat 和一个整数阈值 threshold。
+
+请你返回元素总和小于或等于阈值的正方形区域的最大边长；如果没有这样的正方形区域，则返回 0 。
+
+
+示例 1：
+
+
+
+输入：mat = [[1,1,3,2,4,3,2],[1,1,3,2,4,3,2],[1,1,3,2,4,3,2]], threshold = 4
+输出：2
+解释：总和小于 4 的正方形的最大边长为 2，如图所示。
+
+*/
+int maxSideLength(int** mat, int matSize,
+	int* matColSize, int threshold) {
+	int colSize = matColSize[0];
+	int dp[matSize + 1][colSize + 1];
+
+	for (int i = 1; i <= matSize; i++) {
+		for (int j = 1; j <= colSize; j++) {
+			dp[i][j] = mat[i - 1][j - 1] + dp[i - 1][j] + dp[i][j - 1] - dp[i - 1][j - 1];
+		}
+	}
+
+	int ans = 0;
+    for (int k = 1; k <= fmin(matSize, colSize); k++) {
+        for (int i = 1; i <= matSize; i++) {
+            for (int j = 1; j <= colSize; j++) {
+                if (i - k < 0 || j - k < 0) {
+                    continue;
+                }
+                int tmp = dp[i][j] - dp[i - k][j] - dp[i][j - k] + dp[i - k][j - k];
+                if (tmp <= threshold) {
+                    ans = (int)fmax(ans, k);
+                }
+            }
+        }
+    }
+    return ans;
+}

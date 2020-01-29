@@ -64,7 +64,8 @@ void backtrack(int source[], int start, int end, int *resSize, int **res)
  * The sizes of the arrays are returned as *returnColumnSizes array.
  * Note: Both returned array and *columnSizes array must be calloc ed, assume caller calls free().
  */
-int** permute(int* nums, int numsSize, int* returnSize, int** returnColumnSizes){
+int** permute(int* nums, int numsSize, int* returnSize,
+int** returnColumnSizes){
 	int **res = (int **)calloc (17000 * sizeof(int *));
 	int resSize = 0;
 
@@ -97,7 +98,8 @@ int** permute(int* nums, int numsSize, int* returnSize, int** returnColumnSizes)
 返回: ["1:00", "2:00", "4:00", "8:00", "0:01", "0:02", "0:04", "0:08", "0:16", "0:32"]
 */
 
-void backtrack(int num, char ** res, int* returnSize, int curH, int curM, int pos)
+void backtrack(int num, char ** res, int* returnSize,
+int curH, int curM, int pos)
 {
 	if (num == 0) {
 		res[*returnSize] = (char *)calloc(10, sizeof(char *));
@@ -495,3 +497,160 @@ int** combinationSum(int* candidates, int candidatesSize,
         returnColumnSizes, res, current, 0);
     return res;
 }
+
+/*
+64 最小路径和
+给定一个包含非负整数的 m x n 网格，请找出一条从左上角到右下角的路径，使得路径上的数字总和为最小。
+
+说明：每次只能向下或者向右移动一步。
+
+示例:
+
+输入:
+[
+  [1,3,1],
+  [1,5,1],
+  [4,2,1]
+]
+输出: 7
+解释: 因为路径 1→3→1→1→1 的总和最小。
+
+*/
+
+
+int minsum = INT_MAX;
+
+void backtrack(int** grid, int gridSize,
+	int* gridColSize, int sum, int x, int y)
+{
+	if (x == gridSize - 1 && y == gridColSize[x] - 1) {
+		minsum = fmin(minsum, sum);
+		return;
+	}
+
+	int d[2][2] = { {1, 0}, {0, 1} };//down,right
+	for (int i = 0; i < 2; i++) {
+		int nX = x + d[i][0];
+		int nY = y + d[i][1];
+
+		if (nX < gridSize && nY < gridColSize[nX]) {
+			int nSum = sum + grid[nX][nY];
+			backtrack(grid, gridSize, gridColSize, nSum, nX, nY);
+			//nSum -= grid[nX][nY];本地变量不需要回溯
+		}
+	}
+}
+
+int minPathSum(int** grid, int gridSize, int* gridColSize) {
+	minsum = INT_MAX;
+
+	if (grid == NULL || gridSize < 1 || gridColSize == NULL)
+		return 0;
+
+	backtrack(grid, gridSize, gridColSize, grid[0][0], 0, 0);
+
+    return minsum;
+}
+
+int  dfs(int** grid, int gridSize,
+	int* gridColSize, int x, int y)
+{
+	if (x == gridSize - 1 && y == gridColSize[x] - 1) {
+		return grid[x][y];
+	}
+
+	if (x + 1 >= gridSize)
+		return grid[x][y] + dfs(grid, gridSize, gridColSize, x, y + 1);
+
+	if (y + 1 >= gridColSize[x])
+		return grid[x][y] + dfs(grid, gridSize, gridColSize, x + 1, y);
+
+	return grid[x][y] + fmin(dfs(grid, gridSize, gridColSize, x, y + 1),
+		dfs(grid, gridSize, gridColSize, x + 1, y));
+}
+
+int minPathSum(int** grid, int gridSize, int* gridColSize) {
+	if (grid == NULL || gridSize < 1 || gridColSize == NULL)
+		return 0;
+
+	return dfs(grid, gridSize, gridColSize, 0, 0);
+}
+
+int minPathSum(int** grid, int gridSize, int* gridColSize) {
+	if (grid == NULL || gridSize < 1 || gridColSize == NULL)
+		return 0;
+
+
+	int dp[gridSize][gridColSize[0]];
+
+	dp[0][0] = grid[0][0];
+	for (int i = 0; i < gridSize; i++) {
+		for (int j = 0; j < gridColSize[i]; j++) {
+			if (i >= 1 && j >= 1)
+				dp[i][j] = grid[i][j] + fmin(dp[i - 1][j], dp[i][j - 1]);
+			else if (i >= 1)
+				dp[i][j] = grid[i][j] + dp[i - 1][j];
+			else if (j >= 1)
+				dp[i][j] = grid[i][j] + dp[i][j - 1];
+		}
+	}
+
+	return dp[gridSize - 1][gridColSize[0] - 1];
+}
+
+/*DP
+解题思路：
+此题是典型的动态规划题目。
+
+状态定义：
+
+设 dpdp 为大小 m \times nm×n 矩阵，其中 dp[i][j]dp[i][j] 的值代表直到走到 (i,j)(i,j) 的最小路径和。
+转移方程：
+
+题目要求，只能向右或向下走，换句话说，当前单元格 (i,j)(i,j) 只能从左方单元格 (i-1,j)(i?1,j) 或上方单元格 (i,j-1)(i,j?1) 走到，因此只需要考虑矩阵左边界和上边界。
+
+走到当前单元格 (i,j)(i,j) 的最小路径和 == "从左方单元格 (i-1,j)(i?1,j) 与 从上方单元格 (i,j-1)(i,j?1) 走来的 两个最小路径和中较小的 " ++ 当前单元格值 grid[i][j]grid[i][j] 。具体分为以下 44 种情况：
+当左边和上边都不是矩阵边界时： 即当i \not= 0i
+
+
+ =0, j \not= 0j
+
+
+ =0时，dp[i][j] = min(dp[i - 1][j], dp[i][j - 1]) + grid[i][j]dp[i][j]=min(dp[i?1][j],dp[i][j?1])+grid[i][j] ；
+当只有左边是矩阵边界时： 只能从上面来，即当i = 0, j \not= 0i=0,j
+
+
+ =0时， dp[i][j] = dp[i][j - 1] + grid[i][j]dp[i][j]=dp[i][j?1]+grid[i][j] ；
+当只有上边是矩阵边界时： 只能从左面来，即当i \not= 0, j = 0i
+
+
+ =0,j=0时， dp[i][j] = dp[i - 1][j] + grid[i][j]dp[i][j]=dp[i?1][j]+grid[i][j] ；
+当左边和上边都是矩阵边界时： 即当i = 0, j = 0i=0,j=0时，其实就是起点， dp[i][j] = grid[i][j]dp[i][j]=grid[i][j]；
+初始状态：
+
+dpdp 初始化即可，不需要修改初始 00 值。
+返回值：
+
+返回 dpdp 矩阵右下角值，即走到终点的最小路径和。
+其实我们完全不需要建立 dpdp 矩阵浪费额外空间，直接遍历 grid[i][j]grid[i][j] 修改即可。这是因为：grid[i][j] = min(grid[i - 1][j], grid[i][j - 1]) + grid[i][j] ；原 gridgrid 矩阵元素中被覆盖为 dpdp 元素后（都处于当前遍历点的左上方），不会再被使用到。
+*/
+int minPathSum(int** grid, int gridSize, int* gridColSize) {
+	if (grid == NULL || gridSize < 1 || gridColSize == NULL)
+		return 0;
+
+	for (int i = 0; i < gridSize; i++) {
+		for (int j = 0; j < gridColSize[i]; j++) {
+			if (i == 0 && j == 0)
+				continue;
+			else if (i == 0)
+				grid[i][j] += grid[i][j - 1];
+			else if (j == 0)
+				grid[i][j] += grid[i - 1][j];
+			else
+				grid[i][j] += fmin(grid[i][j - 1], grid[i - 1][j]);
+		}
+	}
+
+	return grid[gridSize - 1][gridColSize[0] - 1];
+}
+
