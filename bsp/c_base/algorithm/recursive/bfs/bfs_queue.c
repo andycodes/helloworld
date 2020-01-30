@@ -490,4 +490,70 @@ int* click, int clickSize, int* returnSize, int** returnColumnSizes){
 	return res;
 }
 
+/*
+207. 课程表
+现在你总共有 n 门课需要选，记为 0 到 n-1。
 
+在选修某些课程之前需要一些先修课程。 例如，想要学习课程 0 ，你需要先完成课程 1 ，我们用一个匹配来表示他们: [0,1]
+
+给定课程总量以及它们的先决条件，判断是否可能完成所有课程的学习？
+
+示例 1:
+
+输入: 2, [[1,0]]
+输出: true
+解释: 总共有 2 门课程。学习课程 1 之前，你需要完成课程 0。所以这是可能的。
+
+
+
+1、在开始排序前，扫描对应的存储空间（使用邻接表），将入度为 00 的结点放入队列。
+
+2、只要队列非空，就从队首取出入度为 00 的结点，将这个结点输出到结果集中，并且将这个结点的所有邻接结点（它指向的结点）的入度减 11，在减 11 以后，如果这个被减 11 的结点的入度为 00 ，就继续入队。
+
+3、当队列为空的时候，检查结果集中的顶点个数是否和课程数相等即可。
+
+也可以用DFS 判断是否存在环
+
+*/
+bool canFinish(int numCourses, int** prerequisites,
+int prerequisitesSize, int* prerequisitesColSize){
+
+	/*某课的入度可以理解为该课同时有多少个前置课*/
+	int *inDegree = (int *)calloc(numCourses, sizeof(int));
+	for (int i = 0; i < prerequisitesSize; i++) {
+		inDegree[prerequisites[i][0]]++;
+	}
+
+	struct aqueue_blk * queue =  aqueue_init(numCourses);
+
+	for (int i = 0; i < numCourses; i++) {
+		if (inDegree[i] == 0) {
+			struct aqueue_load load;
+			load.data = i;
+			aqueue_push(queue, load);
+		}
+	}
+/*
+	for_aqueue_entry(queue) {
+		printf("%d ",queue->load[i].data);
+	}
+*/
+	int cnt = 0;
+	while(!aqueue_is_empty(queue)) {
+		struct aqueue_load out = aqueue_pop(queue);
+		cnt++;
+		for (int i = 0 ; i < prerequisitesSize; i++) {
+			if (prerequisites[i][1] == out.data) {
+				int x = prerequisites[i][0];
+				inDegree[x]--;
+				if (inDegree[x] == 0) {
+					struct aqueue_load load;
+					load.data = x;
+					aqueue_push(queue, load);
+				}
+			}
+		}
+	}
+
+	return cnt == numCourses;
+}

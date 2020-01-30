@@ -1,22 +1,24 @@
 #include <stdio.h>
 #include <malloc.h>
 
-struct queue_load{
+/*array queue*/
+
+struct aqueue_load{
 	int data;
 };
 
-struct queue_blk{
+struct aqueue_blk{
 	int count;
 	int size;
-	struct queue_load load[0];
+	struct aqueue_load load[0];
 };
 
 
-struct queue_blk * array_queue_init(int sz)
+struct aqueue_blk * aqueue_init(int sz)
 {
-	struct queue_blk * queue;
+	struct aqueue_blk * queue;
 
-	queue = (struct queue_blk * )malloc(sizeof(struct queue_blk) + sz*sizeof(struct queue_load));
+	queue = (struct aqueue_blk * )malloc(sizeof(struct aqueue_blk) + sz*sizeof(struct aqueue_load));
 	if(queue == NULL) {
 		printf(" malloc error!");
 		return  NULL;
@@ -29,22 +31,22 @@ struct queue_blk * array_queue_init(int sz)
 }
 
 
-void array_queue_exit(struct queue_blk * queue)
+void aqueue_exit(struct aqueue_blk * queue)
 {
-	if (queue) {
+	if (queue != NULL) {
 		free((void*)queue);
 		queue = NULL;
 	}
 }
 
 
-struct queue_load  front(struct queue_blk * queue)
+struct aqueue_load  front(struct aqueue_blk * queue)
 {
 	return  queue->load[0];
 }
 
 
-struct queue_load  back(struct queue_blk * queue)
+struct aqueue_load  back(struct aqueue_blk * queue)
 {
 	return  queue->load[queue->count - 1];
 }
@@ -52,8 +54,8 @@ struct queue_load  back(struct queue_blk * queue)
 /*
 	load[0|1|2|3|4]  <--push
 */
-void array_queue_push(struct queue_blk * queue,
-	struct queue_load load)
+void aqueue_push(struct aqueue_blk * queue,
+	struct aqueue_load load)
 {
 	queue->load[queue->count++] = load;
 	if (queue->count > queue->size) {
@@ -65,11 +67,11 @@ void array_queue_push(struct queue_blk * queue,
 
 
 // 返回并删除“队列开头元素”
-struct queue_load array_queue_pop(struct queue_blk * queue)
+struct aqueue_load aqueue_pop(struct aqueue_blk * queue)
 {
 	int i = 0;
 
-	struct queue_load head = queue->load[0];
+	struct aqueue_load head = queue->load[0];
 
 	queue->count--;
 	while (i++<queue->count)
@@ -80,47 +82,47 @@ struct queue_load array_queue_pop(struct queue_blk * queue)
 
 
 // 返回“队列”的大小
-int size(struct queue_blk * queue)
+int aqueue_size(struct aqueue_blk * queue)
 {
 	return queue->count;
 }
 
 // 返回“队列”是否为空
-int array_queue_is_empty(struct queue_blk * queue)
+int aqueue_is_empty(struct aqueue_blk * queue)
 {
 	return queue->count==0;
 }
 
 
-int is_full(struct queue_blk * queue)
+int is_full(struct aqueue_blk * queue)
 {
 	return queue->count >= queue->size;
 }
 
 
-#define for_queue_entry(queue) \
-for(int i = 0; i < size(queue); i++)
+#define for_aqueue_entry(queue) \
+for(int i = 0; i < aqueue_size(queue); i++)
 
 
 void main()
 {
-	struct queue_blk *q_test1;
+	struct aqueue_blk *q_test1;
 
-	q_test1 = array_queue_init(12);
+	q_test1 = aqueue_init(12);
 
-	struct queue_load load1;
-	struct queue_load load2;
-	struct queue_load load3;
+	struct aqueue_load load1;
+	struct aqueue_load load2;
+	struct aqueue_load load3;
 
 	load1.data = 10;
-	array_queue_push(q_test1,load1);
+	aqueue_push(q_test1,load1);
 	load1.data = 20;
-	array_queue_push(q_test1,load1);
+	aqueue_push(q_test1,load1);
 	load1.data = 30;
-	array_queue_push(q_test1,load1);
+	aqueue_push(q_test1,load1);
 
 	// 将“队列开头的元素”赋值给tmp，并删除“该元素”
-	load2 = array_queue_pop(q_test1);
+	load2 = aqueue_pop(q_test1);
 	printf("load2 10 =%d\n", load2.data);
 
 	// 只将“队列开头的元素”赋值给tmp，不删除该元素.
@@ -128,20 +130,20 @@ void main()
 	printf("load3 20=%d\n", load3.data);
 
 	load1.data = 40;
-	array_queue_push(q_test1,load1);
+	aqueue_push(q_test1,load1);
 
 	// 打印队列
-	printf("is_empty() false =%d\n", array_queue_is_empty(q_test1));
-	printf("size() 3 =%d\n", size(q_test1));
+	printf("is_empty() false =%d\n", aqueue_is_empty(q_test1));
+	printf("aqueue_size() 3 =%d\n", aqueue_size(q_test1));
 
-	while (!array_queue_is_empty(q_test1)) {
-		struct queue_load tmp_load;
+	while (!aqueue_is_empty(q_test1)) {
+		struct aqueue_load tmp_load;
 
-		tmp_load = array_queue_pop(q_test1);
+		tmp_load = aqueue_pop(q_test1);
 		printf("20 30 40  ==%d\n", tmp_load.data);
 	}
 
 	// 销毁队列
-	array_queue_exit(q_test1);
+	aqueue_exit(q_test1);
 }
 
