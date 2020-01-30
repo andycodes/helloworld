@@ -267,12 +267,7 @@ int numIslands(char** grid, int gridSize, int* gridColSize){
 	struct queue_blk *qe = create_array_queue(gridSize*(* gridColSize));
 
 
-	int d[4][2] = {
-			{0,1},
-			{1,0},
-			{0,-1},
-			{-1,0},
-	};
+	int d[4][2] = {{0,1}, {1,0}, {0,-1}, {-1,0}};
 
 	for(int i = 0; i < gridSize; i++) {
 		for (int j = 0; j < *gridColSize;j++) {
@@ -309,6 +304,190 @@ int numIslands(char** grid, int gridSize, int* gridColSize){
 	}
 
 	return num;
+}
+
+/*
+529. 扫雷游戏
+让我们一起来玩扫雷游戏！
+
+给定一个代表游戏板的二维字符矩阵。 'M' 代表一个未挖出的地雷，'E' 代表一个未挖出的空方块，'B' 代表没有相邻（上，下，左，右，和所有4个对角线）地雷的已挖出的空白方块，数字（'1' 到 '8'）表示有多少地雷与这块已挖出的方块相邻，'X' 则表示一个已挖出的地雷。
+
+现在给出在所有未挖出的方块中（'M'或者'E'）的下一个点击位置（行和列索引），根据以下规则，返回相应位置被点击后对应的面板：
+
+如果一个地雷（'M'）被挖出，游戏就结束了- 把它改为 'X'。
+如果一个没有相邻地雷的空方块（'E'）被挖出，修改它为（'B'），并且所有和其相邻的方块都应该被递归地揭露。
+如果一个至少与一个地雷相邻的空方块（'E'）被挖出，修改它为数字（'1'到'8'），表示相邻地雷的数量。
+如果在此次点击中，若无更多方块可被揭露，则返回面板。
+
+
+示例 1：
+
+输入:
+
+[['E', 'E', 'E', 'E', 'E'],
+ ['E', 'E', 'M', 'E', 'E'],
+ ['E', 'E', 'E', 'E', 'E'],
+ ['E', 'E', 'E', 'E', 'E']]
+
+Click : [3,0]
+
+*/
+
+const int dir[8][2] = {{0,1}, {1,0}, {0,-1}, {-1,0},
+                 	      {1,1}, {-1,-1},{-1,1},{1,-1}
+                 	     };
+
+
+struct queue_load{
+	int x;
+	int y;
+};
+
+struct queue_blk{
+	int count;
+	int size;
+	struct queue_load load[0];
+};
+
+struct queue_blk * array_queue_init(int sz)
+{
+	struct queue_blk * queue;
+
+	queue = (struct queue_blk * )malloc(sizeof(struct queue_blk) + sz*sizeof(struct queue_load));
+	if(queue == NULL) {
+		printf(" malloc error!");
+		return  NULL;
+	}
+
+	queue->count = 0;
+	queue->size = sz;
+
+	return queue;
+}
+
+void array_queue_exit(struct queue_blk * queue)
+{
+	if (queue) {
+		free((void*)queue);
+		queue = NULL;
+	}
+}
+
+void array_queue_push(struct queue_blk * queue,
+	struct queue_load load)
+{
+	queue->load[queue->count++] = load;
+	if (queue->count > queue->size) {
+		printf("[%s] push count[%d] too big\n", __func__, queue->count);
+		queue->count = queue->count % queue->size;
+		return;
+	}
+}
+
+
+struct queue_load array_queue_pop(struct queue_blk * queue)
+{
+	int i = 0;
+
+	struct queue_load head = queue->load[0];
+
+	queue->count--;
+	while (i++<queue->count)
+		queue->load[i-1] = queue->load[i];
+
+	return head;
+}
+
+
+int array_queue_is_empty(struct queue_blk * queue)
+{
+	return queue->count==0;
+}
+
+
+void  pushNeighborsInQueue(struct queue_blk * queue,
+	int x, int y,  char **res, int boardSize, int* boardColSize)
+{
+	for (int i = 0; i < 8; i++) {
+		int nx = x + dir[i][0];
+		int ny = y + dir[i][1];
+
+		if (nx >= 0 && nx < boardSize && ny >= 0 && ny < boardColSize[nx]) {
+			if (res[nx][ny] == 'E') {
+				struct queue_load load;
+				load.x = nx;
+				load.y = ny;
+				array_queue_push(queue, load);
+			}
+		}
+	}
+}
+
+
+int  NeighborsHavenumsM(int x, int y,  char **res, int boardSize, int* boardColSize)
+{
+	int Mcnt = 0;
+
+	for (int i = 0; i < 8; i++) {
+		int nx = x + dir[i][0];
+		int ny = y + dir[i][1];
+
+		if (nx >= 0 && nx < boardSize && ny >= 0 && ny < boardColSize[nx]) {
+			if (res[nx][ny] == 'M')
+				Mcnt++;
+		}
+	}
+
+	return Mcnt;
+}
+
+
+char** updateBoard(char** board, int boardSize, int* boardColSize,
+int* click, int clickSize, int* returnSize, int** returnColumnSizes){
+
+	char **res = (char **)calloc(boardSize, sizeof(char *));
+	for (int i = 0; i < boardSize; i++) {
+	        res[i] = (char *)calloc(boardColSize[i], sizeof(char));
+	}
+
+	*returnColumnSizes = calloc(boardSize, sizeof(int *));
+
+	for (int i = 0; i < boardSize; i++){
+	        for (int j = 0; j < boardColSize[i]; j++) {
+	            res[i][j] = board[i][j];
+	        }
+
+		(*returnColumnSizes)[i] = boardColSize[i];
+	}
+
+	*returnSize = boardSize;
+
+	struct queue_blk * queue = array_queue_init(boardSize * boardColSize[0]);
+	int x = click[0];
+	int y = click[1];
+
+	if (res[x][y] == 'M') {
+	    res[x][y] = 'X';
+	} else if (res[x][y] == 'E') {
+		struct queue_load load;
+		load.x = x;
+		load.y = y;
+		array_queue_push(queue, load);
+
+		while(!array_queue_is_empty(queue)) {
+			struct queue_load out = array_queue_pop(queue);
+			int nums = NeighborsHavenumsM(out.x, out.y, res, boardSize, boardColSize);
+			if (nums > 0) {
+				res[out.x][out.y] = '0' + nums;
+			} else {
+				res[out.x][out.y] = 'B';
+				pushNeighborsInQueue(queue, out.x, out.y, res, boardSize, boardColSize);
+			}
+		}
+	}
+
+	array_queue_exit(queue);
+	return res;
 }
 
 

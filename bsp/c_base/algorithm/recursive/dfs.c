@@ -395,3 +395,80 @@ public:
 */
 
 
+/*529 see bfs*/
+const int dir[8][2] = {{0,1}, {1,0}, {0,-1}, {-1,0},
+                 	      {1,1}, {-1,-1},{-1,1},{1,-1}
+                 	     };
+
+
+int  NeighborsHavenumsM(int x, int y,  char **res, int boardSize, int* boardColSize)
+{
+	int Mcnt = 0;
+
+	for (int i = 0; i < 8; i++) {
+		int nx = x + dir[i][0];
+		int ny = y + dir[i][1];
+
+		if (nx >= 0 && nx < boardSize && ny >= 0 && ny < boardColSize[nx]) {
+			if (res[nx][ny] == 'M' || res[nx][ny] == 'X')
+				Mcnt++;
+		}
+	}
+
+	return Mcnt;
+}
+
+
+void dfs(int boardSize, int* boardColSize, int x, int y, char **res)
+{
+	int nums = NeighborsHavenumsM(x, y, res, boardSize, boardColSize);
+
+	if (nums > 0) {
+		res[x][y] = '0' + nums;
+		return;
+	}
+
+	res[x][y] = 'B';
+	for (int i = 0; i < 8; i++) {
+		int nx = x + dir[i][0];
+		int ny = y + dir[i][1];
+
+		if (nx >= 0 && nx < boardSize && ny >= 0 && ny < boardColSize[nx]) {
+			if (res[nx][ny] == 'E') {
+				dfs(boardSize, boardColSize, nx, ny, res);
+			}
+		}
+	}
+}
+
+char** updateBoard(char** board, int boardSize, int* boardColSize,
+int* click, int clickSize, int* returnSize, int** returnColumnSizes){
+
+	char **res = (char **)calloc(boardSize, sizeof(char *));
+	for (int i = 0; i < boardSize; i++) {
+	        res[i] = (char *)calloc(boardColSize[i], sizeof(char));
+	}
+
+	*returnColumnSizes = calloc(boardSize, sizeof(int *));
+
+	for (int i = 0; i < boardSize; i++){
+	        for (int j = 0; j < boardColSize[i]; j++) {
+	            res[i][j] = board[i][j];
+	        }
+
+		(*returnColumnSizes)[i] = boardColSize[i];
+	}
+
+	*returnSize = boardSize;
+
+	int x = click[0];
+	int y = click[1];
+
+	if (res[x][y] == 'M') {
+	    res[x][y] = 'X';
+	} else if (res[x][y] == 'E') {
+		dfs(boardSize, boardColSize, x, y, res);
+	}
+	return res;
+}
+
