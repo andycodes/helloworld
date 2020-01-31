@@ -318,7 +318,8 @@ char** letterCombinations(char* digits, int* returnSize) {
 
 /*
 39. 组合总和
-给定一个无重复元素的数组 candidates 和一个目标数 target ，找出 candidates 中所有可以使数字和为 target 的组合。
+给定一个无重复元素的数组 candidates 和一个目标数 target ，
+找出 candidates 中所有可以使数字和为 target 的组合。
 
 candidates 中的数字可以无限制重复被选取。
 
@@ -339,10 +340,6 @@ candidates 中的数字可以无限制重复被选取。
 减到 00 或者负数的时候，剪枝。其中，
 减到 00 的时候结算，这里 "结算" 的意思是添加到结果集。
 */
-
-int cmp_int(const void* a, const void* b) {
-    return *(int*)a - *(int*)b;
-}
 
 /**
  * Note: The returned array must be malloced, assume caller calls free().

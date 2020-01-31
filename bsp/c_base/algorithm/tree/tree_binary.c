@@ -547,12 +547,10 @@ bool isSameTree(struct TreeNode* p, struct TreeNode* q){
 }
 
 /*
+110. 平衡二叉树
 给定一个二叉树，判断它是否是高度平衡的二叉树。
-
 本题中，一棵高度平衡二叉树定义为：
-
 一个二叉树每个节点 的左右两个子树的高度差的绝对值不超过1。
-
 示例 1:
 
 给定二叉树 [3,9,20,null,null,15,7]
@@ -583,9 +581,13 @@ bool isSameTree(struct TreeNode* p, struct TreeNode* q){
 对二叉树做深度优先遍历DFS，递归过程中：
 终止条件：当DFS越过叶子节点时，返回高度0；
 返回值：
-从底至顶，返回以每个节点root为根节点的子树最大高度(左右子树中最大的高度值加1max(left,right) + 1)；
-当我们发现有一例 左/右子树高度差 ＞ 1 的情况时，代表此树不是平衡树，返回-1；
-当发现不是平衡树时，后面的高度计算都没有意义了，因此一路返回-1，避免后续多余计算。
+从底至顶，返回以每个节点root为根节点的子树
+最大高度(左右子树中最大的高度值加1max(left,right) + 1)；
+当我们发现有一例 左/右子树高度差 ＞ 1 的情况时，
+代表此树不是平衡树，返回-1；
+当发现不是平衡树时，
+后面的高度计算都没有意义了，
+因此一路返回-1，避免后续多余计算。
 最差情况是对树做一遍完整DFS，时间复杂度为 O(N)。
 
 */
@@ -610,13 +612,18 @@ bool  isBalanced(struct TreeNode* root){
 }
 /*
 从顶至底（暴力法）
-构造一个获取当前节点最大深度的方法 depth() ，通过比较左右子树最大高度差abs(self.depth(root.left) - self.depth(root.right))，来判断以此节点为根节点下是否是二叉平衡树；
-从顶至底DFS，以每个节点为根节点，递归判断是否是平衡二叉树：
+构造一个获取当前节点最大深度的方法 depth() ，
+通过比较左右子树最大高度差abs(self.depth(root.left) - self.depth(root.right))，
+来判断以此节点为根节点下是否是二叉平衡树；
+从顶至底DFS，以每个节点为根节点，
+递归判断是否是平衡二叉树：
 若所有根节点都满足平衡二叉树性质，则返回 True ；
-若其中任何一个节点作为根节点时，不满足平衡二叉树性质，则返回False。
-本方法产生大量重复的节点访问和计算，最差情况下时间复杂度 O(N^2)。
-
+若其中任何一个节点作为根节点时，
+不满足平衡二叉树性质，则返回False。
+本方法产生大量重复的节点访问和计算，
+最差情况下时间复杂度 O(N^2)。
 */
+
 int  dfs_depth(struct TreeNode* root)
 {
 	if (root == NULL)
@@ -709,6 +716,7 @@ bool hasPathSum(struct TreeNode* root, int sum){
 	return dfs(root,0,sum);
 }
 
+
 /*
 给定一个二叉树，其中所有的右节点
 要么是具有兄弟节点（拥有相同父节点的左节点）的叶节点，
@@ -767,3 +775,114 @@ struct TreeNode* upsideDownBinaryTree(struct TreeNode* root){
 }
 
 
+
+/*
+113. 路径总和 II
+给定一个二叉树和一个目标和，找到所有从根节点到叶子节点路径总和等于给定目标和的路径。
+
+说明: 叶子节点是指没有子节点的节点。
+
+示例:
+给定如下二叉树，以及目标和 sum = 22，
+
+*/
+
+void dfs(struct TreeNode* root, int sum, int* returnSize,
+		int** returnColumnSizes, int **res, int *cur, int curCnt)
+{
+    	if (root == NULL)
+		return;
+
+    	cur[curCnt++] = root->val;
+
+	if (root->left == NULL && root->right == NULL && sum == root->val) {
+		res[*returnSize] = (int *)calloc(curCnt, sizeof(int));
+		memcpy(res[*returnSize], cur, sizeof(int) * curCnt);
+		(*returnColumnSizes)[*returnSize] = curCnt;
+		(*returnSize)++;
+		return;
+	}
+
+
+	dfs(root->left, sum - root->val, returnSize,
+		returnColumnSizes, res, cur, curCnt);
+	dfs(root->right, sum - root->val, returnSize,
+		returnColumnSizes, res, cur, curCnt);
+}
+
+
+void dfs(struct TreeNode* root, int sum, int* returnSize,
+		int** returnColumnSizes, int **res, int *cur, int curCnt)
+{
+    if (root == NULL)
+		return;
+
+	    sum -= root->val;
+	    cur[curCnt++] = root->val;
+
+	if (root->left == NULL && root->right == NULL && sum == 0) {
+		res[*returnSize] = (int *)calloc(curCnt, sizeof(int));
+		memcpy(res[*returnSize], cur, sizeof(int) * curCnt);
+		(*returnColumnSizes)[*returnSize] = curCnt;
+		(*returnSize)++;
+		return;
+	}
+
+
+	dfs(root->left, sum, returnSize,
+		returnColumnSizes, res, cur, curCnt);
+	dfs(root->right, sum, returnSize,
+		returnColumnSizes, res, cur, curCnt);
+
+}
+
+
+/*下面是回溯；注意跟上面DFS的区别，
+sum -= root->val; 改变了当前栈空间的对象对回溯也没有什么用；
+回溯到上一层sum，不是同一个sum;
+每一层sum 在栈上都是独立储存的对象，
+参数 ，内部变量都是自动回溯*/
+void dfs(struct TreeNode* root, int sum, int* returnSize,
+		int** returnColumnSizes, int **res, int *cur, int curCnt)
+{
+	if (root == NULL)
+	return;
+
+	cur[curCnt++] = root->val;
+
+	if (root->left == NULL && root->right == NULL && sum == root->val) {
+		res[*returnSize] = (int *)calloc(curCnt, sizeof(int));
+		memcpy(res[*returnSize], cur, sizeof(int) * curCnt);
+		(*returnColumnSizes)[*returnSize] = curCnt;
+		(*returnSize)++;
+		return;
+	}
+
+	sum -= root->val;
+	dfs(root->left, sum, returnSize,
+	returnColumnSizes, res, cur, curCnt);
+	sum += root->val;
+
+	sum -= root->val;
+	dfs(root->right, sum, returnSize,
+	returnColumnSizes, res, cur, curCnt);
+	sum += root->val;
+}
+
+/**
+ * Return an array of arrays of size *returnSize.
+ * The sizes of the arrays are returned as *returnColumnSizes array.
+ * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ */
+int** pathSum(struct TreeNode* root, int sum,
+	int* returnSize, int** returnColumnSizes) {
+
+	*returnSize = 0;
+	int ** res = (int **)calloc(1024, sizeof(int *));
+	*returnColumnSizes = (int*)calloc(1024, sizeof(int));
+	int* current = (int*)calloc(1024, sizeof(int));
+
+	dfs(root, sum, returnSize, returnColumnSizes, res, current, 0);
+
+	return res;
+}
