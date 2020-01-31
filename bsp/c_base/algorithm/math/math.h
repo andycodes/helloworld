@@ -2,6 +2,9 @@
 /*
 INT_MAX
 INT_MIN
+
+LONG_MIN,
+LONG_MAX
 */
 #define INT_MAX ((int)(~0U >> 1))
 #define INT_MIN (-INT_MAX - 1)

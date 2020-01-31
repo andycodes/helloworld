@@ -284,3 +284,54 @@ struct rootNode* inorderSuccessor(struct rootNode* root, struct rootNode* p) {
 	return res;
 }
 
+/*
+98. 验证二叉搜索树
+给定一个二叉树，判断其是否是一个有效的二叉搜索树。
+
+假设一个二叉搜索树具有如下特征：
+
+节点的左子树只包含小于当前节点的数。
+节点的右子树只包含大于当前节点的数。
+所有左子树和右子树自身必须也是二叉搜索树。
+*/
+bool dfs(struct TreeNode* root, long low, long high) {
+	if (root == NULL)
+	return true;
+
+	long num = root->val;
+	if (num <= low || num >= high)
+		return false;
+
+    return dfs(root->left, low, num) && dfs(root->right, num, high);
+}
+bool isValidBST(struct TreeNode* root){
+    return dfs(root, LONG_MIN, LONG_MAX);
+}
+
+/*
+
+另一种解法
+如果是有效的BST树，那么该List是无重复元素且升序的。
+
+*/
+struct TreeNode* pre = NULL;
+
+bool dfs(struct TreeNode* root) {
+    if (root == NULL)
+		return true;
+
+	if (!dfs(root->left))
+		return false;
+
+	if (pre != NULL && pre->val >= root->val)
+		return false;
+
+	pre = root;
+
+	return dfs(root->right);
+}
+
+bool isValidBST(struct TreeNode* root){
+	pre = NULL;
+	return dfs(root);
+}
