@@ -95,3 +95,13 @@ int numPairsDivisibleBy60(int* time, int timeSize){
 	return result;
 }
 
+/*
+数学定理:
+
+1)
+如果一个数组和大于0
+令其作为环形，那么一定可以找到一个起点，
+从此起点开始转一圈（遍历），连续和大于零
+
+*/
+

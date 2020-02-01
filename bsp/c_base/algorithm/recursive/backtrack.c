@@ -66,13 +66,13 @@ void backtrack(int source[], int start, int end, int *resSize, int **res)
  */
 int** permute(int* nums, int numsSize, int* returnSize,
 int** returnColumnSizes){
-	int **res = (int **)calloc (17000 * sizeof(int *));
+	int **res = (int **)calloc (17000,  sizeof(int *));
 	int resSize = 0;
 
 	backtrack(nums, 0, numsSize, &resSize, res);
 
 	*returnSize = resSize;
-	*returnColumnSizes = (int *)calloc (sizeof(int) * 17000);
+	*returnColumnSizes = (int *)calloc(17000, sizeof(int) );
 	for (int i = 0; i < resSize; i++) {
 		(*returnColumnSizes)[i] = numsSize;
 	}
