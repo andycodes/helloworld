@@ -472,3 +472,76 @@ int* click, int clickSize, int* returnSize, int** returnColumnSizes){
 	return res;
 }
 
+/*
+130. 被围绕的区域
+给定一个二维的矩阵，包含 'X' 和 'O'（字母 O）。
+
+找到所有被 'X' 围绕的区域，并将这些区域里所有的 'O' 用 'X' 填充。
+
+示例:
+
+X X X X
+X O O X
+X X O X
+X O X X
+运行你的函数后，矩阵变为：
+
+X X X X
+X X X X
+X X X X
+X O X X
+
+
+这时候的 OO 是不做替换的。
+因为和边界是连通的。为了记录这种状态，
+我们把这种情况下的 OO 换成 # 作为占位符，
+待搜索结束之后，遇到 OO 替换为 XX（和边界
+不连通的 OO）；遇到 #，替换回 $O(和边界连通
+的 OO)。
+*/
+void dfs(char** board, int boardSize, int* boardColSize, int x, int y)
+{
+	if (board[x][y] != 'O')
+		return;//false
+
+	board[x][y] = 'F';
+
+	int d[4][2] = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
+	for (int i = 0;i < 4; i++) {
+		int nx = x + d[i][0];
+		int ny = y + d[i][1];
+
+		if (nx >= 0 && nx < boardSize && ny >= 0 &&
+			ny < boardColSize[nx] && board[nx][ny] == 'O') {
+			dfs(board, boardSize, boardColSize, nx, ny);
+		}
+	}
+}
+
+
+
+void solve(char** board, int boardSize, int* boardColSize) {
+	if (board == NULL || boardSize <= 0 || boardColSize == NULL )
+		return;
+
+	for (int i = 0; i < boardSize; i++) {
+		dfs(board, boardSize, boardColSize, i, 0);
+		dfs(board, boardSize, boardColSize, i, boardColSize[i] - 1);
+	}
+
+	for (int j = 0; j < boardColSize[0]; j++) {
+		dfs(board, boardSize, boardColSize, 0, j);
+		dfs(board, boardSize, boardColSize, boardSize - 1, j);
+	}
+
+
+	for(int i = 0; i < boardSize; i++) {
+		for (int j = 0; j < boardColSize[i]; j++) {
+			if (board[i][j] == 'O')
+				board[i][j] = 'X';
+			else if (board[i][j] == 'F')
+				board[i][j] = 'O';
+		}
+	}
+}
+
