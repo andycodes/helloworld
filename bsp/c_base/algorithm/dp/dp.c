@@ -3,7 +3,13 @@
 #include <string.h>
 #include <math.h>
 
-/************前缀*******************/
+/*
+定理:
+二维矩阵前缀和:
+sum[i][j] = sum[i][j - 1] + sum[i - 1][j] - sum[i - 1][j - 1] + a[i][j];
+*/
+
+/************前缀处理*******************/
 
 
 /*最大子序和*/
@@ -182,8 +188,53 @@ int maxSideLength(int** mat, int matSize,
 			}
 		}
 	}
+
     	return ans;
 }
+
+/*
+363. 矩形区域不超过 K 的最大数值和
+给定一个非空二维矩阵 matrix 和一个整数 k，找到这个矩阵内部不大于 k 的最大矩形和。
+
+示例:
+
+输入: matrix = [[1,0,1],[0,-2,3]], k = 2
+输出: 2
+解释: 矩形区域 [[0, 1], [-2, 3]] 的数值和是 2，且 2 是不超过 k 的最大数字（k = 2）。
+说明：
+
+矩阵内的矩形区域面积必须大于 0。
+如果行数远大于列数，你将如何解答呢？
+
+*/
+int maxSumSubmatrix(int** matrix, int matrixSize, int* matrixColSize, int k){
+
+	int m = matrixSize;
+	int n = matrixColSize[0];
+	int dp[m + 1][n + 1];
+	for (int i = 1; i <= m; i++) {
+		for (int j = 1; j <= n; j++) {
+			dp[i][j] = dp[i-1][j] + dp[i][j-1] - dp[i-1][j-1] + matrix[i-1][j-1];
+		}
+	}
+
+	int res = INT_MIN;
+	for(int i=1;i<=m;i++) {
+		for(int j=1;j<=n;j++) {
+		    for(int k=1;k<=i;k++) {
+		        for(int t=1;t<=j;t++) {
+		            int tmp=dp[i][j]-dp[k-1][j]-dp[i][t-1]+dp[k-1][t-1];
+		            if(tmp<=k) {
+		                res= fmax(res,tmp);
+		            }
+		        }
+		    }
+		}
+	}
+
+	return res;
+}
+
 
 
 /*
