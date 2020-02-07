@@ -226,3 +226,142 @@ char* simplifyPath(char * path)
 	return res;
 }
 
+
+/*
+394. 字符串解码
+给定一个经过编码的字符串，返回它解码后的字符串。
+
+编码规则为: k[encoded_string]，表示其中方括号内部的 encoded_string 正好重复 k 次。注意 k 保证为正整数。
+
+你可以认为输入字符串总是有效的；输入字符串中没有额外的空格，且输入的方括号总是符合格式要求的。
+
+此外，你可以认为原始数据不包含数字，所有的数字只表示重复的次数 k ，例如不会出现像 3a 或 2[4] 的输入。
+
+示例:
+
+s = "3[a]2[bc]", 返回 "aaabcbc".
+s = "3[a2[c]]", 返回 "accaccacc".
+s = "2[abc]3[cd]ef", 返回 "abcabccdcdcdef".
+
+*/
+struct astack_load{
+	union dtype { /*Overload*/
+		int times;
+		char str[1024000];
+	}utype;
+};
+
+
+struct astack{
+	int count;
+	int size;
+	struct astack_load load[0];
+};
+
+struct astack *astack_init(int sz)
+{
+	struct astack * stack =
+		(struct astack  *)malloc(sizeof(struct astack) + sz*sizeof(struct astack_load));
+	if (stack == NULL) {
+		printf("arr malloc error!");
+		return NULL;
+	}
+
+	stack->size = sz;
+	stack->count = 0;
+
+	return stack;
+}
+
+/*     1|2|3|4....       */
+void astack_push(struct astack * stack,struct astack_load load)
+{
+	stack->load[stack->count++] = load;
+	if (stack->count > stack->size) {
+		printf("[%s] astack_push count[%d] too big\n", __func__, stack->count);
+		stack->count = stack->count % stack->size;
+	}
+}
+
+// 路碌禄脴隆掳脮禄隆卤碌脛麓贸脨隆
+int astack_size(struct astack * stack)
+{
+	return stack->count;
+}
+
+// 路碌禄脴隆掳脮禄隆卤脢脟路帽脦陋驴脮
+int astack_empty(struct astack * stack)
+{
+	return astack_size(stack)==0;
+}
+
+// 路碌禄脴隆掳脮禄露楼脭陋脣脴脰碌隆卤
+struct astack_load  astack_top(struct astack * stack)
+{
+	if (astack_empty(stack)) {
+		printf("err astack_empty\n");
+		return stack->load[0];
+	}
+
+	return stack->load[stack->count -1];
+}
+
+
+// 路碌禄脴隆掳脮禄露楼脭陋脣脴脰碌隆卤拢卢虏垄脡戮鲁媒隆掳脮禄露楼脭陋脣脴隆卤
+struct astack_load  astack_pop(struct astack * stack)
+{
+	if (astack_empty(stack)) {
+		printf("err astack_empty\n");
+		return stack->load[0];
+	}
+
+	struct astack_load  ret = stack->load[stack->count -1];
+	stack->count--;
+	return ret;
+}
+
+
+char * decodeString(char * s){
+	int num = 0;
+	char *str = (char *)calloc(1024000, sizeof(char));
+	int strCnt = 0;
+
+	struct astack *numStack = astack_init(strlen(s));
+	struct astack *strStack = astack_init(strlen(s));
+
+	for(int i = 0; i < strlen(s); i++) {
+		if (isdigit(s[i])) {
+			num = num * 10 + s[i] - '0';
+		} else if (isalpha(s[i])) {
+			str[strCnt++] = s[i];
+		} else if (s[i] == '[') {
+			struct astack_load load;
+			load.utype.times = num;
+			astack_push(numStack, load);
+			num = 0;
+
+			struct astack_load strobj;
+			strcpy(strobj.utype.str, str);
+			astack_push(strStack, strobj);
+			memset(str, '\0', sizeof(str));
+			strCnt = 0;
+		} else {
+			struct astack_load load =  astack_pop(numStack);
+			int times = load.utype.times;
+
+			char tmp[1024000] = {{'\0'}};
+			struct astack_load strobj = astack_pop(strStack);
+
+			strcpy(tmp, strobj.utype.str);
+
+			for (int j = 0; j < times; j++) {
+				 strcat(tmp, str);
+			}
+
+			strcpy(str, tmp);
+			strCnt = strlen(str);
+		}
+	}
+
+	return str;
+}

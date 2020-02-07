@@ -384,6 +384,7 @@ void ultostr(char *s, unsigned long data)
 }
 
 
+/*×Ö·û´®×ªÕûĞÎ*/
 int atoi(const char *str) {
     int num = 0;
     int sign = 1;

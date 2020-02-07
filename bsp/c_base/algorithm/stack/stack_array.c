@@ -2,7 +2,10 @@
 #include <malloc.h>
 
 struct astack_load{
-	int data;
+	union dtype { /*Overload*/
+		int data;
+		char *str;
+	}utype;
 };
 
 struct astack{
