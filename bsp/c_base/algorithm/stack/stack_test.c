@@ -258,69 +258,6 @@ struct astack{
 	struct astack_load load[0];
 };
 
-struct astack *astack_init(int sz)
-{
-	struct astack * stack =
-		(struct astack  *)malloc(sizeof(struct astack) + sz*sizeof(struct astack_load));
-	if (stack == NULL) {
-		printf("arr malloc error!");
-		return NULL;
-	}
-
-	stack->size = sz;
-	stack->count = 0;
-
-	return stack;
-}
-
-/*     1|2|3|4....       */
-void astack_push(struct astack * stack,struct astack_load load)
-{
-	stack->load[stack->count++] = load;
-	if (stack->count > stack->size) {
-		printf("[%s] astack_push count[%d] too big\n", __func__, stack->count);
-		stack->count = stack->count % stack->size;
-	}
-}
-
-// 路碌禄脴隆掳脮禄隆卤碌脛麓贸脨隆
-int astack_size(struct astack * stack)
-{
-	return stack->count;
-}
-
-// 路碌禄脴隆掳脮禄隆卤脢脟路帽脦陋驴脮
-int astack_empty(struct astack * stack)
-{
-	return astack_size(stack)==0;
-}
-
-// 路碌禄脴隆掳脮禄露楼脭陋脣脴脰碌隆卤
-struct astack_load  astack_top(struct astack * stack)
-{
-	if (astack_empty(stack)) {
-		printf("err astack_empty\n");
-		return stack->load[0];
-	}
-
-	return stack->load[stack->count -1];
-}
-
-
-// 路碌禄脴隆掳脮禄露楼脭陋脣脴脰碌隆卤拢卢虏垄脡戮鲁媒隆掳脮禄露楼脭陋脣脴隆卤
-struct astack_load  astack_pop(struct astack * stack)
-{
-	if (astack_empty(stack)) {
-		printf("err astack_empty\n");
-		return stack->load[0];
-	}
-
-	struct astack_load  ret = stack->load[stack->count -1];
-	stack->count--;
-	return ret;
-}
-
-
 char * decodeString(char * s){
 	int num = 0;
 	char *str = (char *)calloc(1024000, sizeof(char));
@@ -365,3 +302,83 @@ char * decodeString(char * s){
 
 	return str;
 }
+
+/*
+1209. 删除字符串中的所有相邻重复项 II
+给你一个字符串 s，「k 倍重复项删除操作」将会从 s 中选择 k 个相邻且相等的字母，并删除它们，使被删去的字符串的左侧和右侧连在一起。
+
+你需要对 s 重复进行无限次这样的删除操作，直到无法继续为止。
+
+在执行完所有删除操作后，返回最终得到的字符串。
+
+本题答案保证唯一。
+
+
+
+示例 1：
+
+输入：s = "abcd", k = 2
+输出："abcd"
+解释：没有要删除的内容。
+示例 2：
+
+输入：s = "deeedbbcccbdaa", k = 3
+输出："aa"
+解释：
+先删除 "eee" 和 "ccc"，得到 "ddbbbdaa"
+再删除 "bbb"，得到 "dddaa"
+最后删除 "ddd"，得到 "aa"
+
+*/
+char * removeDuplicates(char * s, int k){
+	int sLen = strlen(s);
+
+	struct astack * numstack = astack_init(sLen);
+	struct astack * strstack = astack_init(sLen);
+
+	for (int i = 0 ; i < sLen; i++) {
+		if (astack_empty(strstack)){
+			struct astack_load numLoad;
+			numLoad.utype.times = 1;
+			astack_push(numstack, numLoad);
+
+			struct astack_load strLoad;
+			strLoad.utype.str = s[i];
+			astack_push(strstack,strLoad);
+		} else {
+				struct astack_load strload = astack_top(strstack);
+				if (strload.utype.str == s[i]) {
+					struct astack_load numload = astack_top(numstack);
+					if (numload.utype.times == k - 1) {
+							(void)astack_pop(numstack);
+							(void)astack_pop(strstack);
+					} else {
+							struct astack_load numLoad = astack_pop(numstack);
+							numLoad.utype.times++;
+							astack_push(numstack, numLoad);
+					}
+				} else {
+						struct astack_load numLoad;
+						numLoad.utype.times = 1;
+						astack_push(numstack, numLoad);
+
+						struct astack_load strLoad;
+						strLoad.utype.str = s[i];
+						astack_push(strstack,strLoad);
+				}
+		}
+	}
+
+	char *out = (char *)calloc(sLen, sizeof(char));
+	int outCnt = 0;
+	for (int i = 0; i < astack_size(strstack); i++) {
+
+		for(int j = 0; j < numstack->load[i].utype.times; j++){
+			out[outCnt++] = strstack->load[i].utype.str;
+		}
+	}
+
+	return out;
+}
+
+

@@ -74,6 +74,17 @@ struct astack_load  astack_top(struct astack * stack)
 }
 
 
+void astack_top_modify(struct astack * stack,  struct astack_load load)
+{
+	if (astack_empty(stack)) {
+		printf("err astack_empty\n");
+		return;
+	}
+
+	stack->load[stack->count -1] = load;
+}
+
+
 // 返回“栈顶元素值”，并删除“栈顶元素”
 struct astack_load  astack_pop(struct astack * stack)
 {
