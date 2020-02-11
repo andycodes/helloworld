@@ -120,6 +120,7 @@ struct TreeNode* mergeTrees(struct TreeNode* t1, struct TreeNode* t2)
 
 
 /**
+102. 二叉树的层次遍历
 给定一个二叉树，返回其按层次遍历的节点值。
 （即逐层地，从左到右访问所有节点）。
 
@@ -143,52 +144,104 @@ struct TreeNode* mergeTrees(struct TreeNode* t1, struct TreeNode* t2)
  * 使用队列实现层次遍历，然后逆转结果数组
  */
 
-#define MAXSIZE 1024
+int GetTreeDepth(const struct TreeNode* root)
+{
+        if (root == NULL)
+                return 0;
 
-int** levelOrderBottom(struct TreeNode* root, int* returnSize, int** returnColumnSizes){
-    struct TreeNode* queue[MAXSIZE];
-    int front, back;
-    front = back = 0;
+        int left = GetTreeDepth(root->left);
+        int right = GetTreeDepth(root->right);
 
-    int** res = (int**)malloc(sizeof(int*) * MAXSIZE);
-    *returnSize = 0;
-    *returnColumnSizes = (int*)malloc(sizeof(int) * MAXSIZE);
-
-    if(root){
-        queue[back++%MAXSIZE] = root;
-    }
-
-    while(front < back){//队列不为空
-        (*returnColumnSizes)[*returnSize] = back - front;
-        res[*returnSize] = (int*)malloc(sizeof(int) * (*returnColumnSizes)[*returnSize]);
-        for(int i = 0; i < (*returnColumnSizes)[*returnSize]; i++){
-            struct TreeNode* cur = queue[front++%MAXSIZE];
-            res[*returnSize][i] = cur->val;
-            if(cur->left){
-                queue[back++%MAXSIZE] = cur->left;
-            }
-            if(cur->right){
-                queue[back++%MAXSIZE] = cur->right;
-            }
-        }
-        (*returnSize)++;
-    }
-
-    int i = 0, j = *returnSize - 1;
-    while(i < j){
-        int t = (*returnColumnSizes)[j];
-        (*returnColumnSizes)[j] = (*returnColumnSizes)[i];
-        (*returnColumnSizes)[i] = t;
-
-        int* p = res[j];
-        res[j] = res[i];
-        res[i] = p;
-
-        i++; j--;
-    }
-
-    return res;
+        return left > right ? left + 1 : right + 1;
 }
+
+
+int** levelOrder(struct TreeNode* root, int* returnSize, int** returnColumnSizes)
+{
+        if (root == NULL || returnSize == NULL || returnColumnSizes == NULL) {
+            *returnSize = 0;
+            *returnColumnSizes = (int *)malloc(sizeof(int) * 1);
+            (*returnColumnSizes)[0] = 0;
+            return NULL;
+        }
+
+	struct aqueue_blk * aqueue = aqueue_init(1024);
+
+	struct aqueue_load load;
+	load.node = root;
+	aqueue_push(aqueue,  load);
+
+        int depth = GetTreeDepth(root);
+        *returnSize = depth;
+        int **matrix = (int **)malloc(sizeof(int *) * depth);
+        *returnColumnSizes = (int *)malloc(sizeof(int) * depth);
+        if (matrix == NULL || returnColumnSizes == NULL)
+                return NULL;
+
+        int cur_depth = 0;
+        while(aqueue_size(aqueue) != 0) {
+                int level_size = aqueue_size(aqueue);
+                /* create raw */
+                (*returnColumnSizes)[cur_depth] = level_size;
+                matrix[cur_depth] = (int *)malloc(sizeof(int) * level_size);
+                int cur = 0;
+                while (level_size--) {
+                        struct TreeNode* node;
+
+			struct aqueue_load pop = aqueue_pop(aqueue);
+                       node = pop.node;
+                        /* add node->val to res */
+                        matrix[cur_depth][cur] = node->val;
+
+                        if (node->left) {
+				struct aqueue_load next;
+				next.node = pop.node->left;
+				aqueue_push(aqueue,  next);
+			}
+
+                        if (node->right) {
+				struct aqueue_load next;
+				next.node = pop.node->right;
+				aqueue_push(aqueue,  next);
+			}
+
+                    cur++;
+                }
+                cur_depth++;
+        }
+        return matrix;
+}
+
+
+#define MaxSize 1000
+void dfs(struct TreeNode* root, int** result, int* ColumnSizes, int i, int* maxh) {
+    if (root != NULL) {
+        result[i][ColumnSizes[i]] = root->val;
+        ColumnSizes[i]++;
+        if(i+1>*maxh)
+            *maxh = i+1;
+        dfs(root->left, result, ColumnSizes, i + 1, maxh);
+        dfs(root->right, result, ColumnSizes, i + 1, maxh);
+    }
+}
+
+int** levelOrder(
+		  struct TreeNode* root,
+                 int* returnSize,
+                 int** returnColumnSizes) {
+    int** result = (int**)malloc(sizeof(int*) * MaxSize);
+    for (int i = 0; i < MaxSize; i++)
+        result[i] = (int*)malloc(sizeof(int) * MaxSize);
+
+    *returnColumnSizes = (int*)calloc(MaxSize, sizeof(int));
+    *returnSize = 0;
+    if(root==NULL)
+        return NULL;
+    dfs(root, result, *returnColumnSizes, 0, returnSize);
+    return result;
+}
+
+
 
 /*
 给定一个二叉树，找到最长的路径，
@@ -256,11 +309,12 @@ int longestUnivaluePath(struct TreeNode* root){
     dfs(root);
     return result;
 }
+
+
 /*
-给你一棵二叉树的根节点 root，找出这棵树的 每一棵 子树的 平均值 中的 最大 值。
-
+给你一棵二叉树的根节点 root，
+找出这棵树的 每一棵 子树的 平均值 中的 最大 值。
 子树是树中的任意节点和它的所有后代构成的集合。
-
 树的平均值是树中节点值的总和除以节点数。
 
 

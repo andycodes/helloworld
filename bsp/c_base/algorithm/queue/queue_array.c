@@ -88,7 +88,7 @@ int aqueue_size(struct aqueue_blk * queue)
 }
 
 // 返回“队列”是否为空
-int aqueue_is_empty(struct aqueue_blk * queue)
+int aqueue_empty(struct aqueue_blk * queue)
 {
 	return queue->count==0;
 }
@@ -133,10 +133,10 @@ void main()
 	aqueue_push(q_test1,load1);
 
 	// 打印队列
-	printf("is_empty() false =%d\n", aqueue_is_empty(q_test1));
+	printf("is_empty() false =%d\n", aqueue_empty(q_test1));
 	printf("aqueue_size() 3 =%d\n", aqueue_size(q_test1));
 
-	while (!aqueue_is_empty(q_test1)) {
+	while (!aqueue_empty(q_test1)) {
 		struct aqueue_load tmp_load;
 
 		tmp_load = aqueue_pop(q_test1);

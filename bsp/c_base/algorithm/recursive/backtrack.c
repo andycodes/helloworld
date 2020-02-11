@@ -72,7 +72,7 @@ int** returnColumnSizes){
 	backtrack(nums, 0, numsSize, &resSize, res);
 
 	*returnSize = resSize;
-	*returnColumnSizes = (int *)calloc(17000, sizeof(int) );
+	*returnColumnSizes = (int *)calloc(17000, sizeof(int));
 	for (int i = 0; i < resSize; i++) {
 		(*returnColumnSizes)[i] = numsSize;
 	}
@@ -342,8 +342,6 @@ candidates 中的数字可以无限制重复被选取。
 */
 
 /**
- * Note: The returned array must be malloced, assume caller calls free().
-
 	按层回溯
  */
 
@@ -351,24 +349,24 @@ void backtrack(int* candidates, int candidatesSize, int start,
     int target, int* returnSize, int** returnColumnSizes,
     int **res, int *current, int curIdx)
 {
-    if (target == 0) {
-        res[*returnSize] = (int*)calloc(1024, sizeof(int));
-        memcpy(res[*returnSize], current, sizeof(int) * curIdx);
-        (*returnColumnSizes)[*returnSize] = curIdx;
-        (*returnSize)++;
-        return;
-    }
+	if (target == 0) {
+		res[*returnSize] = (int*)calloc(1024, sizeof(int));
+		memcpy(res[*returnSize], current, sizeof(int) * curIdx);
+		(*returnColumnSizes)[*returnSize] = curIdx;
+		(*returnSize)++;
+		return;
+	}
 
-	if (start == candidatesSize) {
-        return;
-    }
-
-    for (int i = start; i < candidatesSize && target - candidates[i] >= 0; i++) {
-        current[curIdx++] = candidates[i];
-        backtrack(candidates, candidatesSize, i, target - candidates[i],
-            returnSize, returnColumnSizes, res, current, curIdx);
-        curIdx--;
-    }
+	for (int i = start; i < candidatesSize &&  candidates[i] <= target; i++) {
+		current[curIdx++] = candidates[i];
+		backtrack(candidates, candidatesSize, i, target - candidates[i],
+		returnSize, returnColumnSizes, res, current, curIdx);
+/*
+backtrack 层次回溯(按层遍历回溯)
+对其删除最后一个元素，进行其余支路的搜索
+*/
+		curIdx--;
+	}
 }
 
 int** combinationSum(int* candidates, int candidatesSize,
@@ -388,18 +386,6 @@ int** combinationSum(int* candidates, int candidatesSize,
     return res;
 }
 
-/*
-这道题我用的是减法，有兴趣的朋友还可以使用加法，
-加到 target 的时候结算，超过 target 的时候剪枝。
-*/
-int cmp_int(const void* a, const void* b) {
-    return *(int*)a - *(int*)b;
-}
-
-/**
- * Note: The returned array must be malloced, assume caller calls free().
- 按层回溯
- */
 
 void backtrack(int* candidates, int candidatesSize, int start,
     int target, int* returnSize, int** returnColumnSizes,
@@ -419,8 +405,6 @@ void backtrack(int* candidates, int candidatesSize, int start,
         current[curIdx++] = candidates[i];
         backtrack(candidates, candidatesSize, i, target,
             returnSize, returnColumnSizes, res, current, curIdx, sum + candidates[i]);
-	// 无论是该路径大于target还是等于target，
-	//都需要对其删除最后一个元素，进行其余支路的搜索
         curIdx--;
     }
 }
@@ -442,15 +426,8 @@ int** combinationSum(int* candidates, int candidatesSize,
     return res;
 }
 
-
-
-int cmp_int(const void* a, const void* b) {
-    return *(int*)a - *(int*)b;
-}
-
 /**
- * Note: The returned array must be malloced, assume caller calls free().
-	金典回溯
+金典回溯
  */
 
 void backtrack(int* candidates, int candidatesSize, int start,

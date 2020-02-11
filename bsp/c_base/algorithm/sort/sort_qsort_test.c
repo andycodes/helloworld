@@ -10,11 +10,6 @@
 
 大小数据分2组+小数组降序大数组升序+大小数组互相穿插
 */
-
-int cmp_int ( const void *a , const void *b){
-        return *(int *)a - *(int *)b;
-}
-
 void wiggleSort(int* nums, int numsSize){
 	if (nums == NULL || numsSize < 2)
 		return;
