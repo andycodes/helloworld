@@ -224,9 +224,6 @@ int findContentChildren(int* g, int gSize, int* s, int sSize){
 以这种方式修改数组后，返回数组可能的最大和。
 
 */
-int cmp_int ( const void *a , const void *b){
-        return *(int *)a - *(int *)b;
-}
 
 /*第一种：每次取反前，将数组排序，
 取反最小值，速度最慢*/

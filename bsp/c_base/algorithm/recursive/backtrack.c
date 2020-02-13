@@ -435,6 +435,7 @@ void backtrack(int* candidates, int candidatesSize, int start,
     int** res, int* current, int curIdx)
 {
     if (target == 0) {
+	/*正好满足，保存*/
         res[*returnSize] = (int*)calloc(1024, sizeof(int));
         memcpy(res[*returnSize], current, sizeof(int) * curIdx);
         (*returnColumnSizes)[*returnSize] = curIdx;
@@ -442,17 +443,24 @@ void backtrack(int* candidates, int candidatesSize, int start,
         return;
     }
 
+	/*不满足条件的case 丢弃(不保存)*/
     if (start == candidatesSize || candidates[start] > target) {
         return;
     }
 
+/*一直重复使用当前数降维target*/
     current[curIdx++] = candidates[start];
-    backtrack(candidates, candidatesSize, start, target - candidates[start],
+    backtrack(candidates, candidatesSize,
+		start, target - candidates[start],
         returnSize, returnColumnSizes, res, current, curIdx);
+
+/*回溯到上一层的维度target*/
     curIdx--;
-    //继续搜索此时达到target的下一个
+
+/*使用下一个数进行递归遍历*/
     backtrack(candidates, candidatesSize, start + 1, target,
         returnSize, returnColumnSizes, res, current, curIdx);
+
 }
 
 int** combinationSum(int* candidates, int candidatesSize,
@@ -471,6 +479,25 @@ int** combinationSum(int* candidates, int candidatesSize,
         returnColumnSizes, res, current, 0);
     return res;
 }
+
+int main(void)
+{
+	int intput[] = {2,3,6,7};
+	int target = 7;
+
+	int retSize;
+	int *retColSize;
+	int **ret;
+	ret = combinationSum(intput, sizeof(intput)/sizeof(int),
+		target, &retSize, &retColSize);
+	for (int i = 0; i < retSize; i++) {
+		 for(int j = 0; j < retColSize[i]; j++) {
+			printf("%d", ret[i][j]);
+		 }
+		 printf("\n");
+	}
+}
+
 
 /*
 64 最小路径和
