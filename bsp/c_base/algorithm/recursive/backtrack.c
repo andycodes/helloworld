@@ -500,6 +500,80 @@ int main(void)
 
 
 /*
+40. 组合总和 II
+给定一个数组 candidates 和一个目标数 target ，
+找出 candidates 中所有可以使数字和为 target 的组合。
+
+candidates 中的每个数字在每个组合中只能使用一次。
+
+说明：
+
+所有数字（包括目标数）都是正整数。
+解集不能包含重复的组合。
+
+
+算法:
+同一层次的数字不要重复，就可以避免整体重复。
+                  1
+                 / \
+                2   2  这种情况不会发生
+               /     \
+              5       5
+                例2
+                  1
+                 /
+                2      这种情况确是允许的
+               /
+              2
+
+*/
+void backtrack(int* candidates, int candidatesSize,
+int target, int* returnSize, int** returnColumnSizes,
+int start, int **res, int *curBuf, int curSize)
+{
+	if (target == 0) {
+		res[*returnSize] = (int *)calloc(1024, sizeof(int));
+		memcpy(res[*returnSize], curBuf, curSize * sizeof(int));
+		(*returnColumnSizes)[*returnSize] = curSize;
+		(*returnSize)++;
+		return;
+	}
+
+	if (start >= candidatesSize || candidates[start] > target)
+		return;
+
+	for (int i = start; i < candidatesSize && target > 0 && candidates[i] <= target; i++) {
+		if ( i > start && candidates[i] == candidates[i - 1])
+			continue;
+
+        	curBuf[curSize++] = candidates[i];
+		backtrack(candidates, candidatesSize, target - candidates[i],
+		returnSize, returnColumnSizes, i + 1, res, curBuf, curSize);
+		curSize--;
+	}
+}
+
+
+int** combinationSum2(int* candidates, int candidatesSize,
+int target, int* returnSize, int** returnColumnSizes)
+{
+	*returnSize = 0;
+	if (candidates == NULL || candidatesSize <= 0)
+		return NULL;
+
+	int ** res = (int **)calloc(1024, sizeof(int *));
+	*returnColumnSizes = (int *)calloc(1024, sizeof(int));
+	int *curBuf = (int *)calloc(1024, sizeof(int));
+
+	qsort(candidates, candidatesSize, sizeof(int), cmp_int);
+	backtrack(candidates, candidatesSize, target,
+	returnSize, returnColumnSizes, 0, res, curBuf, 0);
+	return res;
+}
+
+
+
+/*
 64 最小路径和
 给定一个包含非负整数的 m x n 网格，请找出一条从左上角到右下角的路径，使得路径上的数字总和为最小。
 
