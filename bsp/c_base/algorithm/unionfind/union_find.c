@@ -14,6 +14,11 @@ B． 判断两个元素是否属于同一个集合
 
 合并（Union）：把两个不相交的集合合并为一个集合。
 查询（Find）：查询两个元素是否在同一个集合中。
+
+
+计算最后有多少个不相交的集合
+就算需要多少条边可以成为连通图
+即计算有多少个 parent[i] == i;
 */
 
 #define MAX 1024
@@ -33,16 +38,17 @@ inline void uf_init(int n)
 }
 
 
-/* 查找x元素所在的集合,回溯时压缩路径 */
+/* 查找x元素所在的集合,回溯时压缩路径
+就是找到parent指针的源头*/
 int uf_find(int x)
 {
-    if (x != father[x])
+    if (x != father[x])// x不是自身的父亲，即x不是该集合的祖宗
     {
         rank[father[x]] += rank[x];
         //递归，以找到最久远祖先
         //回溯时压缩路径：路径上的所有子孙节
         //点都指向最久远祖先
-        father[x] = uf_find(father[x]);
+        father[x] = uf_find(father[x]);//查找x的祖先直到找到代表,于是顺手路径压缩
     }
     return father[x];
 }
