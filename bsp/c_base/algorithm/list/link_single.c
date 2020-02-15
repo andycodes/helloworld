@@ -27,7 +27,6 @@ typedef  struct ListNode {
 }MyLinkedList;
 
 
-
 void display(MyLinkedList *pHead)
 {
     while( pHead != NULL)
@@ -138,8 +137,8 @@ bool hasCycle(struct ListNode *head) {
 
 
 /** Initialize your data structure here. */
-MyLinkedList* link_single_init_head() {
-    MyLinkedList* head = malloc(sizeof(MyLinkedList));
+struct ListNode* slink_init() {
+    struct ListNode* head = (struct ListNode*)malloc(sizeof(struct ListNode));
     head->next = NULL;
     return head;
 }
@@ -196,11 +195,11 @@ void link_single_push_new_head(MyLinkedList* obj, int val) {
 
 
 /** Append a node of value val to the last element of the linked list. */
-void link_single_push_new_tail(MyLinkedList* obj, int val) {
-    MyLinkedList* tmp = obj;
-    MyLinkedList* newNode = (MyLinkedList*)malloc(sizeof(MyLinkedList));
-     newNode->val = val;
-     newNode->next = NULL;
+void slink_push_tail(struct ListNode* obj, int val) {
+    struct ListNode* tmp = obj;
+    struct ListNode* newNode = (struct ListNode*)malloc(sizeof(struct ListNode));
+    newNode->val = val;
+    newNode->next = NULL;
 
     while (tmp) {
         if (tmp->next == NULL) {
@@ -380,12 +379,12 @@ void myLinkedListFree(MyLinkedList* obj) {
 
 /**
  * Your MyLinkedList struct will be instantiated and called as such:
- * MyLinkedList* obj = link_single_init_head();
+ * MyLinkedList* obj = slink_init();
  * int param_1 = link_single_get_val(obj, index);
 
  * link_single_push_new_head(obj, val);
 
- * link_single_push_new_tail(obj, val);
+ * slink_push_tail(obj, val);
 
  * link_single_insert_new_node_before_index(obj, index, val);
 
@@ -571,29 +570,6 @@ struct ListNode* middleNode(struct ListNode* head){
 }
 
 
-/** Initialize your data structure here. */
-struct ListNode* link_single_init_head() {
-    struct ListNode* head = (struct ListNode*)malloc(sizeof(struct ListNode));
-    head->next = NULL;
-    return head;
-}
-
-/** Append a node of value val to the last element of the linked list. */
-void link_single_push_new_tail(struct ListNode* obj, int val) {
-    struct ListNode* tmp = obj;
-    struct ListNode* newNode = (struct ListNode*)malloc(sizeof(struct ListNode));
-    newNode->val = val;
-    newNode->next = NULL;
-
-    while (tmp) {
-        if (tmp->next == NULL) {
-            tmp->next = newNode;
-            return;
-        }
-        tmp = tmp->next;
-    }
-}
-
 /*
 给出两个?非空 的链表用来表示两个非负的整数。其中，它们各自的位数是按照?逆序?的方式存储的，并且它们的每个节点只能存储?一位?数字。
 
@@ -608,7 +584,7 @@ void link_single_push_new_tail(struct ListNode* obj, int val) {
 原因：342 + 465 = 807
 */
 struct ListNode* addTwoNumbers(struct ListNode* l1, struct ListNode* l2) {
-    struct ListNode* res = link_single_init_head();
+    struct ListNode* res = slink_init();
     struct ListNode* p = l1;
     struct ListNode* q = l2;
     int carry = 0;
@@ -617,13 +593,13 @@ struct ListNode* addTwoNumbers(struct ListNode* l1, struct ListNode* l2) {
         int y = (q != NULL) ? q->val : 0;
         int sum = carry + x + y;
         carry = sum / 10;
-        link_single_push_new_tail(res, sum % 10);
+        slink_push_tail(res, sum % 10);
         if (p != NULL) p = p->next;
         if (q != NULL) q = q->next;
     }
 
     if (carry > 0) {
-        link_single_push_new_tail(res, carry);
+        slink_push_tail(res, carry);
     }
 
     return res->next;
@@ -670,10 +646,10 @@ struct ListNode* sortList(struct ListNode* head){
 
 int main()
 {
-    MyLinkedList* obj = link_single_init_head();
+    MyLinkedList* obj = slink_init();
 
     link_single_push_new_head(obj,1);
-    link_single_push_new_tail(obj,3);
+    slink_push_tail(obj,3);
     link_single_insert_new_node_before_index(obj,1,2);
     int ret = link_single_get_val(obj,1);
     printf("%d\n",ret);
