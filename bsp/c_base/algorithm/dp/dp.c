@@ -301,3 +301,65 @@ int nthUglyNumber(int n){
 }
 
 
+/*
+1220. 统计元音字母序列的数目
+给你一个整数 n，请你帮忙统计一下我们可以按下述规则形成多少个长度为 n 的字符串：
+
+字符串中的每个字符都应当是小写元音字母（'a', 'e', 'i', 'o', 'u'）
+每个元音 'a' 后面都只能跟着 'e'
+每个元音 'e' 后面只能跟着 'a' 或者是 'i'
+每个元音 'i' 后面 不能 再跟着另一个 'i'
+每个元音 'o' 后面只能跟着 'i' 或者是 'u'
+每个元音 'u' 后面只能跟着 'a'
+由于答案可能会很大，所以请你返回 模 10^9 + 7 之后的结果。
+
+
+
+示例 1：
+
+输入：n = 1
+输出：5
+解释：所有可能的字符串分别是："a", "e", "i" , "o" 和 "u"。
+示例 2：
+
+输入：n = 2
+输出：10
+解释：所有可能的字符串分别是："ae", "ea", "ei", "ia", "ie", "io", "iu", "oi", "ou" 和 "ua"。
+
+
+我们发现每一个序列往后加一个字母， 只和前一个字符有关。 利用加法原理， 可以直接推出。
+
+我们用f(i, char)f(i,char)来表示前ii个字符以charchar结尾和合法字符串数量。
+
+则由规则可以得到。
+f(i, 'a') = f(i - 1, 'e') + f(i - 1, 'i') + f(i -1, 'u')
+其余类推。
+
+*/
+
+int countVowelPermutation(int n){
+	int a,e,i,o,u;
+
+	if (n == 1)
+		return 5;
+
+	a = e = i = o = u = 1;
+
+	const int mod = 1e9 + 7;
+
+	for (int j = 2; j <= n; j++) {
+		int aa, ee, ii, oo, uu;
+
+		aa = ((e + i) % mod + u) % mod;
+		ee = (a + i) % mod;
+		ii = (e + o)  % mod;
+		oo = i;
+		uu = (i + o) % mod;
+
+		a = aa, e = ee, i = ii, o = oo, u = uu;
+		 //printf("%d %d %d %d %d\n",a,e,i,o,u);
+	}
+	return ((long long) a + e + i + o + u) % mod;
+}
+
+
