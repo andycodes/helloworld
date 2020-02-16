@@ -72,17 +72,16 @@ HashMap *CreateHashMap(int *nums,int size){
 }
 
 
-//f2_GetHashNode
-int Get(HashMap hashmap,	int value){
-    //根据元素值，计算其位置
-	int pos=abs(value)%hashmap.size;
-	HashNode *pointer=&(hashmap.table[pos]);
+int hashmap_get(HashMap hashmap, int value){
+	//根据元素值，计算其位置
+	int pos = abs(value) % hashmap.size;
+	HashNode *pointer = &(hashmap.table[pos]);
 	//在当前链表遍历查找该结点
-	while(pointer!=NULL){
-		if(pointer->data.val == value)
-			return pointer->data.key;
-		else
-			pointer=pointer->next;
+	while (pointer != NULL) {
+	if (pointer->data.val == value)
+		return pointer->data.key;
+	else
+		pointer=pointer->next;
 	}
 	//未找到，返回-1
 	return -1;
@@ -110,46 +109,47 @@ int Put(HashMap hashmap,int key,int value){
    return 1;
 }
 
-//f4_PrintHashMap
-void PrintHashMap(HashMap* hashmap){
-    printf("%===========PrintHashMap==========\n");
+//f4_hashmap_print
+void hashmap_print(HashMap* hashmap){
+	printf("%===========hashmap_print==========\n");
 	int i=0;
 	HashNode *pointer;
-	while(i<hashmap->size){
-		pointer=&(hashmap->table[i]);
-		while(pointer!=NULL){
-            if(pointer->data.val!=INT_MIN)
-              printf("%10d",pointer->data.val);
+	while(i < hashmap->size) {
+		pointer = &(hashmap->table[i]);
+		while(pointer != NULL) {
+			if (pointer->data.val != INT_MIN)
+				printf("%10d",pointer->data.val);
 			else
-              printf("        [ ]");
+				printf("        [ ]");
 			pointer=pointer->next;
 		}
-        printf("\n---------------------------------");
+
+		printf("\n---------------------------------");
 		i++;
 		printf("\n");
 	}
-    printf("===============End===============\n");
+	printf("===============End===============\n");
 }
 
-//f5_DestoryHashMap
-void DestoryHashMap(HashMap *hashmap){
-    int i=0;
-    HashNode *hpointer;
-    while(i<hashmap->size){
-        hpointer=hashmap->table[i].next;
-        while(hpointer!=NULL){
 
-            hashmap->table[i].next=hpointer->next;
-            //逐个释放结点空间，防止内存溢出
-            free(hpointer);
-            hpointer=hashmap->table[i].next;
-            }
-        //换至下一个结点
-        i++;
-    }
-    free(hashmap->table);
-    free(hashmap);
-    printf("Destory hashmap Success!");
+void DestoryHashMap(HashMap *hashmap){
+	int i=0;
+	HashNode *hpointer;
+	while(i <hashmap->size) {
+	    hpointer = hashmap->table[i].next;
+	    while(hpointer != NULL) {
+	        hashmap->table[i].next = hpointer->next;
+	        //逐个释放结点空间，防止内存溢出
+	        free(hpointer);
+	        hpointer = hashmap->table[i].next;
+	}
+	    //换至下一个结点
+	    i++;
+	}
+
+	free(hashmap->table);
+	free(hashmap);
+	printf("Destory hashmap Success!");
 }
 
 int main(int argc, char **argv)
@@ -157,9 +157,11 @@ int main(int argc, char **argv)
 	int nums[]={34,54,32,32,56,78};
 	//创建HashMap
 	HashMap *hashmap=CreateHashMap(nums,6);
-	PrintHashMap(hashmap);
+
+	hashmap_print(hashmap);
+
 	//查找元素
-	printf("%d\n",Get(*hashmap,78));
+	printf("hashmap_get : %d\n",hashmap_get(*hashmap,78));
 
 	DestoryHashMap(hashmap);
 	getchar();
