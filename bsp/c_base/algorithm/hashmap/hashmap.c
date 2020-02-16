@@ -88,16 +88,13 @@ int hashmap_get(HashMap hashmap, int value){
 }
 
 
-//f3_Put，与建立HashMap时插入元素的方法相同
-int Put(HashMap hashmap,int key,int value){
-     int pos=abs(value)%hashmap.size;
+int hashmap_push(HashMap hashmap,int key,int value){
+     int pos = abs(value) % hashmap.size;
      HashNode *pointer=&(hashmap.table[pos]);
-     if(pointer->data.val==INT_MIN)
-        {
+     if(pointer->data.val == INT_MIN) {
          pointer->data.val=value;
          pointer->data.key=key;
-        }
-	else{
+      }else{
         while(pointer->next!=NULL)
              pointer=pointer->next;
         HashNode *hnode=(HashNode *)malloc(sizeof(HashNode));
@@ -162,6 +159,9 @@ int main(int argc, char **argv)
 
 	//查找元素
 	printf("hashmap_get : %d\n",hashmap_get(*hashmap,78));
+
+	hashmap_push(*hashmap, 8, 55);
+	printf("hashmap_get : %d\n",hashmap_get(*hashmap,55));
 
 	DestoryHashMap(hashmap);
 	getchar();
