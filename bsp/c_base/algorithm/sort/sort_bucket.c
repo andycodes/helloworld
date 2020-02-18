@@ -1,24 +1,22 @@
 /**
- * æ¡¶æ’åºï¼šC è¯­è¨€
+ * Í°ÅÅĞò£ºC ÓïÑÔ
  *
- * @author skywang
- * @date 2014/03/13
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-// æ•°ç»„é•¿åº¦
+// Êı×é³¤¶È
 #define LENGTH(array) ( (sizeof(array)) / (sizeof(array[0])) )
 
 /*
- * æ¡¶æ’åº
+ * Í°ÅÅĞò
  *
- * å‚æ•°è¯´æ˜ï¼š
- *     a -- å¾…æ’åºæ•°ç»„
- *     n -- æ•°ç»„açš„é•¿åº¦
- *     max -- æ•°ç»„aä¸­æœ€å¤§å€¼çš„èŒƒå›´
+ * ²ÎÊıËµÃ÷£º
+ *     a -- ´ıÅÅĞòÊı×é
+ *     n -- Êı×éaµÄ³¤¶È
+ *     max -- Êı×éaÖĞ×î´óÖµµÄ·¶Î§
  */
 void bucket_sort(int a[], int n, int max)
 {
@@ -28,17 +26,17 @@ void bucket_sort(int a[], int n, int max)
     if (a==NULL || n<1 || max<1)
         return ;
 
-    // åˆ›å»ºä¸€ä¸ªå®¹é‡ä¸ºmaxçš„æ•°ç»„bucketsï¼Œå¹¶ä¸”å°†bucketsä¸­çš„æ‰€æœ‰æ•°æ®éƒ½åˆå§‹åŒ–ä¸º0ã€‚
+    // ´´½¨Ò»¸öÈİÁ¿ÎªmaxµÄÊı×ébuckets£¬²¢ÇÒ½«bucketsÖĞµÄËùÓĞÊı¾İ¶¼³õÊ¼»¯Îª0¡£
     if ((buckets=(int *)malloc(max*sizeof(int)))==NULL)
         return ;
     memset(buckets, 0, max*sizeof(int));
 
-	// 1. è®¡æ•°
-    for(i = 0; i < n; i++) 
-        buckets[a[i]]++; 
+	// 1. ¼ÆÊı
+    for(i = 0; i < n; i++)
+        buckets[a[i]]++;
 
-	// 2. æ’åº
-	for (i = 0, j = 0; i < max; i++) 
+	// 2. ÅÅĞò
+	for (i = 0, j = 0; i < max; i++)
 		while( (buckets[i]--) >0 )
 			a[j++] = i;
 
@@ -56,7 +54,7 @@ void main()
 		printf("%d ", a[i]);
 	printf("\n");
 
-	bucket_sort(a, ilen, 10); // æ¡¶æ’åº
+	bucket_sort(a, ilen, 10); // Í°ÅÅĞò
 
 	printf("after  sort:");
 	for (i=0; i<ilen; i++)
