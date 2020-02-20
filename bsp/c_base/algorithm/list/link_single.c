@@ -27,7 +27,9 @@ typedef  struct ListNode {
 }SLINKLIST;
 
 /*
-  head|first node|.........|tail|
+  	head|first node|.........|tail|
+ idx:    0  |      1      |.........|n   |
+
 */
 
 struct ListNode* slink_init(void)
@@ -103,21 +105,26 @@ void slink_insert_before_idx(struct ListNode *head, int idx, int val)
 
 void  slink_insert_before_idx2(struct ListNode * head,int idx,int val)
 {
-    struct ListNode * entry = head;//创建临时结点entry
-    //首先找到要插入位置的上一个结点
-    for (int i=1; i<idx; i++) {
-        if (entry==NULL) {
-            printf("插入位置无效\n");
-            return;
-        }
-        entry=entry->next;
-    }
-    //创建插入结点c
-    struct ListNode * c=(struct ListNode *)malloc(sizeof(struct ListNode));
-    c->val=val;
-    //向链表中插入结点
-    c->next=entry->next;
-    entry->next=c;
+	if(idx < 0){
+		slink_push_head(head, val);
+		return;
+	}
+
+	struct ListNode * entry = head;//创建临时结点entry
+	//首先找到要插入位置的上一个结点
+	for (int i = 1; i<idx; i++) {
+		if (entry==NULL) {
+			printf("%s err\n", __func__);
+			return;
+		}
+		entry=entry->next;
+	}
+	//创建插入结点c
+	struct ListNode * newNode =(struct ListNode *)malloc(sizeof(struct ListNode));
+	newNode->val=val;
+	//向链表中插入结点
+	newNode->next=entry->next;
+	entry->next=newNode;
 }
 
 
