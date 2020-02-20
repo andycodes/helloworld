@@ -24,10 +24,148 @@ void traverse(ListNode head) {
 typedef  struct ListNode {
       int val;
       struct ListNode *next;
-}MyLinkedList;
+}SLINKLIST;
+
+/*
+  head|first node|.........|tail|
+*/
+
+struct ListNode* slink_init(void)
+{
+	/*head  has no usr data*/
+	struct ListNode* head = (struct ListNode*)malloc(sizeof(struct ListNode));
+	head->next = NULL;
+	return head;
+}
 
 
-void display(MyLinkedList *pHead)
+int slink_empty(struct ListNode *head)
+{
+	return head->next == NULL ? 1:0;
+}
+
+
+/** Add a node of value val before the first element of the linked list.
+After the insertion, the new node will be the first node of the linked list. */
+void slink_push_head(struct ListNode *head, int val)
+{
+	struct ListNode * newNode = (struct ListNode *)malloc(sizeof(struct ListNode));
+	newNode->val = val;
+	newNode->next = head->next;
+	head->next = newNode;
+}
+
+
+/** Append a node of value val to the last element of the linked list. */
+void slink_push_tail(struct ListNode* head, int val)
+{
+    struct ListNode* entry = head;
+    struct ListNode* newNode = (struct ListNode*)malloc(sizeof(struct ListNode));
+    newNode->val = val;
+    newNode->next = NULL;
+
+    while (entry) {
+        if (entry->next == NULL) {
+            entry->next = newNode;
+            return;
+        }
+        entry = entry->next;
+    }
+}
+
+
+/** Add a node of value val before the idx-th node in the linked list.
+If idx equals to the length of linked list,
+the node will be appended to the end of linked list.
+If idx is greater than the length, the node will not be inserted. */
+void slink_insert_before_idx(struct ListNode *head, int idx, int val)
+{
+    int i = 0;
+
+    if(idx < 0){
+        slink_push_head(head, val);
+        return;
+    }
+
+    struct ListNode * newNode = (struct ListNode *)malloc(sizeof(struct ListNode));
+    newNode->val = val;
+
+    struct ListNode * entry = head;
+    while(entry !=  NULL) {
+            if(i++ == idx){
+                newNode->next = entry->next;
+                entry->next = newNode;
+                break;
+            }
+            entry = entry->next;
+    }
+}
+
+void  slink_insert_before_idx2(struct ListNode * head,int idx,int val)
+{
+    struct ListNode * entry = head;//创建临时结点entry
+    //首先找到要插入位置的上一个结点
+    for (int i=1; i<idx; i++) {
+        if (entry==NULL) {
+            printf("插入位置无效\n");
+            return;
+        }
+        entry=entry->next;
+    }
+    //创建插入结点c
+    struct ListNode * c=(struct ListNode *)malloc(sizeof(struct ListNode));
+    c->val=val;
+    //向链表中插入结点
+    c->next=entry->next;
+    entry->next=c;
+}
+
+
+
+/** Get the value of the idx-th node in the linked list. If the idx is invalid, return -1. */
+int slink_get_val_by_idx(struct ListNode * head, int idx)
+{
+    int i = 0;
+    struct ListNode * entry = head;
+
+    while(entry->next != NULL) {
+        if(i++ == idx){
+            return entry->next->val;
+        }
+        entry = entry->next;
+    }
+
+    return -1;
+}
+
+
+void slink_amend_val(struct ListNode * head, int idx, int newVal)
+{
+	struct ListNode * entry = head;
+	entry = entry->next;//tamp指向首元结点
+	for (int i = 1; i< idx; i++) {
+		entry = entry->next;
+	}
+	entry->val = newVal;
+}
+
+
+int slink_get_idx_by_val(struct ListNode *head, int val)
+{
+    struct ListNode *t=head;
+    int i = 1;
+    while (t->next != NULL) {
+        t = t->next;
+        if (t->val==val) {
+            return i;
+        }
+        i++;
+    }
+    return -1;
+}
+
+
+void display(struct ListNode *pHead)
 {
     while( pHead != NULL)
     {
@@ -38,12 +176,12 @@ void display(MyLinkedList *pHead)
 }
 
 
-void display2(MyLinkedList *obj){
-    MyLinkedList *temp = obj;//将temp指针重新指向头结点
-    //只要temp指针指向的结点的next不是Null，就执行输出语句。
-    while (temp->next) {
-        temp=temp->next;
-        printf("%d",temp->val);
+void display2(struct ListNode *head){
+    struct ListNode *entry = head;//将entry指针重新指向头结点
+    //只要entry指针指向的结点的next不是Null，就执行输出语句。
+    while (entry->next) {
+        entry=entry->next;
+        printf("%d",entry->val);
     }
     printf("\n");
 }
@@ -136,165 +274,41 @@ bool hasCycle(struct ListNode *head) {
 }
 
 
-/** Initialize your data structure here. */
-struct ListNode* slink_init() {
-    struct ListNode* head = (struct ListNode*)malloc(sizeof(struct ListNode));
-    head->next = NULL;
-    return head;
-}
-
-/** Get the value of the index-th node in the linked list. If the index is invalid, return -1. */
-int link_single_get_val(MyLinkedList* obj, int index) {
-    int i = 0;
-    MyLinkedList* entry = obj;
-
-    while(entry->next != NULL){
-        if(i++ == index){
-            return entry->next->val;
-        }
-        entry = entry->next;
-    }
-    return -1;
-}
-
-
-MyLinkedList*link_single_amend_value(MyLinkedList* obj,int index,int newElem){
-    MyLinkedList* temp=obj;
-    temp=temp->next;//tamp指向首元结点
-    //temp指向被删除结点
-    for (int i=1; i<index; i++) {
-        temp=temp->next;
-    }
-    temp->val=newElem;
-    return obj;
-}
-
-
-int link_single_get_index(MyLinkedList* obj,int val){
-    MyLinkedList* t=obj;
-    int i=1;
-    while (t->next) {
-        t=t->next;
-        if (t->val==val) {
-            return i;
-        }
-        i++;
-    }
-    return -1;
-}
-
-
-/** Add a node of value val before the first element of the linked list.
-After the insertion, the new node will be the first node of the linked list. */
-void link_single_push_new_head(MyLinkedList* obj, int val) {
-	MyLinkedList* newNode = (MyLinkedList*)malloc(sizeof(MyLinkedList));
-	newNode->val = val;
-	newNode->next = obj->next;
-	obj->next = newNode;
-}
-
-
-/** Append a node of value val to the last element of the linked list. */
-void slink_push_tail(struct ListNode* obj, int val) {
-    struct ListNode* tmp = obj;
-    struct ListNode* newNode = (struct ListNode*)malloc(sizeof(struct ListNode));
-    newNode->val = val;
-    newNode->next = NULL;
-
-    while (tmp) {
-        if (tmp->next == NULL) {
-            tmp->next = newNode;
-            return;
-        }
-        tmp = tmp->next;
-    }
-}
-
-
-/** Add a node of value val before the index-th node in the linked list.
-If index equals to the length of linked list,
-the node will be appended to the end of linked list.
-If index is greater than the length, the node will not be inserted. */
-void link_single_insert_new_node_before_index
-    (MyLinkedList* obj, int index, int val) {
-    int i = 0;
-
-    if(index < 0){
-        link_single_push_new_head(obj,val);
-        return;
-    }
-
-    MyLinkedList* newNode = (MyLinkedList*)malloc(sizeof(MyLinkedList));
-    newNode->val = val;
-
-    MyLinkedList* entry = obj;
-    while(entry !=  NULL){
-            if(i++ == index){
-                newNode->next = entry->next;//?
-                entry->next = newNode;//?
-                break;
-            }
-            entry = entry->next;
-    }
-}
-
-
-void  link_single_insert_new_node_before_index_2
-    (MyLinkedList* obj,int index,int val){
-    MyLinkedList* temp=obj;//创建临时结点temp
-    //首先找到要插入位置的上一个结点
-    for (int i=1; i<index; i++) {
-        if (temp==NULL) {
-            printf("插入位置无效\n");
-            return;
-        }
-        temp=temp->next;
-    }
-    //创建插入结点c
-    MyLinkedList* c=(MyLinkedList*)malloc(sizeof(MyLinkedList));
-    c->val=val;
-    //向链表中插入结点
-    c->next=temp->next;
-    temp->next=c;
-    return ;
-}
-
-
 //考虑删除节点为尾节点
-void link_single_del_node(MyLinkedList* head,MyLinkedList*p_cur_node)
+void link_single_del_node(struct ListNode * head,struct ListNode *p_cur_node)
 {
     if(p_cur_node != NULL)
     {
         if(p_cur_node->next != NULL)
         {//不考虑删除节点为尾节点
-            MyLinkedList* pTemp = p_cur_node->next;
+            struct ListNode * pTemp = p_cur_node->next;
             p_cur_node->val = pTemp->val;
             p_cur_node->next = pTemp->next;
             free(pTemp);
         }
         else
         {
-            MyLinkedList* temp = head;
-            while(temp != NULL)
+            struct ListNode * entry = head;
+            while(entry != NULL)
             {
-                if(temp->next == p_cur_node)
+                if(entry->next == p_cur_node)
                 {
                     free(p_cur_node);
-                    temp->next = NULL;
+                    entry->next = NULL;
                 }
-                temp = temp->next;
+                entry = entry->next;
             }
         }
     }
 }
 
 
-/** Delete the index-th node in the linked list, if the index is valid. */
-void link_single_del_node_by_index(MyLinkedList* obj, int index) {
+/** Delete the idx-th node in the linked list, if the idx is valid. */
+void link_single_del_node_by_idx(struct ListNode * head, int idx) {
         int i = 0;
-        MyLinkedList* list = obj;
+        struct ListNode * list = head;
         while(list->next != NULL){
-            if(i++ == index){
+            if(i++ == idx){
                 list->next = list->next->next;
                 break;
             }
@@ -302,23 +316,23 @@ void link_single_del_node_by_index(MyLinkedList* obj, int index) {
         }
 }
 
-void link_single_del_node_by_index_2(MyLinkedList* obj,int index){
-    MyLinkedList* temp=obj;
+void link_single_del_node_by_idx_2(struct ListNode * head,int idx){
+    struct ListNode * entry=head;
     //遍历到被删除结点的上一个结点
-    for (int i=1; i<index; i++) {
-        temp=temp->next;
+    for (int i=1; i<idx; i++) {
+        entry=entry->next;
     }
-    MyLinkedList* del=temp->next;//单独设置一个指针指向被删除结点，以防丢失
-    temp->next=temp->next->next;//删除某个结点的方法就是更改前一个结点的指针域
+    struct ListNode * del=entry->next;//单独设置一个指针指向被删除结点，以防丢失
+    entry->next=entry->next->next;//删除某个结点的方法就是更改前一个结点的指针域
     free(del);//手动释放该结点，防止内存泄漏
     return ;
 }
 
 
-void link_single_del_node_by_key(MyLinkedList*head,int key)
+void link_single_del_node_by_key(struct ListNode *head,int key)
 {
-	MyLinkedList*node1=head;
-	MyLinkedList*node2=NULL;
+	struct ListNode *node1=head;
+	struct ListNode *node2=NULL;
 	if (head==NULL)
 	{
 		return;
@@ -373,24 +387,24 @@ struct ListNode* link_single_del_node_by_key_2(struct ListNode* head, int val){
 
 
 
-void myLinkedListFree(MyLinkedList* obj) {
+void myLinkedListFree(struct ListNode * head) {
 
 }
 
 /**
- * Your MyLinkedList struct will be instantiated and called as such:
- * MyLinkedList* obj = slink_init();
- * int param_1 = link_single_get_val(obj, index);
+ * Your struct ListNode struct will be instantiated and called as such:
+ * struct ListNode * head = slink_init();
+ * int param_1 = slink_get_val_by_idx(head, idx);
 
- * link_single_push_new_head(obj, val);
+ * slink_push_head(head, val);
 
- * slink_push_tail(obj, val);
+ * slink_push_tail(head, val);
 
- * link_single_insert_new_node_before_index(obj, index, val);
+ * slink_insert_before_idx(head, idx, val);
 
- * link_single_del_node_by_index(obj, index);
+ * link_single_del_node_by_idx(head, idx);
 
- * myLinkedListFree(obj);
+ * myLinkedListFree(head);
 */
 
 /**
@@ -617,19 +631,19 @@ struct ListNode* addTwoNumbers(struct ListNode* l1, struct ListNode* l2) {
 */
 struct ListNode* merge_sotrlist(struct ListNode* p,struct ListNode* q){
 	struct ListNode *head=(struct ListNode*)malloc(sizeof(struct ListNode));
-	struct ListNode *temp=head;
+	struct ListNode *entry=head;
 	while(p!=NULL&&q!=NULL){
 		if(p->val<=q->val){
-			temp->next=p;
-			temp=p;
+			entry->next=p;
+			entry=p;
 			p=p->next;
 		}else{
-			temp->next=q;
-			temp=q;
+			entry->next=q;
+			entry=q;
 			q=q->next;
 		}
 	}
-    temp->next=(p==NULL)?q:p;
+    entry->next=(p==NULL)?q:p;
 	return head->next;
 }
 struct ListNode* sortList(struct ListNode* head){
@@ -646,15 +660,15 @@ struct ListNode* sortList(struct ListNode* head){
 
 int main()
 {
-    MyLinkedList* obj = slink_init();
+    struct ListNode * head = slink_init();
 
-    link_single_push_new_head(obj,1);
-    slink_push_tail(obj,3);
-    link_single_insert_new_node_before_index(obj,1,2);
-    int ret = link_single_get_val(obj,1);
+    slink_push_head(head,1);
+    slink_push_tail(head,3);
+    slink_insert_before_idx(head,1,2);
+    int ret = slink_get_val_by_idx(head,1);
     printf("%d\n",ret);
-    link_single_del_node_by_index(obj,1);
-    ret = link_single_get_val(obj,1);
+    link_single_del_node_by_idx(head,1);
+    ret = slink_get_val_by_idx(head,1);
     printf("%d\n",ret);
 }
 
