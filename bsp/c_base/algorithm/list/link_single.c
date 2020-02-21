@@ -112,19 +112,19 @@ void  slink_insert_before_idx2(struct ListNode * head,int idx,int val)
 
 	struct ListNode * entry = head;//创建临时结点entry
 	//首先找到要插入位置的上一个结点
-	for (int i = 1; i<idx; i++) {
+	for (int i = 0; i < idx - 1; i++) {
 		if (entry==NULL) {
 			printf("%s err\n", __func__);
 			return;
 		}
-		entry=entry->next;
+		entry = entry->next;
 	}
 	//创建插入结点c
 	struct ListNode * newNode =(struct ListNode *)malloc(sizeof(struct ListNode));
-	newNode->val=val;
+	newNode->val = val;
 	//向链表中插入结点
-	newNode->next=entry->next;
-	entry->next=newNode;
+	newNode->next = entry->next;
+	entry->next = newNode;
 }
 
 
@@ -172,23 +172,132 @@ int slink_get_idx_by_val(struct ListNode *head, int val)
 }
 
 
-void display(struct ListNode *pHead)
+//考虑删除节点为尾节点
+void slink_del_by_node(struct ListNode * head,struct ListNode *delNode)
+{
+	if (delNode == NULL)
+		return;
+
+	if(delNode->next != NULL) {
+		struct ListNode * pTemp = delNode->next;
+		delNode->val = pTemp->val;
+		delNode->next = pTemp->next;
+		free(pTemp);
+	} else {//last node
+		struct ListNode * entry = head;
+		while(entry != NULL) {
+			if(entry->next == delNode) {
+				free(delNode);
+				entry->next = NULL;
+			}
+			entry = entry->next;
+		}
+	}
+}
+
+
+/** Delete the idx-th node in the linked list, if the idx is valid. */
+void slink_del_by_idx(struct ListNode * head, int idx)
+{
+	int i = 0;
+	struct ListNode * entry = head;
+	while(entry->next != NULL) {
+		if(i++ == idx) {
+			struct ListNode * del = entry->next;//单独设置一个指针指向被删除结点，以防丢失
+			entry->next = entry->next->next;
+			free(del);
+			break;
+		}
+		entry = entry->next;
+	}
+}
+
+
+void slink_del_by_idx2(struct ListNode * head, int idx)
+{
+	struct ListNode *entry = head;
+	//遍历到被删除结点的上一个结点
+	for (int i = 0; i< idx - 1; i++) {
+		entry = entry->next;
+	}
+	struct ListNode * del = entry->next;//单独设置一个指针指向被删除结点，以防丢失
+	entry->next = entry->next->next;//删除某个结点的方法就是更改前一个结点的指针域
+	free(del);//手动释放该结点，防止内存泄漏
+	return ;
+}
+
+
+void slink_del_by_value(struct ListNode *head, int value)
+{
+	struct ListNode *node1 = head;
+	struct ListNode *node2 = NULL;
+
+	if (head == NULL)
+		return;
+
+	if (node1->val == value) {
+		head = head->next;
+		free(node1);
+		return;
+	}
+
+	while (node1 != NULL) {
+		node2 = node1->next;
+		if (node2->val == value) {
+			node1->next = node2->next;
+			free(node2);
+			break;
+		}
+		node1 = node1->next;
+	}
+}
+
+
+void slink_del_by_value2(struct ListNode* head, int val)
+{
+/*
+删除值相同的头结点后，
+可能新的头结点也值相等，用循环解决
+*/
+	struct ListNode* entry;
+	while(head != NULL && head->val == val) {
+		entry = head;
+		head = head->next;
+		free(entry);
+        }
+
+	if(head == NULL)
+		return;
+
+	entry = head;
+        //确保当前结点后还有结点
+        while(entry->next != NULL) {
+            if(entry->next->val == val) {
+                entry->next = entry->next->next;
+            } else {
+                entry=entry->next;
+            }
+        }
+        return head;
+}
+
+
+void slink_display(struct ListNode *head)
+{
+    struct ListNode *entry = head;
+    while (entry->next != NULL) {
+        entry = entry->next;
+        printf("%d",entry->val);
+    }
+    printf("\n");
+}
+
+void slink_display2(struct ListNode *pHead)
 {
     while( pHead != NULL)
     {
         printf("%d ", pHead->val);
         pHead = pHead->next;
-    }
-    printf("\n");
-}
-
-
-void display2(struct ListNode *head){
-    struct ListNode *entry = head;//将entry指针重新指向头结点
-    //只要entry指针指向的结点的next不是Null，就执行输出语句。
-    while (entry->next) {
-        entry=entry->next;
-        printf("%d",entry->val);
     }
     printf("\n");
 }
@@ -280,147 +389,6 @@ bool hasCycle(struct ListNode *head) {
     return true;
 }
 
-
-//考虑删除节点为尾节点
-void link_single_del_node(struct ListNode * head,struct ListNode *p_cur_node)
-{
-    if(p_cur_node != NULL)
-    {
-        if(p_cur_node->next != NULL)
-        {//不考虑删除节点为尾节点
-            struct ListNode * pTemp = p_cur_node->next;
-            p_cur_node->val = pTemp->val;
-            p_cur_node->next = pTemp->next;
-            free(pTemp);
-        }
-        else
-        {
-            struct ListNode * entry = head;
-            while(entry != NULL)
-            {
-                if(entry->next == p_cur_node)
-                {
-                    free(p_cur_node);
-                    entry->next = NULL;
-                }
-                entry = entry->next;
-            }
-        }
-    }
-}
-
-
-/** Delete the idx-th node in the linked list, if the idx is valid. */
-void link_single_del_node_by_idx(struct ListNode * head, int idx) {
-        int i = 0;
-        struct ListNode * list = head;
-        while(list->next != NULL){
-            if(i++ == idx){
-                list->next = list->next->next;
-                break;
-            }
-            list = list->next;
-        }
-}
-
-void link_single_del_node_by_idx_2(struct ListNode * head,int idx){
-    struct ListNode * entry=head;
-    //遍历到被删除结点的上一个结点
-    for (int i=1; i<idx; i++) {
-        entry=entry->next;
-    }
-    struct ListNode * del=entry->next;//单独设置一个指针指向被删除结点，以防丢失
-    entry->next=entry->next->next;//删除某个结点的方法就是更改前一个结点的指针域
-    free(del);//手动释放该结点，防止内存泄漏
-    return ;
-}
-
-
-void link_single_del_node_by_key(struct ListNode *head,int key)
-{
-	struct ListNode *node1=head;
-	struct ListNode *node2=NULL;
-	if (head==NULL)
-	{
-		return;
-	}
-	else
-	{
-		if (node1->val==key)
-		{
-			head=head->next;
-			free(node1);
-			return;
-		}
-		else
-		{
-			while (node1!=NULL)
-			{
-				node2=node1;
-				node2=node2->next;
-				if (node2->val==key)
-				{
-					node1->next=node2->next;
-					free(node2);
-					break;
-				}
-				node1=node1->next;
-			}
-			return;
-		}
-    }
-}
-
-
-struct ListNode* link_single_del_node_by_key_2(struct ListNode* head, int val){
-       //删除值相同的头结点后，可能新的头结点也值相等，用循环解决
-        while(head!=NULL&&head->val==val){
-            head=head->next;
-        }
-        if(head==NULL)
-            return head;
-        struct ListNode *prev=head;
-        //确保当前结点后还有结点
-        while(prev->next!=NULL){
-            if(prev->next->val==val){
-                prev->next=prev->next->next;
-            }else{
-                prev=prev->next;
-            }
-        }
-        return head;
-
-}
-
-
-
-void myLinkedListFree(struct ListNode * head) {
-
-}
-
-/**
- * Your struct ListNode struct will be instantiated and called as such:
- * struct ListNode * head = slink_init();
- * int param_1 = slink_get_val_by_idx(head, idx);
-
- * slink_push_head(head, val);
-
- * slink_push_tail(head, val);
-
- * slink_insert_before_idx(head, idx, val);
-
- * link_single_del_node_by_idx(head, idx);
-
- * myLinkedListFree(head);
-*/
-
-/**
- * Definition for singly-linked list.
- * struct ListNode {
- *     int val;
- *     struct ListNode *next;
- * };
- */
 
 /*
 请判断一个链表是否为回文链表。
@@ -674,7 +642,7 @@ int main()
     slink_insert_before_idx(head,1,2);
     int ret = slink_get_val_by_idx(head,1);
     printf("%d\n",ret);
-    link_single_del_node_by_idx(head,1);
+    slink_del_by_idx(head,1);
     ret = slink_get_val_by_idx(head,1);
     printf("%d\n",ret);
 }
