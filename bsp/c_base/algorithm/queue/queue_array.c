@@ -4,7 +4,7 @@
 /*array queue*/
 
 struct aqueue_load{
-	int data;
+	int val;
 };
 
 struct aqueue_blk{
@@ -39,22 +39,61 @@ void aqueue_exit(struct aqueue_blk * queue)
 	}
 }
 
+int  aqueue_get_first_val(struct aqueue_blk * queue)
+{
+	return  queue->load[0].val;
+}
 
-struct aqueue_load  front(struct aqueue_blk * queue)
+
+int aqueue_get_last_val(struct aqueue_blk * queue)
+{
+	return  queue->load[queue->count - 1].val;
+}
+
+
+void aqueue_push_last_val(struct aqueue_blk * queue, int value)
+{
+	struct aqueue_load load;
+	load.val = value;
+	queue->load[queue->count++] = load;
+	if (queue->count > queue->size) {
+		printf("[%s] push count[%d] too big\n", __func__, queue->count);
+		queue->count = queue->count % queue->size;
+		return;
+	}
+}
+
+
+int aqueue_pop_first_val(struct aqueue_blk * queue)
+{
+	int i = 0;
+
+	struct aqueue_load head = queue->load[0];
+
+	queue->count--;
+	while (i++<queue->count)
+		queue->load[i-1] = queue->load[i];
+
+	return head.val;
+}
+
+
+struct aqueue_load  aqueue_get_first(struct aqueue_blk * queue)
 {
 	return  queue->load[0];
 }
 
 
-struct aqueue_load  back(struct aqueue_blk * queue)
+struct aqueue_load  aqueue_get_last(struct aqueue_blk * queue)
 {
 	return  queue->load[queue->count - 1];
 }
 
+
 /*
 	load[0|1|2|3|4]  <--push
 */
-void aqueue_push(struct aqueue_blk * queue,
+void aqueue_push_last(struct aqueue_blk * queue,
 	struct aqueue_load load)
 {
 	queue->load[queue->count++] = load;
@@ -67,7 +106,7 @@ void aqueue_push(struct aqueue_blk * queue,
 
 
 // 返回并删除“队列开头元素”
-struct aqueue_load aqueue_pop(struct aqueue_blk * queue)
+struct aqueue_load aqueue_pop_first(struct aqueue_blk * queue)
 {
 	int i = 0;
 
@@ -115,14 +154,14 @@ void main()
 	struct aqueue_load load3;
 
 	load1.data = 10;
-	aqueue_push(q_test1,load1);
+	aqueue_push_last(q_test1,load1);
 	load1.data = 20;
-	aqueue_push(q_test1,load1);
+	aqueue_push_last(q_test1,load1);
 	load1.data = 30;
-	aqueue_push(q_test1,load1);
+	aqueue_push_last(q_test1,load1);
 
 	// 将“队列开头的元素”赋值给tmp，并删除“该元素”
-	load2 = aqueue_pop(q_test1);
+	load2 = aqueue_pop_first(q_test1);
 	printf("load2 10 =%d\n", load2.data);
 
 	// 只将“队列开头的元素”赋值给tmp，不删除该元素.
@@ -130,7 +169,7 @@ void main()
 	printf("load3 20=%d\n", load3.data);
 
 	load1.data = 40;
-	aqueue_push(q_test1,load1);
+	aqueue_push_last(q_test1,load1);
 
 	// 打印队列
 	printf("is_empty() false =%d\n", aqueue_empty(q_test1));
@@ -139,7 +178,7 @@ void main()
 	while (!aqueue_empty(q_test1)) {
 		struct aqueue_load tmp_load;
 
-		tmp_load = aqueue_pop(q_test1);
+		tmp_load = aqueue_pop_first(q_test1);
 		printf("20 30 40  ==%d\n", tmp_load.data);
 	}
 

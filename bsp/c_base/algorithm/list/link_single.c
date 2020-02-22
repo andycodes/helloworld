@@ -47,12 +47,40 @@ int slink_empty(struct ListNode *head)
 }
 
 
-void slink_push_head(struct ListNode *head, int val)
+void slink_push_first(struct ListNode *head, int val)
 {
 	struct ListNode * newNode = (struct ListNode *)malloc(sizeof(struct ListNode));
 	newNode->val = val;
 	newNode->next = head->next;
 	head->next = newNode;
+}
+
+
+int slink_get_first(struct ListNode * head)
+{
+	if (head == NULL || head->next == NULL)
+		return -1;
+
+	struct ListNode * entry = head->next;
+	return entry->val;
+}
+
+
+int slink_pop_first(struct ListNode * head)
+{
+	int ret = 0;
+	if (head == NULL || head->next == NULL) {
+		printf("%s err\n", __func__);
+		return -1;
+	}
+
+	struct ListNode * entry = head;
+	struct ListNode * del = entry->next;
+	ret = del->val;
+	entry->next = entry->next->next;
+	free(del);
+	del = NULL;
+	return ret;
 }
 
 
@@ -73,19 +101,14 @@ void slink_push_last(struct ListNode* head, int val)
 }
 
 
-int slink_pop_head(struct ListNode * head)
+int slink_get_last(struct ListNode * head)
 {
-	int ret = 0;
-	if (head == NULL || head->next == NULL)
-		return;
+    struct ListNode * entry = head;
+    while(entry->next != NULL) {
+        entry = entry->next;
+    }
 
-	struct ListNode * entry = head;
-	struct ListNode * del = entry->next;
-	ret = del->val;
-	entry->next = entry->next->next;
-	free(del);
-	del = NULL;
-	return ret;
+    return entry->val;
 }
 
 
@@ -103,17 +126,8 @@ int  slink_pop_last(struct ListNode * head)
 		}
 		entry = entry->next;
 	}
-}
 
-
-int slink_get_last(struct ListNode * head)
-{
-    struct ListNode * entry = head;
-    while(entry->next != NULL) {
-        entry = entry->next;
-    }
-
-    return entry->val;
+	return -1;
 }
 
 
@@ -126,7 +140,7 @@ void slink_insert_before_idx(struct ListNode *head, int idx, int val)
     int i = 0;
 
     if(idx < 0){
-        slink_push_head(head, val);
+        slink_push_first(head, val);
         return;
     }
 
@@ -147,7 +161,7 @@ void slink_insert_before_idx(struct ListNode *head, int idx, int val)
 void  slink_insert_before_idx2(struct ListNode * head,int idx,int val)
 {
 	if(idx < 0){
-		slink_push_head(head, val);
+		slink_push_first(head, val);
 		return;
 	}
 
@@ -326,7 +340,7 @@ void slink_display(struct ListNode *head)
     struct ListNode *entry = head;
     while (entry->next != NULL) {
         entry = entry->next;
-        printf("%d",entry->val);
+        printf("%d ",entry->val);
     }
     printf("\n");
 }
@@ -676,7 +690,7 @@ int main()
 {
     struct ListNode * head = slink_init();
 
-    slink_push_head(head,1);
+    slink_push_first(head,1);
     slink_push_last(head,3);
     slink_insert_before_idx(head,1,2);
     int ret = slink_get_val_by_idx(head,1);
