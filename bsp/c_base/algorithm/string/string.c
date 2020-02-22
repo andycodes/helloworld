@@ -577,18 +577,14 @@ p  £”‡◊”¥Æ“¿¥Œ «"cd,ef"/"ef"/"NULL"
 */
 void strtok_test(void)
 {
-    char str[]="ab,cd,ef";
-    char *iterator;
-    char *p;
-    printf("before strtok:  str=%s\n",str);
-    printf("begin:\n");
-    iterator = strtok_r(str, ",", &p);
-    while(iterator != NULL){
-        printf("str=%s\n",str);
-        printf("iterator=%s\n",iterator);
-	printf("p=%s\n",p);
-        iterator = strtok_r(NULL, ",", &p);
-    }
+	char str[]="ab,cd,ef";
+	char *iterator;
+	char *p;
+	iterator = strtok_r(str, ",", &p);
+	while(iterator != NULL) {
+		/*iterator*/
+		iterator = strtok_r(NULL, ",", &p);
+	}
 }
 
 /*
