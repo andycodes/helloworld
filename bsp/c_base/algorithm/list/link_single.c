@@ -47,8 +47,6 @@ int slink_empty(struct ListNode *head)
 }
 
 
-/** Add a node of value val before the first element of the linked list.
-After the insertion, the new node will be the first node of the linked list. */
 void slink_push_head(struct ListNode *head, int val)
 {
 	struct ListNode * newNode = (struct ListNode *)malloc(sizeof(struct ListNode));
@@ -58,8 +56,7 @@ void slink_push_head(struct ListNode *head, int val)
 }
 
 
-/** Append a node of value val to the last element of the linked list. */
-void slink_push_tail(struct ListNode* head, int val)
+void slink_push_last(struct ListNode* head, int val)
 {
     struct ListNode* entry = head;
     struct ListNode* newNode = (struct ListNode*)malloc(sizeof(struct ListNode));
@@ -73,6 +70,50 @@ void slink_push_tail(struct ListNode* head, int val)
         }
         entry = entry->next;
     }
+}
+
+
+int slink_pop_head(struct ListNode * head)
+{
+	int ret = 0;
+	if (head == NULL || head->next == NULL)
+		return;
+
+	struct ListNode * entry = head;
+	struct ListNode * del = entry->next;
+	ret = del->val;
+	entry->next = entry->next->next;
+	free(del);
+	del = NULL;
+	return ret;
+}
+
+
+int  slink_pop_last(struct ListNode * head)
+{
+	struct ListNode * entry = head;
+	while(entry->next != NULL) {
+		if(entry->next->next == NULL) {
+			struct ListNode * del = entry->next;
+			int ret = del->val;
+			entry->next = entry->next->next;
+			free(del);
+			del = NULL;
+			return ret;
+		}
+		entry = entry->next;
+	}
+}
+
+
+int slink_get_last(struct ListNode * head)
+{
+    struct ListNode * entry = head;
+    while(entry->next != NULL) {
+        entry = entry->next;
+    }
+
+    return entry->val;
 }
 
 
@@ -128,8 +169,6 @@ void  slink_insert_before_idx2(struct ListNode * head,int idx,int val)
 }
 
 
-
-/** Get the value of the idx-th node in the linked list. If the idx is invalid, return -1. */
 int slink_get_val_by_idx(struct ListNode * head, int idx)
 {
     int i = 0;
@@ -582,13 +621,13 @@ struct ListNode* addTwoNumbers(struct ListNode* l1, struct ListNode* l2) {
         int y = (q != NULL) ? q->val : 0;
         int sum = carry + x + y;
         carry = sum / 10;
-        slink_push_tail(res, sum % 10);
+        slink_push_last(res, sum % 10);
         if (p != NULL) p = p->next;
         if (q != NULL) q = q->next;
     }
 
     if (carry > 0) {
-        slink_push_tail(res, carry);
+        slink_push_last(res, carry);
     }
 
     return res->next;
@@ -638,7 +677,7 @@ int main()
     struct ListNode * head = slink_init();
 
     slink_push_head(head,1);
-    slink_push_tail(head,3);
+    slink_push_last(head,3);
     slink_insert_before_idx(head,1,2);
     int ret = slink_get_val_by_idx(head,1);
     printf("%d\n",ret);
