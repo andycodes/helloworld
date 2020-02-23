@@ -685,6 +685,26 @@ struct ListNode* sortList(struct ListNode* head){
 	return merge_sotrlist(sortList(head),sortList(q));
 }
 
+/*
+面试题 02.02. 返回倒数第 k 个节点
+实现一种算法，找出单向链表中倒数第
+k 个节点。返回该节点的值。
+*/
+int kthToLast(struct ListNode* head, int k){
+	struct ListNode*  fast = head;
+	struct ListNode*  slow = head;
+
+	while(k--) {
+		fast = fast->next;
+	}
+
+	while(fast != NULL) {
+		fast = fast->next;
+		slow = slow->next;
+	}
+
+	return slow->val;
+}
 
 int main()
 {

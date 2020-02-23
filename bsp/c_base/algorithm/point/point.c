@@ -209,4 +209,36 @@ int maxArea(int* height, int heightSize){
         return area;
 }
 
+/*
+面试题 17.11. 单词距离
+难度中等2
+有个内含单词的超大文本文件，给定任意两个单词，找出在这个文件中这两个单词的最短距离(相隔单词数)。如果寻找过程在这个文件中会重复多次，而每次寻找的单词不同，你能对此优化吗?
+示例：
+输入：words = ["I","am","a","student","from","a","university","in","a","city"], word1 = "a", word2 = "student"
+输出：1
+
+*/
+
+int findClosest(char** words, int wordsSize, char* word1, char* word2)
+{
+	int min = INT_MAX;
+	int w1Idx = -1;
+	int w2Idx = -2;
+	for (int i = 0; i < wordsSize; i++) {
+		if (strcmp(words[i], word1) == 0) {
+			w1Idx = i;
+		}
+
+		if (strcmp(words[i], word2) == 0) {
+			w2Idx = i;
+		}
+
+		if (w1Idx >= 0 && w2Idx >= 0) {
+			min = fmin(min, abs(w1Idx - w2Idx));
+		}
+
+	}
+
+	return min;
+}
 
