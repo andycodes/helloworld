@@ -14,21 +14,20 @@ Q:
 int father[MAX];   /* father[x]表示x的父节点 */
 int rank[MAX];     /* rank[x]表示x的秩 */
 
-inline void uf_init(int n)
+void uf_init(int n)
 {
-    for (int i = 0; i < n; ++i) {
-	//父节点为自己
-        father[i] = i;
-	//秩为0
-	rank[i] = 0;
-    }
-
+	for (int i = 0; i < n; ++i) {
+		//父节点为自己
+		father[i] = i;
+		//秩为0
+		rank[i] = 0;
+	}
 }
 
 
 /* 查找x元素所在的集合,回溯时压缩路径
 就是找到parent指针的源头*/
-int uf_find(int x)
+int uf_findRoot(int x)
 {
     if (x != father[x])// x不是自身的父亲，即x不是该集合的祖宗
     {
@@ -36,10 +35,30 @@ int uf_find(int x)
         //递归，以找到最久远祖先
         //回溯时压缩路径：路径上的所有子孙节
         //点都指向最久远祖先
-        father[x] = uf_find(father[x]);//查找x的祖先直到找到代表,于是顺手路径压缩
+        father[x] = uf_findRoot(father[x]);//查找x的祖先直到找到代表,于是顺手路径压缩
     }
     return father[x];
 }
+
+
+/* if in one union*/
+bool uf_isOneUnion(int x, int y)
+{
+	 return uf_findRoot(x) == uf_findRoot(y);
+}
+
+
+void uf_union(int i, int j)
+{
+    int x = uf_findRoot(i), y = uf_findRoot(j);    //先找到两个根节点
+    if (rank[x] <= rank[y])
+        father[x] = y;
+    else
+        father[y] = x;
+    if (rank[x] == rank[y] && x!=y)
+        rank[y]++;                   //如果深度相同且根节点不同，则新的根节点的深度+1
+}
+
 
 
 /*
@@ -47,10 +66,10 @@ int uf_find(int x)
    下面的那个if else结构不是绝对的，具体根据情况变化
    但是，宗旨是不变的即，按秩合并，实时更新秩。
 */
-void uf_union(int x, int y)
+void uf_union1(int x, int y)
 {
-    x = uf_find(x);  //找到最久远祖先
-    y = uf_find(y);
+    x = uf_findRoot(x);  //找到最久远祖先
+    y = uf_findRoot(y);
     if (x == y)
 		return;  //两个元素属于同一个集合
 
@@ -68,13 +87,3 @@ void uf_union(int x, int y)
 }
 
 
-inline void uf_union(int i, int j)
-{
-    int x = uf_find(i), y = uf_find(j);    //先找到两个根节点
-    if (rank[x] <= rank[y])
-        father[x] = y;
-    else
-        father[y] = x;
-    if (rank[x] == rank[y] && x!=y)
-        rank[y]++;                   //如果深度相同且根节点不同，则新的根节点的深度+1
-}
