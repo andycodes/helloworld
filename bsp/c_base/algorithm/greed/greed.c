@@ -412,3 +412,136 @@ int** groupThePeople(int* groupSizes, int groupSizesSize,
 
 	return res;
 }
+
+/*
+1094. 拼车
+难度中等22
+假设你是一位顺风车司机，车上最初有 capacity 个空座位可以用来载客。由于道路的限制，车 只能 向一个方向行驶（也就是说，不允许掉头或改变方向，你可以将其想象为一个向量）。
+这儿有一份行程计划表 trips[][]，其中 trips[i] = [num_passengers, start_location, end_location] 包含了你的第 i 次行程信息：
+"	必须接送的乘客数量；
+"	乘客的上车地点；
+"	以及乘客的下车地点。
+这些给出的地点位置是从你的 初始 出发位置向前行驶到这些地点所需的距离（它们一定在你的行驶方向上）。
+请你根据给出的行程计划表和车子的座位数，来判断你的车是否可以顺利完成接送所用乘客的任务（当且仅当你可以在所有给定的行程中接送所有乘客时，返回 true，否则请返回 false）。
+
+示例 1：
+输入：trips = [[2,1,5],[3,3,7]], capacity = 4
+输出：false
+示例 2：
+输入：trips = [[2,1,5],[3,3,7]], capacity = 5
+输出：true
+
+*/
+
+/*
+离散特点
+本题意思清晰。 （详见NOIP2012D2T2 借教室）
+简单看成给一个全0数组， 每一次给3个参数a, b, ca,b,c. 即意味着在[b, c)[b,c)区间每个数都加上aa. 最后问最大值是否超过capacitycapacity.
+
+解法0: 暴力
+针对每一个需求， 在区间[b, c)[b,c)每一个值都加上aa， 最后扫描一遍数组则可以得到最大值， 与capacitycapacity比较即可. 鉴于这道题数据范围很小， 可以通过。
+时间复杂度: O(nm)O(nm)
+空间复杂度: O(m)O(m)
+其中nn为拼车需求数， mm为路的长度。
+
+解法1： 线段树
+典型区间加，区间最大值问题。 用线段树即可。
+
+时间复杂度: O(mlogm)O(mlogm)
+空间复杂度: O(mlogm)O(mlogm)
+
+解法2： 差分数组
+
+给出一个数组arrayarray， 则其差分数组diffdiff定义为
+
+diff=
+{
+array[i] & (i = 0)
+array[i] - array[i-1] & ( i > 0)
+}
+
+
+
+
+举个例子, a = [1,3,6,10,15]a=[1,3,6,10,15]时， 其差分数组为[1,2,3,4,5][1,2,3,4,5].
+
+那么针对这道题， 我们针对原数组连续一段加上a的时候， 若直接在原数组操作， 则需要c-bc?b次， 而在差分数组上则只需要2次。 这样即可减少修改次数以降低时间复杂度。
+举个例子， a = [0,0,0,0,0,0]a=[0,0,0,0,0,0], 若给出(a, b, c) = (3, 2, 5)(a,b,c)=(3,2,5), 则原数组变为[0,0,3,3,3,0][0,0,3,3,3,0], 差分数组变为[0,0,3,0,0,-3][0,0,3,0,0,?3]仅修改两个值。
+
+由差分数组得到原数组时， 只需要逆向变化即可。
+
+时间复杂度: O(m)O(m)
+空间复杂度: O(m)O(m)
+
+*/
+
+#define MAX_POSITION  1001
+bool carPooling(int** trips, int tripsSize, int* tripsColSize, int capacity)
+{
+    int route[MAX_POSITION] = {0};
+    int maxCap = 0;
+    // 遍历所有的旅途，将所有的路途信息写入到route中，route元素大小是乘客的数量
+    for (int i = 0; i < tripsSize; i++) {
+        // 终点不需要增加权重，因为终点是下车，但是起点需要增加权重
+        for (int j = trips[i][1]; j < trips[i][2]; j++) {
+            route[j] += trips[i][0];
+            if (maxCap < route[j]) {
+                maxCap = route[j];
+            }
+        }
+    }
+
+    return maxCap > capacity ? false : true;
+}
+
+/*
+由于终点都是先下后上的所以需要终点人就下车，起点和终点前一个点都在车上，在a[3]到a[6-1]都需要+2，全部行程加完后，然后判断数组有没有出现超过座位的数字就行，
+时间复杂度O(n)，是不是简单到爆又容易理解！！！
+
+*/
+bool carPooling(int** trips, int tripsSize, int* tripsColSize, int capacity){
+	int map[1024] = {{0}};
+
+	for (int i = 0; i < tripsSize; i++) {
+		for (int j = trips[i][1]; j < trips[i][2];j++) {
+			map[j] += trips[i][0];
+		}
+	}
+
+	for (int i = 0; i < 1024; i++) {
+		if(map[i] > capacity)
+			return false;
+	}
+
+	return true;
+}
+
+/*
+本题直接解答比较复杂，可以采用统计学的方法进行加加减减操作，可以很容易解答本题。
+因为 0 <= trips[i][1] < trips[i][2] <= 1000，可以开一个大小为 1001 的数组 cnt 来代表每个地点的人数。
+遍历 trips，在上车点加上对应人数，在下车点减去对应人数。
+最终数组 cnt 每个位置的前缀和就是对应地点上的乘客数量，判断是否满足条件就比较简单了。
+
+
+相对前一站的人数变化
+直接创建数组缓存每个车站的人数变动，检索时判断和值是否超限即可
+
+*/
+bool carPooling(int** trips, int tripsSize, int* tripsColSize, int capacity){
+	int map[1024] = {{0}};
+
+	for (int i = 0; i < tripsSize; i++) {
+		map[trips[i][1]] += trips[i][0];
+		map[trips[i][2]] -= trips[i][0];
+	}
+
+	int curStateTotal = 0;
+	for (int i = 0; i < 1024; i++) {
+		curStateTotal += map[i];
+		if(curStateTotal > capacity)
+			return false;
+	}
+
+	return true;
+}
+
