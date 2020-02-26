@@ -545,3 +545,66 @@ void solve(char** board, int boardSize, int* boardColSize) {
 	}
 }
 
+
+/*
+面试题 16.19. 水域大小
+难度中等1
+你有一个用于表示一片土地的整数矩阵land，该矩阵中每个点的值代表对应地点的海拔高度。若值为0则表示水域。由垂直、水平或对角连接的水域为池塘。池塘的大小是指相连接的水域的个数。编写一个方法来计算矩阵中所有池塘的大小，返回值需要从小到大排序。
+示例：
+输入：
+[
+  [0,2,1,0],
+  [0,1,0,1],
+  [1,1,0,1],
+  [0,1,0,1]
+]
+输出： [1,2,4]
+
+*/
+
+#define PARAM_CHECK(land, landSize, landColSize, returnSize) 	\
+{\
+	if (land == NULL || landSize > 1000 || landSize <= 0 || landColSize == NULL || returnSize == NULL)\
+		return NULL;\
+}\
+
+
+void dfs(int** land, int landSize, int* landColSize, int *res, int i, int j)
+{
+	if (i < 0 || i >= landSize || j < 0 || j >= landColSize[i] || land[i][j] != 0) {
+		return;
+	}
+
+	(*res)++;
+	land[i][j] = 1;
+
+	int d[8][2] = {{0,1},{1,1},{1,0},{1,-1},
+		{0,-1},{-1,-1},{-1,0},{-1,1}};
+
+	for (int k = 0; k < 8; k++) {
+		dfs(land, landSize, landColSize, res, i + d[k][0], j + d[k][1]);
+	}
+}
+
+
+int* pondSizes(int** land, int landSize, int* landColSize, int* returnSize){
+	*returnSize = 0;
+
+	PARAM_CHECK(land, landSize, landColSize, returnSize);
+
+	int * res = (int *)calloc(landSize * 1024, sizeof(int));
+
+	for(int i = 0; i < landSize; i++) {
+		for (int j = 0; j < landColSize[i]; j++) {
+			if (land[i][j] == 0) {
+				dfs(land, landSize, landColSize, res + *returnSize, i, j);
+				(*returnSize)++;
+			}
+		}
+	}
+
+	qsort(res, *returnSize, sizeof(int), cmp_int);
+
+	return res;
+}
+
