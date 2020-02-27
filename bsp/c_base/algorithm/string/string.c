@@ -1,8 +1,95 @@
 #include <stdio.h>
 #include <string.h>
-#include<stdlib.h>
+#include <stdlib.h>
 
 #include "../../flag_type.h"
+#include "../math/math.h"
+
+/*
+isdigit
+
+函数名称: isdigit
+
+函数原型: int isdigit(char ch);
+
+函数功能: 检查ch是否是数字(0-9)
+
+函数返回: 是返回非0,否则返回0
+*/
+void digit2Str_sprintf(char *str, int digit)
+{
+	sprintf(str, "%d", digit);
+	sprintf(str, "%x", digit);
+}
+
+
+int isdigit(char ch)
+{
+	if (ch < '0' || ch > '9')
+		return 0;
+	else
+		return 1;
+}
+
+
+/*字符串转整形*/
+int atoi(const char *str) {
+	int num = 0;
+	int sign = 1;
+	const int len = strlen(str);
+	int i = 0;
+
+	while (str[i] == ' ' && i < len)i++;
+
+	if (str[i] == '+') i++;
+	if (str[i] == '-') {
+		sign = -1;
+		i++;
+	}
+
+	for (; i < len; i++) {
+		if (str[i] < '0' || str[i] > '9')
+			break;
+		if (num > INT_MAX / 10 ||  (num == INT_MAX / 10 && (str[i] - '0') > INT_MAX % 10)) {
+			return sign == -1 ? INT_MIN : INT_MAX;
+		}
+		num = num * 10 + str[i] - '0';
+	}
+	return num * sign;
+}
+
+
+void str2digit_sscanf(char * str)
+{
+	int value;
+	sscanf(str, "%x", &value);
+	printf("0x%x\n",value);
+}
+
+
+void str2digit_strtol(char * str)
+{
+	char* p;
+	long value = strtol(str, &p, 16);
+	printf("0x%lx\n",value);
+}
+
+unsigned long str2digit(char *str, int len)
+{
+	unsigned long i, data = 0;
+
+	for(i = 0; i < len; i++) {
+		if (!isdigit(str[i]))
+			return -1;
+		data *= 10;
+		data += str[i]-'0';
+	}
+
+	return data;
+}
+
+
+
 /*
 #include <string.h>
 查找子字符串
@@ -65,7 +152,7 @@ void substr(char* dst, char* src, int start, int cpLen)
     }
     dst[i] = '\0';
 #else
-    strncpy_s(dst,1024, src + start, cpLen);
+    strncpy(dst, src + start, cpLen);
 #endif
 }
 
@@ -336,79 +423,6 @@ char *str_letter_big_little( char *Str )
 }
 
 
-unsigned long strtobcd(char *s)
-{
-    unsigned long ret;
-    int i;
-
-    ret = 0;
-
-    while (*s != '\0') {
-        if (*s >= '0' && *s <= '9')
-            i = *s - '0';
-        else
-            return -1;
-        ret = (ret << 4) + i;
-        s++;
-    }
-
-    return ret;
-}
-
-unsigned long strtodec(char *str, int cnt)
-{
-    unsigned long i, data = 0;
-
-    for(i=0; i<cnt; i++)
-    {
-        data *= 10;
-        if(str[i]<'0'||str[i]>'9')
-            return -1;
-        data += str[i]-'0';
-    }
-    return data;
-}
-
-void ultostr(char *s, unsigned long data)
-{
-    int i;
-
-    s[8] = 0;
-    for(i=7; i>=0; i--, data >>=4)
-    {
-        if((data&0xf)<=9)
-            s[i] = (data&0xf)+'0';
-        else
-            s[i] = (data&0xf)+'a'-0x0a;
-    }
-}
-
-
-/*字符串转整形*/
-int atoi(const char *str) {
-    int num = 0;
-    int sign = 1;
-    const int len = strlen(str);
-    int i = 0;
-    while (str[i] == ' ' && i < len) i++;
-    if (str[i] == '+') i++;
-    if (str[i] == '-') {
-    sign = -1;
-    i++;
-    }
-    for (; i < len; i++) {
-        if (str[i] < '0' || str[i] > '9')
-        break;
-        if (num > INT_MAX / 10 ||
-        (num == INT_MAX / 10 &&
-        (str[i] - '0') > INT_MAX % 10)) {
-            return sign == -1 ? INT_MIN : INT_MAX;
-        }
-        num = num * 10 + str[i] - '0';
-    }
-    return num * sign;
-}
-
 
 /* 最长带+-符号 小数点的连续数字串*/
 int max_num_in_string(char *inputstr, char *outputstr)
@@ -523,23 +537,6 @@ int lengthOfLongestSubstringTwoDistinct(char * s){
 }
 
 
-
-void str_to_hex_by_sscanf(char * str)
-{
-	int value;
-	sscanf(str, "%x", &value);
-	printf("0x%x\n",value);
-}
-
-
-void str_to_hex_by_strtol(char * str)
-{
-	char* p;
-	long value = strtol(str, &p, 16);
-
-	printf("0x%lx\n",value);
-}
-
 /*
 函数原型：char * strtok (char *str, const char * delimiters);
 参数：str，待分割的字符串（c-string）；
@@ -646,6 +643,29 @@ int** indexPairs(char * text, char ** words, int wordsSize, int* returnSize, int
     return res;
 }
 
+unsigned long strtobcd(char *s)
+{
+    unsigned long ret;
+    int i;
+
+    ret = 0;
+
+    while (*s != '\0') {
+        if (*s >= '0' && *s <= '9')
+            i = *s - '0';
+        else
+            return -1;
+        ret = (ret << 4) + i;
+        s++;
+    }
+
+    return ret;
+}
+
+void test()
+{
+
+}
 
 int main(int argc, char* argv[])
 {
@@ -670,6 +690,8 @@ int main(int argc, char* argv[])
 	case 5: max_num_in_string_test();
 	break;
 	case 6: substr_test();
+	break;
+	case 7: test();
 	break;
 	default:
 	break;

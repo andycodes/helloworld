@@ -32,18 +32,8 @@ iscntrl
 
 */
 
-/*
-isdigit
 
-函数名称: isdigit
 
-函数原型: int isdigit(char ch);
-
-函数功能: 检查ch是否是数字(0-9)
-
-函数返回: 是返回非0,否则返回0
-*/
-int isdigit(char ch);
 /*
 
 isgraph

@@ -587,7 +587,8 @@ void dfs(int** land, int landSize, int* landColSize, int *res, int i, int j)
 }
 
 
-int* pondSizes(int** land, int landSize, int* landColSize, int* returnSize){
+int* pondSizes(int** land, int landSize, int* landColSize, int* returnSize)
+{
 	*returnSize = 0;
 
 	PARAM_CHECK(land, landSize, landColSize, returnSize);
