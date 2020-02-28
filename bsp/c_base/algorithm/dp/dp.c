@@ -362,4 +362,102 @@ int countVowelPermutation(int n){
 	return ((long long) a + e + i + o + u) % mod;
 }
 
+/*
+面试题47. 礼物的最大价值
+难度中等9
+在一个 m*n 的棋盘的每一格都放有一个礼物，每个礼物都有一定的价值（价值大于 0）。你可以从棋盘的左上角开始拿格子里的礼物，并每次向右或者向下移动一格、直到到达棋盘的右下角。给定一个棋盘及其上面的礼物的价值，请计算你最多能拿到多少价值的礼物？
 
+示例 1:
+输入:
+[
+  [1,3,1],
+  [1,5,1],
+  [4,2,1]
+]
+输出: 12
+解释: 路径 1→3→5→2→1 可以拿到最多价值的礼物
+
+*/
+
+
+int maxValueParmCheck(int** grid, int gridSize, int* gridColSize)
+{
+	if (grid == NULL || gridColSize <= 0 || gridColSize == NULL)
+		return -1;
+	return 0;
+}
+
+/*
+常规解法代码
+
+class Solution:
+    def maxValue(self, grid: List[List[int]]) -> int:
+        m,n=len(grid),len(grid[0])
+        if not m or not n: return 0
+        for i in range(m):
+            for j in range(n):
+                grid[i][j] += max(i>0 and grid[i - 1][j], j>0 and grid[i][j - 1])
+        return grid[-1][-1]
+
+
+状态转移
+dp[i][j] = max(dp[i - 1][j], dp[i][j - 1]) + grid[i][j];
+初始值
+dp[0][0] = grid[0][0];
+dp[i][0] = grid[i][0] + dp[i - 1][0];
+dp[0][j] = dp[0][j - 1] + grid[0][j];
+*/
+int maxValue(int** grid, int gridSize, int* gridColSize){
+	if (maxValueParmCheck(grid, gridSize, gridColSize) == -1)
+		return 0;
+
+	int m = gridSize;
+	int n = gridColSize[0];
+	int dp[m][n];
+	memset(dp, 0, sizeof(dp));
+
+	dp[0][0] = grid[0][0];
+	for (int i = 1; i < m; i++) {//first col
+		dp[i][0] = dp[i - 1][0] + grid[i][0];
+	}
+	for (int j = 1; j < n; j++) {//first row
+		dp[0][j] = dp[0][j - 1] + grid[0][j];
+	}
+	for (int i = 1; i < m; i++) {
+		for (int j = 1; j < n; j++) {
+			dp[i][j] = fmax(dp[i - 1][j], dp[i][j - 1])  + grid[i][j];
+		}
+	}
+
+	return dp[gridSize - 1][gridColSize[gridSize - 1] - 1];
+}
+
+/*
+
+Best Answer
+空间优化，只用到了dp[i][j - 1]和dp[i - 1][j]，可以压缩成一维数组
+
+dp[i][j - 1]就是dp[j - 1]
+dp[i - 1][j]是没更新前的dp[j]
+注意处理边界‘
+
+(j > 0? dp[j - 1] : 0)，走不通的地方填0就可以了，
+这样就能用dp[j]来计算
+*/
+int maxValue(int** grid, int gridSize, int* gridColSize){
+	if (maxValueParmCheck(grid, gridSize, gridColSize) == -1)
+		return 0;
+
+	int row = gridSize;
+	int col = gridColSize[0];
+	//int dp[row][col];
+    	int dp[col];
+	memset(dp, 0, sizeof(dp));
+
+        for(int i = 0; i < row; i++){
+            for(int j = 0; j < col; j++){
+                dp[j] = fmax(dp[j], (j > 0? dp[j - 1] : 0)) + grid[i][j];
+            }
+        }
+        return dp[col - 1];
+}
