@@ -124,3 +124,218 @@ int makeConnected(int n, int** connections, int connectionsSize, int* connection
 	return part - 1;
 }
 
+
+/*
+面试题 17.07. 婴儿名字
+难度中等0
+每年，政府都会公布一万个最常见的婴儿名字和它们出现的频率，也就是同名婴儿的数量。有些名字有多种拼法，例如，John 和 Jon 本质上是相同的名字，但被当成了两个名字公布出来。给定两个列表，一个是名字及对应的频率，另一个是本质相同的名字对。设计一个算法打印出每个真实名字的实际频率。注意，如果 John 和 Jon 是相同的，并且 Jon 和 Johnny 相同，则 John 与 Johnny 也相同，即它们有传递和对称性。
+在结果列表中，选择字典序最小的名字作为真实名字。
+示例：
+输入：names = ["John(15)","Jon(12)","Chris(13)","Kris(4)","Christopher(19)"], synonyms = ["(Jon,John)","(John,Johnny)","(Chris,Kris)","(Chris,Christopher)"]
+输出：["John(27)","Chris(36)"]
+
+*/
+//////////////////////////////
+#define STR_LEN     50
+
+typedef struct _info_st
+{
+    char name[STR_LEN];
+    char *root;
+    int id;
+    int cnt;
+}info_st;
+
+typedef struct _hash_st
+{
+    char *key;
+    int id;
+    UT_hash_handle hh;
+}hash_st;
+
+
+struct UnionFind {
+	int *father;
+	int *rank;
+};
+
+struct UnionFind* uf_init(int size)
+{
+	struct UnionFind* obj = (struct UnionFind*)malloc(sizeof(struct UnionFind));
+	obj->father = (int *)calloc(size, sizeof(int));
+	obj->rank = (int *)calloc(size, sizeof(int));
+	for (int i = 0; i < size; ++i) {
+		obj->father[i] = i;//init root is self
+		obj->rank[i] = 0;
+	}
+
+	return obj;
+}
+
+
+/*find root of the node*/
+int uf_findRoot(struct UnionFind* obj, int x)
+{
+    if (x != obj->father[x]) {//x有father
+        obj->rank[obj->father[x]] += obj->rank[x];
+        obj->father[x] = uf_findRoot(obj, obj->father[x]);
+    }
+
+/*最终找到祖宗为自己的家伙*/
+    return obj->father[x];
+}
+
+
+/* if in one union*/
+bool uf_isOneUnion(struct UnionFind* obj, int x, int y)
+{
+	 return uf_findRoot(obj, x) == uf_findRoot(obj, y);
+}
+
+
+void uf_union(struct UnionFind* obj, int i, int j)
+{
+    int x = uf_findRoot(obj, i), y = uf_findRoot(obj, j);
+    if (obj->rank[x] <= obj->rank[y])
+        obj->father[x] = y;
+    else
+        obj->father[y] = x;
+
+    if (obj->rank[x] == obj->rank[y] && x!=y)
+        obj->rank[y]++;
+}
+
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+//【算法思路】双指针+字符串+并查集。算法核心是并查集，辅助字符串处理。
+// 1.字符串解析，将名字+序号+人数组成数组，用于序号查找名字，以及结果的处理
+// 2.建立名字和序号的hash，用于名字查找序号
+// 3.根据重名表，将名字对应到序号，进行并查操作
+// 4.将并查结果，利用1的表格进行汇总，并输出结果
+char** trulyMostPopular(char** names, int namesSize,
+char** synonyms, int synonymsSize, int* returnSize)
+{
+	if(namesSize == 0) {
+		*returnSize = 0;
+		return NULL;
+	}
+
+	info_st *info = (info_st *)calloc(namesSize, sizeof(info_st));
+	hash_st *pool = (hash_st *)calloc(namesSize, sizeof(hash_st));
+	int psize = 0;
+
+	hash_st *head = NULL;
+
+	for(int i = 0; i < namesSize; i++) {
+		char *iterator;
+		char *p;
+		iterator = strtok_r(names[i], "(", &p);
+		strcpy(info[i].name, iterator);
+
+		iterator = strtok_r(NULL, ")", &p);
+		info[i].cnt = atoi(iterator);
+
+		info[i].root = info[i].name;
+		info[i].id = i;
+
+		//建立hash表
+		hash_st *entry = &pool[psize];
+		entry->key = info[i].name;
+		entry->id = i;
+		hash_st *tmph;
+		HASH_FIND(hh, head, entry->key, strlen(info[i].name), tmph);
+		if(tmph == NULL) {
+			HASH_ADD_KEYPTR(hh, head, entry->key, strlen(info[i].name), entry);
+			psize++;
+		}
+		//printf("%d: %s, %d   ", info[i].id, info[i].name, info[i].cnt);
+	}
+
+    //printf("\n");
+
+	struct UnionFind* obj = uf_init(namesSize);
+
+    //遍历重名表，建立并查关系
+    for(int i = 0; i < synonymsSize; i++) {
+        int slen = strlen(synonyms[i]);
+
+        char tmps[2][STR_LEN];
+
+	char *iterator;
+	char *p;
+	iterator = strtok_r(synonyms[i], ",", &p);
+	strcpy(tmps[0],iterator + 1);
+
+	strcpy(tmps[1], p);
+	int len = strlen(tmps[1]);
+	tmps[1][len - 1] = '\0';
+
+        //printf("%s; %s ", tmps[0], tmps[1]);
+
+
+        int id[2];
+        bool find = true;
+        for(int j = 0; j < 2; j++) {
+            hash_st *tmph;
+            HASH_FIND(hh, head, tmps[j], strlen(tmps[j]), tmph);
+            if(tmph == NULL) {
+                find = false;
+                break;
+            }
+
+            id[j] = tmph->id;
+        }
+
+        if(find == false)
+        {
+            continue;
+        }
+
+        printf("%d; %d\n", id[0], id[1]);
+
+	uf_union(obj, id[0], id[1]);
+    }
+
+
+    printf("\n");
+
+
+    //将归并结果进行整理
+    int rsize = 0;
+    for(int i = 0; i < namesSize; i++) {
+	 int ff = uf_findRoot(obj, i);
+        //刷新根名字
+        if(strcmp(info[i].name, info[ff].root) < 0)
+        {
+            info[ff].root = info[i].name;
+        }
+
+        if(i == ff)
+        {
+            rsize++;
+            continue;
+        } else {
+		//刷新根数据
+		info[ff].cnt += info[i].cnt;
+        }
+    }
+
+    //输出最终结果
+    char **ret = (char **)calloc(rsize, sizeof(char *));
+    int rid = 0;
+
+	for (int i = 0; i < namesSize; i++) {
+		if(i == uf_findRoot(obj, i)) {
+			ret[rid] = info[i].root;
+			char tmp[STR_LEN] = {{'\0'}};
+			sprintf(tmp, "(%d)", info[i].cnt);
+			strcat(ret[rid], tmp);
+			printf("%s    ", ret[rid]);
+			rid++;
+		}
+	}
+    *returnSize = rsize;
+    return ret;
+}
+

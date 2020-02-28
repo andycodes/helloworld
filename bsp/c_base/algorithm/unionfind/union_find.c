@@ -9,56 +9,56 @@ Q:
 2)	需要多少条边可以成为连通图(即计算有多少个 parent[i] == i;)
 */
 
-#define MAX 1024
+struct UnionFind {
+	int *father;
+	int *rank;
+};
 
-int father[MAX];   /* father[x]表示x的父节点 */
-int rank[MAX];     /* rank[x]表示x的秩 */
-
-void uf_init(int n)
+struct UnionFind* uf_init(int size)
 {
-	for (int i = 0; i < n; ++i) {
-		//父节点为自己
-		father[i] = i;
-		//秩为0
-		rank[i] = 0;
+	struct UnionFind* obj = (struct UnionFind*)malloc(sizeof(struct UnionFind));
+	obj->father = (int *)calloc(size, sizeof(int));
+	obj->rank = (int *)calloc(size, sizeof(int));
+	for (int i = 0; i < size; ++i) {
+		obj->father[i] = i;//init root is self
+		obj->rank[i] = 0;
 	}
+
+	return obj;
 }
 
 
-/* 查找x元素所在的集合,回溯时压缩路径
-就是找到parent指针的源头*/
-int uf_findRoot(int x)
+/*find root of the node*/
+int uf_findRoot(struct UnionFind* obj, int x)
 {
-    if (x != father[x])// x不是自身的父亲，即x不是该集合的祖宗
-    {
-        rank[father[x]] += rank[x];
-        //递归，以找到最久远祖先
-        //回溯时压缩路径：路径上的所有子孙节
-        //点都指向最久远祖先
-        father[x] = uf_findRoot(father[x]);//查找x的祖先直到找到代表,于是顺手路径压缩
+    if (x != obj->father[x]) {//x有father
+        obj->rank[obj->father[x]] += obj->rank[x];
+        obj->father[x] = uf_findRoot(obj, obj->father[x]);
     }
-    return father[x];
+
+/*最终找到祖宗为自己的家伙*/
+    return obj->father[x];
 }
 
 
 /* if in one union*/
-bool uf_isOneUnion(int x, int y)
+bool uf_isOneUnion(struct UnionFind* obj, int x, int y)
 {
-	 return uf_findRoot(x) == uf_findRoot(y);
+	 return uf_findRoot(obj, x) == uf_findRoot(obj, y);
 }
 
 
-void uf_union(int i, int j)
+void uf_union(struct UnionFind* obj, int i, int j)
 {
-    int x = uf_findRoot(i), y = uf_findRoot(j);    //先找到两个根节点
-    if (rank[x] <= rank[y])
-        father[x] = y;
+    int x = uf_findRoot(obj, i), y = uf_findRoot(obj, j);
+    if (obj->rank[x] <= obj->rank[y])
+        obj->father[x] = y;
     else
-        father[y] = x;
-    if (rank[x] == rank[y] && x!=y)
-        rank[y]++;                   //如果深度相同且根节点不同，则新的根节点的深度+1
-}
+        obj->father[y] = x;
 
+    if (obj->rank[x] == obj->rank[y] && x!=y)
+        obj->rank[y]++;
+}
 
 
 /*
