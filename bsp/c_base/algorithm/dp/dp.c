@@ -4,6 +4,13 @@
 #include <math.h>
 
 /*
+特性1:最优子结构;每个阶段的状态或值都是通过前面阶段的状态或值推导出来的,满足.
+特性2:无后效性;每个阶段的状态值一旦确定之后,是不受后面阶段状态值所影响的,满足.
+特性3:重复子问题;从递归解法中就能看出来有重复子问题的计算,满足.
+
+*/
+
+/*
 定理:
 二维矩阵前缀和:
 sum[i][j] = sum[i][j - 1] + sum[i - 1][j] - sum[i - 1][j - 1] + a[i][j];
@@ -461,6 +468,121 @@ int maxValue(int** grid, int gridSize, int* gridColSize){
         }
         return dp[col - 1];
 }
+
+/*
+62. 不同路径
+难度中等439收藏分享切换为英文关注反馈
+一个机器人位于一个 m x n 网格的左上角 （起始点在下图中标记为"Start" ）。
+机器人每次只能向下或者向右移动一步。机器人试图达到网格的右下角（在下图中标记为"Finish"）。
+问总共有多少条不同的路径？
+
+例如，上图是一个7 x 3 的网格。有多少可能的路径？
+说明：m 和 n 的值均不超过 100。
+示例 1:
+输入: m = 3, n = 2
+输出: 3
+解释:
+从左上角开始，总共有 3 条路径可以到达右下角。
+1. 向右 -> 向右 -> 向下
+2. 向右 -> 向下 -> 向右
+3. 向下 -> 向右 -> 向右
+
+*/
+
+/*
+思路：如果大家都学过递归,就知道递归有重复计算的问题,我们上面写的递归在遇到m和n比较大的时候,
+同样会超过限制时间。那我们可以加一个备忘录,把已经计算出来的结果保存起来,
+下次需要计算同样的递归时,直接从备忘录中取出使用
+
+*/
+int cycle(int i,int j)
+{
+	if(i == 0 || j == 0) return 1;
+	return cycle(i-1,j)+cycle(i,j-1);
+}
+
+
+int uniquePaths(int m, int n)
+{
+	return cycle(m-1,n-1);
+}
+
+int[][] dp = new int[100][100];
+ int uniquePaths(int m, int n) {
+    return cycle(m-1,n-1);
+}
+ int cycle(int i,int j){
+    if(i == 0 || j == 0) return 1;
+    if(dp[i][j] != 0) return dp[i][j];
+    dp[i][j] = cycle(i-1,j)+cycle(i,j-1);
+    return dp[i][j];
+}
+
+
+/*
+dp[i][j] = dp[i - 1][j]* dp[i][j - 1]) ;
+
+*/
+
+int uniquePaths(int m, int n){
+	int dp[m][n];
+	memset(dp, 0, sizeof(dp));
+
+	dp[0][0] = 1;
+	for (int i = 1; i < m; i++) {//first col
+		dp[i][0] = 1;
+	}
+	for (int j = 1; j < n; j++) {//first row
+		dp[0][j] = 1;
+	}
+	for (int i = 1; i < m; i++) {
+		for (int j = 1; j < n; j++) {
+			dp[i][j] = dp[i - 1][j]+ dp[i][j - 1] ;
+		}
+	}
+
+	return dp[m- 1][n - 1];
+}
+
+/*
+	外层循环走一次(内层循环走一圈)的时候，
+	表示第一行第i列的总可能性
+	外层循环走两次(内层循环走两圈)的时候，
+	表示第二行第i列的总可能性
+
+*/
+int uniquePaths(int m, int n)
+{
+   int dp[n];
+    for(int i = 0; i < n; i++) {
+        dp[i] = 1;
+    }
+
+  for(int i = 1; i < m; i++) {
+    for(int j = 1; j < n; j++) {
+      dp[j] = dp[j] + dp[j - 1];
+    }
+  }
+
+  return dp[n - 1];
+};
+
+/*排列组合*/
+int uniquePaths(int m, int n) {
+    int N = n + m - 2;
+    int k = m - 1;
+    long res = 1;
+    for (int i = 1; i <= k; i++)
+        res = res * (N - k + i) / i;
+    return (int) res;
+}
+
+
+
+
+
+
+
 
 /*
 LCS的模板
