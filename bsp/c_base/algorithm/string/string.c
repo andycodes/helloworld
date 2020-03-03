@@ -5,6 +5,11 @@
 #include "../../flag_type.h"
 #include "../math/math.h"
 
+void digit2Str_sprintf(char *str, int digit)
+{
+	sprintf(str, "%d", digit);
+	sprintf(str, "%x", digit);
+}
 /*
 isdigit
 
@@ -16,13 +21,6 @@ isdigit
 
 函数返回: 是返回非0,否则返回0
 */
-void digit2Str_sprintf(char *str, int digit)
-{
-	sprintf(str, "%d", digit);
-	sprintf(str, "%x", digit);
-}
-
-
 int isdigit(char ch)
 {
 	if (ch < '0' || ch > '9')

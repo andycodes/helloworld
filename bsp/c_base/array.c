@@ -89,12 +89,14 @@ void array_vla(int tmp)
 
 
 /*
-给定一个数组 A，将其划分为两个不相交（没有公共元素）的连续子数组 left 和 right， 使得：
+给定一个数组 A，将其划分为两个不相交（没有公共元素）
+的连续子数组 left 和 right， 使得：
 
 left 中的每个元素都小于或等于 right 中的每个元素。
 left 和 right 都是非空的。
 left 要尽可能小。
-在完成这样的分组后返回 left 的长度。可以保证存在这样的划分方法。
+在完成这样的分组后返回 left 的长度。
+可以保证存在这样的划分方法。
 */
 int partitionDisjoint(int* A, int ASize){
 	int *left_max = malloc(ASize * sizeof(int));
@@ -122,19 +124,30 @@ int partitionDisjoint(int* A, int ASize){
 
 
 /*
-给定一个包含 m × n 个格子的面板，每一个格子都可以看成是一个细胞。每个细胞具有一个初始状态 live（1）即为活细胞， 或 dead（0）即为死细胞。每个细胞与其八个相邻位置（水平，垂直，对角线）
+289. 生命游戏
+给定一个包含 m × n 个格子的面板，
+每一个格子都可以看成是一个细胞。
+每个细胞具有一个初始状态 live（1）即为活细胞，
+或 dead（0）即为死细胞。每个细胞与其八个相邻位
+置（水平，垂直，对角线）
 的细胞都遵循以下四条生存定律：
 
-如果活细胞周围八个位置的活细胞数少于两个，则该位置活细胞死亡；
-如果活细胞周围八个位置有两个或三个活细胞，则该位置活细胞仍然存活；
-如果活细胞周围八个位置有超过三个活细胞，则该位置活细胞死亡；
+如果活细胞周围八个位置的活细胞数少于两个，
+则该位置活细胞死亡；
+如果活细胞周围八个位置有两个或三个活细胞，
+则该位置活细胞仍然存活；
+如果活细胞周围八个位置有超过三个活细胞，
+则该位置活细胞死亡；
 如果死细胞周围正好有三个活细胞，则该位置死细胞复活；
-根据当前状态，写一个函数来计算面板上细胞的下一个（一次更新后的）状态。下一个状态是通过将上述规则同时应用于当前状态下的每个细胞所形成的，其中细胞的出生和死亡是同时发生的。
+根据当前状态，写一个函数来计算面板上
+细胞的下一个（一次更新后的）状态。
+下一个状态是通过将上述规则同时应用于
+当前状态下的每个细胞所形成的，
+其中细胞的出生和死亡是同时发生的。
 */
 void gameOfLife(int** board, int boardSize, int* boardColSize){
     int m = boardSize;
     int n = *boardColSize;
-    int sum = 0;
     int midArr[m+2][n+2];
 
     for(int i = 0; i < (m +2); i++) {
@@ -148,19 +161,29 @@ void gameOfLife(int** board, int boardSize, int* boardColSize){
             midArr[i + 1][j + 1] = board[i][j];
         }
     }
+
     for(int i = 0; i < m; i++) {
         for(int j = 0; j < n; j++) {
-            int x = i + 1;
-            int y = j + 1;
-            sum = midArr[x - 1][y] + midArr[x + 1][y] + midArr[x][y - 1] + midArr[x][y + 1] + midArr[x - 1][y - 1] + midArr[x + 1][y + 1] + midArr[x + 1][y - 1] + midArr[x - 1][y + 1];
-            if((sum == 3) || ((board[i][j] == 1) && (sum == 2))) {
-                board[i][j] = 1;
-            } else {
-                board[i][j] = 0;
-            }
+		int x = i + 1;
+		int y = j + 1;
+
+		int d[8][2] = {{0,1},{1,1},{1,0},{1,-1},
+			{0,-1},{-1,-1},{-1,0},{-1,1}};
+		 int sum = 0;
+		for (int k = 0; k < 8; k++) {
+			int nx = x + d[k][0];
+			int ny = y + d[k][1];
+			sum += midArr[nx][ny];
+		}
+		if((sum == 3) || ((board[i][j] == 1) && (sum == 2))) {
+			board[i][j] = 1;
+		} else {
+			board[i][j] = 0;
+		}
         }
     }
 }
+
 
 /*
 
