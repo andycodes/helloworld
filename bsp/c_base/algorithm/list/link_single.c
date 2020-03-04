@@ -19,7 +19,9 @@ void traverse(ListNode head) {
 #include <string.h>
 #include <stdlib.h>
 
-#include "../../flag_type.h"
+//#include "../../flag_type.h"
+#include "flag_type.h"
+
 
 typedef  struct ListNode {
       int val;
@@ -28,7 +30,7 @@ typedef  struct ListNode {
 
 /*
   	head|first node|.........|tail|
- idx:    0  |      1      |.........|n   |
+ idx:        |      0      |.........|n -1   |
 
 */
 
@@ -131,53 +133,26 @@ int  slink_pop_last(struct ListNode * head)
 }
 
 
-/** Add a node of value val before the idx-th node in the linked list.
-If idx equals to the length of linked list,
-the node will be appended to the end of linked list.
-If idx is greater than the length, the node will not be inserted. */
-void slink_insert_before_idx(struct ListNode *head, int idx, int val)
-{
-    int i = 0;
-
-    if(idx < 0){
-        slink_push_first(head, val);
-        return;
-    }
-
-    struct ListNode * newNode = (struct ListNode *)malloc(sizeof(struct ListNode));
-    newNode->val = val;
-
-    struct ListNode * entry = head;
-    while(entry !=  NULL) {
-            if(i++ == idx){
-                newNode->next = entry->next;
-                entry->next = newNode;
-                break;
-            }
-            entry = entry->next;
-    }
-}
-
-void  slink_insert_before_idx2(struct ListNode * head,int idx,int val)
+void  slink_insert_before_idx(struct ListNode * head,int idx,int val)
 {
 	if(idx < 0){
 		slink_push_first(head, val);
 		return;
 	}
 
-	struct ListNode * entry = head;//创建临时结点entry
+	struct ListNode * entry = head;
 	//首先找到要插入位置的上一个结点
 	for (int i = 0; i < idx - 1; i++) {
-		if (entry==NULL) {
+		if (entry == NULL) {
 			printf("%s err\n", __func__);
 			return;
 		}
+
 		entry = entry->next;
 	}
-	//创建插入结点c
+
 	struct ListNode * newNode =(struct ListNode *)malloc(sizeof(struct ListNode));
 	newNode->val = val;
-	//向链表中插入结点
 	newNode->next = entry->next;
 	entry->next = newNode;
 }
@@ -189,7 +164,7 @@ int slink_get_val_by_idx(struct ListNode * head, int idx)
     struct ListNode * entry = head;
 
     while(entry->next != NULL) {
-        if(i++ == idx){
+        if(i++ == idx) {
             return entry->next->val;
         }
         entry = entry->next;
@@ -201,26 +176,32 @@ int slink_get_val_by_idx(struct ListNode * head, int idx)
 
 void slink_amend_val(struct ListNode * head, int idx, int newVal)
 {
-	struct ListNode * entry = head;
-	entry = entry->next;//tamp指向首元结点
-	for (int i = 1; i< idx; i++) {
-		entry = entry->next;
-	}
-	entry->val = newVal;
+    int i = 0;
+    struct ListNode * entry = head;
+
+    while(entry->next != NULL) {
+        if(i++ == idx) {
+		entry->next->val = newVal;
+            return ;
+        }
+        entry = entry->next;
+    }
 }
 
 
 int slink_get_idx_by_val(struct ListNode *head, int val)
 {
-    struct ListNode *t=head;
+    struct ListNode *entry = head;
     int i = 1;
-    while (t->next != NULL) {
-        t = t->next;
-        if (t->val==val) {
+    while (entry->next != NULL) {
+        entry = entry->next;
+        if (entry->val == val) {
             return i;
         }
+
         i++;
     }
+
     return -1;
 }
 
@@ -266,47 +247,7 @@ void slink_del_by_idx(struct ListNode * head, int idx)
 }
 
 
-void slink_del_by_idx2(struct ListNode * head, int idx)
-{
-	struct ListNode *entry = head;
-	//遍历到被删除结点的上一个结点
-	for (int i = 0; i< idx - 1; i++) {
-		entry = entry->next;
-	}
-	struct ListNode * del = entry->next;//单独设置一个指针指向被删除结点，以防丢失
-	entry->next = entry->next->next;//删除某个结点的方法就是更改前一个结点的指针域
-	free(del);//手动释放该结点，防止内存泄漏
-	return ;
-}
-
-
-void slink_del_by_value(struct ListNode *head, int value)
-{
-	struct ListNode *node1 = head;
-	struct ListNode *node2 = NULL;
-
-	if (head == NULL)
-		return;
-
-	if (node1->val == value) {
-		head = head->next;
-		free(node1);
-		return;
-	}
-
-	while (node1 != NULL) {
-		node2 = node1->next;
-		if (node2->val == value) {
-			node1->next = node2->next;
-			free(node2);
-			break;
-		}
-		node1 = node1->next;
-	}
-}
-
-
-void slink_del_by_value2(struct ListNode* head, int val)
+void slink_del_by_value(struct ListNode* head, int val)
 {
 /*
 删除值相同的头结点后，
@@ -337,22 +278,13 @@ void slink_del_by_value2(struct ListNode* head, int val)
 
 void slink_display(struct ListNode *head)
 {
-    struct ListNode *entry = head;
-    while (entry->next != NULL) {
-        entry = entry->next;
-        printf("%d ",entry->val);
-    }
-    printf("\n");
-}
-
-void slink_display2(struct ListNode *pHead)
-{
-    while( pHead != NULL)
-    {
-        printf("%d ", pHead->val);
-        pHead = pHead->next;
-    }
-    printf("\n");
+	struct ListNode *entry = head;
+	int id = 0;
+	while (entry->next != NULL) {
+		entry = entry->next;
+		printf("[%d-%d]",id++, entry->val);
+	}
+	printf("\n");
 }
 
 
@@ -708,15 +640,25 @@ int kthToLast(struct ListNode* head, int k){
 
 int main()
 {
-    struct ListNode * head = slink_init();
+	struct ListNode * head = slink_init();
+	slink_push_first(head, 1);
+	slink_push_last(head, 3);
+	slink_display(head);
+	slink_insert_before_idx(head, 2, 2);
+	slink_display(head);
+	printf("slink_get_val_by_idx: %d\n", slink_get_val_by_idx(head, 2));
+	slink_amend_val(head, 2, 5);
+	printf("slink_get_val_by_idx: %d\n", slink_get_val_by_idx(head, 2));
+	printf("slink_get_idx_by_val: %d\n", slink_get_idx_by_val(head, 5));
+	slink_del_by_idx(head, 1);
+	slink_display(head);
+	return 0;
 
-    slink_push_first(head,1);
-    slink_push_last(head,3);
-    slink_insert_before_idx(head,1,2);
-    int ret = slink_get_val_by_idx(head,1);
-    printf("%d\n",ret);
-    slink_del_by_idx(head,1);
-    ret = slink_get_val_by_idx(head,1);
-    printf("%d\n",ret);
+	slink_insert_before_idx(head,1,2);
+	int ret = slink_get_val_by_idx(head,1);
+	printf("%d\n",ret);
+	slink_del_by_idx(head,1);
+	ret = slink_get_val_by_idx(head,1);
+	printf("%d\n",ret);
 }
 
