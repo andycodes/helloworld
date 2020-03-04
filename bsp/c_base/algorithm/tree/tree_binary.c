@@ -5,14 +5,31 @@ struct TreeNode {
     struct TreeNode *right;
 };
 
+/*
+Invert a binary tree.
 
-struct TreeNode* invertTree(struct TreeNode* root){
-    if(root==NULL)
-			return NULL;
-    struct TreeNode * ptmpNode = root->left;
-    root->left = invertTree(root->right);
-    root->right = invertTree(ptmpNode);
-    return root;
+     4
+   /   \
+  2     7
+ / \   / \
+1   3 6   9
+to
+
+     4
+   /   \
+  7     2
+ / \   / \
+9   6 3   1
+*/
+struct TreeNode* invertTree(struct TreeNode* root)
+{
+	if(root == NULL)
+		return NULL;
+
+	struct TreeNode * ptmpNode = root->left;
+	root->left = invertTree(root->right);
+	root->right = invertTree(ptmpNode);
+	return root;
 }
 
 /*
@@ -91,7 +108,22 @@ int minDepth(struct TreeNode *root)
         return leftDepth < rightDepth ? leftDepth: rightDepth;
 }
 
-
+/*
+Input:
+	Tree 1                     Tree 2
+          1                         2
+         / \                       / \
+        3   2                     1   3
+       /                           \   \
+      5                             4   7
+Output:
+Merged tree:
+	     3
+	    / \
+	   4   5
+	  / \   \
+	 5   4   7
+*/
 /*
 AB两棵树 同步递归 用B更新A并返回A递归过程:
 如果A当前节点为空 返回B的当前节点
@@ -169,7 +201,7 @@ int** levelOrder(struct TreeNode* root, int* returnSize, int** returnColumnSizes
 
 	struct aqueue_load load;
 	load.node = root;
-	aqueue_push(aqueue,  load);
+	aqueue_push_last_val(aqueue,  load);
 
         int depth = GetTreeDepth(root);
         *returnSize = depth;
@@ -188,7 +220,7 @@ int** levelOrder(struct TreeNode* root, int* returnSize, int** returnColumnSizes
                 while (level_size--) {
                         struct TreeNode* node;
 
-			struct aqueue_load pop = aqueue_pop(aqueue);
+			struct aqueue_load pop = aqueue_pop_first_val(aqueue);
                        node = pop.node;
                         /* add node->val to res */
                         matrix[cur_depth][cur] = node->val;
@@ -196,13 +228,13 @@ int** levelOrder(struct TreeNode* root, int* returnSize, int** returnColumnSizes
                         if (node->left) {
 				struct aqueue_load next;
 				next.node = pop.node->left;
-				aqueue_push(aqueue,  next);
+				aqueue_push_last_val(aqueue,  next);
 			}
 
                         if (node->right) {
 				struct aqueue_load next;
 				next.node = pop.node->right;
-				aqueue_push(aqueue,  next);
+				aqueue_push_last_val(aqueue,  next);
 			}
 
                     cur++;
@@ -214,21 +246,23 @@ int** levelOrder(struct TreeNode* root, int* returnSize, int** returnColumnSizes
 
 
 #define MaxSize 1000
-void dfs(struct TreeNode* root, int** result, int* ColumnSizes, int i, int* maxh) {
-    if (root != NULL) {
-        result[i][ColumnSizes[i]] = root->val;
-        ColumnSizes[i]++;
-        if(i+1>*maxh)
-            *maxh = i+1;
-        dfs(root->left, result, ColumnSizes, i + 1, maxh);
-        dfs(root->right, result, ColumnSizes, i + 1, maxh);
-    }
+void dfs(struct TreeNode* root, int** result, int* ColumnSizes, int i, int* maxh)
+{
+	if (root != NULL) {
+		result[i][ColumnSizes[i]] = root->val;
+		ColumnSizes[i]++;
+		if(i+1>*maxh)
+			*maxh = i+1;
+		dfs(root->left, result, ColumnSizes, i + 1, maxh);
+		dfs(root->right, result, ColumnSizes, i + 1, maxh);
+	}
 }
 
 int** levelOrder(
 		  struct TreeNode* root,
                  int* returnSize,
-                 int** returnColumnSizes) {
+                 int** returnColumnSizes)
+{
     int** result = (int**)malloc(sizeof(int*) * MaxSize);
     for (int i = 0; i < MaxSize; i++)
         result[i] = (int*)malloc(sizeof(int) * MaxSize);
