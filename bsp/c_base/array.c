@@ -223,8 +223,8 @@ int cmp_struct( const void *a ,const void *b){
 
 
 int maxProfitAssignment(int* difficulty, int difficultySize,
-int* profit, int profitSize, int* worker, int workerSize){
-
+int* profit, int profitSize, int* worker, int workerSize)
+{
 	if (difficulty == NULL || difficultySize <= 0 || profit == NULL ||
 		profitSize <= 0 || worker == NULL || workerSize <= 0)
 		return 0;
@@ -318,11 +318,14 @@ int** indexPairs(char * text, char ** words, int wordsSize,
 }
 
 /*
-给定一个有 n 个整数的数组，你需要找到满足以下条件的三元组 (i, j, k) ：
+给定一个有 n 个整数的数组，
+你需要找到满足以下条件的三元组 (i, j, k) ：
 
 0 < i, i + 1 < j, j + 1 < k < n - 1
-子数组 (0, i - 1)，(i + 1, j - 1)，(j + 1, k - 1)，(k + 1, n - 1) 的和应该相等。
-这里我们定义子数组 (L, R) 表示原数组从索引为L的元素开始至索引为R的元素。
+子数组 (0, i - 1)，(i + 1, j - 1)，(j + 1, k - 1)，
+(k + 1, n - 1) 的和应该相等。
+这里我们定义子数组 (L, R) 表示原数组
+从索引为L的元素开始至索引为R的元素。
 
 
 
@@ -372,7 +375,8 @@ bool splitArray(int* nums, int numsSize){
 
 
 /*
-给定一个单词列表和两个单词 word1 和 word2，返回列表中这两个单词之间的最短距离。
+给定一个单词列表和两个单词 word1 和 word2，
+返回列表中这两个单词之间的最短距离。
 
 示例:
 假设 words = ["practice", "makes", "perfect", "coding", "makes"]
@@ -413,9 +417,11 @@ int shortestDistance(char ** words, int wordsSize, char * word1, char * word2){
 	return juli;
 }
 /*
-给定一个单词列表和两个单词 word1 和 word2，返回列表中这两个单词之间的最短距离。
+给定一个单词列表和两个单词 word1 和 word2，
+返回列表中这两个单词之间的最短距离。
 
-word1 和 word2 是有可能相同的，并且它们将分别表示为列表中两个独立的单词。
+word1 和 word2 是有可能相同的，
+并且它们将分别表示为列表中两个独立的单词。
 
 示例:
 假设 words = ["practice", "makes", "perfect", "coding", "makes"].
@@ -514,7 +520,8 @@ int findLonelyPixel(char** picture, int pictureSize, int* pictureColSize){
 
 
 /*
-给你一个无序的数组 nums, 将该数字 原地 重排后使得 nums[0] <= nums[1] >= nums[2] <= nums[3]...。
+给你一个无序的数组 nums, 将该数字 原地
+重排后使得 nums[0] <= nums[1] >= nums[2] <= nums[3]...。
 
 示例:
 
@@ -541,7 +548,12 @@ void wiggleSort(int* nums, int numsSize){
 
 
 /*
-给定一个会议时间安排的数组，每个会议时间都会包括开始和结束的时间 [[s1,e1],[s2,e2],...] (si < ei)，为避免会议冲突，同时要考虑充分利用会议室资源，请你计算至少需要多少间会议室，才能满足这些会议安排。
+给定一个会议时间安排的数组，
+每个会议时间都会包括开始和结束的时间
+[[s1,e1],[s2,e2],...] (si < ei)，为避免会议冲突，
+同时要考虑充分利用会议室资源，
+请你计算至少需要多少间会议室，
+才能满足这些会议安排。
 
 示例 1:
 

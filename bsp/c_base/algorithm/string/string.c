@@ -164,54 +164,48 @@ void substr_test(void)
 	printf("%s\n", dst);
 }
 
-
+/*
 //字符串替换函数
 // 参数说明:
 // in， 源字符串
-// out, 存放最后结果的字符串
-// outlen，out最大的大小
-// src，要替换的字符串
-// dst，替换成什么字符串
-char *strrpl(char *in, char *out, int outlen, const char *src, char *dst)
+// dstStr, 存放最后结果的字符串
+// dstSize，dstStr最大的大小
+// oldSubStr，要替换的字符串
+// newSubStr，替换成什么字符串
+string replace
+*/
+char *strrpl(char *srcStr, char *dstStr, int dstSize,
+const char *oldSubStr, char *newSubStr)
 {
-    char *p = in;
-    unsigned int  len = outlen - 1;
+	char *it = srcStr;
+	unsigned int  len = dstSize - 1;
 
-    // 这几段检查参数合法性
-    if((NULL == src) || (NULL == dst) || (NULL == in) || (NULL == out))
-    {
-        return NULL;
-    }
-    if((strcmp(in, "") == 0) || (strcmp(src, "") == 0))
-    {
-        return NULL;
-    }
-    if(outlen <= 0)
-    {
-        return NULL;
-    }
+	if(oldSubStr == NULL ||newSubStr== NULL || srcStr == NULL ||
+		dstStr  == NULL || dstSize <= 0) {
+		return NULL;
+	}
 
-    while((*p != '\0') && (len > 0))
-    {
-        if(strncmp(p, src, strlen(src)) != 0)
-        {
-            int n = strlen(out);
+	if((strcmp(srcStr, "") == 0) || (strcmp(oldSubStr, "") == 0)) {
+		return NULL;
+	}
 
-            out[n] = *p;
-            out[n + 1] = '\0';
+	while(*it != '\0' && len > 0) {
+		if(strncmp(it, oldSubStr, strlen(oldSubStr)) != 0) {
+			int n = strlen(dstStr);
 
-            p++;
-            len--;
-        }
-        else
-        {
-            strcat(out, dst);
-            p += strlen(src);
-            len -= strlen(dst);
-        }
-    }
+			dstStr[n] = *it;
+			dstStr[n + 1] = '\0';
 
-    return out;
+			it++;
+			len--;
+		} else {
+			strcat(dstStr, newSubStr);
+			it += strlen(oldSubStr);
+			len -= strlen(newSubStr);
+		}
+	}
+
+	return dstStr;
 }
 
 
@@ -229,9 +223,14 @@ void test_strrpl(void)
 子序列
 给定字符串 s 和 t ，判断 s 是否为 t 的子序列。
 
-你可以认为 s 和 t 中仅包含英文小写字母。字符串 t 可能会很长（长度 ~= 500,000），而 s 是个短字符串（长度 <=100）。
+你可以认为 s 和 t 中仅包含英文小写字母。
+字符串 t 可能会很长（长度 ~= 500,000），
+而 s 是个短字符串（长度 <=100）。
 
-字符串的一个子序列是原始字符串删除一些（也可以不删除）字符而不改变剩余字符相对位置形成的新字符串。（例如，"ace"是"abcde"的一个子序列，而"aec"不是）。
+字符串的一个子序列是原始字符串删除
+一些（也可以不删除）字符而不改变剩
+余字符相对位置形成的新字符串。（例如，"ace"是"abcde"的一
+个子序列，而"aec"不是）。
 
 示例 1:
 s = "abc", t = "ahbgdc"
@@ -244,7 +243,8 @@ s = "axc", t = "ahbgdc"
 返回 false.
 
 */
-bool isSubsequence(char * s, char * t){
+bool isSubsequence(char * s, char * t)
+{
 	unsigned int i;
 	unsigned int j;
 	unsigned int s_size = strlen(s);
@@ -299,7 +299,8 @@ void strrev(char* s)
 单词与单词之间永远是以单个空格隔开的
 
 */
-void reverseWords(char* s, int sSize){
+void reverseWords(char* s, int sSize)
+{
     	int len = 0;
 
 	strrev_pos(s, 0, sSize -1);
@@ -330,6 +331,40 @@ char* strcpy(char *to, const char *from) {
     ;
     return to;
 }
+
+
+/*利用或操作 | 和空格将英文字符转换为小写
+('a' | ' ') = 'a'
+('A' | ' ') = 'a'
+*/
+
+/*利用与操作 & 和下划线将英文字符转换为大写
+('b' & '_') = 'B'
+('B' & '_') = 'B'
+*/
+
+/*
+利用异或操作 ^ 和空格进行英文字符大小写互换
+('d' ^ ' ') = 'D'
+('D' ^ ' ') = 'd'
+
+大小写字母相差32,又因为异或重要特性:不进位加法,
+所以大写字母和(1<<5)异或变成变成小写字母,
+小写字母和(1<<5)异或变成大写字母*/
+char *alpha_low_upper( char *Str )
+{
+    char *cp;
+    cp = Str;
+
+    while (*cp != 0)
+    {
+        *cp^=(1<<5);
+        cp++;
+    }
+
+    return Str;
+}
+
 
 /*
 maxlen：表示复制的字符串长度
@@ -388,39 +423,6 @@ unsigned long htonl(unsigned long l)
 }
 
 
-/*利用或操作 | 和空格将英文字符转换为小写
-('a' | ' ') = 'a'
-('A' | ' ') = 'a'
-*/
-
-/*利用与操作 & 和下划线将英文字符转换为大写
-('b' & '_') = 'B'
-('B' & '_') = 'B'
-*/
-
-/*
-利用异或操作 ^ 和空格进行英文字符大小写互换
-('d' ^ ' ') = 'D'
-('D' ^ ' ') = 'd'
-
-大小写字母相差32,又因为异或重要特性:不进位加法,
-所以大写字母和(1<<5)异或变成变成小写字母,
-小写字母和(1<<5)异或变成大写字母*/
-char *str_letter_big_little( char *Str )
-{
-    char *cp;
-    cp = Str;
-
-    while (*cp != 0)
-    {
-        *cp^=(1<<5);
-        cp++;
-    }
-
-    return Str;
-}
-
-
 
 /* 最长带+-符号 小数点的连续数字串*/
 int max_num_in_string(char *inputstr, char *outputstr)
@@ -441,7 +443,7 @@ int max_num_in_string(char *inputstr, char *outputstr)
 	} else if (*s == '.' && numCnt > 0 && pointCnt == 0) {
 		count++;
 		pointCnt = 1;
-	}else if(*s >= '0' && *s <= '9') {/*上面两个分支去掉就是纯数字子串*/
+	}else if(isdigit(*s)) {/*上面两个分支去掉就是纯数字子串*/
 		count++;
 		numCnt++;
 	} else {
@@ -490,7 +492,8 @@ void max_num_in_string_test(void)
 }
 
 /*
-给定一个字符串 s ，找出 至多 包含两个不同字符的最长子串 t 。
+给定一个字符串 s ，找出 至多 包含两个
+不同字符的最长子串 t 。
 
 示例 1:
 
@@ -504,8 +507,8 @@ void max_num_in_string_test(void)
 解释: t 是 "aabbb"，长度为5。
 
 */
-int lengthOfLongestSubstringTwoDistinct(char * s){
-
+int lengthOfLongestSubstringTwoDistinct(char * s)
+{
 	int sSize = strlen(s);
 	if (sSize <= 2)
 		return sSize;
