@@ -232,13 +232,23 @@ int numIslands(char** grid, int gridSize, int* gridColSize){
 529. 扫雷游戏
 让我们一起来玩扫雷游戏！
 
-给定一个代表游戏板的二维字符矩阵。 'M' 代表一个未挖出的地雷，'E' 代表一个未挖出的空方块，'B' 代表没有相邻（上，下，左，右，和所有4个对角线）地雷的已挖出的空白方块，数字（'1' 到 '8'）表示有多少地雷与这块已挖出的方块相邻，'X' 则表示一个已挖出的地雷。
+给定一个代表游戏板的二维字符矩阵。
+'M' 代表一个未挖出的地雷，
+'E' 代表一个未挖出的空方块，
+'B' 代表没有相邻（上，下，左，右，和所有4个对角线）
+地雷的已挖出的空白方块，
+数字（'1' 到 '8'）表示有多少地雷与这块已挖出的方块相邻，
+'X' 则表示一个已挖出的地雷。
 
-现在给出在所有未挖出的方块中（'M'或者'E'）的下一个点击位置（行和列索引），根据以下规则，返回相应位置被点击后对应的面板：
+现在给出在所有未挖出的方块中（'M'或者'E'）的
+下一个点击位置（行和列索引），
+根据以下规则，返回相应位置被点击后对应的面板：
 
 如果一个地雷（'M'）被挖出，游戏就结束了- 把它改为 'X'。
-如果一个没有相邻地雷的空方块（'E'）被挖出，修改它为（'B'），并且所有和其相邻的方块都应该被递归地揭露。
-如果一个至少与一个地雷相邻的空方块（'E'）被挖出，修改它为数字（'1'到'8'），表示相邻地雷的数量。
+如果一个没有相邻地雷的空方块（'E'）被挖出，修改它为（'B'），
+并且所有和其相邻的方块都应该被递归地揭露。
+如果一个至少与一个地雷相邻的空方块（'E'）被挖出，
+修改它为数字（'1'到'8'），表示相邻地雷的数量。
 如果在此次点击中，若无更多方块可被揭露，则返回面板。
 
 
@@ -278,7 +288,7 @@ void  pushNeighborsInQueue(struct queue_blk * queue,
 				struct queue_load load;
 				load.x = nx;
 				load.y = ny;
-				array_queue_push(queue, load);
+				aqueue_push_last(queue, load);
 			}
 		}
 	}
@@ -323,7 +333,7 @@ int* click, int clickSize, int* returnSize, int** returnColumnSizes){
 
 	*returnSize = boardSize;
 
-	struct queue_blk * queue = array_queue_init(boardSize * boardColSize[0]);
+	struct queue_blk * queue = aqueue_init(boardSize * boardColSize[0]);
 	int x = click[0];
 	int y = click[1];
 
@@ -333,10 +343,10 @@ int* click, int clickSize, int* returnSize, int** returnColumnSizes){
 		struct queue_load load;
 		load.x = x;
 		load.y = y;
-		array_queue_push(queue, load);
+		aqueue_push_last(queue, load);
 
-		while(!array_queue_is_empty(queue)) {
-			struct queue_load out = array_queue_pop(queue);
+		while(!aqueue_empty(queue)) {
+			struct queue_load out = aqueue_pop_first(queue);
 			int nums = NeighborsHavenumsM(out.x, out.y, res, boardSize, boardColSize);
 			if (nums > 0) {
 				res[out.x][out.y] = '0' + nums;
@@ -347,7 +357,7 @@ int* click, int clickSize, int* returnSize, int** returnColumnSizes){
 		}
 	}
 
-	array_queue_exit(queue);
+	aqueue_exit(queue);
 	return res;
 }
 
@@ -355,30 +365,39 @@ int* click, int clickSize, int* returnSize, int** returnColumnSizes){
 207. 课程表
 现在你总共有 n 门课需要选，记为 0 到 n-1。
 
-在选修某些课程之前需要一些先修课程。 例如，想要学习课程 0 ，你需要先完成课程 1 ，我们用一个匹配来表示他们: [0,1]
+在选修某些课程之前需要一些先修课程。 例如，想要学习
+课程 0 ，你需要先完成课程 1 ，我们用一个匹配来表示他
+们: [0,1]
 
-给定课程总量以及它们的先决条件，判断是否可能完成所有课程的学习？
+给定课程总量以及它们的先决条件，判断是否可能完成所有
+课程的学习？
 
 示例 1:
 
 输入: 2, [[1,0]]
 输出: true
-解释: 总共有 2 门课程。学习课程 1 之前，你需要完成课程 0。所以这是可能的。
+解释: 总共有 2 门课程。学习课程 1 之前，
+你需要完成课程 0。所以这是可能的。
 
 
 
-1、在开始排序前，扫描对应的存储空间（使用邻接表），将入度为 00 的结点放入队列。
+1、在开始排序前，扫描对应的存储空间（使用邻接表），
+将入度为 00 的结点放入队列。
 
-2、只要队列非空，就从队首取出入度为 00 的结点，将这个结点输出到结果集中，并且将这个结点的所有邻接结点（它指向的结点）的入度减 11，在减 11 以后，如果这个被减 11 的结点的入度为 00 ，就继续入队。
+2、只要队列非空，就从队首取出入度为 00 的结点，
+将这个结点输出到结果集中，并且将这个结点的所有邻接结
+点（它指向的结点）的入度减 11，在减 11 以后，如果这个被
+减 11 的结点的入度为 00 ，就继续入队。
 
-3、当队列为空的时候，检查结果集中的顶点个数是否和课程数相等即可。
+3、当队列为空的时候，检查结果集中的顶点个数是否和
+课程数相等即可。
 
 也可以用DFS 判断是否存在环
 
 */
 bool canFinish(int numCourses, int** prerequisites,
-int prerequisitesSize, int* prerequisitesColSize){
-
+int prerequisitesSize, int* prerequisitesColSize)
+{
 	/*某课的入度可以理解为该课同时有多少个前置课*/
 	int *inDegree = (int *)calloc(numCourses, sizeof(int));
 	for (int i = 0; i < prerequisitesSize; i++) {
@@ -391,7 +410,7 @@ int prerequisitesSize, int* prerequisitesColSize){
 		if (inDegree[i] == 0) {
 			struct aqueue_load load;
 			load.data = i;
-			aqueue_push(queue, load);
+			aqueue_push_last(queue, load);
 		}
 	}
 /*
@@ -400,8 +419,8 @@ int prerequisitesSize, int* prerequisitesColSize){
 	}
 */
 	int cnt = 0;
-	while(!aqueue_is_empty(queue)) {
-		struct aqueue_load out = aqueue_pop(queue);
+	while(!aqueue_empty(queue)) {
+		struct aqueue_load out = aqueue_pop_first(queue);
 		cnt++;
 		for (int i = 0 ; i < prerequisitesSize; i++) {
 			if (prerequisites[i][1] == out.data) {
@@ -410,7 +429,7 @@ int prerequisitesSize, int* prerequisitesColSize){
 				if (inDegree[x] == 0) {
 					struct aqueue_load load;
 					load.data = x;
-					aqueue_push(queue, load);
+					aqueue_push_last(queue, load);
 				}
 			}
 		}

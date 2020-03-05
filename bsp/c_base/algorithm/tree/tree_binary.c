@@ -319,6 +319,7 @@ int dfs(struct TreeNode* root)
 
 	if (root == NULL)
 		return 0;
+
 	left = dfs(root->left);
 	right = dfs(root->right);
 	if (root->left != NULL && root->left->val == root->val && root->right != NULL && root->right->val == root->val) {
