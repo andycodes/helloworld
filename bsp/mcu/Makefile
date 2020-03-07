@@ -11,7 +11,7 @@ else
 CC = gcc
 NM = nm
 OBJDUMP = objdump
-SRC_DIRS = arch/x86 app
+SRC_DIRS = arch/x86 app ut
 endif
 
 LDFLAGS :=
