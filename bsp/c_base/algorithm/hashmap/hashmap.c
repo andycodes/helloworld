@@ -1,3 +1,11 @@
+#ifdef HASHMAP_STR
+#define HASHMAP_NULL NULL
+#endif
+
+#ifdef HASHMAP_INT
+#define HASHMAP_NULL INT_MIN
+#endif
+
 typedef struct{
 	int id;
 #ifdef HASHMAP_STR
@@ -29,12 +37,12 @@ typedef struct hashMap{
 
 unsigned int hashcode_int(HashMap * hashmap, DataType* entry)
 {
-	return abs(entry->key) % hashmap->size;
+	return abs((int)(entry->key)) % hashmap->size;
 }
 
 int hashequal_int(DataType* obj1, DataType* obj2)
 {
-	return obj1->key == obj2->key;
+	return (int)obj1->key == (int)obj2->key;
 }
 
 unsigned int hashcode_str(HashMap * hashmap, DataType* entry)
@@ -50,10 +58,10 @@ unsigned int hashcode_str(HashMap * hashmap, DataType* entry)
 
 int hashequal_str(DataType* obj1, DataType* obj2)
 {
-	if (obj1->key == NULL || obj2->key == NULL)
+	if ((char *)obj1->key == HASHMAP_NULL || (char *)obj2->key == HASHMAP_NULL)
 		return 0;
 
-	return !strcmp(obj1->key,  obj2->key);
+	return !strcmp((char *)obj1->key,  (char *)obj2->key);
 }
 
 /*
@@ -69,28 +77,25 @@ int hashequal_str(DataType* obj1, DataType* obj2)
 
 */
 //将给定的整形数组构建为HashMap,size为数组长度
-HashMap *hashmap_init(unsigned int size, int type)
+HashMap *hashmap_init(unsigned int size, HashCode hashcode, HashEqual hashequal)
 {
 	HashMap *hashmap=(HashMap*)malloc(sizeof(HashMap));
-	switch(type) {
-		case 1:
-			hashmap->hashcode = hashcode_str;
-			hashmap->hashequal = hashequal_str;
-		break;
-		default:
-			hashmap->hashcode = hashcode_int;
-			hashmap->hashequal = hashequal_int;
+	if (hashmap == NULL) {
+		return NULL;
 	}
-
+	hashmap->hashcode = hashcode;
+	hashmap->hashequal = hashequal;
 	hashmap->size = 3 * size;
 	hashmap->table = (HashNode *)calloc(hashmap->size, sizeof(HashNode));
-	for (int i = 0; i < hashmap->size; i++) {
-#ifdef HASHMAP_STR
-		hashmap->table[i].data.key = NULL;
-#else
-		hashmap->table[i].data.key = INT_MIN;
-#endif
+	if (hashmap->table == NULL) {
+		free(hashmap);
+		return NULL;
 	}
+
+	for (int i = 0; i < hashmap->size; i++) {
+		hashmap->table[i].data.key = HASHMAP_NULL;
+	}
+
 	return hashmap;
 }
 
@@ -100,11 +105,15 @@ int hashmap_push(HashMap *hashmap,DataType entry)
      int pos = hashmap->hashcode(hashmap, &entry);
 
      HashNode *pointer=&(hashmap->table[pos]);
-     if(pointer->data.key == INT_MIN) {
+     if(pointer->data.key == HASHMAP_NULL) {
 	 pointer->data = entry;
 	 pointer->data.id = pos;
       }else{
         HashNode *hnode = (HashNode *)calloc(1, sizeof(HashNode));
+	if (hnode == NULL) {
+		return -1;
+	}
+
 	hnode->data = entry;
 	hnode->data.id = pos;
         hnode->next = NULL;
@@ -137,14 +146,15 @@ void hashmap_getValue(HashMap *hashmap, DataType *entry)
 
 
 //f4_hashmap_print
-void hashmap_print(HashMap* hashmap){
+void hashmap_print(HashMap* hashmap)
+{
 	printf("%===========hashmap_print==========\n");
 	int i=0;
 	HashNode *pointer;
 	while(i < hashmap->size) {
 		pointer = &(hashmap->table[i]);
 		while(pointer != NULL) {
-			if (pointer->data.val != INT_MIN)
+			if (pointer->data.val != HASHMAP_NULL)
 				printf("%10d",pointer->data.val);
 			else
 				printf("        [ ]");
@@ -159,25 +169,24 @@ void hashmap_print(HashMap* hashmap){
 }
 
 
-void DestoryHashMap(HashMap *hashmap){
-	int i=0;
+void hashmap_exit(HashMap *hashmap)
+{
+	int i = 0;
 	HashNode *hpointer;
-	while(i <hashmap->size) {
-	    hpointer = hashmap->table[i].next;
-	    while(hpointer != NULL) {
-	        hashmap->table[i].next = hpointer->next;
-	        //逐个释放结点空间，防止内存溢出
-	        free(hpointer);
-	        hpointer = hashmap->table[i].next;
-	}
-	    //换至下一个结点
-	    i++;
+	while(i < hashmap->size) {
+		hpointer = hashmap->table[i].next;
+		while(hpointer != NULL) {
+			hashmap->table[i].next = hpointer->next;
+			free(hpointer);
+			hpointer = hashmap->table[i].next;
+		}
+		i++;
 	}
 
 	free(hashmap->table);
 	free(hashmap);
-	printf("Destory hashmap Success!");
 }
+
 
 int test_int(int argc, char **argv)
 {
@@ -206,7 +215,7 @@ int test_int(int argc, char **argv)
 	hashmap_getValue(hashmap, &entry);
 	printf("hashmap_getValue val[55 is %d]id[%d]\n",entry.val, entry.id);
 
-	DestoryHashMap(hashmap);
+	hashmap_exit(hashmap);
 	return 0;
 }
 

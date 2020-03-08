@@ -242,3 +242,49 @@ int findClosest(char** words, int wordsSize, char* word1, char* word2)
 	return min;
 }
 
+/*
+see hashmap
+*/
+struct it{
+	int num;
+	int idx;
+};
+
+int cmp_struct(const int *a, const int *b)
+{
+	struct it * c = (struct it *)a;
+	struct it * d = (struct it *)b;
+	return c->num - d->num;
+}
+
+int* twoSum(int* nums, int numsSize, int target, int* returnSize)
+{
+	int* res = (int *)calloc(2, sizeof(int));
+	*returnSize = 2;
+
+	struct it obj[numsSize];
+	for (int i = 0; i < numsSize; i++) {
+		obj[i].num = nums[i];
+		obj[i].idx = i;
+	}
+
+	qsort(obj, numsSize, sizeof(obj[0]), cmp_struct);
+	int left = 0;
+	int right = numsSize -1;
+	int sum;
+	while(1) {
+		sum = obj[left].num + obj[right].num;
+		if (sum > target) {
+			right--;
+		}else if(sum < target) {
+			left++;
+		}else {
+			break;
+		}
+	}
+
+	res[0] = obj[left].idx;
+	res[1] = obj[right].idx;
+	return res;
+}
+
