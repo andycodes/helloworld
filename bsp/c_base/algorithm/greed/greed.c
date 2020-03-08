@@ -188,11 +188,6 @@ int balancedStringSplit(char * s) {
 Êä³ö: 2
 
 */
-
-int cmp_int ( const void *a , const void *b){
-        return *(int *)a - *(int *)b;
-}
-
 int findContentChildren(int* g, int gSize, int* s, int sSize){
 
 	int ig = 0;

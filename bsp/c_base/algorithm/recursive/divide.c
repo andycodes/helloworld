@@ -49,35 +49,34 @@ int* CalNum(char* input, int begin, int end, int* num)
     *num = 0;
 
     for (i = begin; i <= end; i++) {
-        //if (input[i] == '+' || input[i] == '-' || input[i] == '*') {
            if (ispunct(input[i])) {
-            leftOut = CalNum(input, begin, i - 1, &leftNum);
-            rightOut = CalNum(input, i + 1, end, &rightNum);
+	            leftOut = CalNum(input, begin, i - 1, &leftNum);
+	            rightOut = CalNum(input, i + 1, end, &rightNum);
 
-            for (m = 0; m < leftNum; m++) {
-                for (n = 0; n < rightNum; n++) {
-                    switch (input[i]) {
-                    case '+':
-                        res = leftOut[m] + rightOut[n];
-                        break;
-                    case '-':
-                        res = leftOut[m] - rightOut[n];
-                        break;
-                    case '*':
-                        res = leftOut[m] * rightOut[n];
-                        break;
-                    default:
-                        break;
-                    }
-                    out[*num] = res;
-                    *num += 1;
-                }
-            }
-            free(leftOut);
-            free(rightOut);
-            leftOut = NULL;
-            rightOut = NULL;
-            isNum = false;
+	            for (m = 0; m < leftNum; m++) {
+	                for (n = 0; n < rightNum; n++) {
+	                    switch (input[i]) {
+	                    case '+':
+	                        res = leftOut[m] + rightOut[n];
+	                        break;
+	                    case '-':
+	                        res = leftOut[m] - rightOut[n];
+	                        break;
+	                    case '*':
+	                        res = leftOut[m] * rightOut[n];
+	                        break;
+	                    default:
+	                        break;
+	                    }
+	                    out[*num] = res;
+	                    *num += 1;
+	                }
+	            }
+	            free(leftOut);
+	            free(rightOut);
+	            leftOut = NULL;
+	            rightOut = NULL;
+	            isNum = false;
         }
     }
 
@@ -177,12 +176,10 @@ A+B构成了{1-2m}的漂亮数组。{1,5,3,7}+{2,6,4,8}={1,5,3,7,2,6,4,8}
 每个 i < j，都不存在 k 满足 i < k < j 使得 A[k] * 2 = A[i] + A[j]
 由于奇数+偶数 = 奇数
 2* [奇数或偶数] = 偶数
-因此，首先奇偶数分开，分成两部分，那么这两部分就满足这个条件，奇数部分为X，偶数部分为Y
-
+因此，首先奇偶数分开，分成两部分，
+那么这两部分就满足这个条件，奇数部分为X，偶数部分为Y
 然后对X进行拆分，将X的所有位向右移动一位，然后拆分奇偶
-
-对Y进行拆分，将Y的所有位向右移动一位，然后拆分奇偶
-
+对Y进行拆分，将Y的所有位向右移动一位，然后拆分奇偶s
 */
 
 int* GetBeautifulArray(int num, int** saveArray, int* size)

@@ -1,5 +1,5 @@
 /**
- * 二叉堆(最小堆)
+优先队列---二叉堆(最小堆)
 最小堆：根结点的键值是所有堆结点键值中最小者，
 且每个结点的值都比其孩子的值小。
 它是一颗完全二叉树,它可以是空
@@ -27,14 +27,7 @@ typedef struct minHeap{
 }minHeap;
 
 
-/*
- * 返回data在二叉堆中的索引
- *
- * 返回值：
- *     存在 -- 返回data在数组中的索引
- *     不存在 -- -1
- */
-long int minHeapGetIndex(minHeap *H, HEAP_DTYPE data)
+int minHeapGetIndex(minHeap *H, HEAP_DTYPE data)
 {
 	long int i=0;
 
@@ -45,67 +38,8 @@ long int minHeapGetIndex(minHeap *H, HEAP_DTYPE data)
 	return -1;
 }
 
-/*
- * 最小堆的向下调整算法
- *
- * 注：数组实现的堆中，
- 第N个节点的左孩子的索引值是(2N+1)，右孩子的索引是(2N+2)。
- *
- * 参数说明：
- *     start -- 被下调节点的起始位置(一般为0，表示从第1个开始)
- *     end   -- 截至范围(一般为数组中最后一个元素的索引)
- */
-static void minheap_filterdown(minHeap *H, long int start, long int end)
-{
-    long int c = start; 	 	// 当前(current)节点的位置
-    long int l = 2*c + 1; 	// 左(left)孩子的位置
-    HEAP_DTYPE tmp = H->heap[c];	// 当前(current)节点的大小
 
-    while(l <= end)
-    {
-		// "l"是左孩子，"l+1"是右孩子
-        if(l < end && H->heap[l] > H->heap[l+1])
-            l++;		// 左右两孩子中选择较小者，即H->heap[l+1]
-        if(tmp <= H->heap[l])
-            break;		//调整结束
-        else
-        {
-            H->heap[c] = H->heap[l];
-            c = l;
-            l = 2*l + 1;
-        }
-    }
-    H->heap[c] = tmp;
-}
-
-
-/*
- * 删除最小堆中的data
- *
- * 返回值：
- *      0，成功
- *     -1，失败
- */
-long int minheap_remove(minHeap *H, long int data)
-{
-	long int index;
-	// 如果"堆"已空，则返回-1
-	if(H->cnt == 0)
-		return -1;
-
-	// 获取data在数组中的索引
-	index = minHeapGetIndex(H, data);
-	if (index==-1)
-		return -1;
-
-	H->heap[index] = H->heap[--H->cnt];		// 用最后元素填补
-	// 从index号位置开始自上向下调整为最小堆
-	minheap_filterdown(H, index, H->cnt-1);
-
-	return 0;
-}
-
-long int isEmpty(minHeap *H)
+int minHeapisEmpty(minHeap *H)
 {
 	return H->cnt == 0;
 }
@@ -116,11 +50,69 @@ long int minHeapGetSize(minHeap *H)
 	return H->cnt;
 }
 
-//小根堆的删除
-long int minHeapPop(minHeap *H) {
+
+/*
+ * 最小堆的向下调整算法
+ *
+ * 注：数组实现的堆中，
+ 第N个节点的
+ 左孩子的索引值是(2N+1)，
+ 右孩子的索引是(2N+2)。
+ *
+ * 参数说明：
+ *     start -- 被下调节点的起始位置(一般为0，表示从第1个开始)
+ *     end   -- 截至范围(一般为数组中最后一个元素的索引)
+ */
+static void minheap_filterdown(minHeap *H, long int start, long int end)
+{
+	long int curNode = start;
+	long int left = 2*curNode + 1;
+	HEAP_DTYPE tmp = H->heap[curNode];
+
+	while(left <= end) {
+		// "left"是左孩子，"left+1"是右孩子
+		if(left < end && H->heap[left] > H->heap[left+1])
+			left++;		// 左右两孩子中选择较小者，即H->heap[left+1]
+
+		if(tmp <= H->heap[left])
+			break;		//调整结束
+		else {
+			H->heap[curNode] = H->heap[left];
+			curNode = left;
+			left = 2*left + 1;
+		}
+	}
+
+	H->heap[curNode] = tmp;
+}
+
+
+/*
+ * 删除最小堆中的data
+ */
+int minheap_remove(minHeap *H, long int data)
+{
+	long int index;
+	if(H->cnt == 0)
+		return  -1;
+
+	index = minHeapGetIndex(H, data);
+	if (index== -1)
+		return -1;
+
+	H->heap[index] = H->heap[--H->cnt];		// 用最后元素填补
+	// 从index号位置开始自上向下调整为最小堆
+	minheap_filterdown(H, index, H->cnt-1);
+
+	return 0;
+}
+
+
+long int minHeapPop(minHeap *H)
+{
 	HEAP_DTYPE min;
 
-	if(isEmpty(H))
+	if(minHeapisEmpty(H))
 		return 0;
 
 	min = H->heap[0];
@@ -132,51 +124,40 @@ long int minHeapPop(minHeap *H) {
 /*
  * 最小堆的向上调整算法(从start开始向上直到0，调整堆)
  *
- * 注：数组实现的堆中，
- 第N个节点的左孩子的索引值是(2N+1)，右孩子的索引是(2N+2)。
- *
  * 参数说明：
  *     start -- 被上调节点的起始位置
  (一般为数组中最后一个元素的索引)
  */
 static void filter_up(minHeap *H, long int start)
 {
-    long int c = start;			// 当前节点(current)的位置
-    long int p = (c-1)/2;		// 父(parent)结点的位置
-    HEAP_DTYPE tmp = H->heap[c];		// 当前节点(current)的大小
+	long int curNode = start;
+	long int root = (curNode - 1)/2;		// 父(parent)结点的位置
+	HEAP_DTYPE tmp = H->heap[curNode];
 
-    while(c > 0)
-    {
-        if(H->heap[p] <= tmp)
-            break;
-        else
-        {
-            H->heap[c] = H->heap[p];
-            c = p;
-            p = (p-1)/2;
-        }
-    }
-    H->heap[c] = tmp;
+	while(curNode > 0) {
+		if(H->heap[root] <= tmp)
+			break;
+		else {
+			H->heap[curNode] = H->heap[root];
+			curNode = root;
+			root = (root-1)/2;
+		}
+	}
+
+	H->heap[curNode] = tmp;
 }
 
-/*
- * 将data插入到二叉堆中
- *
- * 返回值：
- *     0，表示成功
- *    -1，表示失败
- */
-long int minHeapPush(minHeap *H, long int data)
+
+int minHeapPush(minHeap *H, long int data)
 {
-	// 如果"堆"已满，则返回
 	if(H->cnt >= H->size) {
 		printf("heap is full\n");
 		return -1;
 	}
 
-	H->heap[H->cnt] = data;		// 将"数组"插在表尾
-	filter_up(H, H->cnt);			// 向上调整堆
-	H->cnt++;					// 堆的实际容量+1
+	H->heap[H->cnt] = data;// 将"数组"插在表尾
+	filter_up(H, H->cnt);
+	H->cnt++;
 
 	return 0;
 }
@@ -235,7 +216,7 @@ int main(void)
 	printf("\n");
 
 	printf("\n minHeapPop test:\n");
-	while(!isEmpty(H)) {
+	while(!minHeapisEmpty(H)) {
 		printf(" %ld ", minHeapPop(H));
 	}
 
