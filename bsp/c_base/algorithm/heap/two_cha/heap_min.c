@@ -27,27 +27,33 @@ typedef struct minHeap{
 }minHeap;
 
 
-int minHeapGetIndex(minHeap *H, HEAP_DTYPE data)
+int minHeapGetIndex(minHeap *mh, HEAP_DTYPE data)
 {
 	long int i=0;
 
-	for(i=0; i<H->cnt; i++)
-		if (data==H->heap[i])
+	for(i=0; i<mh->cnt; i++)
+		if (data==mh->heap[i])
 			return i;
 
 	return -1;
 }
 
 
-int minHeapisEmpty(minHeap *H)
+bool minHeapisEmpty(minHeap *mh)
 {
-	return H->cnt == 0;
+	return mh->cnt == 0;
+}
+
+bool minHeapisFull(minHeap *mh)
+{
+	printf("heap is full\n");
+	return mh->cnt == mh->size;
 }
 
 
-long int minHeapGetSize(minHeap *H)
+long int minHeapGetSize(minHeap *mh)
 {
-	return H->cnt;
+	return mh->cnt;
 }
 
 
@@ -63,60 +69,60 @@ long int minHeapGetSize(minHeap *H)
  *     start -- 被下调节点的起始位置(一般为0，表示从第1个开始)
  *     end   -- 截至范围(一般为数组中最后一个元素的索引)
  */
-static void minheap_filterdown(minHeap *H, long int start, long int end)
+static void minheap_filterdown(minHeap *mh, long int start, long int end)
 {
 	long int curNode = start;
 	long int left = 2*curNode + 1;
-	HEAP_DTYPE tmp = H->heap[curNode];
+	HEAP_DTYPE tmp = mh->heap[curNode];
 
 	while(left <= end) {
 		// "left"是左孩子，"left+1"是右孩子
-		if(left < end && H->heap[left] > H->heap[left+1])
-			left++;		// 左右两孩子中选择较小者，即H->heap[left+1]
+		if(left < end && mh->heap[left] > mh->heap[left+1])
+			left++;		// 左右两孩子中选择较小者，即mh->heap[left+1]
 
-		if(tmp <= H->heap[left])
+		if(tmp <= mh->heap[left])
 			break;		//调整结束
 		else {
-			H->heap[curNode] = H->heap[left];
+			mh->heap[curNode] = mh->heap[left];
 			curNode = left;
 			left = 2*left + 1;
 		}
 	}
 
-	H->heap[curNode] = tmp;
+	mh->heap[curNode] = tmp;
 }
 
 
 /*
  * 删除最小堆中的data
  */
-int minheap_remove(minHeap *H, long int data)
+int minheap_remove(minHeap *mh, long int data)
 {
 	long int index;
-	if(H->cnt == 0)
+	if(mh->cnt == 0)
 		return  -1;
 
-	index = minHeapGetIndex(H, data);
+	index = minHeapGetIndex(mh, data);
 	if (index== -1)
 		return -1;
 
-	H->heap[index] = H->heap[--H->cnt];		// 用最后元素填补
+	mh->heap[index] = mh->heap[--mh->cnt];		// 用最后元素填补
 	// 从index号位置开始自上向下调整为最小堆
-	minheap_filterdown(H, index, H->cnt-1);
+	minheap_filterdown(mh, index, mh->cnt-1);
 
 	return 0;
 }
 
 
-long int minHeapPop(minHeap *H)
+long int minHeapPop(minHeap *mh)
 {
 	HEAP_DTYPE min;
 
-	if(minHeapisEmpty(H))
+	if(minHeapisEmpty(mh))
 		return 0;
 
-	min = H->heap[0];
-	minheap_remove(H, min);
+	min = mh->heap[0];
+	minheap_remove(mh, min);
 	return min;
 }
 
@@ -128,36 +134,42 @@ long int minHeapPop(minHeap *H)
  *     start -- 被上调节点的起始位置
  (一般为数组中最后一个元素的索引)
  */
-static void filter_up(minHeap *H, long int start)
+static void filter_up(minHeap *mh, long int start)
 {
 	long int curNode = start;
 	long int root = (curNode - 1)/2;		// 父(parent)结点的位置
-	HEAP_DTYPE tmp = H->heap[curNode];
+	HEAP_DTYPE tmp = mh->heap[curNode];
 
 	while(curNode > 0) {
-		if(H->heap[root] <= tmp)
+		if(mh->heap[root] <= tmp)
 			break;
 		else {
-			H->heap[curNode] = H->heap[root];
+			mh->heap[curNode] = mh->heap[root];
 			curNode = root;
 			root = (root-1)/2;
 		}
 	}
 
-	H->heap[curNode] = tmp;
+	mh->heap[curNode] = tmp;
 }
 
-
-int minHeapPush(minHeap *H, long int data)
+/*
+插入操作一般使用的策略叫做上滤（percolate up）：
+新元素在堆中上滤直到找出正确的位置
+（设堆为H,待插入的元素为X,首先在size+1的位置建立一个空穴，
+然后比较X和空穴的父亲的大小，
+把“大的父亲”换下来，以此推进，
+最后把X放到合适的位置）。
+*/
+int minHeapPush(minHeap *mh, long int data)
 {
-	if(H->cnt >= H->size) {
-		printf("heap is full\n");
+	if(minHeapisFull(mh)) {
 		return -1;
 	}
 
-	H->heap[H->cnt] = data;// 将"数组"插在表尾
-	filter_up(H, H->cnt);
-	H->cnt++;
+	mh->heap[mh->cnt] = data;// 将"数组"插在表尾
+	filter_up(mh, mh->cnt);
+	mh->cnt++;
 
 	return 0;
 }
@@ -170,25 +182,32 @@ int minHeapPush(minHeap *H, long int data)
  *     0，表示成功
  *    -1，表示失败
  */
-void minheap_print(minHeap *H)
+void minheap_print(minHeap *mh)
 {
 	long int i;
-	for (i=0; i<H->cnt; i++)
-		printf("%ld ", H->heap[i]);
+	for (i=0; i<mh->cnt; i++)
+		printf("%ld ", mh->heap[i]);
 }
 
 
-minHeap * minheap_init(long int size) {
-	minHeap * H = (minHeap *)malloc(sizeof(minHeap) + sizeof(long int) * size);
-	H->cnt = 0;
-	H->size = size;
-	return H;
+minHeap * minheap_init(long int size)
+{
+	minHeap * mh = (minHeap *)malloc(sizeof(minHeap) + sizeof(HEAP_DTYPE) * size);
+	mh->cnt = 0;
+	mh->size = size;
+	return mh;
 }
 
+
+void minheap_exit(minHeap * mh)
+{
+	free(mh);
+	mh = NULL;
+}
 
 int main(void)
 {
-	minHeap *H = minheap_init(1024);
+	minHeap *mh = minheap_init(1024);
 
 	HEAP_DTYPE a[] = {80, 40, 30, 60, 90, 70, 10, 50, 20};
 	long int i, len=LENGTH(a);
@@ -196,28 +215,28 @@ int main(void)
 	printf("== minHeapPush: ");
 	for(i=0; i<len; i++) {
 		printf("%ld ", a[i]);
-		minHeapPush(H, a[i]);
+		minHeapPush(mh, a[i]);
 	}
 
 	printf("\n== minheap_print: \n10 20 30 50 90 70 40 80 60 :\n");
-	minheap_print(H);
+	minheap_print(mh);
 
 	i=15;
-	minHeapPush(H, i);
+	minHeapPush(mh, i);
 	printf("\n== minHeapPush: %ld", i);
 	printf("\n== minheap_print: \n10 15 30 50 20 70 40 80 60 90:\n");
-	minheap_print(H);
+	minheap_print(mh);
 
 	i=10;
 	minheap_remove(H, i);
 	printf("\n== minheap_remove: %ld", i);
 	printf("\n== minheap_print: \n15 20 30 50 90 70 40 80 60 :\n");
-	minheap_print(H);
+	minheap_print(mh);
 	printf("\n");
 
 	printf("\n minHeapPop test:\n");
-	while(!minHeapisEmpty(H)) {
-		printf(" %ld ", minHeapPop(H));
+	while(!minHeapisEmpty(mh)) {
+		printf(" %ld ", minHeapPop(mh));
 	}
 
 	printf("\n");
