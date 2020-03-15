@@ -49,6 +49,10 @@ int two_dimensional_array_point_access(void)
 		}
 		printf("\n");
 	}
+
+	/*注意这个sizeof的大小*/
+	printf("%ld\n", sizeof(*(p+1)));
+
 	return 0;
 }
 
@@ -595,11 +599,6 @@ void wiggleSort(int* nums, int numsSize){
 重复这一过程，直到 s_ptr 处理完所有会议。
 
 */
-int cmp_int ( const void *a , const void *b){
-        return *(int *)a - *(int *)b;
-}
-
-
 int minMeetingRooms(int** intervals, int intervalsSize, int* intervalsColSize){
 	if (intervals ==  NULL || intervalsSize <= 0 || intervalsColSize == NULL)
 		return 0;

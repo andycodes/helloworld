@@ -29,7 +29,8 @@ int cmp(const void *a, const void *b)
 一、对int类型数组排序
 */
 
-int cmp_int ( const void *a , const void *b){
+int cmp_int ( const void *a , const void *b)
+{
         return *(int *)a - *(int *)b;
 }
 

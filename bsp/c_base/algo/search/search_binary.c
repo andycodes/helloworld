@@ -92,12 +92,7 @@ void arr_print(int num[], int len)
 	printf("\n");
 
 }
-//int
-int cmp_int(const void *a, const void *b)
-{
-	return *(int *)a - *(int *)b;
 
-}
 
 void test_bsearch(void)
 {
