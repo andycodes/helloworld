@@ -697,11 +697,6 @@ candidates 中的数字可以无限制重复被选取。
 减到 00 或者负数的时候，剪枝。其中，
 减到 00 的时候结算，这里 "结算" 的意思是添加到结果集。
 */
-
-/**
-	按层回溯
- */
-
 void dfs(int* candidates, int candidatesSize, int start,
     int target, int* returnSize, int** returnColumnSizes,
     int **res, int *current, int curIdx)
@@ -717,28 +712,27 @@ void dfs(int* candidates, int candidatesSize, int start,
 	for (int i = start; i < candidatesSize &&  candidates[i] <= target; i++) {
 		current[curIdx] = candidates[i];
 		dfs(candidates, candidatesSize, i, target - candidates[i],
-		returnSize, returnColumnSizes, res, current, curIdx + 1);
+			returnSize, returnColumnSizes, res, current, curIdx + 1);
 	}
-
-	return;
 }
 
 int** combinationSum(int* candidates, int candidatesSize,
-    int target, int* returnSize, int** returnColumnSizes) {
+    int target, int* returnSize, int** returnColumnSizes)
+{
+	*returnSize = 0;
+	if (candidates == NULL || candidatesSize <= 0) {
+		return NULL;
+	}
 
-    *returnSize = 0;
-    if (candidates == NULL || candidatesSize <= 0) {
-        return NULL;
-    }
-
-    qsort(candidates, candidatesSize, sizeof(int), cmp_int);
-    int** res = (int**)calloc(1024, sizeof(int*));
-    *returnColumnSizes = (int*)calloc(1024, sizeof(int));
-    int* current = (int*)calloc(1024, sizeof(int));
-    dfs(candidates, candidatesSize, 0, target, returnSize,
-        returnColumnSizes, res, current, 0);
-    return res;
+	qsort(candidates, candidatesSize, sizeof(int), cmp_int);
+	int** res = (int**)calloc(1024, sizeof(int*));
+	*returnColumnSizes = (int*)calloc(1024, sizeof(int));
+	int* current = (int*)calloc(1024, sizeof(int));
+	dfs(candidates, candidatesSize, 0, target, returnSize,
+		returnColumnSizes, res, current, 0);
+	return res;
 }
+
 
 void dfs(int* candidates, int candidatesSize, int start,
     int target, int* returnSize, int** returnColumnSizes,
@@ -779,15 +773,11 @@ int** combinationSum(int* candidates, int candidatesSize,
 }
 
 
-/**
-金典
- */
 void dfs(int* candidates, int candidatesSize, int start,
     int target, int* returnSize, int** returnColumnSizes,
     int** res, int* current, int curIdx)
 {
     if (target == 0) {
-	/*正好满足，保存*/
         res[*returnSize] = (int*)calloc(1024, sizeof(int));
         memcpy(res[*returnSize], current, sizeof(int) * curIdx);
         (*returnColumnSizes)[*returnSize] = curIdx;
@@ -795,21 +785,18 @@ void dfs(int* candidates, int candidatesSize, int start,
         return;
     }
 
-	/*不满足条件的case 丢弃(不保存)*/
     if (start == candidatesSize || candidates[start] > target) {
         return;
     }
 
 /*一直重复使用当前数降维target*/
     current[curIdx] = candidates[start];
-    dfs(candidates, candidatesSize,
-		start, target - candidates[start],
+    dfs(candidates, candidatesSize, start, target - candidates[start],
         returnSize, returnColumnSizes, res, current, curIdx + 1);
 
 /*使用下一个数进行递归遍历*/
     dfs(candidates, candidatesSize, start + 1, target,
         returnSize, returnColumnSizes, res, current, curIdx);
-
 }
 
 int main(void)
