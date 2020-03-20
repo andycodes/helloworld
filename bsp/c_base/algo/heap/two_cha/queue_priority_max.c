@@ -16,23 +16,12 @@ void key_value_free(KeyValue *kv, void (*freevalue)(void *));
 typedef struct priority_queue_struct PriorityQueue;
 struct priority_queue_struct
 {
-      KeyValue **_nodes;
+      KeyValue **node;
       int cnt;
       int capacity;
 
-      int _priority;
+      int priority;
 };
-void priority_queue_free(PriorityQueue *pq, void (*freevalue)(void *));
-const KeyValue *priority_queue_top(PriorityQueue *pq);
-KeyValue *priority_queue_dequeue(PriorityQueue *pq);
-void priority_queue_enqueue(PriorityQueue *pq, KeyValue *kv);
-int priority_queue_size(PriorityQueue *pq);
-int priority_queue_empty(PriorityQueue *pq);
-void priority_queue_print(PriorityQueue *pq);
-
-
-
-//Private Functions
 static void priority_queue_realloc(PriorityQueue *pq);
 
 static void priority_queue_adjust_head(PriorityQueue *pq);
@@ -65,26 +54,23 @@ void key_value_free(KeyValue *kv, void (*freevalue)(void *))
 }
 
 
-PriorityQueue *priority_queue_init(int priority)
+PriorityQueue *priority_queue_init(int priority, int maxSize)
 {
       PriorityQueue *pq = (PriorityQueue *)malloc(sizeof(PriorityQueue));
-      pq->capacity = 11; //default initial value
+      pq->capacity = maxSize;
       pq->cnt = 0;
-      pq->_priority = priority;
-
-      pq->_nodes = (KeyValue **)malloc(sizeof(KeyValue *) * pq->capacity);
+      pq->priority = priority;
+      pq->node = (KeyValue **)malloc(sizeof(KeyValue *) * pq->capacity);
       return pq;
 }
 
-void priority_queue_free(PriorityQueue *pq,
-                                     void (*freevalue)(void *))
+void priority_queue_free(PriorityQueue *pq, void (*freevalue)(void *))
 {
       int i;
-      if(pq)
-      {
+      if(pq) {
             for(i = 0; i < pq->cnt; ++i)
-                  key_value_free(pq->_nodes[i], freevalue);
-            free(pq->_nodes);
+                  key_value_free(pq->node[i], freevalue);
+            free(pq->node);
             free(pq);
       }
 }
@@ -92,26 +78,24 @@ void priority_queue_free(PriorityQueue *pq,
 const KeyValue *priority_queue_top(PriorityQueue *pq)
 {
       if(pq->cnt > 0)
-            return pq->_nodes[0];
+            return pq->node[0];
       return NULL;
 }
 
-KeyValue *priority_queue_dequeue(PriorityQueue *pq)
+KeyValue *priority_queue_pop(PriorityQueue *pq)
 {
       KeyValue *pkv = NULL;
-      if(pq->cnt > 0)
-      {
-            pkv = pq->_nodes[0];
+      if(pq->cnt > 0) {
+            pkv = pq->node[0];
             priority_queue_adjust_head(pq);
       }
       return pkv;
 }
 
-void priority_queue_enqueue(PriorityQueue *pq,
-                                          KeyValue *kv)
+void priority_queue_push(PriorityQueue *pq, KeyValue *kv)
 {
       printf("add key:%d\n", kv->key);
-      pq->_nodes[pq->cnt] = kv;
+      pq->node[pq->cnt] = kv;
       priority_queue_adjust_tail(pq);
       if(pq->cnt >= pq->capacity)
             priority_queue_realloc(pq);
@@ -131,15 +115,14 @@ void priority_queue_print(PriorityQueue *pq)
 {
       int i;
       KeyValue *kv;
-      printf("data in the pq->_nodes\n");
+      printf("data in the pq->node\n");
       for(i = 0; i < pq->cnt; ++i)
-            printf("%d ", pq->_nodes[i]->key);
+            printf("%d ", pq->node[i]->key);
       printf("\n");
 
       printf("dequeue all data\n");
-      while(!priority_queue_empty(pq))
-      {
-            kv = priority_queue_dequeue(pq);
+      while(!priority_queue_empty(pq)) {
+            kv = priority_queue_pop(pq);
             printf("%d ", kv->key);
       }
       printf("\n");
@@ -148,7 +131,7 @@ void priority_queue_print(PriorityQueue *pq)
 static void priority_queue_realloc(PriorityQueue *pq)
 {
       pq->capacity = pq->capacity * 2;
-      pq->_nodes = realloc(pq->_nodes, sizeof(KeyValue *) * pq->capacity);
+      pq->node = realloc(pq->node, sizeof(KeyValue *) * pq->capacity);
 }
 
 static void priority_queue_adjust_head(PriorityQueue *pq)
@@ -157,10 +140,9 @@ static void priority_queue_adjust_head(PriorityQueue *pq)
 
       i = 0, j = 0;
       parent = left = right = 0;
-      priority_queue_swap(pq->_nodes, 0, pq->cnt - 1);
+      priority_queue_swap(pq->node, 0, pq->cnt - 1);
       pq->cnt--;
-      while(i < (pq->cnt - 1) / 2)
-      {
+      while(i < (pq->cnt - 1) / 2) {
             parent = i;
 
             left = i * 2 + 1;
@@ -168,9 +150,8 @@ static void priority_queue_adjust_head(PriorityQueue *pq)
             j = left;
             if(priority_queue_compare(pq, left, right) > 0)
                   j++;
-            if(priority_queue_compare(pq, parent, j) > 0)
-            {
-                  priority_queue_swap(pq->_nodes, i, j);
+            if(priority_queue_compare(pq, parent, j) > 0) {
+                  priority_queue_swap(pq->node, i, j);
                   i = j;
             }
             else
@@ -186,14 +167,12 @@ static void priority_queue_adjust_tail(PriorityQueue *pq)
 
       i = pq->cnt - 1;
       pq->cnt++;
-      while(i > 0)
-      {
+      while(i > 0) {
             child = i;
             parent = (child - 1) / 2;
 
-            if(priority_queue_compare(pq, parent, child) > 0)
-            {
-                  priority_queue_swap(pq->_nodes, child, parent);
+            if(priority_queue_compare(pq, parent, child) > 0) {
+                  priority_queue_swap(pq->node, child, parent);
                   i = parent;
             }
             else
@@ -208,8 +187,8 @@ static int priority_queue_compare(PriorityQueue *pq,
                                                   int pos2)
 {
       int adjust = -1;
-      int r = pq->_nodes[pos1]->key - pq->_nodes[pos2]->key;
-      if(pq->_priority == PRIORITY_MAX)
+      int r = pq->node[pos1]->key - pq->node[pos2]->key;
+      if(pq->priority == PRIORITY_MAX)
             r *= adjust;
       return r;
 }
@@ -223,14 +202,11 @@ static void priority_queue_swap(KeyValue **nodes,
       nodes[pos2] = temp;
 }
 
-#include <stdio.h>
-#include <stdlib.h>
-
 
 int main(int argc, char **argv)
 {
       int i;
-      PriorityQueue *pq = priority_queue_init(PRIORITY_MAX);
+      PriorityQueue *pq = priority_queue_init(PRIORITY_MAX, 20);
 
 
       int a[]={1, 9, 7, 8, 5, 4, 3, 2, 1, 100, 50, 17};
@@ -238,7 +214,7 @@ int main(int argc, char **argv)
       for(i = 0; i < sizeof(a)/ sizeof(int); ++i)
       {
             KeyValue *kv = key_value_new(a[i], NULL);
-            priority_queue_enqueue(pq, kv);
+            priority_queue_push(pq, kv);
       }
 
       priority_queue_print(pq);
