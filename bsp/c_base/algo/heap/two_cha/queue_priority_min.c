@@ -14,28 +14,6 @@ struct PriorityQueue
 	ElementType Elements[0];
 };
 
-#if 0
-struct PriorityQueue * pqueue_init(int MaxElements)
-{
-	struct PriorityQueue * H;
-
-	H = malloc( sizeof( struct PriorityQueue ) );
-	if ( H == NULL )
-		printf( "Out of space!!!" );
-
-	/* Allocate the array plus one extra for sentinel */
-	H->Elements = malloc( ( MaxElements + 1 )
-		* sizeof( ElementType ) );
-	if ( H->Elements == NULL )
-		printf( "Out of space!!!" );
-
-	H->capacity = MaxElements;
-	H->size = 0;
-	H->Elements[ 0 ] = INT_MIN;
-
-	return H;
-}
-#endif
 
 struct PriorityQueue * pqueue_init(int MaxElements)
 {

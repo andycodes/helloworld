@@ -129,19 +129,13 @@ int main() {
 	MaxHeap heap = initHeap(arr, sizeof(arr) /sizeof(int), 20);
 
 	maxHeapInsert(18, heap);
-	printf("insert 18\n");
-	for (int i = 1; i <= heap->size; i++) {
-		printf("%d ",heap->Element[i]);
-	}
 
-	ElementType e;
-	maxHeapPopE(heap, &e);
-	printf("\npop e = %d\n",e);
-	for (int i = 1; i <= heap->size; i++) {
-		printf("%d ",heap->Element[i]);
+	for (int i = 0; i < heap->size; i++) {
+		ElementType e;
+		maxHeapPopE(heap, &e);
+		printf("%d ", e);
 	}
 
 	printf("\n");
-
 	return 0;
 }
