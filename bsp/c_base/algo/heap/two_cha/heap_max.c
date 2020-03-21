@@ -64,31 +64,33 @@ void maxheap_push(struct HeapStruct * heap, struct Entry newNode)
 */
 void maxheap_pop(struct HeapStruct * heap, struct Entry *popNode)
 {
-    if (heap->size == 0) {
-        return;
-    }
-    *popNode = heap->node[1];
-    heap->node[1] = heap->node[heap->size];
-    heap->size--;
-    int pIndex = 1;
-    while (pIndex <<1 <= heap->size) { //有子结点
-        int maxChild = 0;
-        if ((pIndex << 1) + 1 > heap->size) { //没有右孩子
-            maxChild = pIndex << 1;
-        } else {
-            maxChild = maxIndex(pIndex << 1, (pIndex << 1) + 1, heap);
-        }
-        if (heap->node[pIndex].key < heap->node[maxChild].key) {
-            heap->node[0] = heap->node[pIndex];
-            heap->node[pIndex] = heap->node[maxChild];
-            heap->node[maxChild] = heap->node[0];
-            heap->node[0].key = 0;
-            pIndex = maxChild;
-        } else {
-            break;
-        }
-    }
+	if (heap->size == 0) {
+		return;
+	}
+
+	*popNode = heap->node[1];
+	heap->node[1] = heap->node[heap->size];
+	heap->size--;
+	int pIndex = 1;
+	while (pIndex << 1 <= heap->size) { //有子结点
+		int maxChild = 0;
+		if (pIndex << 1 > heap->size) { //没有右孩子
+			maxChild = pIndex << 1;
+		} else {
+			maxChild = maxIndex(pIndex << 1, (pIndex << 1) + 1, heap);
+		}
+		if (heap->node[pIndex].key < heap->node[maxChild].key) {
+			heap->node[0] = heap->node[pIndex];
+			heap->node[pIndex] = heap->node[maxChild];
+			heap->node[maxChild] = heap->node[0];
+			heap->node[0].key = 0;
+			pIndex = maxChild;
+		} else {
+			break;
+		}
+	}
 }
+
 
 void maxheap_print(struct HeapStruct * heap)
 {
