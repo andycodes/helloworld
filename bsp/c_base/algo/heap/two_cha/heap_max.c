@@ -109,6 +109,11 @@ void maxheap_pop(struct HeapStruct * heap,  struct Entry *popNode)
 	 maxheap_filterdown(heap, 0, heap->size-1);
 }
 
+struct Entry maxheap_top(struct HeapStruct * heap)
+{
+	return heap->node[0];
+}
+
 
 void maxheap_print(struct HeapStruct * heap)
 {
