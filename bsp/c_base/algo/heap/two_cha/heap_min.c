@@ -111,7 +111,7 @@ static void filter_up(struct PriorityQueue *pq, int start)
 	pq->heap[curNode] = tmp;
 }
 
-#if 0
+
 int priorityQueue_push(struct PriorityQueue *pq, struct Entry node)
 {
 	if(PriorityQueue_isFull(pq)) {
@@ -124,23 +124,7 @@ int priorityQueue_push(struct PriorityQueue *pq, struct Entry node)
 
 	return 0;
 }
-#else
-void priorityQueue_push( struct PriorityQueue * pq, struct Entry node)
-{
-	int i;
 
-	if ( PriorityQueue_isFull( pq ) )
-	{
-		printf( "Priority queue is full" );
-		return ;
-	}
-
-	for ( i = ++pq->cnt; pq->heap[i / 2].key > node.key; i /= 2)
-		pq->heap[ i ] = pq->heap[i / 2];
-
-	pq->heap[i] = node;
-}
-#endif
 
 
 void minheap_print(struct PriorityQueue *pq)
