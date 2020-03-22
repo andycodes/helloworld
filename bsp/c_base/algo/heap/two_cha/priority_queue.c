@@ -189,6 +189,7 @@ void minheap_print(struct PriorityQueue *pq)
 	printf("%s\n", __func__);
 	for (int i = 0; i < pq->cnt; i++)
 		printf("%d ", pq->heap[i].key);
+	printf("\n");
 }
 
 
@@ -210,7 +211,7 @@ void minheap_exit(struct PriorityQueue * pq)
 
 int main(void)
 {
-	struct PriorityQueue *pq = minheap_init(1024, PRIORITY_QUEUE_MIN);
+	struct PriorityQueue *pq = minheap_init(1024, PRIORITY_QUEUE_MAN);
 
 	int a[] = {90,80,60,70,40,50,30,20,10,0};
 
