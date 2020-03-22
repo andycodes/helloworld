@@ -2,6 +2,11 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+enum {
+	PRIORITY_QUEUE_MIN,
+	PRIORITY_QUEUE_MAN,
+};
+
 struct Entry {
 	int key;
 };
@@ -9,15 +14,14 @@ struct Entry {
 struct PriorityQueue{
 	int cnt;
 	int size;
+	int type;
 	struct Entry heap[0];
 };
 
 
-int minHeapGetIndex(struct PriorityQueue *pq, int key)
+int priorityQueue_getIdx(struct PriorityQueue *pq, int key)
 {
-	int i=0;
-
-	for(i = 0; i < pq->cnt; i++)
+	for(int i = 0; i < pq->cnt; i++)
 		if (key == pq->heap[i].key)
 			return i;
 
@@ -25,18 +29,19 @@ int minHeapGetIndex(struct PriorityQueue *pq, int key)
 }
 
 
-bool PriorityQueue_isEmpty(struct PriorityQueue *pq)
+bool priorityQueue_isEmpty(struct PriorityQueue *pq)
 {
 	return pq->cnt == 0;
 }
 
-bool PriorityQueue_isFull(struct PriorityQueue *pq)
+
+bool priorityQueue_isFull(struct PriorityQueue *pq)
 {
 	return pq->cnt == pq->size;
 }
 
 
-int minHeapGetSize(struct PriorityQueue *pq)
+int priorityQueue_getSize(struct PriorityQueue *pq)
 {
 	return pq->cnt;
 }
@@ -44,9 +49,9 @@ int minHeapGetSize(struct PriorityQueue *pq)
 
 static void minheap_filterdown(struct PriorityQueue *pq, int start, int end)
 {
-	int curNode = start;
-	int leftChild = 2*curNode + 1;
-	struct Entry tmp = pq->heap[curNode];
+	int parent = start;
+	int leftChild = 2*parent + 1;
+	struct Entry tmp = pq->heap[parent];
 
 	while(leftChild <= end) {
 		if(leftChild < end && pq->heap[leftChild].key > pq->heap[leftChild+1].key)
@@ -55,71 +60,123 @@ static void minheap_filterdown(struct PriorityQueue *pq, int start, int end)
 		if(tmp.key <= pq->heap[leftChild].key)
 			break;
 		else {
-			pq->heap[curNode] = pq->heap[leftChild];
-			curNode = leftChild;
+			pq->heap[parent] = pq->heap[leftChild];
+			parent = leftChild;
 			leftChild = 2*leftChild + 1;
 		}
 	}
 
-	pq->heap[curNode] = tmp;
+	pq->heap[parent] = tmp;
 }
 
 
-int minheap_remove(struct PriorityQueue *pq, int data)
+static void maxheap_filterdown(struct PriorityQueue *pq, int start, int end)
+{
+	int parent = start;
+	int leftChild = 2*parent + 1;
+	struct Entry tmp = pq->heap[parent];
+
+	while(leftChild <= end) {
+		if(leftChild < end && pq->heap[leftChild].key < pq->heap[leftChild+1].key)
+			leftChild++;
+
+		if(tmp.key >= pq->heap[leftChild].key) {
+			break;
+		} else {
+			pq->heap[parent] = pq->heap[leftChild];
+			parent = leftChild;
+			leftChild = 2*parent + 1;
+		}
+	}
+
+	pq->heap[parent] = tmp;
+}
+
+
+
+int priorityQueue_remove(struct PriorityQueue *pq, int data)
 {
 	int index;
 	if(pq->cnt == 0)
 		return  -1;
 
-	index = minHeapGetIndex(pq, data);
+	index = priorityQueue_getIdx(pq, data);
 	if (index== -1)
 		return -1;
 
 	pq->heap[index] = pq->heap[--pq->cnt];
-	minheap_filterdown(pq, index, pq->cnt-1);
+	if (pq->type == PRIORITY_QUEUE_MIN) {
+		minheap_filterdown(pq, index, pq->cnt - 1);
+	} else {
+		maxheap_filterdown(pq, index, pq->cnt -1);
+	}
 
 	return 0;
 }
 
 
-struct Entry  minheap_pop(struct PriorityQueue *pq)
+struct Entry  priorityQueue_pop(struct PriorityQueue *pq)
 {
 	struct Entry min;
 
 	min = pq->heap[0];
-	minheap_remove(pq, min.key);
+	priorityQueue_remove(pq, min.key);
 	return min;
 }
 
 
 static void filter_up(struct PriorityQueue *pq, int start)
 {
-	int curNode = start;
-	int parent = (curNode - 1)/2;
-	struct Entry tmp = pq->heap[curNode];
+	int curIdx = start;
+	int parent = (curIdx - 1) / 2;
+	struct Entry newNode = pq->heap[curIdx];
 
-	while(curNode > 0) {
-		if(pq->heap[parent].key <= tmp.key)
+	while(curIdx > 0) {
+		if(pq->heap[parent].key > newNode.key) {
+			pq->heap[curIdx] = pq->heap[parent];
+			curIdx = parent;
+			parent = (curIdx - 1) / 2;
+		} else {
 			break;
-		else {
-			pq->heap[curNode] = pq->heap[parent];
-			curNode = parent;
-			parent = (parent-1)/2;
 		}
 	}
 
-	pq->heap[curNode] = tmp;
+	pq->heap[curIdx] = newNode;
+}
+
+
+static void maxheap_filterup(struct PriorityQueue *pq, int start)
+{
+    int child = start;
+    int parent = (child-1) / 2;
+    struct Entry tmp = pq->heap[child];
+
+    while(child > 0) {
+        if(pq->heap[parent].key >= tmp.key) {
+            break;
+        } else {
+            pq->heap[child] = pq->heap[parent];
+            child = parent;
+            parent = (child - 1) / 2;
+        }
+    }
+    pq->heap[child] = tmp;
 }
 
 
 int priorityQueue_push(struct PriorityQueue *pq, struct Entry node)
 {
-	if(PriorityQueue_isFull(pq)) {
+	if(priorityQueue_isFull(pq)) {
 		return -1;
 	}
 
 	pq->heap[pq->cnt] = node;
-	filter_up(pq, pq->cnt);
+	if (pq->type == PRIORITY_QUEUE_MIN) {
+		filter_up(pq, pq->cnt);
+	} else {
+		maxheap_filterup(pq, pq->cnt);
+	}
+
 	pq->cnt++;
 
 	return 0;
@@ -129,17 +186,18 @@ int priorityQueue_push(struct PriorityQueue *pq, struct Entry node)
 
 void minheap_print(struct PriorityQueue *pq)
 {
-	int i;
-	for (i=0; i<pq->cnt; i++)
+	printf("%s\n", __func__);
+	for (int i = 0; i < pq->cnt; i++)
 		printf("%d ", pq->heap[i].key);
 }
 
 
-struct PriorityQueue * minheap_init(int size)
+struct PriorityQueue * minheap_init(int size, int type)
 {
 	struct PriorityQueue * pq = (struct PriorityQueue *)malloc(sizeof(struct PriorityQueue) + sizeof(struct Entry) * size);
 	pq->cnt = 0;
 	pq->size = size;
+	pq->type = type;
 	return pq;
 }
 
@@ -152,9 +210,9 @@ void minheap_exit(struct PriorityQueue * pq)
 
 int main(void)
 {
-	struct PriorityQueue *pq = minheap_init(1024);
+	struct PriorityQueue *pq = minheap_init(1024, PRIORITY_QUEUE_MIN);
 
-	int a[] = {80, 40, 30, 60, 90, 70, 10, 50, 20};
+	int a[] = {90,80,60,70,40,50,30,20,10,0};
 
 	int i;
 	for(i=0; i< sizeof(a) / sizeof(a[0]); i++) {
@@ -164,19 +222,10 @@ int main(void)
 		priorityQueue_push(pq, node);
 	}
 
-	printf("\n== minheap_print: \n10 20 30 50 90 70 40 80 60 :\n");
 	minheap_print(pq);
 
-	i=10;
-	minheap_remove(pq, i);
-	printf("\n== minheap_remove: %d", i);
-	printf("\n== minheap_print: \n15 20 30 50 90 70 40 80 60 :\n");
-	minheap_print(pq);
-	printf("\n");
-
-	printf("\n minheap_pop test:\n");
-	while(!PriorityQueue_isEmpty(pq)) {
-		struct Entry get = minheap_pop(pq);
+	while(!priorityQueue_isEmpty(pq)) {
+		struct Entry get = priorityQueue_pop(pq);
 		printf(" %d ", get.key);
 	}
 
@@ -184,4 +233,5 @@ int main(void)
 
 	return 0;
 }
+
 
