@@ -21,9 +21,11 @@ struct PriorityQueue{
 
 int priorityQueue_getIdx(struct PriorityQueue *pq, int key)
 {
-	for(int i = 0; i < pq->cnt; i++)
-		if (key == pq->heap[i].key)
+	for(int i = 0; i < pq->cnt; i++) {
+		if (key == pq->heap[i].key) {
 			return i;
+		}
+	}
 
 	return -1;
 }
@@ -125,7 +127,7 @@ struct Entry  priorityQueue_pop(struct PriorityQueue *pq)
 }
 
 
-static void filter_up(struct PriorityQueue *pq, int start)
+static void minheap_filterup(struct PriorityQueue *pq, int start)
 {
 	int curIdx = start;
 	int parent = (curIdx - 1) / 2;
@@ -172,7 +174,7 @@ int priorityQueue_push(struct PriorityQueue *pq, struct Entry node)
 
 	pq->heap[pq->cnt] = node;
 	if (pq->type == PRIORITY_QUEUE_MIN) {
-		filter_up(pq, pq->cnt);
+		minheap_filterup(pq, pq->cnt);
 	} else {
 		maxheap_filterup(pq, pq->cnt);
 	}
