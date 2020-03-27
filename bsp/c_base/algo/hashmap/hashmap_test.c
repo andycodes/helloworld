@@ -86,3 +86,91 @@ int main()
 			printf("%d", ret[i]);
 	}
 }
+
+
+
+int cmp_char(const void *a, const void *b)
+{
+	return  *((char *)a) - *((char *)b);
+}
+
+
+struct HashCallBack {
+	char ***res;
+	int* returnSize;
+	int** returnColumnSizes;
+};
+
+void nodeFuncX(struct Node *node, void *arg)
+{
+	struct HashCallBack *cb = (struct HashCallBack *)arg;
+	struct DataEntry *entry = NODE_ENTRY(node, struct DataEntry, node);
+	int cnt = (*cb->returnColumnSizes)[*cb->returnSize];
+	cb->res[*cb->returnSize][cnt] = strdup(entry->value);
+	(*cb->returnColumnSizes)[*cb->returnSize]++;
+}
+
+
+void nodeFree(struct Node *node)
+{
+	struct DataEntry *entry = NODE_ENTRY(node, struct DataEntry, node);
+	free(entry->key);
+}
+
+
+/**
+ * Return an array of arrays of size *returnSize.
+ * The sizes of the arrays are returned as *returnColumnSizes array.
+ * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ */
+char*** groupAnagrams(char** strs, int strsSize, int* returnSize, int** returnColumnSizes)
+{
+	if (returnSize == NULL) {
+		return NULL;
+	}
+
+	if (strs == NULL || strsSize <= 0) {
+		*returnSize = 0;
+		return NULL;
+	}
+
+	struct HashTable ht;
+	int ret = HashInit(&ht, (size_t)strsSize * 3, hashequal_str, hashcode_str);
+	for (int i = 0; i < strsSize; i++) {
+		struct DataEntry *newEntry = (struct DataEntry *)calloc(1, sizeof(struct DataEntry));
+		char *sort = strdup(strs[i]);
+		qsort(sort, strlen(sort), sizeof(char), cmp_char);
+		newEntry->key = sort;
+		newEntry->value = strs[i];
+		HashAdd(&ht, &newEntry->node);
+	}
+
+	char ***res = (char ***)calloc(1024, sizeof(char **));
+	for (int i = 0; i < 1024; i++) {
+		res[i] = (char **)calloc(1024, sizeof(char *));
+		for (int j = 0; j < strsSize; j++) {
+			res[i][j] = calloc(1024, sizeof(char));
+		}
+	}
+
+	*returnColumnSizes = (int *)calloc(1024, sizeof(int));
+
+	struct HashCallBack arg;
+	arg.res = res;
+	arg.returnSize = returnSize;
+	arg.returnColumnSizes = returnColumnSizes;
+
+	for (int i = 0; i < ht.bktSize; i++) {
+		if(!ListEmpty(&ht.bkts[i])) {
+			struct Node *node;
+			LIST_FOR_EACH(node, &ht.bkts[i]) {
+				nodeFuncX(node, &arg);
+			}
+			(*returnSize)++;
+		}
+	}
+
+	HashDeinit(&ht, nodeFree);
+	return res;
+}
+
