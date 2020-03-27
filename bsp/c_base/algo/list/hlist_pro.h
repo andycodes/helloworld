@@ -1,8 +1,16 @@
+#ifndef HLIST_PRO_H
+#define HLIST_PRO_H
 /*
 list
 map
 set
 */
+
+struct DataEntry {
+    int key;
+    int value;
+    struct Node node;
+};
 
 void ListPushLast(struct List *list, int nodeKey)
 {
@@ -12,7 +20,7 @@ void ListPushLast(struct List *list, int nodeKey)
 }
 
 
-bool SetContainsKey(struct List *list, int nodeKey)
+bool ListIsContainsKey(struct List *list, int nodeKey)
 {
 	struct Node *node;
 	struct DataEntry *entry;
@@ -27,7 +35,7 @@ bool SetContainsKey(struct List *list, int nodeKey)
 	return false;
 }
 
-struct DataEntry * setFindKey(struct List *list, int nodeKey)
+struct DataEntry *ListFindKey(struct List *list, int nodeKey)
 {
 	struct Node *node, *tmp;
 	struct DataEntry *entry;
@@ -38,9 +46,12 @@ struct DataEntry * setFindKey(struct List *list, int nodeKey)
 			return entry;
 		}
 	}
+
+	return NULL;
 }
 
-void SetRmKey(struct List *list, int nodeKey)
+
+void ListRmKey(struct List *list, int nodeKey)
 {
 	struct Node *node, *tmp;
 	struct DataEntry *entry;
@@ -54,4 +65,5 @@ void SetRmKey(struct List *list, int nodeKey)
 	}
 }
 
+#endif
 

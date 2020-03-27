@@ -236,3 +236,80 @@ int characterReplacement(char * s, int k){
 
 	return ans;
 }
+/*
+面试题 17.18. 最短超串
+难度中等5
+假设你有两个数组，一个长一个短，短的元素均不相同。找到长数组中包含短数组所有的元素的最短子数组，其出现顺序无关紧要。
+返回最短子数组的左端点和右端点，如有多个满足条件的子数组，返回左端点最小的一个。若不存在，返回空数组。
+示例 1:
+输入:
+big = [7,5,9,0,2,1,3,5,7,9,1,1,5,8,8,9,7]
+small = [1,5,9]
+输出: [7,10]
+示例 2:
+输入:
+big = [1,2,3]
+small = [4]
+输出: []
+
+*/
+int* shortestSeq(int* big, int bigSize, int* small, int smallSize, int* returnSize)
+{
+	if (big == NULL || small == NULL || bigSize <= 0 || smallSize <= 0 || smallSize > bigSize) {
+		*returnSize = 0;
+		return NULL;
+	}
+
+	struct HashTable ht;
+	int ret = HashInit(&ht, smallSize, hashequal_int, hashcode_int);
+
+	for (int i = 0; i < smallSize; i++) {
+		hashPushKey(&ht, small[i]);
+	}
+
+	int left = 0, right = 0, count = 0, minLen= INT_MAX;
+	int *res = (int *)calloc(2, sizeof(int));
+	*returnSize = 2;
+
+	while(right < bigSize) {
+		struct DataEntry *curEntry = hashFindKey(&ht, big[right]);
+		if(curEntry != NULL) {
+			if (curEntry->value == 0) {
+				count++;
+			}
+
+			curEntry->value++;
+		}
+
+		while(count == smallSize) {
+			struct DataEntry *entry;
+			entry = hashFindKey(&ht, big[left]);
+			if (entry == NULL) {
+				left++;
+			} else if (entry->value > 1) {
+				left++;
+				entry->value--;
+			} else {//value == 1
+				if (minLen > right-left + 1) {
+					minLen = right-left + 1;
+					res[0] = left;
+					res[1] = right;
+				}
+
+				entry->value--;
+				left++;
+				count--;
+			}
+		}
+
+		right++;
+	}
+
+	if (minLen == INT_MAX) {
+		*returnSize = 0;
+		return NULL;
+	}
+
+	return res;
+}
+
