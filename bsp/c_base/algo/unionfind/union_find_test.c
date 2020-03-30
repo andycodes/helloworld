@@ -263,4 +263,87 @@ char** synonyms, int synonymsSize, int* returnSize)
 	return ret;
 }
 
+/*
+1202. 交换字符串中的元素
+给你一个字符串 s，以及该字符串中的一些「索引对」数组 pairs，其中 pairs[i] = [a, b] 表示字符串中的两个索引（编号从 0 开始）。
+
+你可以 任意多次交换 在 pairs 中任意一对索引处的字符。
+
+返回在经过若干次交换后，s 可以变成的按字典序最小的字符串。
+
+
+
+示例 1:
+
+输入：s = "dcab", pairs = [[0,3],[1,2]]
+输出："bacd"
+解释：
+交换 s[0] 和 s[3], s = "bcad"
+交换 s[1] 和 s[2], s = "bacd"
+示例 2：
+
+输入：s = "dcab", pairs = [[0,3],[1,2],[0,2]]
+输出："abcd"
+解释：
+交换 s[0] 和 s[3], s = "bcad"
+交换 s[0] 和 s[2], s = "acbd"
+交换 s[1] 和 s[2], s = "abcd"
+*/
+char arrayblk[10001][10001];
+//int colsize[10001];
+//int scol[10001];
+char * smallestStringWithSwaps(char * s, int** pairs, int pairsSize, int* pairsColSize)
+{
+	if (s == NULL || pairs == NULL || pairsSize <= 0 || pairsColSize == NULL) {
+		return s;
+	}
+
+	size_t ufSize = strlen(s);
+	struct UnionFind *uf =  uf_init(ufSize);
+	for (int i = 0; i < pairsSize; i++) {
+		uf_union(uf, pairs[i][0], pairs[i][1]);
+	}
+
+	struct HashTable ht;
+	int ret = HashInit(&ht, ufSize, hashequal_int, hashcode_int);
+	for (int i = 0; i < ufSize; i++) {
+		struct DataEntry *entry = (struct DataEntry *)calloc(1, sizeof(struct DataEntry));
+		entry->key = uf_findRoot(uf, i);
+		entry->value = s[i];
+		HashAdd(&ht, &entry->node);
+	}
+
+	//hashPrint(&ht);
+	memset(arrayblk, 0, sizeof(arrayblk));
+	int *colsize = (int *)calloc(10001, sizeof(int));
+	//memset(colsize, 0, sizeof(colsize));
+	for (int i = 0; i < ht.bktSize; i++) {
+	    struct Node *node;
+	    LIST_FOR_EACH(node, &ht.bkts[i]) {
+		struct DataEntry *getEntry;
+		getEntry = NODE_ENTRY(node, struct DataEntry, node);
+		arrayblk[i][colsize[i]] = getEntry->value;
+		colsize[i]++;
+	    }
+	}
+
+	for (int i = 0; i < ufSize; i++) {
+		qsort(arrayblk[i], colsize[i], sizeof(arrayblk[i][0]), cmp_char);
+	}
+	int *scol = (int *)calloc(10001, sizeof(int));
+	//memset(scol, 0, sizeof(scol));
+	int i = 0;
+	char *res = strdup(s);
+	while(s[i] != '\0') {
+		int hashkey = uf_findRoot(uf, i);
+		unsigned int bid = hashGetBlkid_int(&ht, hashkey) ;
+		int col = scol[bid];
+		res[i] = arrayblk[bid][col];
+		scol[bid]++;
+		i++;
+	}
+
+	return res;
+}
+
 
