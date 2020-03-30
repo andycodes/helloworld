@@ -7,7 +7,11 @@
 Q:
 1)	计算最后有多少个不相交的集合
 2)	需要多少条边可以成为连通图(即计算有多少个 parent[i] == i;)
+
+[root1][root1][sun3][sun4][root1]
 */
+#ifndef UNION_FIND_H
+#define UNION_FIND_H
 
 struct UnionFind {
 	int *father;
@@ -61,11 +65,6 @@ void uf_union(struct UnionFind* obj, int i, int j)
 }
 
 
-/*
-   按秩合并x和y所在的集合
-   下面的那个if else结构不是绝对的，具体根据情况变化
-   但是，宗旨是不变的即，按秩合并，实时更新秩。
-*/
 void uf_union1(int x, int y)
 {
     x = uf_findRoot(x);  //找到最久远祖先
@@ -86,4 +85,5 @@ void uf_union1(int x, int y)
 	}
 }
 
+#endif
 

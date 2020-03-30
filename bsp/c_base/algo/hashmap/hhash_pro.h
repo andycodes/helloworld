@@ -44,6 +44,21 @@ bool hashequal_int(const struct Node *node1, const struct Node *node2)
 	return entry1->key == entry2->key;
 }
 
+unsigned int  hashcode_char(const struct Node *node,  size_t bktSize)
+{
+	struct DataEntry *entry = NODE_ENTRY(node, struct DataEntry, node);
+	return abs((char)(entry->key)) % bktSize;
+}
+
+bool hashequal_char(const struct Node *node1, const struct Node *node2)
+{
+	struct DataEntry *entry1 = NODE_ENTRY(node1, struct DataEntry, node);
+	struct DataEntry *entry2 = NODE_ENTRY(node2, struct DataEntry, node);
+
+	return entry1->key == entry2->key;
+}
+
+
 void hashPushKey(struct HashTable *ht,  int key)
 {
 	struct DataEntry *entry = (struct DataEntry *)calloc(1, sizeof(struct DataEntry));
@@ -67,6 +82,31 @@ struct DataEntry *hashFindKey(const struct HashTable *ht, int key)
 	struct DataEntry cmpEntry;
 	cmpEntry.key = key;
 	return hashFind(ht, &cmpEntry);
+}
+
+size_t hashGetBlkid_int(const struct HashTable *ht, int key)
+{
+	return abs(key) % ht->bktSize;
+}
+
+
+struct List *hashGetBlkList_int(const struct HashTable *ht, int key)
+{
+	size_t blkid = abs(key) % ht->bktSize;
+	return &ht->bkts[blkid];
+}
+
+void hashPrint(struct HashTable *ht)
+{
+	size_t i;
+	for (i = 0; i < ht->bktSize; i++) {
+		struct Node *node;
+		LIST_FOR_EACH(node, &ht->bkts[i]) {
+			struct DataEntry * entry = NODE_ENTRY(node, struct DataEntry, node);
+			printf("[%d %c]", entry->key, entry->value);
+		}
+		printf("\n");
+	}
 }
 
 #endif

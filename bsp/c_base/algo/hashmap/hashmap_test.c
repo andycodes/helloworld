@@ -27,20 +27,6 @@ struct DataEntry {
     struct Node node;
 };
 
-static bool DataEntryEqual(const struct Node *a, const struct Node *b)
-{
-    struct DataEntry *d1 = NODE_ENTRY(a, struct DataEntry, node);
-    struct DataEntry *d2 = NODE_ENTRY(b, struct DataEntry, node);
-    return d1->key == d2->key;
-}
-
-static size_t DataEntryKey(const struct Node *node, size_t bktSize)
-{
-    struct DataEntry *e = NODE_ENTRY(node, struct DataEntry, node);
-    return e->key % bktSize;
-}
-
-
 int* twoSum(int* nums, int numsSize, int target, int* returnSize)
 {
 	struct HashTable ht;

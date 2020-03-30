@@ -7,9 +7,9 @@ set
 */
 
 struct DataEntry {
-    int key;
-    int value;
-    struct Node node;
+	int key;
+	int value;
+	struct Node node;
 };
 
 void ListPushLast(struct List *list, int nodeKey)
@@ -64,6 +64,17 @@ void ListRmKey(struct List *list, int nodeKey)
 		}
 	}
 }
+
+/*
+for (int i = 0; i < ht.bktSize; i++) {
+	if(!ListEmpty(&ht.bkts[i])) {
+		struct Node *node;
+		LIST_FOR_EACH(node, &ht.bkts[i]) {
+			nodeFuncX(node, &arg);
+		}
+	}
+}
+*/
 
 #endif
 
