@@ -296,7 +296,8 @@ int cmp(const void *a,const void *b)
 }
 
 int** indexPairs(char * text, char ** words, int wordsSize,
-	int* returnSize, int** returnColumnSizes){
+	int* returnSize, int** returnColumnSizes)
+{
     int i, j;
     int** res = (int **)malloc(sizeof(int *) * 1000);
     int cnt = 0;
