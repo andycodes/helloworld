@@ -472,8 +472,9 @@ int maxValue(int** grid, int gridSize, int* gridColSize){
 /*
 62. 不同路径
 难度中等439收藏分享切换为英文关注反馈
-一个机器人位于一个 m x n 网格的左上角 （起始点在下图中标记为"Start" ）。
-机器人每次只能向下或者向右移动一步。机器人试图达到网格的右下角（在下图中标记为"Finish"）。
+一个机器人位于一个 m x n 网格的左上角 （起始点在下图中标
+记为"Start" ）。机器人每次只能向下或者向右移动一步。
+机器人试图达到网格的右下角（在下图中标记为"Finish"）。
 问总共有多少条不同的路径？
 
 例如，上图是一个7 x 3 的网格。有多少可能的路径？
@@ -490,32 +491,42 @@ int maxValue(int** grid, int gridSize, int* gridColSize){
 */
 
 /*
-思路：如果大家都学过递归,就知道递归有重复计算的问题,我们上面写的递归在遇到m和n比较大的时候,
-同样会超过限制时间。那我们可以加一个备忘录,把已经计算出来的结果保存起来,
+思路：如果大家都学过递归,就知道递归有重复计算的问题,
+我们上面写的递归在遇到m和n比较大的时候,
+同样会超过限制时间。那我们可以加一个备忘录,把已经计算
+出来的结果保存起来,
 下次需要计算同样的递归时,直接从备忘录中取出使用
-
 */
-int cycle(int i,int j)
+int recursive(int i,int j)
 {
-	if(i == 0 || j == 0) return 1;
-	return cycle(i-1,j)+cycle(i,j-1);
-}
+	if(i == 0 || j == 0)
+		return 1;
 
+	return recursive(i-1, j) + recursive(i, j - 1);
+}
 
 int uniquePaths(int m, int n)
 {
-	return cycle(m-1,n-1);
+	return recursive(m-1, n-1);
 }
 
-int[][] dp = new int[100][100];
- int uniquePaths(int m, int n) {
-    return cycle(m-1,n-1);
+
+int dp[100][100];
+int recursive(int i, int j)
+{
+	if(i == 0 || j == 0)
+		return 1;
+
+	if(dp[i][j] != 0)
+		return dp[i][j];
+
+	dp[i][j] = recursive(i - 1, j) + recursive(i, j - 1);
+	return dp[i][j];
 }
- int cycle(int i,int j){
-    if(i == 0 || j == 0) return 1;
-    if(dp[i][j] != 0) return dp[i][j];
-    dp[i][j] = cycle(i-1,j)+cycle(i,j-1);
-    return dp[i][j];
+
+int uniquePaths(int m, int n)
+{
+	return recursive(m-1, n-1);
 }
 
 
@@ -531,6 +542,7 @@ int uniquePaths(int m, int n){
 	for (int i = 1; i < m; i++) {//first col
 		dp[i][0] = 1;
 	}
+
 	for (int j = 1; j < n; j++) {//first row
 		dp[0][j] = 1;
 	}
@@ -552,36 +564,41 @@ int uniquePaths(int m, int n){
 */
 int uniquePaths(int m, int n)
 {
-   int dp[n];
-    for(int i = 0; i < n; i++) {
-        dp[i] = 1;
-    }
+	int dp[n];
 
-  for(int i = 1; i < m; i++) {
-    for(int j = 1; j < n; j++) {
-      dp[j] = dp[j] + dp[j - 1];
-    }
-  }
+	for(int i = 0; i < n; i++) {
+		dp[i] = 1;
+	}
 
-  return dp[n - 1];
-};
+	for(int i = 1; i < m; i++) {
+		for(int j = 1; j < n; j++) {
+			dp[j] = dp[j] + dp[j - 1];
+		}
+	}
+
+	return dp[n - 1];
+}
 
 /*排列组合*/
-int uniquePaths(int m, int n) {
-    int N = n + m - 2;
-    int k = m - 1;
-    long res = 1;
-    for (int i = 1; i <= k; i++)
-        res = res * (N - k + i) / i;
-    return (int) res;
+int uniquePaths(int m, int n)
+{
+	int N = n + m - 2;
+	int k = m - 1;
+	long res = 1;
+
+	for (int i = 1; i <= k; i++)
+		res = res * (N - k + i) / i;
+	return (int) res;
 }
 
 /*
 63. 不同路径 II
 难度中等234
 一个机器人位于一个 m x n 网格的左上角 （起始点在下图中标记为"Start" ）。
-机器人每次只能向下或者向右移动一步。机器人试图达到网格的右下角（在下图中标记为"Finish"）。
-现在考虑网格中有障碍物。那么从左上角到右下角将会有多少条不同的路径？
+机器人每次只能向下或者向右移动一步。机器人试图达到网格
+的右下角（在下图中标记为"Finish"）。
+现在考虑网格中有障碍物。那么从左上角到右下角将会有
+多少条不同的路径？
 
 网格中的障碍物和空位置分别用 1 和 0 来表示。
 说明：m 和 n 的值均不超过 100。
