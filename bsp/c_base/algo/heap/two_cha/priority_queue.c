@@ -2,20 +2,23 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+#ifndef PRIORITY_QUEUE_H
+#define PRIORITY_QUEUE_H
 enum {
 	PRIORITY_QUEUE_MIN,
 	PRIORITY_QUEUE_MAN,
 };
 
-struct Entry {
+struct DataEntry {
 	int key;
+	int value;
 };
 
 struct PriorityQueue{
 	int cnt;
 	int size;
 	int type;
-	struct Entry heap[0];
+	struct DataEntry heap[0];
 };
 
 
@@ -23,6 +26,17 @@ int priorityQueue_getIdx(struct PriorityQueue *pq, int key)
 {
 	for(int i = 0; i < pq->cnt; i++) {
 		if (key == pq->heap[i].key) {
+			return i;
+		}
+	}
+
+	return -1;
+}
+
+int priorityQueue_getIdxbyValue(struct PriorityQueue *pq, int value)
+{
+	for(int i = 0; i < pq->cnt; i++) {
+		if (value == pq->heap[i].value) {
 			return i;
 		}
 	}
@@ -53,7 +67,7 @@ static void minheap_filterdown(struct PriorityQueue *pq, int start, int end)
 {
 	int parent = start;
 	int leftChild = 2*parent + 1;
-	struct Entry tmp = pq->heap[parent];
+	struct DataEntry tmp = pq->heap[parent];
 
 	while(leftChild <= end) {
 		if(leftChild < end && pq->heap[leftChild].key > pq->heap[leftChild+1].key)
@@ -76,7 +90,7 @@ static void maxheap_filterdown(struct PriorityQueue *pq, int start, int end)
 {
 	int parent = start;
 	int leftChild = 2*parent + 1;
-	struct Entry tmp = pq->heap[parent];
+	struct DataEntry tmp = pq->heap[parent];
 
 	while(leftChild <= end) {
 		if(leftChild < end && pq->heap[leftChild].key < pq->heap[leftChild+1].key)
@@ -117,13 +131,13 @@ int priorityQueue_remove(struct PriorityQueue *pq, int data)
 }
 
 
-struct Entry  priorityQueue_pop(struct PriorityQueue *pq)
+struct DataEntry  priorityQueue_pop(struct PriorityQueue *pq)
 {
-	struct Entry min;
+	struct DataEntry top;
 
-	min = pq->heap[0];
-	priorityQueue_remove(pq, min.key);
-	return min;
+	top = pq->heap[0];
+	priorityQueue_remove(pq, top.key);
+	return top;
 }
 
 
@@ -131,7 +145,7 @@ static void minheap_filterup(struct PriorityQueue *pq, int start)
 {
 	int curIdx = start;
 	int parent = (curIdx - 1) / 2;
-	struct Entry newNode = pq->heap[curIdx];
+	struct DataEntry newNode = pq->heap[curIdx];
 
 	while(curIdx > 0) {
 		if(pq->heap[parent].key > newNode.key) {
@@ -151,7 +165,7 @@ static void maxheap_filterup(struct PriorityQueue *pq, int start)
 {
     int child = start;
     int parent = (child-1) / 2;
-    struct Entry tmp = pq->heap[child];
+    struct DataEntry tmp = pq->heap[child];
 
     while(child > 0) {
         if(pq->heap[parent].key >= tmp.key) {
@@ -166,7 +180,7 @@ static void maxheap_filterup(struct PriorityQueue *pq, int start)
 }
 
 
-int priorityQueue_push(struct PriorityQueue *pq, struct Entry node)
+int priorityQueue_push(struct PriorityQueue *pq, struct DataEntry node)
 {
 	if(priorityQueue_isFull(pq)) {
 		return -1;
@@ -195,9 +209,9 @@ void minheap_print(struct PriorityQueue *pq)
 }
 
 
-struct PriorityQueue * minheap_init(int size, int type)
+struct PriorityQueue * priorityQueue_init(int size, int type)
 {
-	struct PriorityQueue * pq = (struct PriorityQueue *)malloc(sizeof(struct PriorityQueue) + sizeof(struct Entry) * size);
+	struct PriorityQueue * pq = (struct PriorityQueue *)malloc(sizeof(struct PriorityQueue) + sizeof(struct DataEntry) * size);
 	pq->cnt = 0;
 	pq->size = size;
 	pq->type = type;
@@ -205,11 +219,13 @@ struct PriorityQueue * minheap_init(int size, int type)
 }
 
 
-void minheap_exit(struct PriorityQueue * pq)
+void priorityQueue_exit(struct PriorityQueue * pq)
 {
 	free(pq);
 	pq = NULL;
 }
+
+#endif
 
 int main(void)
 {

@@ -20,13 +20,6 @@
 */
 
 #define MAXN 100
-
-struct DataEntry {
-    int key;
-    int value;
-    struct Node node;
-};
-
 int* twoSum(int* nums, int numsSize, int target, int* returnSize)
 {
 	struct HashTable ht;

@@ -33,7 +33,7 @@ size_t hashcode_str(const struct Node *node, size_t bktSize)
 size_t hashcode_int(const struct Node *node,  size_t bktSize)
 {
 	struct DataEntry *entry = NODE_ENTRY(node, struct DataEntry, node);
-	return abs((int)(entry->key)) % bktSize;
+	return labs(entry->key) % bktSize;
 }
 
 bool hashequal_int(const struct Node *node1, const struct Node *node2)
