@@ -805,10 +805,10 @@ int main(void)
 	int target = 7;
 
 	int retSize;
-	int *retColSize;
+	int *returnColumnSizes;
 	int **ret;
 	ret = combinationSum(intput, sizeof(intput)/sizeof(int),
-		target, &retSize, &retColSize);
+		target, &retSize, &returnColumnSizes);
 	for (int i = 0; i < retSize; i++) {
 		 for(int j = 0; j < retColSize[i]; j++) {
 			printf("%d", ret[i][j]);
@@ -1103,5 +1103,65 @@ int minPathSum(int** grid, int gridSize, int* gridColSize) {
 	}
 
 	return grid[gridSize - 1][gridColSize[0] - 1];
+}
+
+
+/*
+77. 组合
+难度中等238
+给定两个整数 n 和 k，返回 1 ... n 中所有可能的 k 个数的组合。
+示例:
+输入: n = 4, k = 2
+输出:
+[
+  [2,4],
+  [3,4],
+  [2,3],
+  [1,2],
+  [1,3],
+  [1,4],
+]
+
+*/
+
+void backtrack(int n, int k, int* returnSize,
+				int** returnColumnSizes, int **ret, int *cur, int curCnt, int start)
+{
+	if (k == curCnt) {
+		ret[*returnSize] = (int *)calloc(k, sizeof(int));
+		memcpy(ret[*returnSize], cur, sizeof(int) * k);
+		(*returnSize)++;
+		return;
+	}
+
+	if (curCnt > k) {
+		return;
+	}
+
+	for(int i = start; i <= n; i++) {
+		cur[curCnt] = i;
+		backtrack(n, k, returnSize, returnColumnSizes, ret, cur, curCnt + 1, i + 1);
+	}
+}
+
+
+/**
+ * Return an array of arrays of size *returnSize.
+ * The sizes of the arrays are returned as *returnColumnSizes array.
+ * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ */
+int** combine(int n, int k, int* returnSize, int** returnColumnSizes)
+{
+	int **ret = (int **)calloc(1 << n, sizeof(int *));
+	int *cur = (int *)calloc(1 << n, sizeof(int));
+
+	*returnSize = 0;
+	backtrack(n, k, returnSize, returnColumnSizes, ret, cur, 0, 1);
+	*returnColumnSizes = (int *)calloc(*returnSize, sizeof(int));
+	for (int i = 0; i < *returnSize; i++) {
+		(*returnColumnSizes)[i] = k;
+	}
+
+	return ret;
 }
 
