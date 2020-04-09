@@ -1,11 +1,6 @@
 #ifndef HLIST_PRO_H
 #define HLIST_PRO_H
-/*
-list
-map
-set
-*/
-
+/* list map set */
 struct DataEntry {
 	int key;
 	int value;
@@ -14,7 +9,7 @@ struct DataEntry {
 
 void ListPushLast(struct List *list, int nodeKey)
 {
-	struct DataEntry  *entry = (struct DataEntry  *)calloc(1, sizeof(struct DataEntry ));
+	struct DataEntry  *entry = (struct DataEntry  *)calloc(1, sizeof(struct DataEntry));
 	entry->key = nodeKey;
 	ListAddTail(list, &entry->node);
 }
@@ -22,12 +17,12 @@ void ListPushLast(struct List *list, int nodeKey)
 
 bool ListIsContainsKey(struct List *list, int nodeKey)
 {
-	struct Node *node;
-	struct DataEntry *entry;
+	struct Node *node = NULL;
+	struct DataEntry *entry = NULL;
 
 	LIST_FOR_EACH(node, list) {
 		entry = NODE_ENTRY(node, struct DataEntry, node);
-		if(entry->key == nodeKey) {
+		if (entry->key == nodeKey) {
 			return true;
 		}
 	}
@@ -37,12 +32,12 @@ bool ListIsContainsKey(struct List *list, int nodeKey)
 
 struct DataEntry *ListFindKey(struct List *list, int nodeKey)
 {
-	struct Node *node, *tmp;
-	struct DataEntry *entry;
+	struct Node *node = NULL;
+	struct DataEntry *entry = NULL;
 
-	LIST_FOR_EACH_SAFE(node, tmp, list) {
+	LIST_FOR_EACH(node, list) {
 		entry = NODE_ENTRY(node, struct DataEntry, node);
-		if(entry->key == nodeKey) {
+		if (entry->key == nodeKey) {
 			return entry;
 		}
 	}
@@ -53,14 +48,15 @@ struct DataEntry *ListFindKey(struct List *list, int nodeKey)
 
 void ListRmKey(struct List *list, int nodeKey)
 {
-	struct Node *node, *tmp;
-	struct DataEntry *entry;
+	struct Node *node = NULL;
+	struct Node *tmp = NULL;
+	struct DataEntry *entry = NULL;
 
 	LIST_FOR_EACH_SAFE(node, tmp, list) {
 		entry = NODE_ENTRY(node, struct DataEntry, node);
-		if(entry->key == nodeKey) {
+		if (entry->key == nodeKey) {
 			ListRemove(&entry->node);
-			free((void*)entry);
+			free(entry);
 		}
 	}
 }
