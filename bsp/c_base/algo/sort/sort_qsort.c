@@ -231,29 +231,3 @@ void qsort_string_test(void)
 }
 
 
-int main(int argc, char* argv[])
-{
-	if (argc != 2) {
-		printf("argc err\n");
-		return -1;
-	}
-
-	switch(atoi(argv[1])) {
-	case 1:
-		qsort_struct_test();
-	break;
-	case 2:
-		qsort_array_test();
-	break;
-	case 3:
-		qsort_point_array();
-	break;
-	case 4:
-	default:
-	break;
-	}
-
-	return 0;
-}
-
-

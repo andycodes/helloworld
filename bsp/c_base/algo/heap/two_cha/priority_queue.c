@@ -6,7 +6,7 @@
 #define PRIORITY_QUEUE_H
 enum {
 	PRIORITY_QUEUE_MIN,
-	PRIORITY_QUEUE_MAN,
+	PRIORITY_QUEUE_MAX,
 };
 
 struct DataEntry {
@@ -226,31 +226,4 @@ void priorityQueue_exit(struct PriorityQueue * pq)
 }
 
 #endif
-
-int main(void)
-{
-	struct PriorityQueue *pq = minheap_init(1024, PRIORITY_QUEUE_MAN);
-
-	int a[] = {90,80,60,70,40,50,30,20,10,0};
-
-	int i;
-	for(i=0; i< sizeof(a) / sizeof(a[0]); i++) {
-		printf("%d ", a[i]);
-		struct Entry node;
-		node.key = a[i];
-		priorityQueue_push(pq, node);
-	}
-
-	minheap_print(pq);
-
-	while(!priorityQueue_isEmpty(pq)) {
-		struct Entry get = priorityQueue_pop(pq);
-		printf(" %d ", get.key);
-	}
-
-	printf("\n");
-
-	return 0;
-}
-
 

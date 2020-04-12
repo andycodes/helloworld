@@ -87,7 +87,7 @@ int nums2Size, int k, int* returnSize, int** returnColumnSizes)
 		return NULL;
 	}
 
-	struct PriorityQueue *pq = priorityQueue_init(k, PRIORITY_QUEUE_MAN);
+	struct PriorityQueue *pq = priorityQueue_init(k, PRIORITY_QUEUE_MAX);
 
 	for (int i = 0; i < nums1Size; i++) {
 		for (int j = 0; j < nums2Size; j++) {

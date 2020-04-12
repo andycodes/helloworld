@@ -275,6 +275,46 @@ void slink_del_by_value(struct ListNode* head, int val)
         return head;
 }
 
+/*
+19. 删除链表的倒数第N个节点
+难度中等780
+给定一个链表，删除链表的倒数第 n 个节点，并且返回链表的头结点。
+示例：
+给定一个链表: 1->2->3->4->5, 和 n = 2.
+
+当删除了倒数第二个节点后，链表变为 1->2->3->5.
+说明：
+给定的 n 保证是有效的。
+进阶：
+你能尝试使用一趟扫描实现吗？
+*/
+/*
+链表中解决带间距的问题，首先想到的也是很常用的就是双指针。
+让两个指针间隔 n+1个节点后两者同时后移，当跑得快的指针到达尾部时，跑的慢的指针的下一个节点刚好就是要被删除的节点，至此，问题迎刃而解。
+然后注意边界问题，当待删除的元素刚好是第一个元素时需要特殊处理。
+最后是参数合法，当 head == NULL 或 n 超出了链表长度需要特殊处理
+
+
+
+*/
+struct ListNode* removeNthFromEnd(struct ListNode* head, int n){
+	struct ListNode* dummy = calloc(1, sizeof(struct ListNode));
+	dummy->next = head;
+	struct ListNode*first = dummy;
+	struct ListNode*second = dummy;
+	for(int i = 1; i <= n+1;i++) {
+		first = first->next;
+	}
+
+	while(first != NULL) {
+		first = first->next;
+		second = second->next;
+	}
+
+	second->next = second->next->next;
+	return dummy->next;
+}
+
 
 void slink_display(struct ListNode *head)
 {

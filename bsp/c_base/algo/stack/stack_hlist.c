@@ -10,13 +10,6 @@ void stack_push(struct List *list, struct Node *node)
 	ListAddTail(list, node);
 }
 
-void stack_push_key(struct List *list, int  key)
-{
-	struct DataEntry  *entry = (struct DataEntry  *)calloc(1, sizeof(struct DataEntry ));
-	entry->key = key;
-	ListAddTail(list, &entry->node);
-}
-
 static inline bool stack_empty(const struct List *list)
 {
 	return ListEmpty(list);
@@ -25,6 +18,13 @@ static inline bool stack_empty(const struct List *list)
 struct Node * stack_top(const struct List *list)
 {
 	return list->base.prev;
+}
+
+struct Node * stack_pop(struct List *list)
+{
+	struct Node *node = list->base.prev;
+	ListRemoveTail(list);
+	return node;
 }
 
 struct DataEntry * stack_entry_top(const struct List *list)
@@ -37,12 +37,11 @@ struct DataEntry * stack_entry_top(const struct List *list)
 	return NODE_ENTRY(node, struct DataEntry, node);
 }
 
-struct Node * stack_pop(const struct List *list)
+void stack_key_push(struct List *list, int  key)
 {
-	struct Node *node;
-	node = list->base.prev;
-	ListRemoveTail(list);
-	return node;
+	struct DataEntry  *entry = (struct DataEntry  *)calloc(1, sizeof(struct DataEntry ));
+	entry->key = key;
+	ListAddTail(list, &entry->node);
 }
 #endif
 
