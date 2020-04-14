@@ -187,3 +187,135 @@ int* subSort(int* array, int arraySize, int* returnSize){
 
     return ret;
 }
+
+/*
+1366. 通过投票对团队排名
+难度中等18
+现在有一个特殊的排名系统，依据参赛团队在投票人心中的次序进行排名，每个投票者都需要按从高到低的顺序对参与排名的所有团队进行排位。
+排名规则如下：
+"	参赛团队的排名次序依照其所获「排位第一」的票的多少决定。如果存在多个团队并列的情况，将继续考虑其「排位第二」的票的数量。以此类推，直到不再存在并列的情况。
+"	如果在考虑完所有投票情况后仍然出现并列现象，则根据团队字母的字母顺序进行排名。
+给你一个字符串数组 votes 代表全体投票者给出的排位情况，请你根据上述排名规则对所有参赛团队进行排名。
+请你返回能表示按排名系统 排序后 的所有团队排名的字符串。
+
+示例 1：
+输入：votes = ["ABC","ACB","ABC","ACB","ACB"]
+输出："ACB"
+解释：A 队获得五票「排位第一」，没有其他队获得「排位第一」，所以 A 队排名第一。
+B 队获得两票「排位第二」，三票「排位第三」。
+C 队获得三票「排位第二」，两票「排位第三」。
+由于 C 队「排位第二」的票数较多，所以 C 队排第二，B 队排第三。
+示例 2：
+输入：votes = ["WXYZ","XYZW"]
+输出："XWYZ"
+解释：X 队在并列僵局打破后成为排名第一的团队。X 队和 W 队的「排位第一」票数一样，但是 X 队有一票「排位第二」，而 W 没有获得「排位第二」。
+示例 3：
+输入：votes = ["ZMNAGUEDSJYLBOPHRQICWFXTVK"]
+输出："ZMNAGUEDSJYLBOPHRQICWFXTVK"
+解释：只有一个投票者，所以排名完全按照他的意愿。
+示例 4：
+输入：votes = ["BCA","CAB","CBA","ABC","ACB","BAC"]
+输出："ABC"
+解释：
+A 队获得两票「排位第一」，两票「排位第二」，两票「排位第三」。
+B 队获得两票「排位第一」，两票「排位第二」，两票「排位第三」。
+C 队获得两票「排位第一」，两票「排位第二」，两票「排位第三」。
+完全并列，所以我们需要按照字母升序排名。
+
+*/
+
+struct Sort {
+	char c;
+	int cnt[26];
+	int flag;
+};
+
+int cmp_struct(const void *a, const void *b)
+{
+	struct Sort *c = (struct Sort *)a;
+	struct Sort *d = (struct Sort *)b;
+
+
+	for (int i = 0; i < 26; i++){
+		if (c->cnt[i] != d->cnt[i]) {
+			return d->cnt[i] - c->cnt[i];
+		}
+	}
+
+	return c->c - d->c;
+}
+
+char * rankTeams(char ** votes, int votesSize)
+{
+	struct Sort hash[26];
+	memset(hash, 0, sizeof(hash));
+
+	for (int i = 0; i < 26; i++) {
+		hash[i].c = 'A' + i;
+	}
+
+	for(int i = 0; i < votesSize; i++) {
+		int j = 0;
+		while(votes[i][j] != '\0') {
+			hash[votes[i][j] - 'A'].cnt[j]++;
+			hash[votes[i][j] - 'A'].flag = 1;
+			j++;
+		}
+	}
+
+	qsort(hash, 26, sizeof(hash[0]), cmp_struct);
+	char *ret = (char *)calloc(27, sizeof(char));
+	int retCnt = 0;
+	for(int i = 0; i < 26; i++) {
+		if (hash[i].flag == 1)
+			ret[retCnt++] = hash[i].c;
+	}
+
+	return ret;
+}
+
+/*
+面试题45. 把数组排成最小的数
+难度中等33
+输入一个正整数数组，把数组里所有数字拼接起来排成一个数，打印能拼接出的所有数字中最小的一个。
+
+示例 1:
+输入: [10,2]
+输出: "102"
+示例 2:
+输入: [3,30,34,5,9]
+输出: "3033459"
+
+*/
+
+int cmp_str(const void *a, const void *b)
+{
+	char e[101] = {{0}};
+	char f[101] = {{0}};
+	sprintf(e, "%d", *((int *)a));
+	sprintf(f, "%d", *((int *)b));
+
+	char c[101] = {{0}};
+	char d[101] = {{0}};
+	strcat(c, e);
+	strcat(c, f);
+
+	strcat(d, f);
+	strcat(d, e);
+
+	return strcmp(c, d);
+}
+
+char* minNumber(int* nums, int numsSize)
+{
+	qsort(nums, numsSize, sizeof(int), cmp_str);
+	char *ret = (char *)calloc(1024 * 100, sizeof(char));
+	for (int i = 0; i < numsSize; i++) {
+		char tmpstr[101];
+		memset(tmpstr, 0, sizeof(tmpstr));
+		sprintf(tmpstr, "%d", nums[i]);
+		strcat(ret, tmpstr);
+	}
+
+	return ret;
+}

@@ -198,6 +198,15 @@ int priorityQueue_push(struct PriorityQueue *pq, struct DataEntry node)
 	return 0;
 }
 
+void  priorityQueue_push_sole(struct PriorityQueue *pq, struct DataEntry node)
+{
+	if(priorityQueue_getIdx(pq, node.key) != -1) {
+		return;
+	}
+
+	priorityQueue_push(pq, node);
+}
+
 
 
 void minheap_print(struct PriorityQueue *pq)

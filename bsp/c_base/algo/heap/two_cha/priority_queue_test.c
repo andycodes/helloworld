@@ -128,3 +128,34 @@ int nums2Size, int k, int* returnSize, int** returnColumnSizes)
 	return res;
 }
 
+
+/*
+面试题 17.09. 第 k 个数
+难度中等13
+有些数的素因子只有 3，5，7，请设计一个算法找出第 k 个数。注意，不是必须有这些素因子，而是必须不包含其他的素因子。例如，前几个数按顺序应该是 1，3，5，7，9，15，21。
+示例 1:
+输入: k = 5
+
+输出: 9
+
+*/
+
+int getKthMagicNumber(int k){
+	int rat[] = {3,5,7};
+	int ret = 0;
+	struct PriorityQueue *pq =  priorityQueue_init(1024,  PRIORITY_QUEUE_MIN);
+	struct DataEntry node;
+	node.key = 1;
+	priorityQueue_push(pq, node);
+	while(k-- && !priorityQueue_isEmpty(pq)) {
+		struct DataEntry top =  priorityQueue_pop(pq);
+		ret = top.key;
+		for(int i = 0; i < 3 ;i++) {
+			struct DataEntry node;
+			node.key = top.key * rat[i];
+			priorityQueue_push_sole(pq, node);
+		}
+	}
+
+	return ret;
+}
