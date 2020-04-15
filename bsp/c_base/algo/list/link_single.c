@@ -585,9 +585,12 @@ struct ListNode* middleNode(struct ListNode* head){
 
 
 /*
-给出两个?非空 的链表用来表示两个非负的整数。其中，它们各自的位数是按照?逆序?的方式存储的，并且它们的每个节点只能存储?一位?数字。
+给出两个?非空 的链表用来表示两个非负的整数。
+其中，它们各自的位数是按照?逆序?的方式存储的，
+并且它们的每个节点只能存储?一位?数字。
 
-如果，我们将这两个数相加起来，则会返回一个新的链表来表示它们的和。
+如果，我们将这两个数相加起来，
+则会返回一个新的链表来表示它们的和。
 
 您可以假设除了数字 0 之外，这两个数都不会以 0?开头。
 
@@ -597,26 +600,28 @@ struct ListNode* middleNode(struct ListNode* head){
 输出：7 -> 0 -> 8
 原因：342 + 465 = 807
 */
-struct ListNode* addTwoNumbers(struct ListNode* l1, struct ListNode* l2) {
-    struct ListNode* res = slink_init();
-    struct ListNode* p = l1;
-    struct ListNode* q = l2;
-    int carry = 0;
-    while (p != NULL || q != NULL) {
-        int x = (p != NULL) ? p->val : 0;
-        int y = (q != NULL) ? q->val : 0;
-        int sum = carry + x + y;
-        carry = sum / 10;
-        slink_push_last(res, sum % 10);
-        if (p != NULL) p = p->next;
-        if (q != NULL) q = q->next;
-    }
+struct ListNode* addTwoNumbers(struct ListNode* l1, struct ListNode* l2)
+{
+	struct ListNode* p = l1;
+	struct ListNode* q = l2;
+	int plus = 0;
 
-    if (carry > 0) {
-        slink_push_last(res, carry);
-    }
+	struct ListNode* ret = slink_init();
+	while(p != NULL || q != NULL) {
+		int x = p != NULL ? p->val : 0;
+		int y = q != NULL ? q->val : 0;
+		int sum = plus + x + y;
+		plus = sum / 10;
+		slink_push_last(ret, sum % 10);
+		if (p != NULL) p = p->next;
+		if (q != NULL) q = q->next;
+	}
 
-    return res->next;
+	if (plus > 0)  {
+		slink_push_last(ret, plus);
+	}
+
+	return ret->next;
 }
 
 
