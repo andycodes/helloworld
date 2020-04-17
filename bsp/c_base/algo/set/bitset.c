@@ -33,10 +33,10 @@ int hammingWeight(unsigned int n)
 二进制枚举:所有子集
 含有N个元素的集合的一切子集的个数为 2^n
 
-	for (int i = 0; i < (1 << numsSize); i++) {遍历子集所有状态
+	for (int i = 0; i < (1 << numsSize); i++) {  i 为 遍历子集所有状态
 		for (int j = 0; j < numsSize; j++) {//遍历子集状态的二进制的每一位
 			if ((i & (1 << j)) != 0) { //为真，选取原始对象中的成员
-
+					A[j]
 			}
 		}
 
