@@ -1182,3 +1182,39 @@ int** combine(int n, int k, int* returnSize, int** returnColumnSizes)
 	return ret;
 }
 
+/*
+bfs
+22. À¨ºÅÉú³É
+*/
+void dfs(char** res, int* returnSize, char* current, int currentSize, int leftCnt, int rightCnt, int max)
+{
+	if (leftCnt > max || rightCnt > leftCnt) {
+		return;
+	}
+
+	if (currentSize == max * 2) {
+		res[*returnSize] = (char*)calloc(1024 * 1024, sizeof(char));
+		strcpy(res[*returnSize], current);
+		(*returnSize)++;
+		return;
+	}
+
+	current[currentSize] = '(';
+	dfs(res, returnSize, current, currentSize + 1, leftCnt + 1, rightCnt, max);
+	current[currentSize] = ')';
+	dfs(res, returnSize, current, currentSize + 1, leftCnt, rightCnt + 1, max);
+}
+
+char** generateParenthesis(int n, int* returnSize)
+{
+    *returnSize = 0;
+    if (n == 0) {
+        return NULL;
+    }
+
+    char** res = (char**)calloc(1024 * 1024, sizeof(char*));
+    char* current = (char*)calloc(1024 * 1024, sizeof(char));
+    dfs(res, returnSize, current, 0, 0, 0, n);
+    return res;
+}
+

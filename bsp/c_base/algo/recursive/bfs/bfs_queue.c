@@ -437,3 +437,152 @@ int prerequisitesSize, int* prerequisitesColSize)
 
 	return cnt == numCourses;
 }
+
+/*
+210. 课程表 II
+难度中等122
+现在你总共有 n 门课需要选，记为 0 到 n-1。
+在选修某些课程之前需要一些先修课程。 例如，想要学习课程 0 ，你需要先完成课程 1 ，我们用一个匹配来表示他们: [0,1]
+给定课程总量以及它们的先决条件，返回你为了学完所有课程所安排的学习顺序。
+可能会有多个正确的顺序，你只要返回一种就可以了。如果不可能完成所有课程，返回一个空数组。
+示例 1:
+输入: 2, [[1,0]]
+输出: [0,1]
+解释: 总共有 2 门课程。要学习课程 1，你需要先完成课程 0。因此，正确的课程顺序为 [0,1] 。
+示例 2:
+输入: 4, [[1,0],[2,0],[3,1],[3,2]]
+输出: [0,1,2,3] or [0,2,1,3]
+解释: 总共有 4 门课程。要学习课程 3，你应该先完成课程 1 和课程 2。并且课程 1 和课程 2 都应该排在课程 0 之后。
+     因此，一个正确的课程顺序是 [0,1,2,3] 。另一个正确的排序是 [0,2,1,3] 。
+说明:
+1.	输入的先决条件是由边缘列表表示的图形，而不是邻接矩阵。详情请参见图的表示法。
+2.	你可以假定输入的先决条件中没有重复的边。
+提示:
+1.	这个问题相当于查找一个循环是否存在于有向图中。如果存在循环，则不存在拓扑排序，因此不可能选取所有课程进行学习。
+2.	通过 DFS 进行拓扑排序 - 一个关于Coursera的精彩视频教程（21分钟），介绍拓扑排序的基本概念。
+3.	拓扑排序也可以通过 BFS 完成。
+1.	nums1和nums2 的数组大小都不超过1000。
+
+*/
+
+
+/*
+拓扑排序入度：设有向图中有一结点 v ，其入度即为当前所有从其他结点出发，终点为 v 的的边的数目。出度：设有向图中有一结点 v ，其出度即为当前所有起点为 v ，指向其他结点的边的数目。每次从入度为 0 的结点开始，加入队列。入度为 0 ，表示没有前置结点。处理入度为 0 的结点，把这个结点指向的结点的入度 -1 。再把新的入度为 0 的结点加入队列。如果队列都处理完毕，但是和总结点数不符，说明有些结点形成环。
+*/
+
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int* findOrder(int numCourses, int** prerequisites, int prerequisitesSize,
+	int* prerequisitesColSize, int* returnSize)
+{
+	int inDegree[numCourses];
+	memset(inDegree, 0, sizeof(inDegree));
+
+	int matrix[numCourses][numCourses];
+	int matrixCnt[numCourses];
+	memset(matrix, 0, sizeof(matrix));
+	memset(matrixCnt, 0, sizeof(matrixCnt));
+
+	for (int i = 0; i < prerequisitesSize; i++) {
+		//printf("%d", prerequisites[i][0]);
+		inDegree[prerequisites[i][0]]++;
+		int cnt = matrixCnt[prerequisites[i][1]];//out degree
+		matrix[prerequisites[i][1]][cnt] = prerequisites[i][0];
+		matrixCnt[prerequisites[i][1]]++;
+	}
+
+	struct List list;
+	queue_init(&list);
+	for (int i = 0; i < numCourses; i++) {
+		if (inDegree[i] == 0) {
+			queue_push_key(&list, i);
+		}
+	}
+
+	int *ret = calloc(numCourses, sizeof(int));
+	int retSize = 0;
+	while(!queue_empty(&list)) {
+		struct Node *popNode = queue_pop(&list);
+		struct DataEntry *entry;
+		entry = NODE_ENTRY(popNode, struct DataEntry, node);
+		ret[retSize++] = entry->key;
+		for(int i = 0; i < matrixCnt[entry->key]; i++) {
+			int idx = matrix[entry->key][i];
+			if (--inDegree[idx] == 0) {
+				queue_push_key(&list, idx);
+			}
+		}
+	}
+
+	//printf("%d\n",retSize);
+	*returnSize = retSize;
+	if (retSize != numCourses)
+		*returnSize = 0;
+	return ret;
+}
+
+/*
+22. 括号生成
+难度中等955
+数字 n 代表生成括号的对数，请你设计一个函数，用于能够生成所有可能的并且 有效的 括号组合。
+
+示例：
+输入：n = 3
+输出：[
+       "((()))",
+       "(()())",
+       "(())()",
+       "()(())",
+       "()()()"
+     ]
+
+*/
+char** generateParenthesis(int n, int* returnSize)
+{
+	*returnSize = 0;
+	if (n == 0) {
+		return NULL;
+	}
+
+	char** res = (char**)calloc(1024 * 1024, sizeof(char*));
+	struct List list;
+	queue_init(&list);
+
+	struct DataEntry  *entry = (struct DataEntry  *)calloc(1, sizeof(struct DataEntry));
+	entry->left = n;
+	entry->right = n;
+	memset(entry->data, 0, sizeof(entry->data));
+	ListAddTail(&list, &entry->node);
+
+	while(!queue_empty(&list)) {
+		struct Node *pop = queue_pop(&list);
+		struct DataEntry  *popEntry = NODE_ENTRY(pop, struct DataEntry, node);
+
+		if (popEntry->left == 0 && popEntry->right == 0) {
+			res[*returnSize] = (char*)calloc(1024 * 1024, sizeof(char));
+			strcpy(res[*returnSize], popEntry->data);
+			(*returnSize)++;
+		}
+
+		if (popEntry->left > 0) {
+			struct DataEntry  *leftentry = (struct DataEntry  *)calloc(1, sizeof(struct DataEntry));
+			leftentry->left = popEntry->left - 1;
+			leftentry->right = popEntry->right;
+			strcpy(leftentry->data, popEntry->data);
+			strcat(leftentry->data, "(");
+			ListAddTail(&list, &leftentry->node);
+		}
+
+		if (popEntry->right > 0 && popEntry->left < popEntry->right) {
+			struct DataEntry  *rightentry = (struct DataEntry  *)calloc(1, sizeof(struct DataEntry));
+			rightentry->left = popEntry->left;
+			rightentry->right = popEntry->right - 1;
+			strcpy(rightentry->data, popEntry->data);
+			strcat(rightentry->data, ")");
+			ListAddTail(&list, &rightentry->node);
+		}
+	}
+
+	return res;
+}

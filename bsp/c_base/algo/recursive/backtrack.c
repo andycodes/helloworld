@@ -309,3 +309,80 @@ int* obstacleGridColSize, int* returnSize, int** returnColumnSizes){
 	return ret;
 }
 
+/*
+332. 重新安排行程
+难度中等102
+给定一个机票的字符串二维数组 [from, to]，子数组中的两个成员分别表示飞机出发和降落的机场地点，对该行程进行重新规划排序。所有这些机票都属于一个从JFK（肯尼迪国际机场）出发的先生，所以该行程必须从 JFK 出发。
+说明:
+1.	如果存在多种有效的行程，你可以按字符自然排序返回最小的行程组合。例如，行程 ["JFK", "LGA"] 与 ["JFK", "LGB"] 相比就更小，排序更靠前
+2.	所有的机场都用三个大写字母表示（机场代码）。
+3.	假定所有机票至少存在一种合理的行程。
+示例 1:
+输入: [["MUC", "LHR"], ["JFK", "MUC"], ["SFO", "SJC"], ["LHR", "SFO"]]
+输出: ["JFK", "MUC", "LHR", "SFO", "SJC"]
+示例 2:
+输入: [["JFK","SFO"],["JFK","ATL"],["SFO","ATL"],["ATL","JFK"],["ATL","SFO"]]
+输出: ["JFK","ATL","JFK","SFO","ATL","SFO"]
+解释: 另一种有效的行程是 ["JFK","SFO","ATL","JFK","ATL","SFO"]。但是它自然排序更大更靠后。
+
+*/
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+ #define STR_LEN 4
+int g_flag[300];
+ void dfs(char *** tickets, int ticketsSize, char *** res, char *start, int *count)
+ {  //遍历飞机票
+    for (int i = 0; i < ticketsSize; i++) {
+        if (g_flag[i] == 0 && strcmp(start, tickets[i][0]) == 0) {//找到目的地
+            (*count)++;
+            //printf("#####%d %s\n", *count, start);
+            g_flag[i] = *count;
+            char *newStart = tickets[i][1];
+
+            (*res)[(*count)] = (char*)calloc(STR_LEN, sizeof(char));
+            //将目的地加到结果数组中
+            strncpy((*res)[(*count)], newStart, STR_LEN);
+            //遍历下个目的地
+            dfs(tickets, ticketsSize, res, newStart, count);
+            //当结果数组满了，则返回。
+            if (*count  == ticketsSize ) {
+                return;
+            }
+            //不符合则回溯
+            (*count)--;
+            g_flag[i] = 0;
+        }
+    }
+ }
+int cmp(const void *str1, const void *str2)
+{
+    const char **tmp1 = *(char**)str1;
+    const char **tmp2 = *(char**)str2;
+    int ret = strcmp(tmp1[0], tmp2[0]);
+    if (ret == 0) {
+        return strcmp(tmp1[1], tmp2[1]);
+    }
+
+    return ret;
+}
+
+char ** findItinerary(char *** tickets, int ticketsSize, int* ticketsColSize, int* returnSize){
+    *returnSize = ticketsSize + 1; //
+    char **res = (char**)calloc(*returnSize, sizeof(char*));
+    memset(g_flag, 0, sizeof(g_flag));
+    //排序 自然序
+    qsort(tickets, ticketsSize, sizeof(tickets[0]), cmp);
+
+    char *start= "JFK";
+    int count = 0;
+
+    dfs(tickets, ticketsSize, &res, start, &count);
+
+    res[0] = (char*)calloc(STR_LEN, sizeof(char));
+    strncpy(res[0], start, STR_LEN);
+
+    return res;
+}
+
+

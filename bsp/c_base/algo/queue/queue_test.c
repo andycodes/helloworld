@@ -162,3 +162,4 @@ void snakeGameFree(SnakeGame* obj) {
 	free(obj);
 	obj == NULL;
 }
+

@@ -481,27 +481,27 @@ bool validateStackSequences(int* pushed, int pushedSize,
 /*  递减栈
 739. 每日温度
 难度中等283
-根据每日 气温 列表，请重新生成一个列表，对应位置的输出是需要再等待多久温度才会升高超过该日的天数。如果之后都不会升高，请在该位置用 0 来代替。
-例如，给定一个列表 temperatures = [73, 74, 75, 71, 69, 72, 76, 73]，你的输出应该是 [1, 1, 4, 2, 1, 1, 0, 0]。
+根据每日 气温 列表，请重新生成一个列表，对应位置的
+输出是需要再等待多久温度才会升高超过该日的天数。如果之后都不会升高，请在该位置用 0 来代替。
+例如，给定一个列表
+temperatures = [73, 74, 75, 71, 69, 72, 76, 73]，
+你的输出应该是 [1, 1, 4, 2, 1, 1, 0, 0]。
 提示：气温 列表长度的范围是 [1, 30000]。每个气温的值的均为华氏度，都是在 [30, 100] 范围内的整数。
 通过次数41,803
 提交次数69,547
 在真实的面试中遇到过这道题？
 
 */
-/**
- * Note: The returned array must be malloced, assume caller calls free().
- */
 /*
-这个题目的标签是 栈 ，我们考虑一下怎么借助 栈 来解决。
+遍历整个数组，如果栈不空，且当前数字大于栈顶元素，
+那么如果直接入栈的话就不是 递减栈 ，
+所以需要取出栈顶元素，由于当前数字大于栈顶元素的
+数字，而且一定是第一个大于栈顶元素的数，
+直接求出下标差就是二者的距离。
 
-不过这个栈有点特殊，它是 递减栈 ：栈里只有递减元素。
-
-具体操作如下：
-
-遍历整个数组，如果栈不空，且当前数字大于栈顶元素，那么如果直接入栈的话就不是 递减栈 ，所以需要取出栈顶元素，由于当前数字大于栈顶元素的数字，而且一定是第一个大于栈顶元素的数，直接求出下标差就是二者的距离。
-
-继续看新的栈顶元素，直到当前数字小于等于栈顶元素停止，然后将数字入栈，这样就可以一直保持递减栈，且每个数字和第一个大于它的数的距离也可以算出来。
+继续看新的栈顶元素，直到当前数字小于等于栈顶元
+素停止，然后将数字入栈，这样就可以一直保持递减栈，
+且每个数字和第一个大于它的数的距离也可以算出来。
 */
 
 int* dailyTemperatures(int* T, int TSize, int* returnSize){
@@ -511,19 +511,82 @@ int* dailyTemperatures(int* T, int TSize, int* returnSize){
 	for(int i = 0; i < TSize; i++) {
 		while(!stack_empty(&list)) {
 			struct DataEntry *entry = stack_entry_top(&list);
-			int  t = entry->key;
 			if (T[i] > T[entry->key])  {
 				stack_pop(&list);
-				ret[t] = i - t;
+				ret[entry->key] = i - entry->key;
 			} else {
 				break;
 			}
 		}
-
 		stack_key_push(&list, i);
 	}
 
 	*returnSize = TSize;
+	return ret;
+}
+
+/*单调栈
+496. 下一个更大元素 I
+难度简单186
+给定两个没有重复元素的数组 nums1 和 nums2 ，其中nums1 是 nums2 的子集。找到 nums1 中每个元素在 nums2 中的下一个比其大的值。
+nums1 中数字 x 的下一个更大元素是指 x 在 nums2 中对应位置的右边的第一个比 x 大的元素。如果不存在，对应位置输出-1。
+示例 1:
+输入: nums1 = [4,1,2], nums2 = [1,3,4,2].
+输出: [-1,3,-1]
+解释:
+    对于num1中的数字4，你无法在第二个数组中找到下一个更大的数字，因此输出 -1。
+    对于num1中的数字1，第二个数组中数字1右边的下一个较大数字是 3。
+    对于num1中的数字2，第二个数组中没有下一个更大的数字，因此输出 -1。
+示例 2:
+输入: nums1 = [2,4], nums2 = [1,2,3,4].
+输出: [3,-1]
+解释:
+    对于num1中的数字2，第二个数组中的下一个较大数字是3。
+    对于num1中的数字4，第二个数组中没有下一个更大的数字，因此输出 -1。
+注意:
+1.	nums1和nums2中所有元素是唯一的。
+
+*/
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int* nextGreaterElement(
+int* nums1, int nums1Size, int* nums2, int nums2Size, int* returnSize){
+	if (nums1Size == 0 || nums2Size == 0) {
+		*returnSize = 0;
+		return NULL;
+	}
+
+
+	int nextBig[nums2Size];
+	memset(nextBig, -1, sizeof(nextBig));
+
+	struct List list;
+	stack_init(&list);
+	for(int i = 0; i < nums2Size; i++) {
+		while (!stack_empty(&list) ) {
+			struct DataEntry *top =  stack_top_entry(&list);
+			if (nums2[i] > nums2[top->key]) {
+				stack_pop(&list);
+				nextBig[top->key] = nums2[i];
+			}else {
+				break;
+			}
+		}
+
+		stack_push_key(&list, i);
+	}
+
+	int *ret = calloc(nums1Size, sizeof(int));
+	for(int i = 0; i < nums1Size; i++) {
+		for (int j = 0; j < nums2Size; j++) {
+			if (nums1[i] == nums2[j]) {
+				ret[i] = nextBig[j];
+			}
+		}
+	}
+
+	*returnSize = nums1Size;
 	return ret;
 }
 
