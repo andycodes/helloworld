@@ -111,32 +111,32 @@ void maxQueueFree(MaxQueue* obj) {
 
 */
 
-int lengthOfLongestSubstring(char* s)
+int lengthOfLongestSubstring(char * s)
 {
-	if (s == NULL || strlen(s) == 0)
-		return 0;
-	if (strlen(s) == 1)
-		return 1;
-
-	struct ListNode* slink = slink_init();
-
-	int max = 0;
 	int left = 0;
 	int right = 0;
-	while(right < strlen(s)) {
-		while(slink_get_idx_by_val(slink, s[right])  != -1) {
-			slink_pop_first(slink);
-			left++;
+	int max = 0;
+
+	struct List list;
+	queue_init(&list);
+	while(s[right] != '\0') {
+		while(1) {
+			struct DataEntry *entry = ListFindKey(&list, s[right]);
+			if (entry != NULL) {
+				queue_pop_entry(&list);
+				left++;
+			} else {
+				break;
+			}
 		}
 
-		slink_push_last(slink, s[right]);
+		queue_push_key(&list, s[right]);
 		right++;
-		max = fmax(right - left, max);
+		max = fmax(max, right - left);
 	}
 
 	return max;
 }
-
 
 
 /*

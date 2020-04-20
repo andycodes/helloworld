@@ -4,6 +4,12 @@
 #define HASHCODE_MAGIC_7 7
 #define HASHCODE_MAGIC_1 1
 
+struct DataEntry {
+	int key;
+	int value;
+	struct Node node;
+};
+
 bool hashequal_str(const struct Node *node1, const struct Node *node2)
 {
 	struct DataEntry *entry1 = NODE_ENTRY(node1, struct DataEntry, node);
@@ -98,14 +104,25 @@ struct DataEntry *hashFindKey(const struct HashTable *ht, int key)
 
 size_t hashGetBlkid_int(const struct HashTable *ht, int key)
 {
-	return abs(key) % ht->bktSize;
+	return labs(key) % ht->bktSize;
 }
 
 
 struct List *hashGetBlkList_int(const struct HashTable *ht, int key)
 {
-	size_t blkid = abs(key) % ht->bktSize;
+	size_t blkid = labs(key) % ht->bktSize;
 	return &ht->bkts[blkid];
+}
+
+void hash_each_iterate(struct HashTable *ht)
+{
+	for (int i = 0; i < ht->bktSize; i++) {
+		struct Node *node = NULL;
+		LIST_FOR_EACH(node, &ht->bkts[i]) {
+			struct DataEntry *entry = NODE_ENTRY(node, struct DataEntry, node);
+			//do want you want
+		}
+	}
 }
 
 void hashPrint(struct HashTable *ht)
@@ -114,7 +131,7 @@ void hashPrint(struct HashTable *ht)
 	for (i = 0; i < ht->bktSize; i++) {
 		struct Node *node = NULL;
 		LIST_FOR_EACH(node, &ht->bkts[i]) {
-			struct DataEntry * entry = NODE_ENTRY(node, struct DataEntry, node);
+			struct DataEntry *entry = NODE_ENTRY(node, struct DataEntry, node);
 			printf("[%d %c]", entry->key, entry->value);
 		}
 		printf("\n");

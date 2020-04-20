@@ -9,20 +9,20 @@ enum {
 	PRIORITY_QUEUE_MAX,
 };
 
-struct DataEntry {
+struct heapEntry {
 	int key;
 	int value;
 };
 
-struct PriorityQueue{
+struct HeapSort{
 	int cnt;
 	int size;
 	int type;
-	struct DataEntry heap[0];
+	struct heapEntry heap[0];
 };
 
 
-int priorityQueue_getIdx(struct PriorityQueue *pq, int key)
+int heapsort_getIdx(struct HeapSort *pq, int key)
 {
 	for(int i = 0; i < pq->cnt; i++) {
 		if (key == pq->heap[i].key) {
@@ -33,7 +33,7 @@ int priorityQueue_getIdx(struct PriorityQueue *pq, int key)
 	return -1;
 }
 
-int priorityQueue_getIdxbyValue(struct PriorityQueue *pq, int value)
+int heapsort_getIdxbyValue(struct HeapSort *pq, int value)
 {
 	for(int i = 0; i < pq->cnt; i++) {
 		if (value == pq->heap[i].value) {
@@ -45,29 +45,29 @@ int priorityQueue_getIdxbyValue(struct PriorityQueue *pq, int value)
 }
 
 
-bool priorityQueue_isEmpty(struct PriorityQueue *pq)
+bool heapsort_empty(struct HeapSort *pq)
 {
 	return pq->cnt == 0;
 }
 
 
-bool priorityQueue_isFull(struct PriorityQueue *pq)
+bool heapsort_full(struct HeapSort *pq)
 {
 	return pq->cnt == pq->size;
 }
 
 
-int priorityQueue_getSize(struct PriorityQueue *pq)
+int heapsort_size(struct HeapSort *pq)
 {
 	return pq->cnt;
 }
 
 
-static void minheap_filterdown(struct PriorityQueue *pq, int start, int end)
+static void minheap_filterdown(struct HeapSort *pq, int start, int end)
 {
 	int parent = start;
 	int leftChild = 2*parent + 1;
-	struct DataEntry tmp = pq->heap[parent];
+	struct heapEntry tmp = pq->heap[parent];
 
 	while(leftChild <= end) {
 		if(leftChild < end && pq->heap[leftChild].key > pq->heap[leftChild+1].key)
@@ -86,11 +86,11 @@ static void minheap_filterdown(struct PriorityQueue *pq, int start, int end)
 }
 
 
-static void maxheap_filterdown(struct PriorityQueue *pq, int start, int end)
+static void maxheap_filterdown(struct HeapSort *pq, int start, int end)
 {
 	int parent = start;
 	int leftChild = 2*parent + 1;
-	struct DataEntry tmp = pq->heap[parent];
+	struct heapEntry tmp = pq->heap[parent];
 
 	while(leftChild <= end) {
 		if(leftChild < end && pq->heap[leftChild].key < pq->heap[leftChild+1].key)
@@ -110,13 +110,13 @@ static void maxheap_filterdown(struct PriorityQueue *pq, int start, int end)
 
 
 
-int priorityQueue_remove(struct PriorityQueue *pq, int data)
+int heapsort_remove(struct HeapSort *pq, int data)
 {
 	int index;
 	if(pq->cnt == 0)
 		return  -1;
 
-	index = priorityQueue_getIdx(pq, data);
+	index = heapsort_getIdx(pq, data);
 	if (index== -1)
 		return -1;
 
@@ -130,22 +130,25 @@ int priorityQueue_remove(struct PriorityQueue *pq, int data)
 	return 0;
 }
 
-
-struct DataEntry  priorityQueue_pop(struct PriorityQueue *pq)
+struct heapEntry heapsort_pop(struct HeapSort *pq)
 {
-	struct DataEntry top;
+	struct heapEntry top;
 
 	top = pq->heap[0];
-	priorityQueue_remove(pq, top.key);
+	heapsort_remove(pq, top.key);
 	return top;
 }
 
+int heapsort_top_key(struct HeapSort *pq)
+{
+	return pq->heap[0].key;
+}
 
-static void minheap_filterup(struct PriorityQueue *pq, int start)
+static void minheap_filterup(struct HeapSort *pq, int start)
 {
 	int curIdx = start;
 	int parent = (curIdx - 1) / 2;
-	struct DataEntry newNode = pq->heap[curIdx];
+	struct heapEntry newNode = pq->heap[curIdx];
 
 	while(curIdx > 0) {
 		if(pq->heap[parent].key > newNode.key) {
@@ -161,11 +164,11 @@ static void minheap_filterup(struct PriorityQueue *pq, int start)
 }
 
 
-static void maxheap_filterup(struct PriorityQueue *pq, int start)
+static void maxheap_filterup(struct HeapSort *pq, int start)
 {
     int child = start;
     int parent = (child-1) / 2;
-    struct DataEntry tmp = pq->heap[child];
+    struct heapEntry tmp = pq->heap[child];
 
     while(child > 0) {
         if(pq->heap[parent].key >= tmp.key) {
@@ -180,9 +183,9 @@ static void maxheap_filterup(struct PriorityQueue *pq, int start)
 }
 
 
-int priorityQueue_push(struct PriorityQueue *pq, struct DataEntry node)
+int heapsort_push(struct HeapSort *pq, struct heapEntry node)
 {
-	if(priorityQueue_isFull(pq)) {
+	if(heapsort_full(pq)) {
 		return -1;
 	}
 
@@ -198,18 +201,18 @@ int priorityQueue_push(struct PriorityQueue *pq, struct DataEntry node)
 	return 0;
 }
 
-void  priorityQueue_push_sole(struct PriorityQueue *pq, struct DataEntry node)
+void  heapsort_push_sole(struct HeapSort *pq, struct heapEntry node)
 {
-	if(priorityQueue_getIdx(pq, node.key) != -1) {
+	if(heapsort_getIdx(pq, node.key) != -1) {
 		return;
 	}
 
-	priorityQueue_push(pq, node);
+	heapsort_push(pq, node);
 }
 
 
 
-void minheap_print(struct PriorityQueue *pq)
+void minheap_print(struct HeapSort *pq)
 {
 	printf("%s\n", __func__);
 	for (int i = 0; i < pq->cnt; i++)
@@ -218,9 +221,9 @@ void minheap_print(struct PriorityQueue *pq)
 }
 
 
-struct PriorityQueue * priorityQueue_init(int size, int type)
+struct HeapSort *heapsort_init(int size, int type)
 {
-	struct PriorityQueue * pq = (struct PriorityQueue *)malloc(sizeof(struct PriorityQueue) + sizeof(struct DataEntry) * size);
+	struct HeapSort * pq = (struct HeapSort *)malloc(sizeof(struct HeapSort) + sizeof(struct heapEntry) * size);
 	pq->cnt = 0;
 	pq->size = size;
 	pq->type = type;
@@ -228,7 +231,7 @@ struct PriorityQueue * priorityQueue_init(int size, int type)
 }
 
 
-void priorityQueue_exit(struct PriorityQueue * pq)
+void heapsort_exit(struct HeapSort * pq)
 {
 	free(pq);
 	pq = NULL;
