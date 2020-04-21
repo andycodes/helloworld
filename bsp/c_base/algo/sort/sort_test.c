@@ -319,3 +319,60 @@ char* minNumber(int* nums, int numsSize)
 
 	return ret;
 }
+
+/*
+31. 下一个排列
+难度中等461
+实现获取下一个排列的函数，算法需要将给定数字序列重新排列成字典序中下一个更大的排列。
+如果不存在下一个更大的排列，则将数字重新排列成最小的排列（即升序排列）。
+必须原地修改，只允许使用额外常数空间。
+以下是一些例子，输入位于左侧列，其相应输出位于右侧列。
+1,2,3 → 1,3,2
+3,2,1 → 1,2,3
+1,1,5 → 1,5,1
+*/
+/*
+1、从后往前遍历，找到第一个nums[i] < nums[i + 1]，的位置i;
+2、通过步骤1知道i以后的位置都是单调递减的，因此后后面队列中找到第一个比他大的数，位置为j；
+3、交换位置i和位置j上面的两个数；
+4、从i+1位置开始，后面的数按照递增排序，最终的结果就是要找到的下一个比当前数大的数；
+
+从右往左找到第 1 个升序排列 a[i]>a[i+1]
+在 a[i] 右侧从右至左找到第 1 个大于 a[i] 的数，该数与 a[i] 交换值。(从右至左是因为经过第一步之后从右至左数依次增大，这样可以找到右边比 a[i] 大且接近 a[i] 的数)
+交换值后，对 a[i] 右边的值升序排序，保证其顺序值最小。
+
+*/
+
+static int comp(const void* a, const void* b)
+{
+    return *(int*)a - *(int*)b;
+}
+
+void nextPermutation(int* nums, int numsSize){
+    if (NULL == nums || 0 == numsSize)
+    {
+        return;
+    }
+
+    int left = numsSize - 2; // 从倒数第二个开始
+    int right;
+    int temp = 0;
+
+    while (left >= 0 && nums[left] >= nums[left + 1])
+    {
+        left--;
+    }
+
+    if (-1 == left) // 如果本来就是逆序的
+    {
+        return qsort(nums, numsSize, sizeof(int), comp);
+    }
+
+    for (right = left + 1; right <= numsSize - 1 && nums[left] < nums[right]; right++);
+
+    temp = nums[left];
+    nums[left] = nums[right - 1];
+    nums[right - 1] = temp;
+
+    qsort(nums + left + 1, numsSize - 1 - left, sizeof(int), comp);
+}
