@@ -275,6 +275,38 @@ void slink_del_by_value(struct ListNode* head, int val)
         return head;
 }
 
+void slink_display(struct ListNode *head)
+{
+	struct ListNode *entry = head;
+	int id = 0;
+	while (entry->next != NULL) {
+		entry = entry->next;
+		printf("[%d-%d]",id++, entry->val);
+	}
+	printf("\n");
+}
+
+/*
+面试题 02.02. 返回倒数第 k 个节点
+实现一种算法，找出单向链表中倒数第
+k 个节点。返回该节点的值。
+*/
+int kthToLast(struct ListNode* head, int k){
+	struct ListNode*  fast = head;
+	struct ListNode*  slow = head;
+
+	while(k--) {
+		fast = fast->next;
+	}
+
+	while(fast != NULL) {
+		fast = fast->next;
+		slow = slow->next;
+	}
+
+	return slow->val;
+}
+
 /*
 19. 删除链表的倒数第N个节点
 难度中等780
@@ -293,9 +325,6 @@ void slink_del_by_value(struct ListNode* head, int val)
 让两个指针间隔 n+1个节点后两者同时后移，当跑得快的指针到达尾部时，跑的慢的指针的下一个节点刚好就是要被删除的节点，至此，问题迎刃而解。
 然后注意边界问题，当待删除的元素刚好是第一个元素时需要特殊处理。
 最后是参数合法，当 head == NULL 或 n 超出了链表长度需要特殊处理
-
-
-
 */
 struct ListNode* removeNthFromEnd(struct ListNode* head, int n){
 	struct ListNode* dummy = calloc(1, sizeof(struct ListNode));
@@ -314,19 +343,6 @@ struct ListNode* removeNthFromEnd(struct ListNode* head, int n){
 	second->next = second->next->next;
 	return dummy->next;
 }
-
-
-void slink_display(struct ListNode *head)
-{
-	struct ListNode *entry = head;
-	int id = 0;
-	while (entry->next != NULL) {
-		entry = entry->next;
-		printf("[%d-%d]",id++, entry->val);
-	}
-	printf("\n");
-}
-
 
 /*
 将两个有序链表合并为一个新的有序链表并返回。
@@ -480,7 +496,8 @@ bool isPalindrome(struct ListNode* head){
 
 
 /*
-给定一个排序链表，删除所有重复的元素，使得每个元素只出现一次。
+给定一个排序链表，删除所有重复的元素，
+使得每个元素只出现一次。
 
 示例 1:
 
@@ -503,6 +520,45 @@ struct ListNode* deleteDuplicates(struct ListNode* head) {
     }
     return head;
 }
+/*
+82. 删除排序链表中的重复元素 II
+给定一个排序链表，删除所有含有重复数字的节点，只保留原始链表中 没有重复出现 的数字。
+
+示例 1:
+
+输入: 1->2->3->3->4->4->5
+输出: 1->2->5
+示例 2:
+
+输入: 1->1->1->2->3
+输出: 2->3
+*/
+/*
+快慢指针
+1.设置dummy节点以便删除头节点重复元素
+2.当slow下一段节点为重复节点时，设置临时节点fast向前探路，当走到重复节点最后一个节点时，让slow->next = fast->next。作者：connors-tomatodeg链接：https://leetcode-cn.com/problems/remove-duplicates-from-sorted-list-ii/solution/cyu-yan-jie-fa-by-connors-tomatodeg-2/来源：力扣（LeetCode）著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+*/
+struct ListNode* deleteDuplicates(struct ListNode* head)
+{
+//假设1->1->3->3->4
+	struct ListNode dmy;
+	struct ListNode* slow = &dmy;
+	slow->next = head;
+	while(slow->next && slow->next->next) {// 1->1满足条件
+		if (slow->next->val == slow->next->next->val) {
+			struct ListNode * fast = slow->next;
+			while(fast && fast->next && fast->val == fast->next->val) {//不满足
+				fast = fast->next;
+			}
+
+			slow->next = fast->next;//跳过前面重复节点，直接3->3-4
+		} else
+			slow = slow->next;
+	}
+
+	return dmy.next;
+}
+
 
 //编写一个程序，找到两个单链表相交的起始节点。
 struct ListNode *getIntersectionNode(struct ListNode *headA, struct ListNode *headB) {
@@ -623,11 +679,80 @@ struct ListNode* addTwoNumbers(struct ListNode* l1, struct ListNode* l2)
 
 	return ret->next;
 }
+/*
+445. 两数相加 II
+给你两个 非空 链表来代表两个非负整数。数字最高位位于链表开始位置。它们的每个节点只存储一位数字。将这两数相加会返回一个新的链表。
+
+你可以假设除了数字 0 之外，这两个数字都不会以零开头。
+
+
+
+进阶：
+
+如果输入链表不能修改该如何处理？换句话说，你不能对列表中的节点进行翻转。
+
+
+
+示例：
+
+输入：(7 -> 2 -> 4 -> 3) + (5 -> 6 -> 4)
+输出：7 -> 8 -> 0 -> 7
+*/
+struct ListNode* addTwoNumbers(struct ListNode* l1, struct ListNode* l2)
+{
+	struct List astack;
+	stack_init(&astack);
+
+	struct List bstack;
+	stack_init(&bstack);
+
+	struct ListNode* iter = l1;
+	while(iter != NULL) {
+		stack_push_key(&astack, iter->val);
+		iter = iter->next;
+	}
+
+	iter = l2;
+	while(iter != NULL) {
+		stack_push_key(&bstack, iter->val);
+		iter = iter->next;
+	}
+
+	struct ListNode* ret = slink_init();
+
+	int plus = 0;
+	while(!stack_empty(&astack) || !stack_empty(&bstack)) {
+		int a = 0;
+		if (!stack_empty(&astack)) {
+			struct DataEntry *aentry = stack_pop_entry(&astack);
+			a = aentry->key;
+			free(aentry);
+		}
+
+		int b = 0;
+		if (!stack_empty(&bstack)) {
+			struct DataEntry *bentry = stack_pop_entry(&bstack);
+			b = bentry->key;
+			free(bentry);
+		}
+
+		int sum = a + b + plus;
+		plus = sum / 10;
+		sum = sum % 10;
+		slink_push_first(ret, sum);
+	}
+
+	if (plus != 0)
+		slink_push_first(ret, plus);
+
+	return ret->next;
+}
 
 
 /*
 148. 排序链表
-在 O(n log n) 时间复杂度和常数级空间复杂度下，对链表进行排序。
+在 O(n log n) 时间复杂度和常数级空间复杂度下，
+对链表进行排序。
 
 示例 1:
 
@@ -651,9 +776,12 @@ struct ListNode* merge_sotrlist(struct ListNode* p,struct ListNode* q){
     entry->next=(p==NULL)?q:p;
 	return head->next;
 }
-struct ListNode* sortList(struct ListNode* head){
-    if(head==NULL||head->next==NULL)return head;
-	struct ListNode*p=head;struct ListNode*q=head->next;
+struct ListNode* sortList(struct ListNode* head)
+{
+    if(head==NULL||head->next==NULL)
+		return head;
+	struct ListNode*p=head;
+	struct ListNode*q=head->next;
 	while(q!=NULL&&q->next!=NULL){
 		p=p->next;q=q->next->next;
 	}
@@ -661,26 +789,78 @@ struct ListNode* sortList(struct ListNode* head){
 	p->next=NULL;
 	return merge_sotrlist(sortList(head),sortList(q));
 }
-
 /*
-面试题 02.02. 返回倒数第 k 个节点
-实现一种算法，找出单向链表中倒数第
-k 个节点。返回该节点的值。
+147. 对链表进行插入排序
+对链表进行插入排序。
+
+
+插入排序的动画演示如上。从第一个元素开始，该链表可以被认为已经部分排序（用黑色表示）。
+每次迭代时，从输入数据中移除一个元素（用红色表示），并原地将其插入到已排好序的链表中。
+
+
+
+插入排序算法：
+
+插入排序是迭代的，每次只移动一个元素，直到所有元素可以形成一个有序的输出列表。
+每次迭代中，插入排序只从输入数据中移除一个待排序的元素，找到它在序列中适当的位置，并将其插入。
+重复直到所有输入数据插入完为止。
+
+
+示例 1：
+
+输入: 4->2->1->3
+输出: 1->2->3->4
+示例 2：
+
+输入: -1->5->3->4->0
+输出: -1->0->3->4->5
 */
-int kthToLast(struct ListNode* head, int k){
-	struct ListNode*  fast = head;
-	struct ListNode*  slow = head;
+struct ListNode* insertionSortList(struct ListNode* head)
+{
+if(!head)
+        return NULL;
+struct ListNode * p,*q;
+int temp;
 
-	while(k--) {
-		fast = fast->next;
-	}
+for(p=head;p;p=p->next)
+{
+     for(q=p->next;q;q=q->next)
+     {
+        if(p->val>q->val)
+        {
+            temp=p->val;
+            p->val=q->val;
+            q->val=temp;
+        }
+     }
 
-	while(fast != NULL) {
-		fast = fast->next;
-		slow = slow->next;
-	}
+}
+    return head;
+}
 
-	return slow->val;
+struct ListNode* insertionSortList(struct ListNode* head)
+{
+     if(!head)
+        return NULL;
+
+struct ListNode *L,*p,*q;
+L=(struct ListNode*)malloc(sizeof(struct ListNode));
+L->next=head;
+
+p=head->next;
+head->next=NULL;
+while(p)
+{
+     struct ListNode *curr=p->next;
+     q=L;
+     while(q->next&&q->next->val<=p->val)
+         q=q->next;
+     p->next=q->next;
+     q->next=p;
+     p=curr;
+}
+     return L->next;
+
 }
 
 int main()
