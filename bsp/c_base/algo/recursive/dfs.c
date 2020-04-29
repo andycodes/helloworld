@@ -634,14 +634,10 @@ int* pondSizes(int** land, int landSize, int* landColSize, int* returnSize)
 
 给出数字到字母的映射如下（与电话按键相同）。
 注意 1 不对应任何字母。
-
-
-
 示例:
 
 输入："23"
 输出：["ad", "ae", "af", "bd", "be", "bf", "cd", "ce", "cf"].
-
 */
 char letter[][4] = {
     {'a', 'b', 'c', 0},
@@ -674,7 +670,8 @@ void dfs(char* digits, int srcSize, int* returnSize,
 }
 
 
-char** letterCombinations(char* digits, int* returnSize) {
+char** letterCombinations(char* digits, int* returnSize)
+{
     if (digits == NULL || 0 == strcmp(digits, "")) {
         *returnSize = 0;
         return NULL;
@@ -970,7 +967,9 @@ int** combinationSum3(int k, int n,
 
 /*
 64 最小路径和
-给定一个包含非负整数的 m x n 网格，请找出一条从左上角到右下角的路径，使得路径上的数字总和为最小。
+给定一个包含非负整数的 m x n 网格，
+请找出一条从左上角到右下角的路径，
+使得路径上的数字总和为最小。
 
 说明：每次只能向下或者向右移动一步。
 
@@ -1182,39 +1181,152 @@ int** combine(int n, int k, int* returnSize, int** returnColumnSizes)
 	return ret;
 }
 
+
 /*
-bfs
-22. 括号生成
+934. 最短的桥
+难度中等68
+在给定的二维二进制数组 A 中，存在两座岛。（岛是由四面相连的 1 形成的一个最大组。）
+现在，我们可以将 0 变为 1，以使两座岛连接起来，变成一座岛。
+返回必须翻转的 0 的最小数目。（可以保证答案至少是 1。）
+
+示例 1：
+输入：[[0,1],[1,0]]
+输出：1
+示例 2：
+输入：[[0,1,0],[0,0,0],[0,0,1]]
+输出：2
+示例 3：
+输入：[[1,1,1,1,1],[1,0,0,0,1],[1,0,1,0,1],[1,0,0,0,1],[1,1,1,1,1]]
+输出：1
+
 */
-void dfs(char** res, int* returnSize, char* current, int currentSize, int leftCnt, int rightCnt, int max)
+
+
+/*
+DFS深度优先遍历先找到第一个岛，并进行染色标志未
+2；找到第一个后退出；将找到的第一个岛的位置入队列（C语言没有现成的队列封装函数，需要自己实现）对第一个岛的节点进行广度优先遍历，找到1的层数就是需要返回的值；作者：aabbcc-3链接：https://leetcode-cn.com/problems/shortest-bridge/solution/cyu-yan-bian-xie-dfsbfsdfsran-se-bfsjin-xing-zhao-/来源：力扣（LeetCode）著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+第一步：dfs将第一个的岛屿元素全部标记出来，并顺序入队；第二步：bfs遍历队内各元素，将未标记元素标记并入队，step++;第三步：找到新的元素为1即为新岛屿，step++返回即可。作者：roychen链接：https://leetcode-cn.com/problems/shortest-bridge/solution/dfsbfs-nei-cun-he-yun-xing-shi-jian-jiao-shao-by-r/来源：力扣（LeetCode）著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+
+*/
+int d[4][2] = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
+void dfs(int** A, int ASize, int* AColSize, int x, int y)
 {
-	if (leftCnt > max || rightCnt > leftCnt) {
+	if (x < 0 || y < 0 || x >= ASize || y >= AColSize[x]) {
 		return;
 	}
 
-	if (currentSize == max * 2) {
-		res[*returnSize] = (char*)calloc(1024 * 1024, sizeof(char));
-		strcpy(res[*returnSize], current);
-		(*returnSize)++;
+	if (A[x][y] != 1)
+		return;
+
+	A[x][y] = 2;
+
+	for (int i = 0; i < 4; i++) {
+		dfs(A, ASize, AColSize, x + d[i][0], y + d[i][1]);
+	}
+}
+
+void colorFirstIsland(int** A, int ASize, int* AColSize)
+{
+	for (int i = 0; i < ASize; i++) {
+		for (int j = 0; j < AColSize[i]; j++) {
+			if (A[i][j] == 1) {
+				dfs(A, ASize, AColSize, i, j);
+				return;
+			}
+		}
+	}
+}
+
+int shortestBridge(int** A, int ASize, int* AColSize)
+{
+	colorFirstIsland(A, ASize, AColSize);
+	struct List queue;
+	struct List* pqueue = &queue;
+	queue_init(pqueue);
+
+	for (int i = 0; i < ASize; i++) {
+		for (int j = 0; j < AColSize[i]; j++) {
+			if (A[i][j] == 2) {
+				struct DataEntry  *entry = (struct DataEntry  *)calloc(1, sizeof(struct DataEntry ));
+				entry->key = i;
+				entry->value = j;
+				entry->step = 0;
+				ListAddTail(pqueue, &entry->node);
+			}
+		}
+	}
+
+	while(!queue_empty(pqueue)) {
+		struct DataEntry *pop = queue_pop_entry(pqueue);
+		for (int i = 0; i < 4; i++) {
+			int nx = pop->key + d[i][0];
+			int ny = pop->value + d[i][1];
+
+			if (nx < 0 || ny < 0 || nx >= ASize || ny >= AColSize[nx])
+				continue;
+
+			if (A[nx][ny] == 1)
+				return pop->step;
+
+			if (A[nx][ny] == 0) {
+				A[nx][ny] = 2;
+				struct DataEntry  *entry = (struct DataEntry  *)calloc(1, sizeof(struct DataEntry ));
+				entry->key = nx;
+				entry->value = ny;
+				entry->step = pop->step + 1;
+				ListAddTail(pqueue, &entry->node);
+			}
+		}
+	}
+
+	return 0;
+}
+
+/*
+494. 目标和
+给定一个非负整数数组，a1, a2, ..., an, 和一个目标数，S。现在你有两个符号 + 和 -。对于数组中的任意一个整数，你都可以从 + 或 -中选择一个符号添加在前面。
+
+返回可以使最终数组和为目标数 S 的所有添加符号的方法数。
+
+示例 1:
+
+输入: nums: [1, 1, 1, 1, 1], S: 3
+输出: 5
+解释:
+
+-1+1+1+1+1 = 3
++1-1+1+1+1 = 3
++1+1-1+1+1 = 3
++1+1+1-1+1 = 3
++1+1+1+1-1 = 3
+
+一共有5种方法让最终目标和为3。
+注意:
+
+数组非空，且长度不会超过20。
+初始的数组的和不会超过1000。
+保证返回的最终结果能被32位整数存下。
+通过次数24,886提交次数56,525
+在真实的面试中遇到过这道题？
+*/
+
+void dfs(int* nums, int numsSize, int S, int *cnt, int start)
+{
+	if (start == numsSize) {
+		if (S == 0)
+			(*cnt)++;
 		return;
 	}
 
-	current[currentSize] = '(';
-	dfs(res, returnSize, current, currentSize + 1, leftCnt + 1, rightCnt, max);
-	current[currentSize] = ')';
-	dfs(res, returnSize, current, currentSize + 1, leftCnt, rightCnt + 1, max);
+
+	dfs(nums, numsSize, S - nums[start],  cnt, start + 1);
+	dfs(nums, numsSize, S + nums[start],  cnt, start + 1);
 }
 
-char** generateParenthesis(int n, int* returnSize)
+int findTargetSumWays(int* nums, int numsSize, int S)
 {
-    *returnSize = 0;
-    if (n == 0) {
-        return NULL;
-    }
+	int cnt = 0;
+	dfs(nums, numsSize, S,  &cnt, 0);
 
-    char** res = (char**)calloc(1024 * 1024, sizeof(char*));
-    char* current = (char*)calloc(1024 * 1024, sizeof(char));
-    dfs(res, returnSize, current, 0, 0, 0, n);
-    return res;
+	return cnt;
 }
-

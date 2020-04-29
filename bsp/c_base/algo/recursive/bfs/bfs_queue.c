@@ -1,7 +1,8 @@
 /*
-BFS模板
 
-条件判断（边界判断，其他要求的判断）
+因为是广度优先遍历，顺序遍历每一行，所以当节点差出现0时，此时一定是最短的路径。
+
+BFS模板
 
 创建队列
 
@@ -586,3 +587,49 @@ char** generateParenthesis(int n, int* returnSize)
 
 	return res;
 }
+
+/*
+279. 完全平方数
+给定正整数 n，找到若干个完全平方数（比如 1, 4, 9, 16, ...）使得它们的和等于 n。你需要让组成和的完全平方数的个数最少。
+
+示例 1:
+
+输入: n = 12
+输出: 3
+解释: 12 = 4 + 4 + 4.
+示例 2:
+
+输入: n = 13
+输出: 2
+解释: 13 = 4 + 9.
+*/
+int numSquares(int n){
+	struct List queue;
+	queue_init(&queue);
+
+	queue_push_key(&queue, n);
+	int level = 0;
+	while(!queue_empty(&queue)) {
+		level++;
+
+		// 每一层的广度遍历
+		int size = queue_size(&queue);
+		for (int i = 0; i < size; i++) {
+			struct DataEntry *top = queue_pop_entry(&queue);
+
+			for (int j = 1; j <= sqrt(n); j++) {
+				int target = top->key - pow(j, 2);
+				// 说明已到最大平方数
+				if (target < 0)
+					break;
+				// 由于是广度遍历，所以当遍历到0时，肯定是最短路径
+				if (target == 0)
+					return level;
+				queue_push_key(&queue, target);
+			}
+		}
+	}
+
+	return -1;
+}
+

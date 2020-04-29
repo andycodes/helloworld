@@ -288,3 +288,76 @@ int* twoSum(int* nums, int numsSize, int target, int* returnSize)
 	return res;
 }
 
+/*
+18. 四数之和
+给定一个包含 n 个整数的数组 nums 和一个目标值 target，判断 nums 中是否存在四个元素 a，b，c 和 d ，使得 a + b + c + d 的值与 target 相等？找出所有满足条件且不重复的四元组。
+
+注意：
+
+答案中不可以包含重复的四元组。
+
+示例：
+
+给定数组 nums = [1, 0, -1, 0, -2, 2]，和 target = 0。
+
+满足要求的四元组集合为：
+[
+  [-1,  0, 0, 1],
+  [-2, -1, 1, 2],
+  [-2,  0, 0, 2]
+]
+*/
+
+
+int** fourSum(int* nums, int numsSize, int target, int* returnSize, int** returnColumnSizes){
+
+	int **ret = (int **)calloc(1024, sizeof(int *));
+	*returnSize = 0;
+	*returnColumnSizes = (int *)calloc(1024, sizeof(int));
+
+	qsort(nums, numsSize, sizeof(nums[0]), cmp_int);
+
+	for (int a = 0; a < numsSize - 3; a++) {
+		if(a > 0 && nums[a] == nums[a - 1])
+			continue;
+
+		if(nums[a]+nums[a+1]+nums[a+2]+nums[a+3]>target) break;
+		if(nums[a]+nums[numsSize-3]+nums[numsSize-2]+nums[numsSize-1]<target) continue;
+		for (int b = a + 1; b < numsSize - 2; b++) {
+			if(nums[a]+nums[b]+nums[b+1]+nums[b+2]>target) break;
+			 if(nums[a]+nums[b]+nums[numsSize-2]+nums[numsSize-1]<target) continue;
+			if(b > a + 1 && nums[b] == nums[b -1])
+				continue;
+
+			int c = b + 1;
+			int d = numsSize - 1;
+
+			while(c < d) {
+				int sum = nums[a] + nums[b] + nums[c] + nums[d];
+				if (sum < target) {
+					c++;
+				} else if (sum > target) {
+					d--;
+				} else {
+					ret[*returnSize] = (int *)calloc(4, sizeof(int));
+					ret[*returnSize][0] = nums[a];
+					ret[*returnSize][1] = nums[b];
+					ret[*returnSize][2] = nums[c];
+					ret[*returnSize][3] = nums[d];
+					(*returnColumnSizes)[*returnSize] = 4;
+					(*returnSize)++;
+					while(c<d&&nums[c+1]==nums[c])
+	        				    c++;
+	        			while(c<d&&nums[d-1]==nums[d])
+	        				    d--;
+
+					c++;
+					d--;
+				}
+			}
+		}
+	}
+
+	return ret;
+}
+

@@ -710,3 +710,22 @@ int minimumDeleteSum(char * s1, char * s2){
 
 }
 
+
+/*
+bfs  279
+*/
+int numSquares(int n)
+{
+	int dp[n + 1];
+	dp[0] = 0;
+
+	for (int i = 1; i <= n; i++) {
+		dp[i] = i;
+		for (int j = 1; j * j <= i; j++) {
+			dp[i] = fmin(dp[i], dp[i - j * j] + 1);
+		}
+	}
+
+	return dp[n];
+}
+

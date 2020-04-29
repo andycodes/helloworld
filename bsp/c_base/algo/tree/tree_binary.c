@@ -176,13 +176,13 @@ struct TreeNode* mergeTrees(struct TreeNode* t1, struct TreeNode* t2)
  * 使用队列实现层次遍历，然后逆转结果数组
  */
 
-int GetTreeDepth(const struct TreeNode* root)
+int getTreeDepth(const struct TreeNode* root)
 {
         if (root == NULL)
                 return 0;
 
-        int left = GetTreeDepth(root->left);
-        int right = GetTreeDepth(root->right);
+        int left = getTreeDepth(root->left);
+        int right = getTreeDepth(root->right);
 
         return left > right ? left + 1 : right + 1;
 }
@@ -203,7 +203,7 @@ int** levelOrder(struct TreeNode* root, int* returnSize, int** returnColumnSizes
 	load.node = root;
 	aqueue_push_last_val(aqueue,  load);
 
-        int depth = GetTreeDepth(root);
+        int depth = getTreeDepth(root);
         *returnSize = depth;
         int **matrix = (int **)malloc(sizeof(int *) * depth);
         *returnColumnSizes = (int *)malloc(sizeof(int) * depth);
@@ -258,10 +258,7 @@ void dfs(struct TreeNode* root, int** result, int* ColumnSizes, int i, int* maxh
 	}
 }
 
-int** levelOrder(
-		  struct TreeNode* root,
-                 int* returnSize,
-                 int** returnColumnSizes)
+int** levelOrder(struct TreeNode* root, int* returnSize, int** returnColumnSizes)
 {
     int** result = (int**)malloc(sizeof(int*) * MaxSize);
     for (int i = 0; i < MaxSize; i++)
@@ -275,7 +272,82 @@ int** levelOrder(
     return result;
 }
 
+/*
+面试题 04.03. 特定深度节点链表
+给定一棵二叉树，设计一个算法，创建含有某一深度上所有节点的链表（比如，若一棵树的深度为 D，则会创建出 D 个链表）。返回一个包含所有深度的链表的数组。
 
+
+
+示例：
+
+输入：[1,2,3,4,5,null,7,8]
+
+        1
+       /  \
+      2    3
+     / \    \
+    4   5    7
+   /
+  8
+
+输出：[[1],[2,3],[4,5,7],[8]]
+*/
+struct ListNode** bfs(struct TreeNode *root, int *returnSize)
+{
+	struct List queue;
+	queue_init(&queue);
+
+	int size = getTreeDepth(root);
+	struct ListNode **ans = malloc(sizeof(struct ListNode *) * size);
+	int ansSize = 0;
+
+	struct DataEntry  *entry = (struct DataEntry  *)calloc(1, sizeof(struct DataEntry ));
+	entry->tree = root;
+	ListAddTail(&queue, &entry->node);
+
+    	while (!queue_empty(&queue)) {
+	int curSize = queue_size(&queue);
+	struct ListNode *pre = NULL;
+        for (int i = 0; i < curSize; ++i) {
+		struct DataEntry *pop = queue_pop_entry(&queue);
+            if (i == 0) {
+                ans[ansSize] = malloc(sizeof(struct ListNode)); // head of each list
+                ans[ansSize]->val = pop->tree->val;
+                ans[ansSize]->next = NULL;
+                pre = ans[ansSize];
+            } else {
+                struct ListNode *newListNode = malloc(sizeof(struct ListNode));
+                newListNode->val = pop->tree->val;
+                newListNode->next = NULL;
+                pre->next = newListNode;
+                pre = pre->next;
+            }
+
+            if (pop->tree->left != NULL) {
+		struct DataEntry  *entry = (struct DataEntry  *)calloc(1, sizeof(struct DataEntry ));
+		entry->tree = pop->tree->left;
+		ListAddTail(&queue, &entry->node);
+            }
+            if (pop->tree->right != NULL) {
+		struct DataEntry  *entry = (struct DataEntry  *)calloc(1, sizeof(struct DataEntry ));
+		entry->tree = pop->tree->right;
+		ListAddTail(&queue, &entry->node);
+            }
+        }
+        ++ansSize;
+    }
+    *returnSize = ansSize;
+    return ans;
+}
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+struct ListNode** listOfDepth(struct TreeNode* tree, int* returnSize){
+    if (tree == NULL) {
+        return NULL;
+    }
+    return bfs(tree, returnSize);
+}
 
 /*
 给定一个二叉树，找到最长的路径，
@@ -733,8 +805,10 @@ bool  isBalanced(struct TreeNode* root)
 
 
 /*
-给定一个二叉树和一个目标和，判断该树中是否存在根节点
-到叶子节点的路径，这条路径上所有节点值相加等于目标和。
+给定一个二叉树和一个目标和，
+判断该树中是否存在根节点
+到叶子节点的路径，这条路径上所有节点值相加
+等于目标和。
 
 说明: 叶子节点是指没有子节点的节点。
 
@@ -867,7 +941,9 @@ struct TreeNode* upsideDownBinaryTree(struct TreeNode* root){
 
 /*
 113. 路径总和 II
-给定一个二叉树和一个目标和，找到所有从根节点到叶子节点路径总和等于给定目标和的路径。
+给定一个二叉树和一个目标和，
+找到所有从根节点到叶子节点路径总和等于
+给定目标和的路径。
 
 说明: 叶子节点是指没有子节点的节点。
 
@@ -958,11 +1034,6 @@ void dfs(struct TreeNode* root, int sum, int* returnSize,
 	sum += root->val;
 }
 
-/**
- * Return an array of arrays of size *returnSize.
- * The sizes of the arrays are returned as *returnColumnSizes array.
- * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
- */
 int** pathSum(struct TreeNode* root, int sum,
 	int* returnSize, int** returnColumnSizes) {
 
@@ -1029,5 +1100,61 @@ bool btreeGameWinningMove(struct TreeNode* root, int n, int x)
 	int mid = n >> 1;
 	dfs(root, mid, x, &res);
 	return res;
+}
+
+/*
+面试题 04.12. 求和路径
+给定一棵二叉树，其中每个节点都含有一个整数数值(该值或正或负)。设计一个算法，打印节点数值总和等于某个给定值的所有路径的数量。注意，路径不一定非得从二叉树的根节点或叶节点开始或结束，但是其方向必须向下(只能从父节点指向子节点方向)。
+
+示例:
+给定如下二叉树，以及目标和 sum = 22，
+
+              5
+             / \
+            4   8
+           /   / \
+          11  13  4
+         /  \    / \
+        7    2  5   1
+返回:
+
+3
+解释：和为 22 的路径有：[5,4,11,2], [5,8,4,5], [4,11,7]
+提示：
+
+节点总数 <= 10000
+*/
+/*
+题目的要求是求得所有等于sum的路径；所以我们想象每一个节点都是根节点，再从每一个节点DFS找到它有几条等于sum的路径；思路：1、用DFS遍历所有的节点；2、以第一步遍历到的当前节点为根节点，用DFS_Path找它有几条等于sum的路径。作者：simon-11链接：https://leetcode-cn.com/problems/paths-with-sum-lcci/solution/shu-de-shuang-zhong-dfs-by-simon-11/来源：力扣（LeetCode）著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+*/
+void dfs_sum(struct TreeNode* root, int target, int *ret)//求有多少个从根节点出发的路径
+{
+	if (target == 0) {
+		(*ret)++;
+	}
+
+	if (root->left)
+		dfs_sum(root->left, target - root->left->val, ret);
+	if (root->right)
+		dfs_sum(root->right, target - root->right->val, ret);
+}
+
+
+void dfs_event_node(struct TreeNode* root, int sum, int *ret)//遍历所有的节点
+{
+	if (root == NULL)
+		return;
+
+	dfs_event_node(root->left, sum, ret);
+	//dfs_sum(root, sum - root->val, ret);
+	dfs_event_node(root->right, sum, ret);
+	dfs_sum(root, sum - root->val, ret);//以当前遍历到的节点，求有多少个等于sum的路径
+}
+
+int pathSum(struct TreeNode* root, int sum)
+{
+	int ret = 0;
+	dfs_event_node(root, sum, &ret);
+	return ret;
 }
 
