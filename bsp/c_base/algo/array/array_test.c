@@ -694,27 +694,193 @@ int findShortestSubArray(int* nums, int numsSize)
 	return minsize;
 }
 
-int main(int argc, char* argv[])
+
+/*前序和prefixSum  (连续子和)
+任意区间数组和均可以使用前缀和来优化
+子数组A(i,j]的和为sum[j] - sum[i]
+第i个元素的前缀和 = 前i-1个元素之和。
+首元素没有前缀，规定为0。
+*/
+
+/*
+560. 和为K的子数组
+给定一个整数数组和一个整数 k，你需要找到该数组中和为
+k 的连续的子数组的个数。
+
+示例 1 :
+
+输入:nums = [1,1,1], k = 2
+输出: 2 , [1,1] 与 [1,1] 为两种不同的情况。
+说明 :
+
+数组的长度为 [1, 20,000]。
+数组中元素的范围是 [-1000, 1000] ，且整数 k 的范围是 [-1e7, 1e7]。
+通过次数25,598提交次数57,201
+*/
+int subarraySum(int* nums, int numsSize, int k)
 {
-	if (argc != 2) {
-		printf("argc err\n");
-		return -1;
+	int cnt = 0;
+	int prefixSum[numsSize + 1];
+	prefixSum[0] = 0;
+	for (int i = 1; i <= numsSize; i++) {
+		prefixSum[i] = prefixSum[i - 1] + nums[i - 1];
 	}
 
-	switch(atoi(argv[1])) {
-	case 1:
-		two_dimensional_array_point_access();
-	break;
-	case 2:
-	break;
-	case 3:
-	break;
-	case 4:
-	default:
-	break;
+	for (int start = 0; start < numsSize; start++) {
+		for (int end = start + 1; end <= numsSize; end++) {
+			if (prefixSum[end] - prefixSum[start] == k)
+				cnt++;
+		}
 	}
 
-	return 0;
+	return cnt;
+}
+
+/*
+1423. 可获得的最大点数
+几张卡牌 排成一行，每张卡牌都有一个对应的点数。
+点数由整数数组 cardPoints 给出。
+
+每次行动，你可以从行的开头或者末尾拿一张卡牌，
+最终你必须正好拿 k 张卡牌。
+
+你的点数就是你拿到手中的所有卡牌的点数之和。
+
+给你一个整数数组 cardPoints 和整数 k，请你返回可以获得的
+最大点数。
+
+
+
+示例 1：
+
+输入：cardPoints = [1,2,3,4,5,6,1], k = 3
+输出：12
+解释：第一次行动，不管拿哪张牌，你的点数总是 1 。
+但是，先拿最右边的卡牌将会最大化你的可获得点数。
+最优策略是拿右边的三张牌，最终点数为 1 + 6 + 5 = 12 。
+示例 2：
+
+输入：cardPoints = [2,2,2], k = 2
+输出：4
+解释：无论你拿起哪两张卡牌，可获得的点数总是 4 。
+示例 3：
+
+输入：cardPoints = [9,7,7,9,7,7,9], k = 7
+输出：55
+解释：你必须拿起所有卡牌，可以获得的点数为所有卡牌的点数之和。
+示例 4：
+
+输入：cardPoints = [1,1000,1], k = 1
+输出：1
+解释：你无法拿到中间那张卡牌，所以可以获得的最大点数
+为 1 。
+示例 5：
+
+输入：cardPoints = [1,79,80,1,1,1,200,1], k = 3
+输出：202
+*/
+int maxScore(int* cardPoints, int cardPointsSize, int k)
+{
+	int prefixSum[cardPointsSize + 1];
+	prefixSum[0] = 0;
+	for (int i = 0; i < cardPointsSize; i++) {
+		prefixSum[i + 1] = prefixSum[i] + cardPoints[i];
+	}
+
+	int max = -1;
+	for (int i = 0; i <=  k; i++) {
+		max = fmax(max, prefixSum[i] + prefixSum[cardPointsSize] - prefixSum[cardPointsSize - k + i]);
+	}
+
+	return max;
+}
+
+/*
+按题中意思取左取右得最大值，反过来就是求中间连续
+子数组得和最小,由于要取 k 张牌，
+所以反过来就是在中间找连续的长度为 len(carPoints)-k 的
+子数组使其和最小，滑窗将移动 k 次，
+不断更新滑窗能得到和的最小值，
+最后用输入数组的和减去这个最小值就是结果。
+第一排各自代表 index，
+第二行代表对应位置的数值,用的是题中第一个范例。
+*/
+int maxScore(int* cardPoints, int cardPointsSize, int k)
+{
+	int prefixSum[cardPointsSize + 1];
+	prefixSum[0] = 0;
+	for (int i = 0; i < cardPointsSize; i++) {
+		prefixSum[i + 1] = prefixSum[i] + cardPoints[i];
+	}
+
+	int ans = 0x3f3f3f3f;
+	int t = cardPointsSize - k;
+	for (int j = t;  j <= cardPointsSize; j++) {
+		ans = fmin(ans, prefixSum[j] - prefixSum[j - t]);
+	}
+
+	return prefixSum[cardPointsSize] - ans;
+}
+
+/*
+825. 适龄的朋友
+人们会互相发送好友请求，现在给定一个包含有他们年龄的数组，ages[i] 表示第 i 个人的年龄。
+
+当满足以下条件时，A 不能给 B（A、B不为同一人）发送好友请求：
+
+age[B] <= 0.5 * age[A] + 7
+age[B] > age[A]
+age[B] > 100 && age[A] < 100
+否则，A 可以给 B 发送好友请求。
+
+注意如果 A 向 B 发出了请求，不等于 B 也一定会向 A 发出请求。而且，人们不会给自己发送好友请求。
+
+求总共会发出多少份好友请求?
+
+
+
+示例 1:
+
+输入: [16,16]
+输出: 2
+解释: 二人可以互发好友申请。
+示例 2:
+
+输入: [16,17,18]
+输出: 2
+解释: 好友请求可产生于 17 -> 16, 18 -> 17.
+示例 3:
+
+输入: [20,30,100,110,120]
+输出: 3
+解释: 好友请求可产生于 110 -> 100, 120 -> 110, 120 -> 100.
+*/
+/*
+计数想法不考虑遍历所有的 20000 个人，我们只考虑遍历所有的元组 (age, count) 表示在这个年纪有多少人。因为最多只有 120 个可能的年纪，这会是一个很快的提升。算法对于每个元组 (ageA, countA)，(ageB, countB)，如果条件满足对应的年纪，那么久将 countA * countB 加入发好友请求的人数。当 ageA == ageB 的时候我们就数多了：我们只有 countA * (countA - 1) 对好友请求，因为你不能和自己发送请求。作者：LeetCode链接：https://leetcode-cn.com/problems/friends-of-appropriate-ages/solution/gua-ling-de-peng-you-by-leetcode/来源：力扣（LeetCode）著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+*/
+int numFriendRequests(int* ages, int agesSize)
+{
+	int cnt[121];
+	memset(cnt, 0, sizeof(cnt));
+	for (int i = 0; i < agesSize; i++) {
+		cnt[ages[i]]++;
+	}
+
+	int ret = 0;
+	for (int agea = 0; agea <= 120; agea++) {
+		int cnta = cnt[agea];
+		for (int ageb = 0; ageb <= 120; ageb++) {
+			int cntb = cnt[ageb];
+			if (agea * 0.5 + 7 >= ageb) continue;
+			if (agea < ageb) continue;
+			if (agea < 100 && 100 < ageb) continue;
+			ret += cnta * cntb;
+			if (agea == ageb)
+				ret -= cntb;
+		}
+	}
+
+	return ret;
 }
 
 

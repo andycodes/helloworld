@@ -102,28 +102,16 @@ struct DataEntry *hashFindKey(const struct HashTable *ht, int key)
 	return hashFind(ht, &cmpEntry);
 }
 
-size_t hashGetBlkid_int(const struct HashTable *ht, int key)
+void hash_each_iterate(struct HashTable *ht, struct DataEntry *cmpEntry)
 {
-	return labs(key) % ht->bktSize;
-}
-
-
-struct List *hashGetBlkList_int(const struct HashTable *ht, int key)
-{
-	size_t blkid = labs(key) % ht->bktSize;
-	return &ht->bkts[blkid];
-}
-
-void hash_each_iterate(struct HashTable *ht)
-{
-	for (int i = 0; i < ht->bktSize; i++) {
-		struct Node *node = NULL;
-		LIST_FOR_EACH(node, &ht->bkts[i]) {
-			struct DataEntry *entry = NODE_ENTRY(node, struct DataEntry, node);
-			//do want you want
-		}
+	unsigned int blkid = ht->key(&cmpEntry.node, ht->bktSize);
+	struct Node *node = NULL;
+	LIST_FOR_EACH(node, ht->bkts[blkid]) {
+		struct DataEntry *entry = NODE_ENTRY(node, struct DataEntry, node);
+		//do want you want
 	}
 }
+
 
 void hashPrint(struct HashTable *ht)
 {
