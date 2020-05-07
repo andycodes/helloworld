@@ -313,3 +313,49 @@ int* shortestSeq(int* big, int bigSize, int* small, int smallSize, int* returnSi
 	return res;
 }
 
+/*
+给定一个字符串 s ，找出 至多 包含两个
+不同字符的最长子串 t 。
+
+示例 1:
+
+输入: "eceba"
+输出: 3
+解释: t 是 "ece"，长度为3。
+示例 2:
+
+输入: "ccaabbb"
+输出: 5
+解释: t 是 "aabbb"，长度为5。
+
+*/
+int lengthOfLongestSubstringTwoDistinct(char * s)
+{
+	int sSize = strlen(s);
+	if (sSize <= 2)
+		return sSize;
+
+	int left = 0;
+	int max = 0;
+
+	while( left + max < sSize) {
+		int tempLeft = left;
+
+		while(left < sSize && s[left] == s[tempLeft]) {
+			left++;
+		}
+
+		int right = left;
+		int tempRight = right;
+
+		while(right < sSize && (s[right] == s[tempRight] || s[right] == s[tempLeft] )) {
+			right++;
+		}
+
+		max = max > (right - tempLeft) ? max :(right - tempLeft);
+		left = tempRight;
+	}
+
+	return max;
+}
+

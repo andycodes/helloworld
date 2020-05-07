@@ -155,15 +155,6 @@ void substr(char* dst, char* src, int start, int cpLen)
 }
 
 
-void substr_test(void)
-{
-	char *src = "hello felix";
-	char dst[128];
-	memset(dst, '\0', sizeof(dst));
-	substr(dst, src, 6, 100);
-	printf("%s\n", dst);
-}
-
 /*
 //字符串替换函数
 // 参数说明:
@@ -206,16 +197,6 @@ const char *oldSubStr, char *newSubStr)
 	}
 
 	return dstStr;
-}
-
-
-void test_strrpl(void)
-{
-	char ss[] = "abcd";
-	char out[32] = {'\0'};
-	strrpl(ss,out,sizeof(out),"ab","ff");
-
-	printf("%s\n",out);
 }
 
 
@@ -483,61 +464,6 @@ int max_num_in_string(char *inputstr, char *outputstr)
 }
 
 
-void max_num_in_string_test(void)
-{
-	char input[] = "q21u+231y-123.456789y-0.23";
-	char output[1024];
-	int ret = max_num_in_string(input,output);
-	printf("%d:%s\n",ret,output);
-}
-
-/*
-给定一个字符串 s ，找出 至多 包含两个
-不同字符的最长子串 t 。
-
-示例 1:
-
-输入: "eceba"
-输出: 3
-解释: t 是 "ece"，长度为3。
-示例 2:
-
-输入: "ccaabbb"
-输出: 5
-解释: t 是 "aabbb"，长度为5。
-
-*/
-int lengthOfLongestSubstringTwoDistinct(char * s)
-{
-	int sSize = strlen(s);
-	if (sSize <= 2)
-		return sSize;
-
-	int left = 0;
-	int max = 0;
-
-	while( left + max < sSize) {
-		int tempLeft = left;
-
-		while(left < sSize && s[left] == s[tempLeft]) {
-			left++;
-		}
-
-		int right = left;
-		int tempRight = right;
-
-		while(right < sSize && (s[right] == s[tempRight] || s[right] == s[tempLeft] )) {
-			right++;
-		}
-
-		max = max > (right - tempLeft) ? max :(right - tempLeft);
-		left = tempRight;
-	}
-
-	return max;
-}
-
-
 /*
 函数原型：char * strtok (char *str, const char * delimiters);
 参数：str，待分割的字符串（c-string）；
@@ -585,65 +511,6 @@ void strtok_test(void)
 	}
 }
 
-/*
-给出 字符串 text 和 字符串列表 words, 返回所有的索引对 [i, j] 使得在索引对范围内的子字符串 text[i]...text[j]（包括 i 和 j）属于字符串列表 words。
-
-
-
-示例 1:
-
-输入: text = "thestoryofleetcodeandme", words = ["story","fleet","leetcode"]
-输出: [[3,7],[9,13],[10,17]]
-示例 2:
-
-输入: text = "ababa", words = ["aba","ab"]
-输出: [[0,1],[0,2],[2,3],[2,4]]
-解释:
-注意，返回的配对可以有交叉，比如，"aba" 既在 [0,2] 中也在 [2,4] 中
-
-*/
-int cmp(const void *a,const void *b)
-{
-    int *ap = *(int **)a;
-    int *bp = *(int **)b;
-
-    if(ap[0] == bp[0])
-        return ap[1] - bp[1];
-    else
-        return ap[0] - bp[0];
-}
-
-int** indexPairs(char * text, char ** words, int wordsSize, int* returnSize, int** returnColumnSizes){
-    int i, j;
-    int** res = (int **)malloc(sizeof(int *) * 1000);
-    int cnt = 0;
-    int len1 = strlen(text);
-
-    for (i = 0; i < wordsSize; i++) {
-        int len2 = strlen(words[i]);
-        if(len2 > len1)
-		continue;
-
-	for (j = 0; j < len1 - len2 + 1; j++) {
-            if (strncmp(text + j, words[i], strlen(words[i])) == 0) {
-                res[cnt] = (int *)malloc(sizeof(int) * 2);
-                res[cnt][0] = j;
-                res[cnt][1] = j + strlen(words[i]) - 1;
-                cnt++;
-                //printf("j = %d endIdx = %d cnt = %d\n", j, j + strlen(words[i]) - 1, cnt);
-            }
-        }
-	}
-
-    qsort(res, cnt, sizeof(res[0]), cmp); // 二维数组排序
-    *returnSize = cnt;
-    returnColumnSizes[0] = (int *)malloc(sizeof(int) * cnt);
-    for (i = 0; i < cnt; i++) {
-        returnColumnSizes[0][i] = 2;
-    }
-    return res;
-}
-
 unsigned long strtobcd(char *s)
 {
     unsigned long ret;
@@ -662,43 +529,4 @@ unsigned long strtobcd(char *s)
 
     return ret;
 }
-
-void test()
-{
-
-}
-
-int main(int argc, char* argv[])
-{
-	if (argc != 2) {
-		printf("argc err\n");
-		return -1;
-	}
-
-	switch(atoi(argv[1])) {
-	case 1:
-		str_to_hex_by_sscanf(argv[2]);
-	break;
-	case 2:
-		str_to_hex_by_strtol(argv[2]);
-	break;
-	case 3:
-		test_strrpl();
-	break;
-	case 4:
-		strtok_test();
-	break;
-	case 5: max_num_in_string_test();
-	break;
-	case 6: substr_test();
-	break;
-	case 7: test();
-	break;
-	default:
-	break;
-	}
-
-	return 0;
-}
-
 
