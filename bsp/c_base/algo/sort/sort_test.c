@@ -376,3 +376,50 @@ void nextPermutation(int* nums, int numsSize){
 
     qsort(nums + left + 1, numsSize - 1 - left, sizeof(int), comp);
 }
+
+/*
+539. 最小时间差
+给定一个 24 小时制（小时:分钟）的时间列表，找出列表中任意两个时间的最小时间差并以分钟数表示。
+
+
+示例 1：
+
+输入: ["23:59","00:00"]
+输出: 1
+
+备注:
+
+列表中时间数在 2~20000 之间。
+*/
+int str2min(char * str)
+{
+	int hour;
+	int min;
+	sscanf(str, "%d:%d", &hour, &min);
+	return hour * 60 + min;
+}
+
+int cmp_int(const void* a, const void* b)
+{
+	return *((int *)a) - *((int *)b);
+}
+
+int findMinDifference(char ** timePoints, int timePointsSize)
+{
+	int mins[timePointsSize];
+	for (int i = 0; i < timePointsSize; i++) {
+		mins[i] = str2min(timePoints[i]);
+	}
+
+	qsort(mins, timePointsSize, sizeof(mins[0]), cmp_int);
+	int ret = 1440;
+	for (int i = 1; i < timePointsSize; i++) {
+		ret = fmin(ret, mins[i] - mins[i - 1]);
+	}
+
+	ret = fmin(ret, mins[0] + 1440 - mins[timePointsSize - 1]);
+
+	return ret;
+}
+
+
