@@ -1158,3 +1158,67 @@ int pathSum(struct TreeNode* root, int sum)
 	return ret;
 }
 
+
+/*
+面试题 04.08. 首个共同祖先
+难度中等7
+设计并实现一个算法，找出二叉树中某两个节点的第一个共同祖先。不得将其他的节点存储在另外的数据结构中。注意：这不一定是二叉搜索树。
+例如，给定如下二叉树: root = [3,5,1,6,2,0,8,null,null,7,4]
+    3
+   / \
+  5   1
+ / \ / \
+6  2 0  8
+  / \
+ 7   4
+示例 1:
+输入: root = [3,5,1,6,2,0,8,null,null,7,4], p = 5, q = 1
+输入: 3
+解释: 节点 5 和节点 1 的最近公共祖先是节点 3。
+
+*/
+
+/*
+思路
+分析
+对于当前的根节点root
+若root为空，直接返回root，表示没有找到目标
+若root为p或q
+若左子树或右子树中含有另外一个目标节点，那么root就是最终答案，返回root
+否则，也应当返回root，表示找到了其中一个目标
+否则
+若左子树和右子树分别含有p、q中的一个，那么root就是最终答案，返回root
+否则
+若两子树中含有p或q中的一个，即返回那个节点，表示找到了其中一个目标
+否则返回nullptr，表示没有找到目标
+整理
+经过整理我们发现
+若root为p或q，无论子树是否含有另外一个目标，都应该返回root
+另外，当左右子树的均含有目标节点时，返回root，否则只需返回找到的目标节点或空指针
+算法
+若root为空或root == p或root == q，返回root
+分别将root->left、root->right作为根节点，调用自身，得到返回值left、right
+若left不为空
+若right不为空，返回root
+否则返回left
+否则返回right
+
+*/
+struct TreeNode* lowestCommonAncestor
+	(struct TreeNode* root, struct TreeNode* p, struct TreeNode* q)
+{
+	if (root == NULL)
+		return NULL;
+
+	struct TreeNode* left = lowestCommonAncestor(root->left, p, q);
+	struct TreeNode* right = lowestCommonAncestor(root->right, p, q);
+	if (root == p || root == q)
+		return root;
+	else if (left != NULL && right != NULL)
+		return root;
+	else if (left != NULL)
+		return left;
+	else
+		return right;
+}
+

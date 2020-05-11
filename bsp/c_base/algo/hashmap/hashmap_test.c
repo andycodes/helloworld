@@ -153,3 +153,71 @@ char*** groupAnagrams(char** strs, int strsSize, int* returnSize, int** returnCo
 	return res;
 }
 
+
+/*
+面试题 16.21. 交换和
+难度中等5
+给定两个整数数组，请交换一对数值（每个数组中取一个数值），使得两个数组所有元素的和相等。
+返回一个数组，第一个元素是第一个数组中要交换的元素，第二个元素是第二个数组中要交换的元素。若有多个答案，返回任意一个均可。若无满足条件的数值，返回空数组。
+示例:
+输入: array1 = [4, 1, 2, 1, 1, 2], array2 = [3, 6, 3, 3]
+输出: [1, 3]
+示例:
+输入: array1 = [1, 2, 3], array2 = [4, 5, 6]
+输出: []
+
+*/
+/*
+先求两个数组的差值diff = sum(a)-sum(b), 如果为奇数直接return [], 因为交换任何数得到的diff一定是两个数字差值的2倍
+然后将数组b作为集合, 遍历数组a, 判断其每个元素-diff//2是否在b集合中, 在的话即为所求
+
+*/
+/*
+交换的两个数的差值一定是d = (sum(A) - sum(B)) / 2
+*/
+
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int* findSwapValues(int* array1, int array1Size, int* array2, int array2Size, int* returnSize)
+{
+	int sum1 = 0;
+	int sum2 = 0;
+
+	*returnSize = 0;
+
+	struct HashTable dht;
+	struct HashTable *ht = &dht;
+	HashInit(ht, array2Size, hashequal_int, hashcode_int);
+
+	for (int i = 0; i < array1Size; i++) {
+		sum1 += array1[i];
+	}
+
+	for (int i = 0; i < array2Size; i++) {
+		sum2 += array2[i];
+		hashPushKey(ht, array2[i]);
+	}
+
+	int diff = sum1 - sum2;
+	if (diff % 2) {
+		return NULL;
+	}
+
+	diff =  diff / 2;
+
+	int *ret = (int *)calloc(2, sizeof(int));
+	for (int i = 0; i < array1Size; i++) {
+		struct DataEntry *find = hashFindKey(ht, array1[i] - diff);
+		if (find != NULL) {
+			ret[0] = array1[i];
+			ret[1] = array1[i] - diff;
+			*returnSize = 2;
+			break;
+		}
+	}
+
+	HashDeinit(ht, node_free);
+	return ret;
+}
+

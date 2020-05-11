@@ -408,27 +408,77 @@ struct ListNode* mergeTwoLists(struct ListNode* l1, struct ListNode* l2)
 
 /*
 给定一个链表，判断链表中是否有环。
-
-为了表示给定链表中的环，
-我们使用整数 pos 来表示链表尾连接到链
-表中的位置（索引从 0 开始）。
-如果 pos 是 -1，则在该链表中没有环。
+检测链表中是否存在环路有一个方法叫做快慢指针法，
+即设置两个指针从起点同时出发，
+慢指针每移动一步快指针移动两步，
+如果存在环路则它们终究会相遇。
 */
-bool hasCycle(struct ListNode *head) {
-    if (head == NULL || head->next == NULL) {
-        return false;
-    }
-    struct ListNode *slow = head;
-    struct ListNode *fast = head->next;
-    while (slow != fast) {
-        if (fast == NULL || fast->next == NULL) {
-            return false;
-        }
-        slow = slow->next;
-        fast = fast->next->next;
-    }
-    return true;
+bool hasCycle(struct ListNode *head)
+{
+	if (head == NULL || head->next == NULL) {
+		return false;
+	}
+
+	struct ListNode *slow = head;
+	struct ListNode *fast = head->next;
+	while (slow != fast) {
+		if (fast == NULL || fast->next == NULL) {
+			return false;
+		}
+
+		slow = slow->next;
+		fast = fast->next->next;
+	}
+
+	return true;
 }
+
+/*
+面试题 02.08. 环路检测
+难度中等11
+给定一个有环链表，实现一个算法返回环路的开头节点。
+有环链表的定义：在链表中某个节点的next元素指向在它前面出现过的节点，则表明该链表存在环路。
+
+
+示例 1：
+输入：head = [3,2,0,-4], pos = 1
+输出：tail connects to node index 1
+解释：链表中有一个环，其尾部连接到第二个节点。
+
+*/
+
+/*
+整体思路：
+
+检测有没有环，使用快慢指针slow和fast（一次走两步）；
+找位置，当找到环之后，slow从head出发，fast从相遇点出发，一次都走一步，再次相遇为环的入口点
+*/
+struct ListNode *detectCycle(struct ListNode *head) {
+	if (head == NULL || head->next == NULL) {
+		return NULL;
+	}
+
+	struct ListNode *slow = head;
+	struct ListNode *fast = head;
+	while (fast != NULL && fast->next != NULL) {
+		slow = slow->next;
+		fast = fast->next->next;
+		if (slow == fast)
+			break;
+	}
+
+	if (fast == NULL || fast->next == NULL)
+		return NULL;
+
+	slow = head;
+	while(slow != fast) {
+		slow = slow->next;
+		fast = fast->next;
+	}
+
+	return slow;
+}
+
 
 
 /*

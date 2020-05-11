@@ -197,3 +197,148 @@ int** indexPairs(char * text, char ** words, int wordsSize, int* returnSize, int
     return res;
 }
 
+
+/*
+43. 字符串相乘
+难度中等329
+给定两个以字符串形式表示的非负整数 num1 和 num2，返回 num1 和 num2 的乘积，它们的乘积也表示为字符串形式。
+示例 1:
+输入: num1 = "2", num2 = "3"
+输出: "6"
+示例 2:
+输入: num1 = "123", num2 = "456"
+输出: "56088"
+
+*/
+/*
+两数相乘得到的乘积的长度不会超过两个数字的长度之和，若num1长度为length1，num2 长度为lenght2，则 num1 x num2 的长度不会超过 length1 + length2
+还有就是乘的时候需要错位的原因，比如6 x 8得到的 48 为啥要跟6 x 9得到的 54 错位相加，因为 8 是十位上的数字，其本身相当于80，所以错开的一位实际上末尾需要补的0
+num1 和 num2 中任意位置的两个数字相乘，得到的两位数在最终结果中的位置是确定的，比如 num1 中位置为i的数字乘以 num2 中位置为j的数字，那么得到的两位数字的位置为 i+j 和 i+j+1，这也是由错位相乘引起的
+首先开辟两个空间，一个用来存储错位相乘的中间结果，int类型，另外一个作为最终返回的结果，char类型。需要注意的是后一个指针需要比totalLength多一个字符用来在C语言当中指示字符串数组的结束，对于int类型的中间结果初始化为0。
+
+由于要从个位上开始相乘，所以从 num1 和 num2 字符串的尾部开始往前遍历，分别提取出对应位置上的字符，将其转为整型后相乘，将num1[i]与num[j]相乘的结果累加存储在value[i+j+1]当中，注意这里是累加。以上面的 89 x 76 为例，num1[1] x num2[0]的结果 48 是需要与num1[0] x num2[1]的结果 63相加以后一并存储在value[2]当中再进入下一步的处理工序的。
+
+*/
+
+char * multiply(char * num1, char * num2)
+{
+	if (num1[0] == '0' || num2[0] == '0')
+		return "0";
+
+	int len1 = strlen(num1);
+	int len2 = strlen(num2);
+	int dp[len1 + len2 + 1];
+	memset(dp, 0, sizeof(dp));
+	//算出错位相乘的乘积每个元素的数字
+	for (int i = 0; i < len1; i++) {
+		for (int j = 0; j < len2; j++) {
+			dp[i + j + 1] += (num1[i] - '0') * (num2[j] - '0');
+		}
+	}
+// 从数组的尾部开始遍历，将第i位的高位通过/累加到第i-1位，然后通过%求余获得当前位的数字。
+	for (int i = len1 + len2; i > 0; i--) {
+		if (dp[i] < 10)
+			continue;
+		dp[i - 1] += dp[i] / 10;
+		dp[i] %= 10;
+	}
+
+	char *ret = (char *)calloc(1024, sizeof(char));
+	for (int i = 0, j = 0;  i < len1 + len2; i++) {
+		// 排除起始开始的'0'直到第一个非0出现
+		if ((j == 0) && (dp[i] == 0)) {
+			continue;
+		}
+		ret[j++] = dp[i] + '0';
+	}
+
+	return ret;
+}
+
+/*
+12. 整数转罗马数字
+难度中等326
+罗马数字包含以下七种字符： I， V， X， L，C，D 和 M。
+字符          数值
+I             1
+V             5
+X             10
+L             50
+C             100
+D             500
+M             1000
+例如， 罗马数字 2 写做 II ，即为两个并列的 1。12 写做 XII ，即为 X + II 。 27 写做  XXVII, 即为 XX + V + II 。
+通常情况下，罗马数字中小的数字在大的数字的右边。但也存在特例，例如 4 不写做 IIII，而是 IV。数字 1 在数字 5 的左边，所表示的数等于大数 5 减小数 1 得到的数值 4 。同样地，数字 9 表示为 IX。这个特殊的规则只适用于以下六种情况：
+"	I 可以放在 V (5) 和 X (10) 的左边，来表示 4 和 9。
+"	X 可以放在 L (50) 和 C (100) 的左边，来表示 40 和 90。
+"	C 可以放在 D (500) 和 M (1000) 的左边，来表示 400 和 900。
+给定一个整数，将其转为罗马数字。输入确保在 1 到 3999 的范围内。
+示例 1:
+输入: 3
+输出: "III"
+示例 2:
+输入: 4
+输出: "IV"
+示例 3:
+输入: 9
+输出: "IX"
+示例 4:
+输入: 58
+输出: "LVIII"
+解释: L = 50, V = 5, III = 3.
+示例 5:
+输入: 1994
+输出: "MCMXCIV"
+解释: M = 1000, CM = 900, XC = 90, IV = 4.
+
+*/
+
+struct Map {
+	int num;
+	char *lm;
+};
+
+char * intToRoman(int num)
+{
+	struct Map map[13];
+	map[0].num = 1;
+	map[0].lm = "I";
+	map[1].num = 4;
+	map[1].lm = "IV";
+	map[2].num = 5;
+	map[2].lm = "V";
+	map[3].num = 9;
+	map[3].lm = "IX";
+	map[4].num = 10;
+	map[4].lm = "X";
+	map[5].num = 40;
+	map[5].lm = "XL";
+	map[6].num = 50;
+	map[6].lm = "L";
+	map[7].num = 90;
+	map[7].lm = "XC";
+	map[8].num = 100;
+	map[8].lm = "C";
+	map[9].num = 400;
+	map[9].lm = "CD";
+	map[10].num = 500;
+	map[10].lm = "D";
+	map[11].num = 900;
+	map[11].lm = "CM";
+	map[12].num = 1000;
+	map[12].lm = "M";
+
+	char *ret = (char *)calloc(1024, sizeof(char));
+	for (int i = 0; i < 13; i++) {
+		int cur = num / map[12 - i].num;
+		while(cur--) {
+			strcat(ret, map[12 - i].lm);
+		}
+
+		num %=  map[12 - i].num;
+	}
+
+	return ret;
+}
+
+

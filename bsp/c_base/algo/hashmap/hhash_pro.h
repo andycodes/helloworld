@@ -5,8 +5,8 @@
 #define HASHCODE_MAGIC_1 1
 
 struct DataEntry {
-	int key;
-	int value;
+	char *key;
+	char *value;
 	struct Node node;
 };
 
@@ -116,14 +116,23 @@ void hash_each_iterate(struct HashTable *ht, struct DataEntry cmpEntry)
 void hashPrint(struct HashTable *ht)
 {
 	for (size_t i = 0; i < ht->bktSize; i++) {
-		struct Node *node = NULL;
-		LIST_FOR_EACH(node, &ht->bkts[i]) {
-			struct DataEntry *entry = NODE_ENTRY(node, struct DataEntry, node);
-			printf("[%d %c]", entry->key, entry->value);
+		if (!ListEmpty(&ht->bkts[i])) {
+			struct Node *node = NULL;
+			LIST_FOR_EACH(node, &ht->bkts[i]) {
+				struct DataEntry *entry = NODE_ENTRY(node, struct DataEntry, node);
+				//printf("[%d %c]", entry->key, entry->value);
+			}
+			//printf("\n");
 		}
-		printf("\n");
 	}
 }
+
+void node_free(struct Node *node)
+{
+	struct DataEntry *entry = NODE_ENTRY(node, struct DataEntry, node);
+	free(entry);
+	entry = NULL;
+}//HashDeinit(ht, node_free);
 
 #endif
 

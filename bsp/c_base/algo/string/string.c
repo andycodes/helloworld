@@ -29,9 +29,9 @@ int isdigit(char ch)
 		return 1;
 }
 
-
 /*×Ö·û´®×ªÕûÐÎ*/
-int atoi(const char *str) {
+int atoi(const char *str)
+{
 	int num = 0;
 	int sign = 1;
 	const int len = strlen(str);
@@ -51,11 +51,11 @@ int atoi(const char *str) {
 		if (num > INT_MAX / 10 ||  (num == INT_MAX / 10 && (str[i] - '0') > INT_MAX % 10)) {
 			return sign == -1 ? INT_MIN : INT_MAX;
 		}
-		num = num * 10 + str[i] - '0';
+
+		num = str[i] - '0' + num * 10;
 	}
 	return num * sign;
 }
-
 
 void str2digit_sscanf(char * str)
 {
@@ -63,7 +63,6 @@ void str2digit_sscanf(char * str)
 	sscanf(str, "%x", &value);
 	printf("0x%x\n",value);
 }
-
 
 void str2digit_strtol(char * str)
 {
