@@ -145,11 +145,6 @@ void backtrack(int source[], int start, int end, int *resSize, int **res)
 	}
 }
 
-/**
- * Return an array of arrays of size *returnSize.
- * The sizes of the arrays are returned as *returnColumnSizes array.
- * Note: Both returned array and *columnSizes array must be calloc ed, assume caller calls free().
- */
 int** permute(int* nums, int numsSize, int* returnSize,
 			     int** returnColumnSizes)
 {

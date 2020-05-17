@@ -529,3 +529,49 @@ unsigned long strtobcd(char *s)
     return ret;
 }
 
+/*
+LCS的模板
+int longestCommonSubsequence(string text1, string text2)
+{
+    int LCS[text1.size() + 1][text2.size() + 1];
+    memset(LCS,0, sizeof(LCS));
+
+    for (int i = 1; i <= text1.size(); ++i)
+        for (int j = 1; j <= text2.size(); ++j)
+        {
+            if(text1[i - 1] == text2[j - 1])
+                LCS[i][j] = LCS[i - 1][j - 1] + 1;
+            else
+                LCS[i][j] = max(LCS[i - 1][j],LCS[i][j - 1]);
+        }
+    return LCS[text1.size()][text2.size()];
+}
+dp[i][j]表示以str1的第i项为结尾，str2的第j项为结尾
+*/
+int longestCommonSubsequence(char * text1, char * text2)
+{
+    if (text1 == NULL)
+        return text2;
+
+    if (text2 == NULL)
+        return text1;
+
+	int len1 = strlen(text1);
+	int len2 = strlen(text2);
+
+	int dp[len1 + 1][len2 + 1];
+	memset(dp, 0, sizeof(dp));
+
+	for (int i = 1; i <= len1; i++) {
+		for (int j = 1; j <= len2; j++) {
+			if(text1[i - 1] == text2[j - 1]) {
+				dp[i][j] = dp[i -1][j -1] + 1;
+			} else {
+				dp[i][j] = fmax(dp[i - 1][j], dp[i][j - 1]);
+			}
+		}
+	}
+
+	return dp[len1][len2];
+}
+

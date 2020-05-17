@@ -341,4 +341,51 @@ char * intToRoman(int num)
 	return ret;
 }
 
+/*
+712. 两个字符串的最小ASCII删除和
+难度中等93
+给定两个字符串s1, s2，找到使两个字符串相等所需删除字符的ASCII值的最小和。
+示例 1:
+输入: s1 = "sea", s2 = "eat"
+输出: 231
+解释: 在 "sea" 中删除 "s" 并将 "s" 的值(115)加入总和。
+在 "eat" 中删除 "t" 并将 116 加入总和。
+结束时，两个字符串相等，115 + 116 = 231 就是符合条件的最小和。
+
+*/
+
+/*
+题意是寻找一个共同子序列，
+将字符串s1和s2删除为该子序列时所删除
+的ASCII综合最小。等价于求一个字符串s1
+和s2的ASCII码总和最大的共同子序列。
+因为s1和s2的总和固定，当共同子序列的
+总和最大时，删除成为该子序列的代价必然
+最小。
+*/
+int minimumDeleteSum(char * s1, char * s2){
+    int len1 = strlen(s1);
+    int len2 = strlen(s2);
+
+    int dp[len1 + 1][len2 + 1];
+    memset(dp,0, sizeof(dp));
+
+    for (int i = 1; i <= len1; ++i)
+        for (int j = 1; j <= len2; ++j)
+        {
+            if(s1[i - 1] == s2[j - 1])
+                dp[i][j] = dp[i - 1][j - 1] + s1[i - 1];
+            else
+                dp[i][j] = fmax(dp[i - 1][j],dp[i][j - 1]);
+        }
+
+    int sum = 0;
+    for (int i = 0; i < len1; ++i)
+        sum += s1[i];
+    for (int i = 0; i < len2; ++i)
+        sum += s2[i];
+    return sum - 2 * dp[len1][len2];
+
+}
+
 

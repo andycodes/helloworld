@@ -1,6 +1,6 @@
 #include <stdio.h>
-
-
+#include <stdlib.h>
+#include <time.h>
 
 /** 数组元素的类型*/
 typedef int elem_t;
@@ -52,7 +52,6 @@ int test_binary_find_recur()
 }
 
 
-
 /*bseach用法:
 void *bsearch(const void *key, const void *base,
 size_t nelem, size_t width, int(*fcmp)(const void *, const *));
@@ -64,13 +63,7 @@ key指向所要查找的元素.
 第四个：每个元素的长度（以字符为单位）。
 第五个：指向比较函数的指针.
 */
-
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
 #define LEN 5
-
 void arr_init(int num[], int len)
 {
 	int i;
@@ -110,23 +103,3 @@ void test_bsearch(void)
 	(find_num == NULL) ? printf("no find\n") : printf("find the num %d\n", fd);
 }
 
-
-int main(int argc, char* argv[])
-{
-	if (argc != 2) {
-		printf("argc err\n");
-		return -1;
-	}
-
-	switch(atoi(argv[1])) {
-	case 1:
-		test_binary_find_recur();
-	break;
-	case 2:
-		test_bsearch();
-	default:
-	break;
-	}
-
-	return 0;
-}

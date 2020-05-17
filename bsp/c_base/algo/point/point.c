@@ -361,3 +361,104 @@ int** fourSum(int* nums, int numsSize, int target, int* returnSize, int** return
 	return ret;
 }
 
+/*
+658. 找到 K 个最接近的元素
+难度中等84
+给定一个排序好的数组，两个整数 k 和 x，从数组中找到最靠近 x（两数之差最小）的 k 个数。返回的结果必须要是按升序排好的。如果有两个数与 x 的差值一样，优先选择数值较小的那个数。
+示例 1:
+输入: [1,2,3,4,5], k=4, x=3
+输出: [1,2,3,4]
+
+示例 2:
+输入: [1,2,3,4,5], k=4, x=-1
+输出: [1,2,3,4]
+*/
+int g_x;
+int cmp_int1(const void* a, const void* b)
+{
+	int c = *((int *)a);
+	int d = *((int *)b);
+
+	if (abs(g_x - c) != abs(g_x - d)) {
+		return abs(g_x - c) - abs(g_x - d);
+	} else {
+		return c - d;
+	}
+}
+
+int cmp_int ( const void *a , const void *b)
+{
+        return *(int *)a - *(int *)b;
+}
+
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int* findClosestElements(int* arr, int arrSize, int k, int x, int* returnSize)
+{
+	g_x = x;
+	qsort(arr, arrSize, sizeof(arr[0]), cmp_int1);
+	qsort(arr, k, sizeof(arr[0]), cmp_int);
+	*returnSize = k;
+	return arr;
+}
+
+/*
+
+方法一：排除法（双指针）
+"排除法"的结论：（这个结论对于这道问题来说非常重要，可以说是解题的关键）
+
+如果 x 的值就在长度为 size 区间内（不一定相等），要得到 size - 1 个符合题意的最接近的元素，此时看左右边界：
+
+1、如果左边界与 x 的差值的绝对值较小，删除右边界；
+2、如果右边界与 x 的差值的绝对值较小，删除左边界；
+3、如果左、右边界与 x 的差值的绝对值相等，删除右边界。
+
+以 arr = [1, 2, 3, 4, 5, 6, 7] , x = 5, k = 3 为例。
+
+思路分析：
+
+1、一个一个删，因为是有序数组，且返回的是连续升序子数组，所以每一次删除的元素一定是位于边界；
+
+2、一共 77 个元素，要保留 33 个元素，因此要删除 44 个元素；
+
+3、因为要删除的元素都位于边界，于是可以使用双指针对撞的方式确定保留区间，即"最优区间"。
+
+*/
+int* findClosestElements(int* arr, int arrSize, int k, int x, int* returnSize)
+{
+	int left = 0;
+	int right = arrSize - 1;
+	int rmnums = arrSize - k;
+
+	while(rmnums > 0) {
+		if (x - arr[left] <= arr[right] - x) {
+			right--;
+		} else {
+			left++;
+		}
+
+		rmnums--;
+	}
+
+	int *ret = (int *)calloc(k, sizeof(int));
+	 memcpy(ret, arr + left, sizeof(int) * k);
+	*returnSize = k;
+	return ret;
+}
+
+
+int* findClosestElements(int* arr, int arrSize, int k, int x, int* returnSize){
+    *returnSize = k;
+    int left = 0;
+    int right = arrSize - 1;
+    while (right - left >= k) {
+        if (x * 2 <= arr[right] + arr[left]) {
+            --right;
+        } else {
+            ++left;
+        }
+    }
+    return &arr[left];
+}
+

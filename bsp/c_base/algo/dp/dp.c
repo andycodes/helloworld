@@ -639,78 +639,6 @@ int** obstacleGrid, int obstacleGridSize, int* obstacleGridColSize)
 	return dp[n -1];
 }
 
-
-
-
-
-
-/*
-LCS的模板
-int longestCommonSubsequence(string text1, string text2)
-{
-    int LCS[text1.size() + 1][text2.size() + 1];
-    memset(LCS,0, sizeof(LCS));
-
-    for (int i = 1; i <= text1.size(); ++i)
-        for (int j = 1; j <= text2.size(); ++j)
-        {
-            if(text1[i - 1] == text2[j - 1])
-                LCS[i][j] = LCS[i - 1][j - 1] + 1;
-            else
-                LCS[i][j] = max(LCS[i - 1][j],LCS[i][j - 1]);
-        }
-    return LCS[text1.size()][text2.size()];
-}
-dp[i][j]表示以str1的第i项为结尾，str2的第j项为结尾
-*/
-/*
-712. 两个字符串的最小ASCII删除和
-难度中等93
-给定两个字符串s1, s2，找到使两个字符串相等所需删除字符的ASCII值的最小和。
-示例 1:
-输入: s1 = "sea", s2 = "eat"
-输出: 231
-解释: 在 "sea" 中删除 "s" 并将 "s" 的值(115)加入总和。
-在 "eat" 中删除 "t" 并将 116 加入总和。
-结束时，两个字符串相等，115 + 116 = 231 就是符合条件的最小和。
-
-*/
-
-/*
-题意是寻找一个共同子序列，
-将字符串s1和s2删除为该子序列时所删除
-的ASCII综合最小。等价于求一个字符串s1
-和s2的ASCII码总和最大的共同子序列。
-因为s1和s2的总和固定，当共同子序列的
-总和最大时，删除成为该子序列的代价必然
-最小。
-*/
-int minimumDeleteSum(char * s1, char * s2){
-    int len1 = strlen(s1);
-    int len2 = strlen(s2);
-
-    int dp[len1 + 1][len2 + 1];
-    memset(dp,0, sizeof(dp));
-
-    for (int i = 1; i <= len1; ++i)
-        for (int j = 1; j <= len2; ++j)
-        {
-            if(s1[i - 1] == s2[j - 1])
-                dp[i][j] = dp[i - 1][j - 1] + s1[i - 1];
-            else
-                dp[i][j] = fmax(dp[i - 1][j],dp[i][j - 1]);
-        }
-
-    int sum = 0;
-    for (int i = 0; i < len1; ++i)
-        sum += s1[i];
-    for (int i = 0; i < len2; ++i)
-        sum += s2[i];
-    return sum - 2 * dp[len1][len2];
-
-}
-
-
 /*
 bfs  279
 */
@@ -779,7 +707,6 @@ s[i] == '0'
 去除这些限制条件，此题就是爬楼梯的问题了，一次可以爬一步，也可以爬两步，问有多少中方式到达终点。
 
 */
-
 int numDecodings(char * s)
 {
 	if (s[0] == '0')
@@ -807,4 +734,100 @@ int numDecodings(char * s)
 
 	return dp[slen];
 }
+
+/*
+213. 打家劫舍 II
+难度中等255
+你是一个专业的小偷，计划偷窃沿街的房屋，每间房内都藏有一定的现金。这个地方所有的房屋都围成一圈，这意味着第一个房屋和最后一个房屋是紧挨着的。同时，相邻的房屋装有相互连通的防盗系统，如果两间相邻的房屋在同一晚上被小偷闯入，系统会自动报警。
+给定一个代表每个房屋存放金额的非负整数数组，计算你在不触动警报装置的情况下，能够偷窃到的最高金额。
+示例 1:
+输入: [2,3,2]
+输出: 3
+解释: 你不能先偷窃 1 号房屋（金额 = 2），然后偷窃 3 号房屋（金额 = 2）, 因为他们是相邻的。
+示例 2:
+输入: [1,2,3,1]
+输出: 4
+解释: 你可以先偷窃 1 号房屋（金额 = 1），然后偷窃 3 号房屋（金额 = 3）。
+     偷窃到的最高金额 = 1 + 3 = 4 。
+
+*/
+#define MAX(a,b) ((a)>(b)?(a):(b))
+int rob(int* nums, int numsSize){
+    if (numsSize == 0) return 0;
+    if (numsSize == 1) return nums[0];
+    //分两种情况dp，a为偷第1间，b为不偷第1间
+    int i, a[numsSize], b[numsSize];
+    a[0] = nums[0];
+    a[1] = nums[0];
+    b[0] = 0;
+    b[1] = nums[1];
+    for(i = 2; i < numsSize; i++) {
+        a[i] = MAX(a[i-1], a[i-2] + nums[i]);
+        b[i] = MAX(b[i-1], b[i-2] + nums[i]);
+    }
+    return MAX(a[numsSize-2], b[numsSize-1]);
+}
+
+/*
+983. 最低票价
+难度中等213
+在一个火车旅行很受欢迎的国度，你提前一年计划了一些火车旅行。在接下来的一年里，你要旅行的日子将以一个名为 days 的数组给出。每一项是一个从 1 到 365 的整数。
+火车票有三种不同的销售方式：
+"	一张为期一天的通行证售价为 costs[0] 美元；
+"	一张为期七天的通行证售价为 costs[1] 美元；
+"	一张为期三十天的通行证售价为 costs[2] 美元。
+通行证允许数天无限制的旅行。 例如，如果我们在第 2 天获得一张为期 7 天的通行证，那么我们可以连着旅行 7 天：第 2 天、第 3 天、第 4 天、第 5 天、第 6 天、第 7 天和第 8 天。
+返回你想要完成在给定的列表 days 中列出的每一天的旅行所需要的最低消费。
+
+示例 1：
+输入：days = [1,4,6,7,8,20], costs = [2,7,15]
+输出：11
+解释：
+例如，这里有一种购买通行证的方法，可以让你完成你的旅行计划：
+在第 1 天，你花了 costs[0] = $2 买了一张为期 1 天的通行证，它将在第 1 天生效。
+在第 3 天，你花了 costs[1] = $7 买了一张为期 7 天的通行证，它将在第 3, 4, ..., 9 天生效。
+在第 20 天，你花了 costs[0] = $2 买了一张为期 1 天的通行证，它将在第 20 天生效。
+你总共花了 $11，并完成了你计划的每一天旅行。
+
+*/
+/*
+在第i天的时候，如果有出行计划，需要比较的三种方案为：
+
+dp[i-1]+cost[0];
+dp[i-7]+cost[1];
+dp[i-30]+cost[2];
+当中括号内数值为负的时候dp取值为0.
+如果没有出行计划，则直接由dp[i]=dp[i-1];
+
+*/
+
+int mincostTickets(int* days, int daysSize, int* costs, int costsSize)
+{
+	int last = days[daysSize - 1];
+
+	int dp[last + 1];
+	memset(dp, 0, sizeof(dp));
+	int idx = 0;
+
+	for (int i = 1; i <= last; i++) {
+		if (i == days[idx]) {
+			int cost = INT_MAX;
+			int oneDayAgo = i -1;
+			int sevenDaysAgo = i - 7 > 0 ? i - 7 : 0;
+			int thirtyDaysAgo = i - 30 > 0 ? i - 30 : 0;
+
+			cost = fmin(dp[oneDayAgo] + costs[0], cost);
+			cost = fmin(dp[sevenDaysAgo] + costs[1], cost);
+			cost = fmin(dp[thirtyDaysAgo] + costs[2], cost);
+
+			dp[i] = cost;
+			idx++;
+		} else {
+			dp[i] = dp[i - 1];
+		}
+	}
+
+	return dp[last];
+}
+
 

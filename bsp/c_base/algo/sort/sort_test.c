@@ -399,11 +399,6 @@ int str2min(char * str)
 	return hour * 60 + min;
 }
 
-int cmp_int(const void* a, const void* b)
-{
-	return *((int *)a) - *((int *)b);
-}
-
 int findMinDifference(char ** timePoints, int timePointsSize)
 {
 	int mins[timePointsSize];
