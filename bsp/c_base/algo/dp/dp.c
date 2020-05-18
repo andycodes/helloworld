@@ -830,4 +830,96 @@ int mincostTickets(int* days, int daysSize, int* costs, int costsSize)
 	return dp[last];
 }
 
+/*
+子串一定是连续的
+子序列是原对象删除部分成员不改变顺序留下来的部分
+
+ "pwwkew"
+ 子串"pww"
+ 子序列"pkw"
+*/
+
+
+/*
+LCS的模板
+int longestCommonSubsequence(string text1, string text2)
+{
+    int LCS[text1.size() + 1][text2.size() + 1];
+    memset(LCS,0, sizeof(LCS));
+
+    for (int i = 1; i <= text1.size(); ++i)
+        for (int j = 1; j <= text2.size(); ++j)
+        {
+            if(text1[i - 1] == text2[j - 1])
+                LCS[i][j] = LCS[i - 1][j - 1] + 1;
+            else
+                LCS[i][j] = max(LCS[i - 1][j],LCS[i][j - 1]);
+        }
+    return LCS[text1.size()][text2.size()];
+}
+dp[i][j]表示以str1的第i项为结尾，str2的第j项为结尾
+*/
+int longestCommonSubsequence(char * text1, char * text2)
+{
+    if (text1 == NULL)
+        return text2;
+
+    if (text2 == NULL)
+        return text1;
+
+	int len1 = strlen(text1);
+	int len2 = strlen(text2);
+
+	int dp[len1 + 1][len2 + 1];
+	memset(dp, 0, sizeof(dp));
+
+	for (int i = 1; i <= len1; i++) {
+		for (int j = 1; j <= len2; j++) {
+			if(text1[i - 1] == text2[j - 1]) {
+				dp[i][j] = dp[i -1][j -1] + 1;
+			} else {
+				dp[i][j] = fmax(dp[i - 1][j], dp[i][j - 1]);
+			}
+		}
+	}
+
+	return dp[len1][len2];
+}
+
+/*
+718. 最长重复子数组
+难度中等159
+给两个整数数组 A 和 B ，返回两个数组中公共的、长度最长的子数组的长度。
+示例 1:
+输入:
+A: [1,2,3,2,1]
+B: [3,2,1,4,7]
+输出: 3
+解释:
+长度最长的公共子数组是 [3, 2, 1]。
+*/
+int findLength(int* A, int ASize, int* B, int BSize)
+{
+	if (A == NULL || ASize <= 0)
+		return 0;
+
+	if (B == NULL || BSize <= 0)
+		return 0;
+
+	int dp[ASize + 1][BSize + 1];
+	memset(dp, 0, sizeof(dp));
+
+	int ret = 0;
+
+	for (int i = 1; i <= ASize; i++) {
+		for (int j = 1; j <= BSize; j++) {
+			if (A[i - 1] == B[j - 1]) {
+				dp[i][j] = dp[i - 1][j - 1] + 1;
+				ret = fmax(ret, dp[i][j]);
+			}
+		}
+	}
+
+	return ret;
+}
 

@@ -633,3 +633,102 @@ int numSquares(int n){
 	return -1;
 }
 
+/*
+752. 打开转盘锁
+难度中等106
+你有一个带有四个圆形拨轮的转盘锁。每个拨轮都有10个数字： '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' 。每个拨轮可以自由旋转：例如把 '9' 变为  '0'，'0' 变为 '9' 。每次旋转都只能旋转一个拨轮的一位数字。
+锁的初始数字为 '0000' ，一个代表四个拨轮的数字的字符串。
+列表 deadends 包含了一组死亡数字，一旦拨轮的数字和列表里的任何一个元素相同，这个锁将会被永久锁定，无法再被旋转。
+字符串 target 代表可以解锁的数字，你需要给出最小的旋转次数，如果无论如何不能解锁，返回 -1。
+
+示例 1:
+输入：deadends = ["0201","0101","0102","1212","2002"], target = "0202"
+输出：6
+解释：
+可能的移动序列为 "0000" -> "1000" -> "1100" -> "1200" -> "1201" -> "1202" -> "0202"。
+注意 "0000" -> "0001" -> "0002" -> "0102" -> "0202" 这样的序列是不能解锁的，
+因为当拨动到 "0102" 时这个锁就会被锁定。
+
+*/
+/*
+我们可以将 0000 到 9999 这 10000 状态看成图上的 10000 个节点，两个节点之间存在一条边，当且仅当这两个节点对应的状态只有 1 位不同，且不同的那位相差 1（包括 0 和 9 也相差 1 的情况），并且这两个节点均不在数组 deadends 中。那么最终的答案即为 0000 到 target 的最短路径。
+
+我们用广度优先搜索来找到最短路径，从 0000 开始搜索。对于每一个状态，它可以扩展到最多 8 个状态，即将它的第 i = 0, 1, 2, 3 位增加 1 或减少 1，将这些状态中没有搜索过并且不在 deadends 中的状态全部加入到队列中，并继续进行搜索。注意 0000 本身有可能也在 deadends 中。
+
+*/
+int openLock(char ** deadends, int deadendsSize, char * target)
+{
+	int i,j,k, ret, len, steps = -1;
+	char start[] = "0000";
+
+	if (strcmp(start, target) == 0)
+		return 0;
+
+	struct List dlist;
+	struct List *list = &dlist;
+	queue_init(list);
+
+	struct HashTable dht;
+	struct HashTable *ht = &dht;
+	HashInit(ht, 2 << 10, hashequal_str, hashcode_str);
+
+    	for (i = 0; i < deadendsSize; i++) {
+		struct DataEntry *entry = (struct DataEntry *)calloc(1, sizeof(struct DataEntry));
+		entry->key = deadends[i];
+		HashAdd(ht, &entry->node);
+	}
+
+	struct DataEntry cmpEntry;
+	cmpEntry.key = start;
+	struct DataEntry *find = hashFind(ht, &cmpEntry);
+	if (find != NULL) {
+		return -1;
+	}
+
+	struct DataEntry  *entryQueue = (struct DataEntry  *)calloc(1, sizeof(struct DataEntry ));
+	entryQueue->key = start;
+	ListAddTail(list, &entryQueue->node);
+
+    	while(!queue_empty(list)) {
+        ++steps;
+        len = queue_size(list);
+        for (k = 0; k < len; k++) {
+		struct DataEntry *pop = queue_pop_entry(list);
+                if (strcmp(pop->key, target) == 0) {
+			//free(pop);
+			//HashDeinit(ht, node_free);
+			return steps;
+                }
+
+		//struct DataEntry *entryhash = (struct DataEntry *)calloc(1, sizeof(struct DataEntry));
+		//entryhash->key = pop->key;
+		//HashAdd(ht, &entryhash->node);
+
+            	for (i = 0; i < 4; i++) {
+			for (j = -1; j < 2; j += 2) {
+				char *newstr = strdup(pop->key);
+				newstr[i] = (newstr[i] - '0' + j + 10)%10 + '0';
+
+				struct DataEntry nextEntry;
+				nextEntry.key = newstr;
+				struct DataEntry *find =  hashFind(ht, &nextEntry);
+				if (find != NULL) {
+					continue;
+				}
+
+				struct DataEntry *entryhash = (struct DataEntry *)calloc(1, sizeof(struct DataEntry));
+				entryhash->key = newstr;
+				HashAdd(ht, &entryhash->node);
+
+				struct DataEntry  *entry = (struct DataEntry  *)calloc(1, sizeof(struct DataEntry ));
+				entry->key = newstr;
+				ListAddTail(list, &entry->node);
+			}
+		}
+	}
+	}
+
+	//HashDeinit(ht, node_free);
+	return -1;
+}
+

@@ -1,5 +1,8 @@
 /*
-滑动窗口思想：
+双指针
+
+
+滑动窗口
 ①）窗口由两个指针构成，一个左指针left，一个右指针right，然后[left,right]表示的索引范围是一个窗口了。
 
 ②）右指针right的功能是用来扩展窗口：当窗口内的条件没有达到题目要求时，我们需要不断移动右指针right直到窗口内的条件第一次满足题目要求为止。
@@ -89,6 +92,68 @@ void maxQueueFree(MaxQueue* obj) {
 	free(obj->mhead);
 	free(obj);
 }
+
+/*
+209. 长度最小的子数组
+难度中等261
+给定一个含有 n 个正整数的数组和一个正整数 s ，找出该数组中满足其和 ≥ s 的长度最小的连续子数组，并返回其长度。如果不存在符合条件的连续子数组，返回 0。
+示例:
+输入: s = 7, nums = [2,3,1,2,4,3]
+输出: 2
+解释: 子数组 [4,3] 是该条件下的长度最小的连续子数组。
+进阶:
+*/
+int minSubArrayLen(int s, int* nums, int numsSize)
+{
+	int leftidx = 0;
+	int rightidx = 0;
+	int sum = 0;
+	int minlen = 0;
+	int minret = INT_MAX;
+
+	if (nums == NULL || numsSize <= 0)
+		return 0;
+
+	while(rightidx < numsSize) {
+		while(rightidx < numsSize && sum + nums[rightidx] < s) {
+			sum += nums[rightidx++];
+			minlen++;
+		}
+
+		if (rightidx < numsSize) {
+			sum += nums[rightidx++];
+			minlen++;
+		}
+
+
+		while(sum - nums[leftidx] >= s) {
+			sum -= nums[leftidx++];
+			minlen--;
+		}
+
+		if (sum >= s)
+			minret = fmin(minret, minlen);
+	}
+
+	return minret == INT_MAX ? 0 : minret;
+}
+int minSubArrayLen(int s, int* nums, int numsSize)
+{
+	int leftidx = 0;
+	int sum = 0;
+	int minret = INT_MAX;
+
+	for (int i = 0; i < numsSize; i++) {
+		sum += nums[i];
+		while(sum >= s) {
+			minret = fmin(minret, i + 1 - leftidx);
+			sum -= nums[leftidx++];
+		}
+	}
+
+	return minret == INT_MAX ? 0 : minret;
+}
+
 
 /*
 面试题48. 最长不含重复字符的子字符串
@@ -314,6 +379,62 @@ int* shortestSeq(int* big, int bigSize, int* small, int smallSize, int* returnSi
 }
 
 /*
+697. 数组的度
+难度简单115
+给定一个非空且只包含非负数的整数数组 nums,
+数组的度的定义是指数组里任一元素出现频数的最大值。
+你的任务是找到与 nums 拥有相同大小的度的最短连续子数组，
+返回其长度。
+示例 1:
+输入: [1, 2, 2, 3, 1]
+输出: 2
+解释:
+输入数组的度是2，因为元素1和2的出现频数最大，均为2.
+连续子数组里面拥有相同度的有如下所示:
+[1, 2, 2, 3, 1], [1, 2, 2, 3], [2, 2, 3, 1], [1, 2, 2], [2, 2, 3], [2, 2]
+最短连续子数组[2, 2]的长度为2，所以返回2.
+示例 2:
+输入: [1,2,2,3,1,4,2]
+输出: 6
+
+*/
+struct Degree {
+	int cnt;
+	int start;
+	int len;
+};
+
+int findShortestSubArray(int* nums, int numsSize)
+{
+	struct Degree obj[50000];
+	memset(obj, 0, sizeof(obj));
+
+	for (int i = 0; i < numsSize; i++) {
+		obj[nums[i]].cnt++;
+		if (obj[nums[i]].cnt == 1) {
+			obj[nums[i]].start = i;
+			obj[nums[i]].len = 1;
+		} else {
+			obj[nums[i]].len = i - obj[nums[i]].start + 1;
+		}
+	}
+
+	int maxdegree = 0;
+	for (int i = 0; i < numsSize; i++) {
+		maxdegree = fmax(maxdegree, obj[nums[i]].cnt);
+	}
+
+	int minsize = numsSize;
+	for (int i = 0; i < numsSize; i++) {
+		if (obj[nums[i]].cnt == maxdegree)
+			minsize = fmin(minsize, obj[nums[i]].len);
+	}
+
+	return minsize;
+}
+
+
+/*
 给定一个字符串 s ，找出 至多 包含两个
 不同字符的最长子串 t 。
 
@@ -357,5 +478,440 @@ int lengthOfLongestSubstringTwoDistinct(char * s)
 	}
 
 	return max;
+}
+
+/*
+658. 找到 K 个最接近的元素
+难度中等84
+给定一个排序好的数组，两个整数 k 和 x，从数组中找到最靠近 x（两数之差最小）的 k 个数。返回的结果必须要是按升序排好的。如果有两个数与 x 的差值一样，优先选择数值较小的那个数。
+示例 1:
+输入: [1,2,3,4,5], k=4, x=3
+输出: [1,2,3,4]
+
+示例 2:
+输入: [1,2,3,4,5], k=4, x=-1
+输出: [1,2,3,4]
+*/
+int g_x;
+int cmp_int1(const void* a, const void* b)
+{
+	int c = *((int *)a);
+	int d = *((int *)b);
+
+	if (abs(g_x - c) != abs(g_x - d)) {
+		return abs(g_x - c) - abs(g_x - d);
+	} else {
+		return c - d;
+	}
+}
+
+int cmp_int ( const void *a , const void *b)
+{
+        return *(int *)a - *(int *)b;
+}
+
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int* findClosestElements(int* arr, int arrSize, int k, int x, int* returnSize)
+{
+	g_x = x;
+	qsort(arr, arrSize, sizeof(arr[0]), cmp_int1);
+	qsort(arr, k, sizeof(arr[0]), cmp_int);
+	*returnSize = k;
+	return arr;
+}
+
+/*
+
+方法一：排除法（双指针）
+"排除法"的结论：（这个结论对于这道问题来说非常重要，可以说是解题的关键）
+
+如果 x 的值就在长度为 size 区间内（不一定相等），要得到 size - 1 个符合题意的最接近的元素，此时看左右边界：
+
+1、如果左边界与 x 的差值的绝对值较小，删除右边界；
+2、如果右边界与 x 的差值的绝对值较小，删除左边界；
+3、如果左、右边界与 x 的差值的绝对值相等，删除右边界。
+
+以 arr = [1, 2, 3, 4, 5, 6, 7] , x = 5, k = 3 为例。
+
+思路分析：
+
+1、一个一个删，因为是有序数组，且返回的是连续升序子数组，所以每一次删除的元素一定是位于边界；
+
+2、一共 77 个元素，要保留 33 个元素，因此要删除 44 个元素；
+
+3、因为要删除的元素都位于边界，于是可以使用双指针对撞的方式确定保留区间，即"最优区间"。
+
+*/
+int* findClosestElements(int* arr, int arrSize, int k, int x, int* returnSize)
+{
+	int left = 0;
+	int right = arrSize - 1;
+	int rmnums = arrSize - k;
+
+	while(rmnums > 0) {
+		if (x - arr[left] <= arr[right] - x) {
+			right--;
+		} else {
+			left++;
+		}
+
+		rmnums--;
+	}
+
+	int *ret = (int *)calloc(k, sizeof(int));
+	 memcpy(ret, arr + left, sizeof(int) * k);
+	*returnSize = k;
+	return ret;
+}
+
+
+int* findClosestElements(int* arr, int arrSize, int k, int x, int* returnSize){
+    *returnSize = k;
+    int left = 0;
+    int right = arrSize - 1;
+    while (right - left >= k) {
+        if (x * 2 <= arr[right] + arr[left]) {
+            --right;
+        } else {
+            ++left;
+        }
+    }
+    return &arr[left];
+}
+
+/*
+面试题 17.11. 单词距离
+难度中等2
+有个内含单词的超大文本文件，给定任意两个单词，找出在这个文件中这两个单词的最短距离(相隔单词数)。如果寻找过程在这个文件中会重复多次，而每次寻找的单词不同，你能对此优化吗?
+示例：
+输入：words = ["I","am","a","student","from","a","university","in","a","city"], word1 = "a", word2 = "student"
+输出：1
+
+*/
+
+int findClosest(char** words, int wordsSize, char* word1, char* word2)
+{
+	int min = INT_MAX;
+	int w1Idx = -1;
+	int w2Idx = -2;
+	for (int i = 0; i < wordsSize; i++) {
+		if (strcmp(words[i], word1) == 0) {
+			w1Idx = i;
+		}
+
+		if (strcmp(words[i], word2) == 0) {
+			w2Idx = i;
+		}
+
+		if (w1Idx >= 0 && w2Idx >= 0) {
+			min = fmin(min, abs(w1Idx - w2Idx));
+		}
+
+	}
+
+	return min;
+}
+
+/*
+see hashmap
+*/
+struct it{
+	int num;
+	int idx;
+};
+
+int cmp_struct(const int *a, const int *b)
+{
+	struct it * c = (struct it *)a;
+	struct it * d = (struct it *)b;
+	return c->num - d->num;
+}
+
+int* twoSum(int* nums, int numsSize, int target, int* returnSize)
+{
+	int* res = (int *)calloc(2, sizeof(int));
+	*returnSize = 2;
+
+	struct it obj[numsSize];
+	for (int i = 0; i < numsSize; i++) {
+		obj[i].num = nums[i];
+		obj[i].idx = i;
+	}
+
+	qsort(obj, numsSize, sizeof(obj[0]), cmp_struct);
+	int left = 0;
+	int right = numsSize -1;
+	int sum;
+	while(1) {
+		sum = obj[left].num + obj[right].num;
+		if (sum > target) {
+			right--;
+		}else if(sum < target) {
+			left++;
+		}else {
+			break;
+		}
+	}
+
+	res[0] = obj[left].idx;
+	res[1] = obj[right].idx;
+	return res;
+}
+
+/*
+18. 四数之和
+给定一个包含 n 个整数的数组 nums 和一个目标值 target，判断 nums 中是否存在四个元素 a，b，c 和 d ，使得 a + b + c + d 的值与 target 相等？找出所有满足条件且不重复的四元组。
+
+注意：
+
+答案中不可以包含重复的四元组。
+
+示例：
+
+给定数组 nums = [1, 0, -1, 0, -2, 2]，和 target = 0。
+
+满足要求的四元组集合为：
+[
+  [-1,  0, 0, 1],
+  [-2, -1, 1, 2],
+  [-2,  0, 0, 2]
+]
+*/
+
+
+int** fourSum(int* nums, int numsSize, int target, int* returnSize, int** returnColumnSizes){
+
+	int **ret = (int **)calloc(1024, sizeof(int *));
+	*returnSize = 0;
+	*returnColumnSizes = (int *)calloc(1024, sizeof(int));
+
+	qsort(nums, numsSize, sizeof(nums[0]), cmp_int);
+
+	for (int a = 0; a < numsSize - 3; a++) {
+		if(a > 0 && nums[a] == nums[a - 1])
+			continue;
+
+		if(nums[a]+nums[a+1]+nums[a+2]+nums[a+3]>target) break;
+		if(nums[a]+nums[numsSize-3]+nums[numsSize-2]+nums[numsSize-1]<target) continue;
+		for (int b = a + 1; b < numsSize - 2; b++) {
+			if(nums[a]+nums[b]+nums[b+1]+nums[b+2]>target) break;
+			 if(nums[a]+nums[b]+nums[numsSize-2]+nums[numsSize-1]<target) continue;
+			if(b > a + 1 && nums[b] == nums[b -1])
+				continue;
+
+			int c = b + 1;
+			int d = numsSize - 1;
+
+			while(c < d) {
+				int sum = nums[a] + nums[b] + nums[c] + nums[d];
+				if (sum < target) {
+					c++;
+				} else if (sum > target) {
+					d--;
+				} else {
+					ret[*returnSize] = (int *)calloc(4, sizeof(int));
+					ret[*returnSize][0] = nums[a];
+					ret[*returnSize][1] = nums[b];
+					ret[*returnSize][2] = nums[c];
+					ret[*returnSize][3] = nums[d];
+					(*returnColumnSizes)[*returnSize] = 4;
+					(*returnSize)++;
+					while(c<d&&nums[c+1]==nums[c])
+	        				    c++;
+	        			while(c<d&&nums[d-1]==nums[d])
+	        				    d--;
+
+					c++;
+					d--;
+				}
+			}
+		}
+	}
+
+	return ret;
+}
+
+/*
+11. 盛最多水的容器
+给定 n 个非负整数 a1，a2，...，an，每个数代表坐标中
+的一个点 (i, ai) 。在坐标内画 n 条垂直线，
+垂直线 i 的两个端点分别为 (i, ai) 和 (i, 0)。找出其中的两条线，
+使得它们与 x 轴共同构成的容器可以容纳最多的水。
+
+说明：你不能倾斜容器，且 n 的值至少为 2。
+
+*/
+int maxArea(int* height, int heightSize){
+	if (height == NULL || heightSize <= 0) {
+		return 0;
+	}
+
+	int area = INT_MIN;
+	for(int i = 1; i < heightSize; i++) {
+		for (int j = 0; j < i; j++) {
+			area = fmax(area, fmin(height[i], height[j]) * (i - j));
+		}
+	}
+
+	return area;
+}
+/*
+双指针法
+最初我们考虑由最外围两条线段构成的区域。
+现在，为了使面积最大化，
+我们需要考虑更长的两条线段之间的区域。
+如果我们试图将指向较长线段的指针向内侧移动，
+矩形区域的面积将受限于较短的线段而不会获得任何增加。
+但是，在同样的条件下，
+移动指向较短线段的指针尽管造成了矩形宽度的减小，
+但却可能会有助于面积的增大。因为移动较短线段的
+指针会得到一条相对较长的线段，
+这可以克服由宽度减小而引起的面积减小。
+*/
+int maxArea(int* height, int heightSize){
+	if (height == NULL || heightSize <= 0) {
+		return 0;
+	}
+
+	int area = INT_MIN;
+	int l = 0, r = heightSize - 1;
+        while (l < r) {
+            area = fmax(area, fmin(height[l], height[r]) * (r - l));
+            if (height[l] < height[r])
+                l++;
+            else
+                r--;
+        }
+        return area;
+}
+
+/*前序和prefixSum  (连续子和)
+任意区间数组和均可以使用前缀和来优化
+子数组A(i,j]的和为sum[j] - sum[i]
+第i个元素的前缀和 = 前i-1个元素之和。
+首元素没有前缀，规定为0。
+*/
+
+/*
+560. 和为K的子数组
+给定一个整数数组和一个整数 k，你需要找到该数组中和为
+k 的连续的子数组的个数。
+
+示例 1 :
+
+输入:nums = [1,1,1], k = 2
+输出: 2 , [1,1] 与 [1,1] 为两种不同的情况。
+说明 :
+
+数组的长度为 [1, 20,000]。
+数组中元素的范围是 [-1000, 1000] ，且整数 k 的范围是 [-1e7, 1e7]。
+通过次数25,598提交次数57,201
+*/
+int subarraySum(int* nums, int numsSize, int k)
+{
+	int cnt = 0;
+	int prefixSum[numsSize + 1];
+	prefixSum[0] = 0;
+	for (int i = 1; i <= numsSize; i++) {
+		prefixSum[i] = prefixSum[i - 1] + nums[i - 1];
+	}
+
+	for (int start = 0; start < numsSize; start++) {
+		for (int end = start + 1; end <= numsSize; end++) {
+			if (prefixSum[end] - prefixSum[start] == k)
+				cnt++;
+		}
+	}
+
+	return cnt;
+}
+
+
+/*
+1423. 可获得的最大点数
+几张卡牌 排成一行，每张卡牌都有一个对应的点数。
+点数由整数数组 cardPoints 给出。
+
+每次行动，你可以从行的开头或者末尾拿一张卡牌，
+最终你必须正好拿 k 张卡牌。
+
+你的点数就是你拿到手中的所有卡牌的点数之和。
+
+给你一个整数数组 cardPoints 和整数 k，请你返回可以获得的
+最大点数。
+
+
+
+示例 1：
+
+输入：cardPoints = [1,2,3,4,5,6,1], k = 3
+输出：12
+解释：第一次行动，不管拿哪张牌，你的点数总是 1 。
+但是，先拿最右边的卡牌将会最大化你的可获得点数。
+最优策略是拿右边的三张牌，最终点数为 1 + 6 + 5 = 12 。
+示例 2：
+
+输入：cardPoints = [2,2,2], k = 2
+输出：4
+解释：无论你拿起哪两张卡牌，可获得的点数总是 4 。
+示例 3：
+
+输入：cardPoints = [9,7,7,9,7,7,9], k = 7
+输出：55
+解释：你必须拿起所有卡牌，可以获得的点数为所有卡牌的点数之和。
+示例 4：
+
+输入：cardPoints = [1,1000,1], k = 1
+输出：1
+解释：你无法拿到中间那张卡牌，所以可以获得的最大点数
+为 1 。
+示例 5：
+
+输入：cardPoints = [1,79,80,1,1,1,200,1], k = 3
+输出：202
+*/
+int maxScore(int* cardPoints, int cardPointsSize, int k)
+{
+	int prefixSum[cardPointsSize + 1];
+	prefixSum[0] = 0;
+	for (int i = 0; i < cardPointsSize; i++) {
+		prefixSum[i + 1] = prefixSum[i] + cardPoints[i];
+	}
+
+	int max = -1;
+	for (int i = 0; i <=  k; i++) {
+		max = fmax(max, prefixSum[i] + prefixSum[cardPointsSize] - prefixSum[cardPointsSize - k + i]);
+	}
+
+	return max;
+}
+
+/*
+按题中意思取左取右得最大值，反过来就是求中间连续
+子数组得和最小,由于要取 k 张牌，
+所以反过来就是在中间找连续的长度为 len(carPoints)-k 的
+子数组使其和最小，滑窗将移动 k 次，
+不断更新滑窗能得到和的最小值，
+最后用输入数组的和减去这个最小值就是结果。
+第一排各自代表 index，
+第二行代表对应位置的数值,用的是题中第一个范例。
+*/
+int maxScore(int* cardPoints, int cardPointsSize, int k)
+{
+	int prefixSum[cardPointsSize + 1];
+	prefixSum[0] = 0;
+	for (int i = 0; i < cardPointsSize; i++) {
+		prefixSum[i + 1] = prefixSum[i] + cardPoints[i];
+	}
+
+	int ans = 0x3f3f3f3f;
+	int t = cardPointsSize - k;
+	for (int j = t;  j <= cardPointsSize; j++) {
+		ans = fmin(ans, prefixSum[j] - prefixSum[j - t]);
+	}
+
+	return prefixSum[cardPointsSize] - ans;
 }
 

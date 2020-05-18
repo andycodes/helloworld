@@ -540,3 +540,36 @@ bool carPooling(int** trips, int tripsSize, int* tripsColSize, int capacity){
 	return true;
 }
 
+/*
+991. 坏了的计算器
+难度中等57
+在显示着数字的坏计算器上，我们可以执行以下两种操作：
+"	双倍（Double）：将显示屏上的数字乘 2；
+"	递减（Decrement）：将显示屏上的数字减 1 。
+最初，计算器显示数字 X。
+返回显示数字 Y 所需的最小操作数。
+
+示例 1：
+输入：X = 2, Y = 3
+输出：2
+解释：先进行双倍运算，然后再进行递减运算 {2 -> 4 -> 3}.
+
+*/
+/*
+根据上述分析，我们可以写出该贪心算法的递归写法
+当Y = XY=X时，返回00
+当Y < XY<X时，返回 X-YX?Y
+当Y > XY>X 且 YY为奇数时，我们可以得到当前最优序列中倒数第二个数为Y+1Y+1，递归求解到Y+1Y+1的最小操作次数。
+当Y > XY>X 且 YY为偶数时, 我们可以得到当前最优序列中倒数第二个数为Y/2Y/2，递归求解到Y/2Y/2的最小操作次数
+
+*/
+int brokenCalc(int X, int Y)
+{
+	if (Y <= X)
+		return X - Y;
+	if (Y % 2 == 0) {
+		return 1 + brokenCalc(X , Y /2);
+	} else
+		return 1 + brokenCalc(X , Y + 1);
+}
+
