@@ -51,7 +51,7 @@ bool uf_isOneUnion(struct UnionFind* obj, int x, int y)
 	 return uf_findRoot(obj, x) == uf_findRoot(obj, y);
 }
 
-
+#if 0
 void uf_union(struct UnionFind* obj, int i, int j)
 {
     int x = uf_findRoot(obj, i), y = uf_findRoot(obj, j);
@@ -63,27 +63,24 @@ void uf_union(struct UnionFind* obj, int i, int j)
     if (obj->rank[x] == obj->rank[y] && x!=y)
         obj->rank[y]++;
 }
-
-
-void uf_union1(int x, int y)
+#else
+void uf_union(struct UnionFind* obj, int x, int y)
 {
-    x = uf_findRoot(x);  //找到最久远祖先
-    y = uf_findRoot(y);
-    if (x == y)
-		return;  //两个元素属于同一个集合
+	x = uf_findRoot(obj, x);
+	y = uf_findRoot(obj, y);
+	if (x == y)
+		return;
 
-//把深度小的集合合并
-//到深度大的集合中去
-	if (rank[x] > rank[y]) {
-		father[y] = x;
-		rank[x] += rank[y];  //更新合并后的深度
+	if (obj->rank[x] > obj->rank[y]) {
+		obj->father[y] = x;
+		obj->rank[x] += obj->rank[y];
 	} else {
-		if (rank[x] == rank[y]) {
-			rank[y]++;
+		if (obj->rank[x] == obj->rank[y]) {
+			obj->rank[y]++;
 		}
-		father[x] = y;
+		obj->father[x] = y;
 	}
 }
-
+#endif
 #endif
 

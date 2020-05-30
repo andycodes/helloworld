@@ -111,10 +111,6 @@ strchr() 函数会依次检索字符串 str 中的每一个字符，
 */
 char* strchr(const char* str, int c);
 
-
-
-
-
 /*
 2. string/array to int/float
 C/C++语言提供了几个标准库函数，可以将字符串转换为任意类型(整型、长整型、浮点型等)。
@@ -124,6 +120,25 @@ C/C++语言提供了几个标准库函数，可以将字符串转换为任意类型(整型、长整型、浮点型等
 ● strtod()：将字符串转换为双精度浮点型值，并报告不能被转换的所有剩余数字。
 ● strtol()：将字符串转换为长整值，并报告不能被转换的所有剩余数字。
 ● strtoul()：将字符串转换为无符号长整型值，并报告不能被转换的所有剩余数字。
+*/
+
+/*
+maxlen：表示复制的字符串长度
+（c/c++）复制字符串source中的内容（字符，数字、汉字....）
+到字符串destinin中，复制多少由maxlen的值决定。
+如果source的前n个字符不含NULL字符，
+则结果不会以NULL字符结束。
+如果n<source的长度，只是将source的前n个字符复制到
+destinin的前n个字符，不自动添加'\0'，
+也就是结果destinin不包括'\0'，需要再手动添加一个'\0'。
+如果source的长度小于n个字节，则以NULL填充
+destinin直到复制完n个字节。
+source和destinin所指内存区域不可以重叠且
+destinin必须有足够的空间来容纳source的字符长度+'\0'。
+*/
+/*
+char *strncpy(char *destinin, char *source, int maxlen);
+destinin[maxlen] = '\0';
 */
 
 /*
@@ -149,29 +164,17 @@ void substr(char* dst, char* src, int start, int cpLen)
     }
     dst[i] = '\0';
 #else
-    strncpy(dst, src + start, cpLen);
+	strncpy(dst, src + start, cpLen);
+	dst[cpLen] = '\0';
 #endif
 }
 
-
-/*
-//字符串替换函数
-// 参数说明:
-// in， 源字符串
-// dstStr, 存放最后结果的字符串
-// dstSize，dstStr最大的大小
-// oldSubStr，要替换的字符串
-// newSubStr，替换成什么字符串
-string replace
-*/
-char *strrpl(char *srcStr, char *dstStr, int dstSize,
-const char *oldSubStr, char *newSubStr)
+char *strrpl(char *srcStr, char *dstStr, int dstSize, const char *oldSubStr, char *newSubStr)
 {
 	char *it = srcStr;
 	unsigned int  len = dstSize - 1;
 
-	if(oldSubStr == NULL ||newSubStr== NULL || srcStr == NULL ||
-		dstStr  == NULL || dstSize <= 0) {
+	if(oldSubStr == NULL ||newSubStr== NULL || srcStr == NULL || dstStr  == NULL || dstSize <= 0) {
 		return NULL;
 	}
 
@@ -182,10 +185,8 @@ const char *oldSubStr, char *newSubStr)
 	while(*it != '\0' && len > 0) {
 		if(strncmp(it, oldSubStr, strlen(oldSubStr)) != 0) {
 			int n = strlen(dstStr);
-
 			dstStr[n] = *it;
 			dstStr[n + 1] = '\0';
-
 			it++;
 			len--;
 		} else {
@@ -196,6 +197,19 @@ const char *oldSubStr, char *newSubStr)
 	}
 
 	return dstStr;
+}
+
+void strreplace(char *text, char *oldsubstr, char *newsubstr)
+{
+	int oldsublen = strlen(oldsubstr);
+	int newsublen = strlen(newsubstr);
+	char *temp = text;
+
+	while ( (temp = strstr(temp, oldsubstr)) != NULL ) {
+		memmove(temp + newsublen, temp + oldsublen, strlen(temp) - oldsublen + 1);
+		memcpy(temp, newsubstr, newsublen);
+		temp = temp + newsublen;
+	}
 }
 
 
@@ -246,16 +260,16 @@ bool isSubsequence(char * s, char * t)
 
 void strrev_pos(char* s, int begin, int end)
 {
-	char* h = s + begin;
-	char* t = s + end;
+	char* left = s + begin;
+	char* right = s + end;
 
 	if (begin == end)
 		return;
 
-	while(h < t) {
-		swap(*h, *t);
-		h++;
-		t--;
+	while(left < right) {
+		swap(*left, *right);
+		left++;
+		right--;
 	}
 }
 
@@ -346,21 +360,6 @@ char *alpha_low_upper( char *Str )
 }
 
 
-/*
-maxlen：表示复制的字符串长度
-（c/c++）复制字符串source中的内容（字符，数字、汉字....）
-到字符串destinin中，复制多少由maxlen的值决定。
-如果source的前n个字符不含NULL字符，
-则结果不会以NULL字符结束。
-如果n<source的长度，只是将source的前n个字符复制到
-destinin的前n个字符，不自动添加'\0'，
-也就是结果destinin不包括'\0'，需要再手动添加一个'\0'。
-如果source的长度小于n个字节，则以NULL填充
-destinin直到复制完n个字节。
-source和destinin所指内存区域不可以重叠且
-destinin必须有足够的空间来容纳source的字符长度+'\0'。
-*/
-//char *strncpy(char *destinin, char *source, int maxlen);
 
 /*
 将一个无符号短整形数从网络字
