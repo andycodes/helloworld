@@ -257,6 +257,128 @@ bool isSubsequence(char * s, char * t)
 	return false;
 }
 
+void trim(char *strIn, char *strOut)
+{
+    int i, j ;
+
+    i = 0;
+    j = strlen(strIn) - 1;
+
+    while(strIn[i] == ' ')
+        ++i;
+
+    while(strIn[j] == ' ')
+        --j;
+    strncpy(strOut, strIn + i , j - i + 1);
+    strOut[j - i + 1] = '\0';
+}
+
+void trim(char *strIn, char *strOut)
+{
+
+    char *start, *end, *temp;//定义去除空格后字符串的头尾指针和遍历指针
+    temp = strIn;
+
+    while (*temp == ' '){
+        ++temp;
+    }
+
+    start = temp; //求得头指针
+    temp = strIn + strlen(strIn) - 1; //得到原字符串最后一个字符的指针(不是'\0')
+    printf("%c\n", *temp);
+    while (*temp == ' '){
+        --temp;
+    }
+
+    end = temp; //求得尾指针
+
+
+    for(strIn = start; strIn <= end; ){
+        *strOut++ = *strIn++;
+    }
+
+    *strOut = '\0';
+}
+
+char* trim(char *a)
+{
+	char *p1 = a;
+	char *p2 = a + strlen(a) - 1;
+
+	while (p1 <= p2 && *p1 == ' ') {
+		p1++;
+	}
+	while (p2 >= p1 && *p2 == ' ') {
+		p2--;
+	}
+
+	*(++p2) = '\0';
+	return p1;
+}
+
+char* trim(char *a)
+{
+	char *end, *p1, *p2;
+	int len;
+	p1 = a;
+	end = a + strlen(a) - 1;
+	p2 = end;
+	while (p1 <= end && isspace(*p1)){
+		p1++;
+	}
+	while (p2 >= p1 && isspace(*p2)){
+		p2--;
+	}
+	len = (p2 < p1) ? 0 : (p2 - p1) + 1;//若字符串全为空格，p1会移到p2的后面，那么如果p1>p2，返回空。
+	p1[len] = '\0';
+	return p1;
+}
+
+void deblank(char string[])
+{
+    int i=0;
+    int j=0;
+    while(string[j]!='\0'){
+        if(string[j]!=' '||string[j+1]!=' '){
+            string[i]=string[j];
+            i++;
+            j++;
+        }
+        else
+        {
+            string[i]=string[j+1];
+            j++;
+        }
+    }
+    string[i]='\0';
+}
+
+char * deblank_trim(char * str)
+{
+    char * left = str;//前面的指针，负责赋值
+    char * right = str;//后面寻找非空格字符的指针
+
+    while (*right != '\0') {
+        if (*right != ' ') {
+            if (left < right) {
+                *left = *right;
+            }
+            left++;
+        }
+
+        if (*right == ' ' && *(right + 1) != ' ')//寻找到下一个单词时，对left的操作
+        {
+            *left = ' ';
+            left++;
+        }
+
+        right++;
+    }
+
+    *left = '\0';
+    return *str != ' ' ?str:(str + 1);//防止首单词之前有空格现象
+}
+
 
 void strrev_pos(char* s, int begin, int end)
 {
