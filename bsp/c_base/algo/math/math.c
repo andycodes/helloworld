@@ -164,5 +164,65 @@ char *getPermutation(int n, int k) {
   return res;
 }
 
+/*
+LCP 03. 机器人大冒险
+力扣团队买了一个可编程机器人，机器人初始位置在原点(0, 0)。小伙伴事先给机器人输入一串指令command，机器人就会无限循环这条指令的步骤进行移动。指令有两种：
 
+U: 向y轴正方向移动一格
+R: 向x轴正方向移动一格。
+不幸的是，在 xy 平面上还有一些障碍物，他们的坐标用obstacles表示。机器人一旦碰到障碍物就会被损毁。
 
+给定终点坐标(x, y)，返回机器人能否完好地到达终点。如果能，返回true；否则返回false。
+*/
+void lower(int *x, int *y, int d1, int d2){
+    int p1 = *x/d1;
+    int p2 = *y/d2;
+    int min = p1>p2?p2:p1;
+    *x = *x-min*d1;
+    *y = *y-min*d2;
+}
+
+bool isOk(char * command, int x, int y){
+    int i=0;
+    while(x>=0 && y>=0){
+        if(x==0&&y==0)
+            return true;
+        if(*(command+i)=='U'){
+            y--;
+        }else{
+            x--;
+        }
+        i++;
+    }
+    if(x==0&&y==0)
+        return true;
+    else
+        return false;
+}
+
+bool robot(char * command, int** obstacles, int obstaclesSize, int* obstaclesColSize, int x, int y){
+    int nx=x,ny=y;
+    int numU=0,numR=0;
+    for(int i=0; i<strlen(command); i++){
+        if(*(command+i)=='U'){
+            numU++;
+        }else{
+            numR++;
+        }
+    }
+    lower(&nx,&ny,numR,numU);
+    if(!isOk(command,nx,ny))
+        return false;
+
+    for(int i=0; i<obstaclesSize; i++){
+        if(obstacles[i][0]>x||obstacles[i][1]>y)
+            continue;
+        nx=obstacles[i][0];
+        ny=obstacles[i][1];
+        lower(&nx,&ny,numR,numU);
+        if(isOk(command,nx,ny))
+            return false;
+    }
+
+    return true;
+}

@@ -1330,3 +1330,65 @@ int findTargetSumWays(int* nums, int numsSize, int S)
 
 	return cnt;
 }
+
+/*
+面试题13. 机器人的运动范围
+地上有一个m行n列的方格，从坐标 [0,0] 到坐标 [m-1,n-1] 。一个机器人从坐标 [0, 0] 的格子开始移动，它每次可以向左、右、上、下移动一格（不能移动到方格外），也不能进入行坐标和列坐标的数位之和大于k的格子。例如，当k为18时，机器人能够进入方格 [35, 37] ，因为3+5+3+7=18。但它不能进入方格 [35, 38]，因为3+5+3+8=19。请问该机器人能够到达多少个格子？
+
+
+
+示例 1：
+
+输入：m = 2, n = 3, k = 1
+输出：3
+示例 2：
+
+输入：m = 3, n = 1, k = 0
+输出：1
+*/
+int numsum(int obj)
+{
+	int sum = 0;
+	while(obj != 0) {
+		sum += obj % 10;
+		obj /= 10;
+	}
+
+	return sum;
+}
+
+void dfs(int m, int n, int k, int x, int y, int *res, int **visited)
+{
+	if (x < 0 || x >= m || y < 0 || y >= n) {
+		return;
+	}
+
+	if (visited[x][y] == 1)
+		return;
+
+	int sum = numsum(x) + numsum(y);
+	if (sum > k) {
+		return;
+	}
+
+	(*res)++;
+	visited[x][y] = 1;
+
+	int d[2][2] = {{0, 1}, {1, 0}};
+	for (int i = 0; i < 2; i++) {
+		dfs(m, n, k, x + d[i][0], y + d[i][1], res, visited);
+	}
+}
+
+int movingCount(int m, int n, int k)
+{
+	int res = 0;
+
+	int **visited = (int **)calloc(m, sizeof(int *));
+	for (int i = 0; i < m; i++) {
+		visited[i] = (int *)calloc(n, sizeof(int));
+	}
+
+	dfs(m, n, k, 0, 0, &res, visited);
+	return res;
+}

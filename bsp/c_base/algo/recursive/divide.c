@@ -294,4 +294,73 @@ double myPow(double x, int n)
 	return N >= 0 ? traverse(x, N) : 1.0 / traverse(x, -N);
 }
 
+/*
+395. 至少有K个重复字符的最长子串
+难度中等152
+找到给定字符串（由小写字符组成）中的最长子串 T ， 要求 T 中的每一字符出现次数都不少于 k 。输出 T 的长度。
+示例 1:
+输入:
+s = "aaabb", k = 3
 
+输出:
+3
+
+最长子串为 "aaa" ，其中 'a' 重复了 3 次。
+示例 2:
+输入:
+s = "ababbc", k = 2
+
+输出:
+5
+
+最长子串为 "ababb" ，其中 'a' 重复了 2 次， 'b' 重复了 3 次。
+
+*/
+/*
+解题思路：递归拆分子串，分治。先统计出每个字符出现的频次，维护一对双指针，从首尾开始统计，从首尾往中间排除，如果出现次数小于k则不可能出现在最终子串中，排除并挪动指针，然后得到临时子串，依次从头遍历，一旦发现出现频次小于k的字符，以该字符为分割线，分别递归求其最大值返回。
+*/
+
+int divide(char *s, int k, int left, int right)
+{
+	if (right - left + 1 < k)
+		return 0;
+
+	int mapcnt[26];
+	memset(mapcnt, 0, sizeof(mapcnt));
+
+	for (int i = left; i <= right; i++) {
+		mapcnt[s[i] - 'a']++;
+	}
+
+	while(right - left + 1 >= k && mapcnt[s[left] - 'a'] < k) {
+		left++;
+	}
+
+	while(right - left + 1 >= k && mapcnt[s[right] - 'a'] < k) {
+		right--;
+	}
+
+	if (right - left + 1 < k)
+		return 0;
+
+	for (int i = left; i <= right; i++) {
+		if (mapcnt[s[i] - 'a'] < k) {
+			return fmax(divide(s, k, left, i - 1), divide(s, k, i + 1, right));
+		}
+	}
+
+	return right - left + 1;
+}
+
+int longestSubstring(char * s, int k)
+{
+	int slen = strlen(s);
+
+	if (slen == 0 || k > slen)
+		return 0;
+
+	if (k < 2)
+		return slen;
+
+	return divide(s, k, 0, slen - 1);
+}
