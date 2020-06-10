@@ -66,57 +66,34 @@ sr = 1, sc = 1, newColor = 2
 
 */
 void changeValue(int** image, int imageSize, int* imageColSize,
-int sr, int sc, int newColor, int** res, bool** visited, int* returnSize,
-int** returnColumnSizes, int value)
+int sr, int sc, int newColor, int oldColor)
 {
-	if ( sr < 0 || sr >= imageSize || sc < 0 ||
-		sc >= imageColSize[sr] || image[sr][sc] != value || visited[sr][sc])
+	if ( sr < 0 || sr >= imageSize || sc < 0 || sc >= imageColSize[sr] || image[sr][sc] != oldColor)
 		return;
 
-	res[sr][sc] = newColor;
-	visited[sr][sc] = true;
+	image[sr][sc] = newColor;
 
 	int d[4][2] = {{0,1}, {1,0}, {0,-1}, {-1,0}};
 	for (int k = 0; k < 4; k++) {
-		int nX = sr + d[k][0];
-		int nY = sc + d[k][1];
 		  changeValue(image, imageSize, imageColSize,
-				nX, nY, newColor, res, visited, returnSize, returnColumnSizes, value);
+				sr + d[k][0], sc + d[k][1], newColor, oldColor);
 	}
 }
-
-
 
 int** floodFill(int** image, int imageSize, int* imageColSize, int sr, int sc,
 	int newColor, int* returnSize, int** returnColumnSizes)
 {
-	int** res = malloc(sizeof(int*) * imageSize);
-	bool** visited = malloc(sizeof(bool*) * imageSize);
-
 	*returnSize = imageSize;
 	*returnColumnSizes = malloc(sizeof(int) * imageSize);
-
 	for (int i = 0; i < imageSize; i++) {
-		res[i] = malloc(sizeof(int) * imageColSize[i]);
-		visited[i] = malloc(sizeof(bool) * imageColSize[i]);
-		memset(res[i], 0, sizeof(int) * imageColSize[i]);
-		memset(visited[i], 0, sizeof(bool) * imageColSize[i]);
 		(*returnColumnSizes)[i] = imageColSize[i];
 	}
 
-	changeValue(image, imageSize, imageColSize, sr, sc, newColor,
-	res, visited, returnSize, returnColumnSizes, image[sr][sc]);
+	if (newColor == image[sr][sc])
+		return image;
 
-	for (int i = 0; i < imageSize; i++) {
-		for (int j = 0; j < imageColSize[i]; j++) {
-			if (visited[i][j] == false)
-				res[i][j] = image[i][j];
-		}
-		free(visited[i]);
-	}
-
-	free(visited);
-	return res;
+	changeValue(image, imageSize, imageColSize, sr, sc, newColor, image[sr][sc]);
+	return image;
 }
 
 
@@ -148,12 +125,9 @@ void dfs(char** grid, int gridSize, int gridColSize, int x ,int y)
 
 	int d[4][2] = {{0,1}, {1,0}, {0,-1}, {-1,0}};
 	for(int k = 0; k < 4; k++) {
-		int nX = x + d[k][0];
-		int nY = y + d[k][1];
-		dfs(grid,gridSize,gridColSize,nX,nY);
+		dfs(grid,gridSize,gridColSize, x + d[k][0], y + d[k][1]);
 	}
 }
-
 
 int numIslands(char** grid, int gridSize, int* gridColSize){
 	int num = 0;
@@ -1004,11 +978,11 @@ void dfs(int** grid, int gridSize,
 
 	int d[2][2] = { {1, 0}, {0, 1} };//down,right
 	for (int i = 0; i < 2; i++) {
-		int nX = x + d[i][0];
-		int nY = y + d[i][1];
+		int nx = x + d[i][0];
+		int ny = y + d[i][1];
 
-		if (nX < gridSize && nY < gridColSize[nX]) {
-			dfs(grid, gridSize, gridColSize, sum + grid[nX][nY], nX, nY);
+		if (nx < gridSize && ny < gridColSize[nx]) {
+			dfs(grid, gridSize, gridColSize, sum + grid[nx][ny], nx, ny);
 		}
 	}
 }
