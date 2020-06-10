@@ -4,8 +4,7 @@
 沿着树的深度遍历树的节点，
 尽可能深的搜索树的分支。
 当节点v的所在边都己被探寻过，
-搜索将回溯到发现节点v的那
-条边的起始节点。
+搜索将回溯到发现节点v的那条边的起始节点。
 这一过程一直进行到已发现从源节点可达
 的所有节点为止。如果还存在未被发现的节点，
 则选择其中一个作为源节点并重复以上过程，
@@ -54,7 +53,11 @@ image = [
 [1,0,1]
 ]
 sr = 1, sc = 1, newColor = 2
-输出: [[2,2,2],[2,2,0],[2,0,1]]
+输出:
+[
+[2,2,2],
+[2,2,0],
+[2,0,1]]
 解析:
 在图像的正中间，(坐标(sr,sc)=(1,1)),
 在路径上所有符合条件的像素点的颜色都被更改成2。
@@ -63,8 +66,9 @@ sr = 1, sc = 1, newColor = 2
 
 */
 void changeValue(int** image, int imageSize, int* imageColSize,
-int sr, int sc, int newColor, int** res, bool** visited, int* returnSize, int** returnColumnSizes, int value) {
-
+int sr, int sc, int newColor, int** res, bool** visited, int* returnSize,
+int** returnColumnSizes, int value)
+{
 	if ( sr < 0 || sr >= imageSize || sc < 0 ||
 		sc >= imageColSize[sr] || image[sr][sc] != value || visited[sr][sc])
 		return;
@@ -84,7 +88,8 @@ int sr, int sc, int newColor, int** res, bool** visited, int* returnSize, int** 
 
 
 int** floodFill(int** image, int imageSize, int* imageColSize, int sr, int sc,
-	int newColor, int* returnSize, int** returnColumnSizes){
+	int newColor, int* returnSize, int** returnColumnSizes)
+{
 	int** res = malloc(sizeof(int*) * imageSize);
 	bool** visited = malloc(sizeof(bool*) * imageSize);
 
@@ -1391,4 +1396,175 @@ int movingCount(int m, int n, int k)
 
 	dfs(m, n, k, 0, 0, &res, visited);
 	return res;
+}
+
+/*
+417. 太平洋大西洋水流问题
+难度中等109
+给定一个 m x n 的非负整数矩阵来表示一片大陆上各个单元格的高度。"太平洋"处于大陆的左边界和上边界，而"大西洋"处于大陆的右边界和下边界。
+规定水流只能按照上、下、左、右四个方向流动，且只能从高到低或者在同等高度上流动。
+请找出那些水流既可以流动到"太平洋"，又能流动到"大西洋"的陆地单元的坐标。
+
+提示：
+1.	输出坐标的顺序不重要
+2.	m 和 n 都小于150
+
+示例：
+
+给定下面的 5x5 矩阵:
+
+  太平洋 ~   ~   ~   ~   ~
+       ~  1   2   2   3  (5) *
+       ~  3   2   3  (4) (4) *
+       ~  2   4  (5)  3   1  *
+       ~ (6) (7)  1   4   5  *
+       ~ (5)  1   1   2   4  *
+          *   *   *   *   * 大西洋
+
+返回:
+
+[[0, 4], [1, 3], [1, 4], [2, 2], [3, 0], [3, 1], [4, 0]] (上图中带括号的单元)
+
+*/
+
+void dfs(int** matrix, int i, int j, int pre, int row, int col, int visited[row][col])
+{
+    // 设定边界
+    if (i<0 || i>=row || j<0 || j>=col) return;
+    // 逆向遍历，只能由低到高
+    if (matrix[i][j] < pre || visited[i][j] == 1)
+        return;
+    visited[i][j] = 1;
+    // 方向矩阵
+    int direction[4][2] = {{1,0},{-1,0},{0,1},{0,-1}};
+    for(int k=0;k<4;k++){
+        dfs(matrix, i+direction[k][0], j+direction[k][1], matrix[i][j], row, col, visited);
+    }
+}
+int** pacificAtlantic(int** matrix, int matrixSize, int* matrixColSize, int* returnSize, int** returnColumnSizes){
+    if (matrixSize == 0) {
+        returnColumnSizes[0] = NULL;
+        *returnSize = 0;
+        return NULL;
+    }
+    int row = matrixSize, col = *matrixColSize;
+    int** res = (int**)malloc(row*col*sizeof(int*));
+    returnColumnSizes[0] = (int*)malloc(row*col*sizeof(int));
+    for (int i=0;i<row*col;i++) {
+        res[i] = (int*)malloc(sizeof(int)*2);
+        returnColumnSizes[0][i] = 2;
+    }
+    // 构建状态矩阵
+    int visited1[row][col];
+    int visited2[row][col];
+    memset(visited1, 0, sizeof(visited1));
+    memset(visited2, 0, sizeof(visited2));
+    // 太平洋上边缘和大西洋下边缘
+    for(int i=0;i<row;i++) {
+        dfs(matrix, i, 0, 0, row, col, visited1);
+        dfs(matrix, i, col-1, 0, row, col, visited2);
+    }
+    // 太平洋左边缘和大西洋右边缘
+    for(int i=0;i<col;i++) {
+        dfs(matrix, 0, i, 0, row, col,visited1);
+        dfs(matrix, row-1, i, 0, row, col, visited2);
+    }
+    int index = 0;
+    // 找状态矩阵重合的位置
+    for (int i=0;i<row;i++) {
+        for (int j=0;j<col;j++) {
+            if (visited1[i][j] && visited2[i][j]) {
+                res[index][0] = i;
+                res[index++][1] = j;
+            }
+        }
+    }
+    *returnSize = index;
+    return res;
+}
+
+/*
+638. 大礼包
+难度中等97
+在LeetCode商店中， 有许多在售的物品。
+然而，也有一些大礼包，每个大礼包以优惠的价格捆绑销售一组物品。
+现给定每个物品的价格，每个大礼包包含物品的清单，以及待购物品清单。请输出确切完成待购清单的最低花费。
+每个大礼包的由一个数组中的一组数据描述，最后一个数字代表大礼包的价格，其他数字分别表示内含的其他种类物品的数量。
+任意大礼包可无限次购买。
+示例 1:
+输入: [2,5], [[3,0,5],[1,2,10]], [3,2]
+输出: 14
+解释:
+有A和B两种物品，价格分别为?2和?5。
+大礼包1，你可以以?5的价格购买3A和0B。
+大礼包2， 你可以以?10的价格购买1A和2B。
+你需要购买3个A和2个B， 所以你付了?10购买了1A和2B（大礼包2），以及?4购买2A。
+示例 2:
+输入: [2,3,4], [[1,1,0,4],[2,2,1,9]], [1,2,1]
+输出: 11
+解释:
+A，B，C的价格分别为?2，?3，?4.
+你可以用?4购买1A和1B，也可以用?9购买2A，2B和1C。
+你需要买1A，2B和1C，所以你付了?4买了1A和1B（大礼包1），以及?3购买1B， ?4购买1C。
+你不可以购买超出待购清单的物品，尽管购买大礼包2更加便宜。
+.
+
+*/
+
+/*
+本题实质是一个组合问题
+
+求出原价购买所有物品的总花费.
+
+求出每个礼包原价购买的花费.
+
+用礼包替价格去替换原价，算出替换后的总价，更新最小总价
+*/
+
+int Min(int a, int b)
+{
+    return a > b ? b : a;
+}
+
+int g_res;
+
+void Dfs(int** special, int specialSize, int* specialColSize, int* needs, int needsSize, int *specialOrinPrice, int totalOrinPrice) {
+    for (int i = 0; i < needsSize; i++) {
+        if (needs[i] < 0) {
+            return;
+        }
+    }
+    g_res = Min(g_res, totalOrinPrice);
+    for (int i = 0; i < specialSize; i++) {
+        for (int j = 0; j < specialColSize[i] - 1; j++) {
+            needs[j] -= special[i][j];
+        }
+        //printf("123");
+        Dfs(special, specialSize, specialColSize, needs, needsSize, specialOrinPrice, totalOrinPrice - specialOrinPrice[i] + special[i][specialColSize[i] - 1]);
+        for (int j = 0; j < specialColSize[i] - 1; j++) {
+            needs[j] += special[i][j];
+        }
+    }
+}
+
+int shoppingOffers(int* price, int priceSize, int** special, int specialSize, int* specialColSize, int* needs, int needsSize){
+    if (priceSize <= 0) {
+        return 0;
+    }
+    int specialOrinPrice[specialSize];
+    for (int i = 0; i < specialSize; i++) {
+        int tPrice = 0;
+        for (int j = 0; j < specialColSize[i] - 1; j++) {
+            tPrice += price[j] * special[i][j];
+        }
+        specialOrinPrice[i] = tPrice;
+    }
+
+    int totalOrinPrice = 0;
+    for (int i = 0; i < needsSize; i++) {
+        totalOrinPrice += price[i] * needs[i];
+    }
+    g_res = totalOrinPrice;
+    Dfs(special, specialSize, specialColSize, needs, needsSize, specialOrinPrice, totalOrinPrice);
+    return g_res;
 }

@@ -257,53 +257,12 @@ bool isSubsequence(char * s, char * t)
 	return false;
 }
 
-void trim(char *strIn, char *strOut)
-{
-    int i, j ;
-
-    i = 0;
-    j = strlen(strIn) - 1;
-
-    while(strIn[i] == ' ')
-        ++i;
-
-    while(strIn[j] == ' ')
-        --j;
-    strncpy(strOut, strIn + i , j - i + 1);
-    strOut[j - i + 1] = '\0';
-}
-
-void trim(char *strIn, char *strOut)
-{
-
-    char *start, *end, *temp;//定义去除空格后字符串的头尾指针和遍历指针
-    temp = strIn;
-
-    while (*temp == ' '){
-        ++temp;
-    }
-
-    start = temp; //求得头指针
-    temp = strIn + strlen(strIn) - 1; //得到原字符串最后一个字符的指针(不是'\0')
-    printf("%c\n", *temp);
-    while (*temp == ' '){
-        --temp;
-    }
-
-    end = temp; //求得尾指针
-
-
-    for(strIn = start; strIn <= end; ){
-        *strOut++ = *strIn++;
-    }
-
-    *strOut = '\0';
-}
-
+/*删除首尾空格*/
 char* trim(char *a)
 {
 	char *p1 = a;
 	char *p2 = a + strlen(a) - 1;
+	int len;
 
 	while (p1 <= p2 && *p1 == ' ') {
 		p1++;
@@ -311,25 +270,9 @@ char* trim(char *a)
 	while (p2 >= p1 && *p2 == ' ') {
 		p2--;
 	}
-
-	*(++p2) = '\0';
-	return p1;
-}
-
-char* trim(char *a)
-{
-	char *end, *p1, *p2;
-	int len;
-	p1 = a;
-	end = a + strlen(a) - 1;
-	p2 = end;
-	while (p1 <= end && isspace(*p1)){
-		p1++;
-	}
-	while (p2 >= p1 && isspace(*p2)){
-		p2--;
-	}
-	len = (p2 < p1) ? 0 : (p2 - p1) + 1;//若字符串全为空格，p1会移到p2的后面，那么如果p1>p2，返回空。
+/* 若字符串全为空格，
+p1会移到p2的后面，那么如果p1>p2，返回空。*/
+	len = (p2 < p1) ? 0 : (p2 - p1) + 1;
 	p1[len] = '\0';
 	return p1;
 }

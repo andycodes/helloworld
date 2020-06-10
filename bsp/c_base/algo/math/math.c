@@ -5,56 +5,12 @@ bool f = ((x ^ y) < 0); // true
 int x = 3, y = 2;
 bool f = ((x ^ y) < 0); // false
 
-
-
 /*绝对值*/
 int abs(int);
-
 /* sqrt() 用来求给定值的平方根 */
 double sqrt(double x);
-
 /*pow() 函数用来求 x 的 y 次幂（次方）*/
 double pow(double x, double y);
-
-/*
-1109. 航班预订统计
-这里有 n 个航班，它们分别从 1 到 n 进行编号。
-我们这儿有一份航班预订表，
-表中第 i 条预订记录 bookings[i] = [i, j, k] 意味着我们在从 i 到 j 的
-每个航班上预订了 k 个座位。
-请你返回一个长度为 n 的数组 answer，
-按航班编号顺序返回每个航班上预订的座位数。
-示例：
-
-输入：bookings = [[1,2,10],[2,3,20],[2,5,25]], n = 5
-输出：[10,55,45,25,25]
-
-
-设a[i]表示第i个航班预订的座位数。
-定义一个差分数组tag[]，
-tag[i]表示第i个航班与第i-1个航班预订座位的差，
-即tag[i] = a[i] - a[i - 1]。
-这样，我们每次扫描到[i, j, k]，
-就只需要将tag[i]增加k，tag[j + 1]减少k即可。
-最后，计算a[i] = a[i - 1] + tag[i]，返回a即可。
-*/
-int* corpFlightBookings(int** bookings, int bookingsSize, int* bookingsColSize,
-int n, int* returnSize){
-	int *diff = malloc(20001 * sizeof(int));
-	memset((void*)diff,0,20001*sizeof(int));
-
-	for(int i = 0; i < bookingsSize; i++){
-		diff[bookings[i][0]-1] += bookings[i][2]; //等差开始加上等差值
-		diff[bookings[i][1]]   -= bookings[i][2]; //等差结束 减掉等差值
-	}
-
-	for(int i = 1; i < n; i++) {
-		diff[i] += diff[i -1];//推导原始值
-	}
-
-	*returnSize = n;
-	return diff;
-}
 
 /*
 1010. 总持续时间可被 60 整除的歌曲
@@ -68,6 +24,9 @@ int n, int* returnSize){
 (time[0] = 30, time[2] = 150): 总持续时间 180
 (time[1] = 20, time[3] = 100): 总持续时间 120
 (time[1] = 20, time[4] = 40): 总持续时间 60
+
+1)首先所有对象%60
+2)组合的可能性
 */
 int numPairsDivisibleBy60(int* time, int timeSize)
 {
@@ -310,3 +269,56 @@ int nthSuperUglyNumber(int n, int* primes, int primesSize){
     return res[n - 1];
 }
 
+/*
+1371. 每个元音包含偶数次的最长子字符串
+难度中等245
+给你一个字符串 s ，请你返回满足以下条件的最长子字符串的长度：每个元音字母，即 'a'，'e'，'i'，'o'，'u' ，在子字符串中都恰好出现了偶数次。
+
+示例 1：
+输入：s = "eleetminicoworoep"
+输出：13
+解释：最长子字符串是 "leetminicowor" ，它包含 e，i，o 各 2 个，以及 0 个 a，u 。
+示例 2：
+输入：s = "leetcodeisgreat"
+输出：5
+解释：最长子字符串是 "leetc" ，其中包含 2 个 e 。
+示例 3：
+输入：s = "bcbcbc"
+输出：6
+解释：这个示例中，字符串 "bcbcbc" 本身就是最长的，因为所有的元音 a，e，i，o，u 都出
+*/
+//00000 ~ 11111 一共2^5，32中状态，0表示出现偶数，1表示出现奇数
+int findTheLongestSubstring(char * s)
+{
+	int n = strlen(s);
+	int pos[32] = {-1};
+	int status = 0;
+	int ans = 0;
+
+	for (int i = 0; i < 32; i++) {
+		pos[i] = -1;
+	}
+
+	pos[0] = 0;
+
+	for (int i = 0; i < n; i ++) {
+            if (s[i] == 'a') {
+                status ^= 1<<0;
+            } else if (s[i] == 'e') {
+                status ^= 1<<1;
+            } else if (s[i] == 'i') {
+                status ^= 1<<2;
+            } else if (s[i] == 'o') {
+                status ^= 1<<3;
+            } else if (s[i] == 'u') {
+                status ^= 1<<4;
+            }
+            if (pos[status] != -1) {
+                ans = fmax(ans, i + 1 - pos[status]);
+            } else {
+                pos[status] = i + 1;
+            }
+	}
+
+        return ans;
+}
