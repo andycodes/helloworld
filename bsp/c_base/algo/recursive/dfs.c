@@ -1542,3 +1542,59 @@ int shoppingOffers(int* price, int priceSize, int** special, int specialSize, in
     Dfs(special, specialSize, specialColSize, needs, needsSize, specialOrinPrice, totalOrinPrice);
     return g_res;
 }
+
+/*
+695. 岛屿的最大面积
+难度中等288
+给定一个包含了一些 0 和 1 的非空二维数组 grid 。
+一个 岛屿 是由一些相邻的 1 (代表土地) 构成的组合，这里的「相邻」要求两个 1 必须在水平或者竖直方向上相邻。你可以假设 grid 的四个边缘都被 0（代表水）包围着。
+找到给定的二维数组中最大的岛屿面积。(如果没有岛屿，则返回面积为 0 。)
+
+示例 1:
+[[0,0,1,0,0,0,0,1,0,0,0,0,0],
+ [0,0,0,0,0,0,0,1,1,1,0,0,0],
+ [0,1,1,0,1,0,0,0,0,0,0,0,0],
+ [0,1,0,0,1,1,0,0,1,0,1,0,0],
+ [0,1,0,0,1,1,0,0,1,1,1,0,0],
+ [0,0,0,0,0,0,0,0,0,0,1,0,0],
+ [0,0,0,0,0,0,0,1,1,1,0,0,0],
+ [0,0,0,0,0,0,0,1,1,0,0,0,0]]
+
+*/
+
+/*
+ // 每次调用的时候默认num为1，进入后判断如果不是岛屿，则直接返回0，就可以避免预防错误的情况。    // 每次找到岛屿，则直接把找到的岛屿改成0，这是传说中的沉岛思想，就是遇到岛屿就把他和周围的全部沉默。    // ps：如果能用沉岛思想，那么自然可以用朋友圈思想。有兴趣的朋友可以去尝试。作者：mark-42链接：https://leetcode-cn.com/problems/max-area-of-island/solution/biao-zhun-javadong-tai-gui-hua-jie-fa-100-by-mark-/来源：力扣（LeetCode）著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+*/
+int dfs(int** grid, int mrow, int mcol, int sx, int sy)
+{
+	if (sx < 0 || sx >= mrow || sy < 0 || sy >= mcol || grid[sx][sy] == 0) {
+		return 0;
+	}
+
+	int res = 1;
+	grid[sx][sy] = 0;
+
+	int d[4][2] = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
+	for (int i = 0; i < 4; i++) {
+		res += dfs(grid, mrow, mcol, sx + d[i][0], sy + d[i][1]);
+	}
+
+	return res;
+}
+
+int maxAreaOfIsland(int** grid, int gridSize, int* gridColSize)
+{
+	int max = 0;
+	int mrow = gridSize;
+	int mcol = *gridColSize;
+
+	for (int i = 0; i < gridSize; i++) {
+		for (int j = 0; j < gridColSize[i]; j++) {
+			if (grid[i][j] != 0) {
+				max = fmax(max, dfs(grid, mrow, mcol, i,j));
+			}
+		}
+	}
+
+	return max;
+}

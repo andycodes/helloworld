@@ -887,6 +887,41 @@ int longestCommonSubsequence(char * text1, char * text2)
 }
 
 /*
+583. 两个字符串的删除操作
+难度中等96
+给定两个单词 word1 和 word2，
+找到使得 word1 和 word2 相同所需的最小步数，
+每步可以删除任意一个字符串中的一个字符。
+
+示例：
+输入: "sea", "eat"
+输出: 2
+解释: 第一步将"sea"变为"ea"，第二步将"eat"变为"ea"
+
+*/
+int minDistance(char * word1, char * word2)
+{
+	int len1 = strlen(word1);
+	int len2 = strlen(word2);
+
+	int dp[len1 + 1][len2 + 1];
+	memset(dp, 0, sizeof(dp));
+
+	for (int i = 1; i <= len1; i++) {
+		for (int j = 1; j <= len2; j++) {
+			if (word1[i -1] == word2[j - 1]) {
+				dp[i][j] = dp[i - 1][j - 1] + 1;
+			} else {
+				dp[i][j] = fmax(dp[i - 1][j], dp[i][j - 1]);
+			}
+		}
+	}
+
+	return len1 + len2 - 2 * dp[len1][len2];
+}
+
+
+/*
 718. 最长重复子数组
 难度中等159
 给两个整数数组 A 和 B ，返回两个数组中公共的、长度最长的子数组的长度。
@@ -921,5 +956,85 @@ int findLength(int* A, int ASize, int* B, int BSize)
 	}
 
 	return ret;
+}
+
+/*
+sliding_windows
+5. 最长回文子串
+*/
+char * longestPalindrome(char * s)
+{
+	if (s == NULL || strlen(s) < 1)
+	return "";
+
+	int length = strlen(s);
+	bool dp[length][length];
+	int maxlen = 0;
+	char *ret = "";
+
+	for (int len = 1; len <= length; len++) {
+		for (int  left = 0; left < length; left++) {
+			int right = left + len - 1;
+			if (right >= length)
+				break;
+
+			dp[left][right] = (len == 1 || len == 2 || dp[left + 1][right - 1]) && s[left] == s[right];
+			if (dp[left][right] && len > maxlen) {
+				maxlen = len;
+				ret = strdup(s + left);
+				ret[len] = '\0';
+			}
+		}
+	}
+
+	return ret;
+}
+
+/*
+712. 两个字符串的最小ASCII删除和
+难度中等93
+给定两个字符串s1, s2，找到使两个字符串相等所需删除
+字符的ASCII值的最小和。
+示例 1:
+输入: s1 = "sea", s2 = "eat"
+输出: 231
+解释: 在 "sea" 中删除 "s" 并将 "s" 的值(115)加入总和。
+在 "eat" 中删除 "t" 并将 116 加入总和。
+结束时，两个字符串相等，115 + 116 = 231 就是符合条件的最小和。
+
+*/
+
+/*
+题意是寻找一个共同子序列，
+将字符串s1和s2删除为该子序列时所删除
+的ASCII综合最小。等价于求一个字符串s1
+和s2的ASCII码总和最大的共同子序列。
+因为s1和s2的总和固定，当共同子序列的
+总和最大时，删除成为该子序列的代价必然
+最小。
+*/
+int minimumDeleteSum(char * s1, char * s2){
+    int len1 = strlen(s1);
+    int len2 = strlen(s2);
+
+    int dp[len1 + 1][len2 + 1];
+    memset(dp,0, sizeof(dp));
+
+    for (int i = 1; i <= len1; ++i)
+        for (int j = 1; j <= len2; ++j)
+        {
+            if(s1[i - 1] == s2[j - 1])
+                dp[i][j] = dp[i - 1][j - 1] + s1[i - 1];
+            else
+                dp[i][j] = fmax(dp[i - 1][j],dp[i][j - 1]);
+        }
+
+    int sum = 0;
+    for (int i = 0; i < len1; ++i)
+        sum += s1[i];
+    for (int i = 0; i < len2; ++i)
+        sum += s2[i];
+    return sum - 2 * dp[len1][len2];
+
 }
 

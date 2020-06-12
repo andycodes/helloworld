@@ -17,6 +17,8 @@ double pow(double x, double y);
 在歌曲列表中，第 i 首歌曲的持续时间为 time[i] 秒。
 返回其总持续时间（以秒为单位）可被 60 整除的歌曲对的数量。
 形式上，我们希望索引的数字  i < j 且有 (time[i] + time[j]) % 60 == 0。
+1 <= time[i] <= 500
+
 示例 1：
 输入：[30,20,150,100,40]
 输出：3
@@ -97,10 +99,11 @@ int factorial(int n)
 	return num;
 }
 
-void deleteItem(int *nums, int numsSize, int in)
+
+void deleteItem(int *nums, int pos, int moveSize)
 {
-	while (in < numsSize - 1)
-		nums[in++] = nums[in + 1];
+	while (pos < moveSize - 1)
+		nums[pos++] = nums[pos + 1];
 }
 
 char *getPermutation(int n, int k)
@@ -110,10 +113,10 @@ char *getPermutation(int n, int k)
 
 	for (i = 0; i < n; i++)  //初始化一个 [1,2,3,……,n] 数组
 		nums[i] = i + 1;
-	for (i = 0, k--; i < n; i++) {  //k要先减去1
+	for (i = 0, k--; i < n; i++) {  //k要先减去1   给定 k 的范围是[1,  n!]。
 		factor = factorial(n - i - 1);
-		res[j++] = nums[k / factor] + '0';
-		deleteItem(nums, n - i, k / factor);  //取出一个元素
+		res[j++] = nums[k  / factor] + '0';
+		deleteItem(nums, k / factor, n - i);  //取出一个元素
 		k %= factor;
 	}
 	return res;
@@ -321,4 +324,87 @@ int findTheLongestSubstring(char * s)
 	}
 
         return ans;
+}
+
+/*
+1296. 划分数组为连续数字的集合
+难度中等25
+给你一个整数数组 nums 和一个正整数 k，请你判断是否可以把这个数组划分成一些由 k 个连续数字组成的集合。
+如果可以，请返回 True；否则，返回 False。
+
+示例 1：
+输入：nums = [1,2,3,3,4,4,5,6], k = 4
+输出：true
+解释：数组可以分成 [1,2,3,4] 和 [3,4,5,6]。
+
+*/
+int cmp(const void *a, const void *b)
+{
+    return *(int*)a - *(int*)b;
+}
+bool isPossibleDivide(int* nums, int numsSize, int k){
+    int min, cnt, j;
+    if (numsSize % k != 0) {
+        return false;
+    }
+    qsort(nums, numsSize, sizeof(int), cmp);
+    for (int i = 0; i < numsSize; i++) {
+        if (nums[i] > 0) {
+            min = nums[i];
+            cnt = 0;
+            for (j = i; (j < numsSize) && (cnt < k); j++) {
+                if (nums[j] == min){
+                    cnt++;
+                    min++;
+                    nums[j] = 0;
+                }
+            }
+            if (cnt < k) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+/*
+442. 数组中重复的数据
+难度中等205
+给定一个整数数组 a，其中1 ≤ a[i] ≤ n （n为数组长度）, 其中有些元素出现两次而其他元素出现一次。
+找到所有出现两次的元素。
+你可以不用到任何额外空间并在O(n)时间复杂度内解决这个问题吗？
+示例：
+输入:
+[4,3,2,7,8,2,3,1]
+
+输出:
+[2,3]
+
+*/
+int const cmp_int(const void *a, const void *b)
+{
+	return *((int *)a) - *((int *)b);
+}
+
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int* findDuplicates(int* nums, int numsSize, int* returnSize)
+{
+	qsort(nums, numsSize, sizeof(nums[0]), cmp_int);
+
+	int *res = (int *)calloc(numsSize, sizeof(int));
+	*returnSize = 0;
+	if (numsSize <= 1)
+		return res;
+
+	for(int i = 0; i < numsSize - 1; i++) {
+		if (nums[i] == nums[i + 1]) {
+			res[*returnSize] = nums[i];
+			(*returnSize)++;
+			i++;
+		}
+	}
+
+	return res;
 }
