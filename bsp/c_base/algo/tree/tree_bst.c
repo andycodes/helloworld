@@ -526,58 +526,32 @@ static Node* create_bstree_node(Type key, Node *parent, Node *left, Node* right)
 }
 
 /*
+701. 二叉搜索树中的插入操作
  * 将结点插入到二叉树中
- *
- * 参数说明：
- *     tree 二叉树的根结点
- *     z 插入的结点
- * 返回值：
- *     根节点
  */
-static Node* bstree_insert(BSTree tree, Node *z)
+struct TreeNode* insertIntoBST(struct TreeNode* root, int val)
 {
-	Node *y = NULL;
-	Node *x = tree;
+	struct TreeNode* y = NULL;
+	struct TreeNode* x = root;
 
-	// 查找z的插入位置
-	while (x != NULL)
-	{
+	while(x != NULL) {
 		y = x;
-		if (z->key < x->key)
+		if (val < x->val)
 			x = x->left;
 		else
 			x = x->right;
 	}
 
-	z->parent = y;
-	if (y==NULL)
-		tree = z;
-	else if (z->key < y->key)
-		y->left = z;
+	struct TreeNode* node = (struct TreeNode*)calloc(1, sizeof(struct TreeNode));
+	node->val = val;
+	if (y == NULL)
+		root = node;
+	else if (node->val < y->val)
+		y->left = node;
 	else
-		y->right = z;
+		y->right = node;
 
-	return tree;
-}
-
-/*
- * 新建结点(key)，并将其插入到二叉树中
- *
- * 参数说明：
- *     tree 二叉树的根结点
- *     key 插入结点的键值
- * 返回值：
- *     根节点
- */
-Node* insert_bstree(BSTree tree, Type key)
-{
-	Node *z;	// 新建结点
-
-	// 如果新建结点失败，则返回。
-	if ((z=create_bstree_node(key, NULL, NULL, NULL)) == NULL)
-		return tree;
-
-	return bstree_insert(tree, z);
+	return root;
 }
 
 /*

@@ -51,7 +51,6 @@ int maxDepth(struct TreeNode* root)
     return leftDepth > rightDepth ? leftDepth: rightDepth;
 }
 
-
 /*
 ¸ø¶¨Ò»¸ö¶ş²æÊ÷£¬ÕÒ³öÆä×îĞ¡Éî¶È¡£
 ¶ş²æÊ÷µÄ×îĞ¡Éî¶ÈÎª¸ù½Úµã
@@ -175,19 +174,6 @@ struct TreeNode* mergeTrees(struct TreeNode* t1, struct TreeNode* t2)
 
  * Ê¹ÓÃ¶ÓÁĞÊµÏÖ²ã´Î±éÀú£¬È»ºóÄæ×ª½á¹ûÊı×é
  */
-
-int getTreeDepth(const struct TreeNode* root)
-{
-        if (root == NULL)
-                return 0;
-
-        int left = getTreeDepth(root->left);
-        int right = getTreeDepth(root->right);
-
-        return left > right ? left + 1 : right + 1;
-}
-
-
 int** levelOrder(struct TreeNode* root, int* returnSize, int** returnColumnSizes)
 {
         if (root == NULL || returnSize == NULL || returnColumnSizes == NULL) {
@@ -1104,7 +1090,11 @@ bool btreeGameWinningMove(struct TreeNode* root, int n, int x)
 
 /*
 ÃæÊÔÌâ 04.12. ÇóºÍÂ·¾¶
-¸ø¶¨Ò»¿Ã¶ş²æÊ÷£¬ÆäÖĞÃ¿¸ö½Úµã¶¼º¬ÓĞÒ»¸öÕûÊıÊıÖµ(¸ÃÖµ»òÕı»ò¸º)¡£Éè¼ÆÒ»¸öËã·¨£¬´òÓ¡½ÚµãÊıÖµ×ÜºÍµÈÓÚÄ³¸ö¸ø¶¨ÖµµÄËùÓĞÂ·¾¶µÄÊıÁ¿¡£×¢Òâ£¬Â·¾¶²»Ò»¶¨·ÇµÃ´Ó¶ş²æÊ÷µÄ¸ù½Úµã»òÒ¶½Úµã¿ªÊ¼»ò½áÊø£¬µ«ÊÇÆä·½Ïò±ØĞëÏòÏÂ(Ö»ÄÜ´Ó¸¸½ÚµãÖ¸Ïò×Ó½Úµã·½Ïò)¡£
+¸ø¶¨Ò»¿Ã¶ş²æÊ÷£¬ÆäÖĞÃ¿¸ö½Úµã¶¼º¬ÓĞÒ»¸öÕûÊıÊıÖµ
+(¸ÃÖµ»òÕı»ò¸º)¡£Éè¼ÆÒ»¸öËã·¨£¬´òÓ¡½ÚµãÊıÖµ×ÜºÍµÈ
+ÓÚÄ³¸ö¸ø¶¨ÖµµÄËùÓĞÂ·¾¶µÄÊıÁ¿¡£×¢Òâ£¬Â·¾¶²»Ò»¶¨·Ç
+µÃ´Ó¶ş²æÊ÷µÄ¸ù½Úµã»òÒ¶½Úµã¿ªÊ¼»ò½áÊø£¬
+µ«ÊÇÆä·½Ïò±ØĞëÏòÏÂ(Ö»ÄÜ´Ó¸¸½ÚµãÖ¸Ïò×Ó½Úµã·½Ïò)¡£
 
 Ê¾Àı:
 ¸ø¶¨ÈçÏÂ¶ş²æÊ÷£¬ÒÔ¼°Ä¿±êºÍ sum = 22£¬
@@ -1125,9 +1115,13 @@ bool btreeGameWinningMove(struct TreeNode* root, int n, int x)
 ½Úµã×ÜÊı <= 10000
 */
 /*
-ÌâÄ¿µÄÒªÇóÊÇÇóµÃËùÓĞµÈÓÚsumµÄÂ·¾¶£»ËùÒÔÎÒÃÇÏëÏóÃ¿Ò»¸ö½Úµã¶¼ÊÇ¸ù½Úµã£¬ÔÙ´ÓÃ¿Ò»¸ö½ÚµãDFSÕÒµ½ËüÓĞ¼¸ÌõµÈÓÚsumµÄÂ·¾¶£»Ë¼Â·£º1¡¢ÓÃDFS±éÀúËùÓĞµÄ½Úµã£»2¡¢ÒÔµÚÒ»²½±éÀúµ½µÄµ±Ç°½ÚµãÎª¸ù½Úµã£¬ÓÃDFS_PathÕÒËüÓĞ¼¸ÌõµÈÓÚsumµÄÂ·¾¶¡£×÷Õß£ºsimon-11Á´½Ó£ºhttps://leetcode-cn.com/problems/paths-with-sum-lcci/solution/shu-de-shuang-zhong-dfs-by-simon-11/À´Ô´£ºÁ¦¿Û£¨LeetCode£©Öø×÷È¨¹é×÷ÕßËùÓĞ¡£ÉÌÒµ×ªÔØÇëÁªÏµ×÷Õß»ñµÃÊÚÈ¨£¬·ÇÉÌÒµ×ªÔØÇë×¢Ã÷³ö´¦¡£
+ÌâÄ¿µÄÒªÇóÊÇÇóµÃËùÓĞµÈÓÚsumµÄÂ·¾¶£»ËùÒÔÎÒÃÇÏëÏóÃ¿
+Ò»¸ö½Úµã¶¼ÊÇ¸ù½Úµã£¬ÔÙ´ÓÃ¿Ò»¸ö½ÚµãDFSÕÒµ½ËüÓĞ¼¸Ìõ
+µÈÓÚsumµÄÂ·¾¶£»Ë¼Â·£º1¡¢ÓÃDFS±éÀúËùÓĞµÄ½Úµã£»
+2¡¢ÒÔµÚÒ»²½±éÀúµ½µÄµ±Ç°½ÚµãÎª¸ù½Úµã£¬
+ÓÃDFS_PathÕÒËüÓĞ¼¸ÌõµÈÓÚsumµÄÂ·¾¶¡£
 */
-void dfs_sum(struct TreeNode* root, int target, int *ret)//ÇóÓĞ¶àÉÙ¸ö´Ó¸ù½Úµã³ö·¢µÄÂ·¾¶
+void dfs_sum(struct TreeNode* root, int target, int *ret)
 {
 	if (target == 0) {
 		(*ret)++;
@@ -1140,21 +1134,22 @@ void dfs_sum(struct TreeNode* root, int target, int *ret)//ÇóÓĞ¶àÉÙ¸ö´Ó¸ù½Úµã³ö·
 }
 
 
-void dfs_event_node(struct TreeNode* root, int sum, int *ret)//±éÀúËùÓĞµÄ½Úµã
+void dfs_for_each_node(struct TreeNode* root, int sum, int *ret)
 {
 	if (root == NULL)
 		return;
 
-	dfs_event_node(root->left, sum, ret);
 	//dfs_sum(root, sum - root->val, ret);
-	dfs_event_node(root->right, sum, ret);
-	dfs_sum(root, sum - root->val, ret);//ÒÔµ±Ç°±éÀúµ½µÄ½Úµã£¬ÇóÓĞ¶àÉÙ¸öµÈÓÚsumµÄÂ·¾¶
+	dfs_for_each_node(root->left, sum, ret);
+	//dfs_sum(root, sum - root->val, ret);
+	dfs_for_each_node(root->right, sum, ret);
+	dfs_sum(root, sum - root->val, ret);
 }
 
 int pathSum(struct TreeNode* root, int sum)
 {
 	int ret = 0;
-	dfs_event_node(root, sum, &ret);
+	dfs_for_each_node(root, sum, &ret);
 	return ret;
 }
 
@@ -1222,3 +1217,141 @@ struct TreeNode* lowestCommonAncestor
 		return right;
 }
 
+/*
+116. Ìî³äÃ¿¸ö½ÚµãµÄÏÂÒ»¸öÓÒ²à½ÚµãÖ¸Õë
+¸ø¶¨Ò»¸öÍêÃÀ¶ş²æÊ÷£¬ÆäËùÓĞÒ¶×Ó½Úµã¶¼ÔÚÍ¬Ò»²ã£¬Ã¿¸ö¸¸½Úµã¶¼ÓĞÁ½¸ö×Ó½Úµã¡£¶ş²æÊ÷¶¨ÒåÈçÏÂ£º
+
+struct Node {
+  int val;
+  Node *left;
+  Node *right;
+  Node *next;
+}
+Ìî³äËüµÄÃ¿¸ö next Ö¸Õë£¬ÈÃÕâ¸öÖ¸ÕëÖ¸ÏòÆäÏÂÒ»¸öÓÒ²à½Úµã¡£Èç¹ûÕÒ²»µ½ÏÂÒ»¸öÓÒ²à½Úµã£¬Ôò½« next Ö¸ÕëÉèÖÃÎª NULL¡£
+
+³õÊ¼×´Ì¬ÏÂ£¬ËùÓĞ next Ö¸Õë¶¼±»ÉèÖÃÎª NULL¡£
+*/
+void dfs(struct Node* root, struct Node* next)
+{
+	if (root == NULL)
+		return;
+
+	root->next = next;
+	dfs(root->left, root->right);
+	dfs(root->right, root->next != NULL ? root->next->left : NULL);
+}
+
+struct Node* connect(struct Node* root)
+{
+	dfs(root, NULL);
+	return root;
+}
+
+/*
+654. ×î´ó¶ş²æÊ÷
+¸ø¶¨Ò»¸ö²»º¬ÖØ¸´ÔªËØµÄÕûÊıÊı×é¡£Ò»¸öÒÔ´ËÊı×é¹¹½¨µÄ×î´ó¶ş²æÊ÷¶¨ÒåÈçÏÂ£º
+
+¶ş²æÊ÷µÄ¸ùÊÇÊı×éÖĞµÄ×î´óÔªËØ¡£
+×ó×ÓÊ÷ÊÇÍ¨¹ıÊı×éÖĞ×î´óÖµ×ó±ß²¿·Ö¹¹Ôì³öµÄ×î´ó¶ş²æÊ÷¡£
+ÓÒ×ÓÊ÷ÊÇÍ¨¹ıÊı×éÖĞ×î´óÖµÓÒ±ß²¿·Ö¹¹Ôì³öµÄ×î´ó¶ş²æÊ÷¡£
+Í¨¹ı¸ø¶¨µÄÊı×é¹¹½¨×î´ó¶ş²æÊ÷£¬²¢ÇÒÊä³öÕâ¸öÊ÷µÄ¸ù½Úµã¡£
+*/
+struct TreeNode* constructMaximumBinaryTree(int* nums, int numsSize)
+{
+	if (numsSize <= 0)
+		return NULL;
+
+	struct TreeNode*root = (struct TreeNode*)calloc(1, sizeof(struct TreeNode));
+	int maxidx = 0;
+	for (int i = 0; i < numsSize; i++)
+		if (nums[i] > nums[maxidx])
+			maxidx = i;
+
+	root->val = nums[maxidx];
+	root->left = constructMaximumBinaryTree(nums, maxidx);
+	root->right = constructMaximumBinaryTree(nums + maxidx + 1, numsSize - maxidx - 1);
+	return root;
+}
+
+/*
+652. Ñ°ÕÒÖØ¸´µÄ×ÓÊ÷
+¸ø¶¨Ò»¿Ã¶ş²æÊ÷£¬·µ»ØËùÓĞÖØ¸´µÄ×ÓÊ÷¡£¶ÔÓÚÍ¬Ò»ÀàµÄÖØ¸´×ÓÊ÷£¬ÄãÖ»ĞèÒª·µ»ØÆäÖĞÈÎÒâÒ»¿ÃµÄ¸ù½áµã¼´¿É¡£
+
+Á½¿ÃÊ÷ÖØ¸´ÊÇÖ¸ËüÃÇ¾ßÓĞÏàÍ¬µÄ½á¹¹ÒÔ¼°ÏàÍ¬µÄ½áµãÖµ¡£
+
+Ê¾Àı 1£º
+
+        1
+       / \
+      2   3
+     /   / \
+    4   2   4
+       /
+      4
+ÏÂÃæÊÇÁ½¸öÖØ¸´µÄ×ÓÊ÷£º
+
+      2
+     /
+    4
+ºÍ
+
+    4
+*/
+
+char* dfs(struct TreeNode* root, struct HashTable *ht)
+{
+	if (root == NULL) {
+		return "#";
+	}
+
+	char* string = calloc(20000, sizeof(char));
+	sprintf(string, "%d ", root->val);
+	strcat(string, dfs(root->left, ht));
+	strcat(string, dfs(root->right, ht));
+
+	struct DataEntry cmpEntry;
+	cmpEntry.key = string;
+	struct DataEntry *find = hashFind(ht, &cmpEntry);
+	if (find == NULL) {
+		struct DataEntry *entry = (struct DataEntry *)calloc(1, sizeof(struct DataEntry));
+		entry->key = string;
+		entry->root = root;
+		entry->value = 1;
+		HashAdd(ht, &entry->node);
+	} else {
+		find->value++;
+	}
+
+	return string;
+}
+
+struct TreeNode** findDuplicateSubtrees(struct TreeNode* root, int* returnSize)
+{
+	*returnSize = 0;
+
+	if (root == NULL) {
+		return NULL;
+	}
+
+	struct HashTable dht;
+	struct HashTable *ht = &dht;
+	HashInit(ht, 40960, hashequal_str, hashcode_str);
+
+	dfs(root, ht);
+    	struct TreeNode** recordData = calloc(40960, sizeof(struct TreeNode*));
+
+	for (size_t i = 0; i < ht->bktSize; i++) {
+		if (!ListEmpty(&ht->bkts[i])) {
+			struct Node *node = NULL;
+			LIST_FOR_EACH(node, &ht->bkts[i]) {
+				struct DataEntry *entry = NODE_ENTRY(node, struct DataEntry, node);
+				if (entry->value > 1) {
+					recordData[*returnSize] = entry->root;
+					(*returnSize)++;
+				}
+			}
+		}
+	}
+
+	return recordData;
+}
