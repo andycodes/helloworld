@@ -12,6 +12,13 @@ double sqrt(double x);
 /*pow() 函数用来求 x 的 y 次幂（次方）*/
 double pow(double x, double y);
 
+void num(void)
+{
+	if (isdigit(s[i])) {
+		num = num * 10 + s[i] - '0';
+	}
+}
+
 /*
 1010. 总持续时间可被 60 整除的歌曲
 在歌曲列表中，第 i 首歌曲的持续时间为 time[i] 秒。
