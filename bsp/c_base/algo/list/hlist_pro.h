@@ -1,6 +1,6 @@
 #ifndef HLIST_PRO_H
 #define HLIST_PRO_H
-/* list map set */
+
 struct DataEntry {
 	int key;
 	int value;
@@ -13,7 +13,6 @@ void ListPushLast(struct List *list, int nodeKey)
 	entry->key = nodeKey;
 	ListAddTail(list, &entry->node);
 }
-
 
 bool ListIsContainsKey(struct List *list, int nodeKey)
 {
@@ -44,7 +43,6 @@ struct DataEntry *ListFindKey(struct List *list, int nodeKey)
 
 	return NULL;
 }
-
 
 void ListRmKey(struct List *list, int nodeKey)
 {

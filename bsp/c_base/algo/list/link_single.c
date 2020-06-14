@@ -15,14 +15,6 @@ void traverse(ListNode head) {
 
 */
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-
-//#include "../../flag_type.h"
-#include "flag_type.h"
-
-
 typedef  struct ListNode {
       int val;
       struct ListNode *next;
@@ -33,30 +25,26 @@ typedef  struct ListNode {
  idx:        |      0      |.........|n -1   |
 
 */
-
 struct ListNode* slink_init(void)
 {
-	/*head  has no usr data*/
+	/*哨兵节点: head  has no usr data */
 	struct ListNode* head = (struct ListNode*)malloc(sizeof(struct ListNode));
 	head->next = NULL;
 	return head;
 }
-
 
 int slink_empty(struct ListNode *head)
 {
 	return head->next == NULL ? 1:0;
 }
 
-
 void slink_push_first(struct ListNode *head, int val)
 {
-	struct ListNode * newNode = (struct ListNode *)malloc(sizeof(struct ListNode));
+	struct ListNode *newNode = (struct ListNode *)malloc(sizeof(struct ListNode));
 	newNode->val = val;
 	newNode->next = head->next;
 	head->next = newNode;
 }
-
 
 int slink_get_first(struct ListNode * head)
 {
@@ -66,7 +54,6 @@ int slink_get_first(struct ListNode * head)
 	struct ListNode * entry = head->next;
 	return entry->val;
 }
-
 
 int slink_pop_first(struct ListNode * head)
 {
@@ -85,34 +72,31 @@ int slink_pop_first(struct ListNode * head)
 	return ret;
 }
 
-
 void slink_push_last(struct ListNode* head, int val)
 {
-    struct ListNode* entry = head;
-    struct ListNode* newNode = (struct ListNode*)malloc(sizeof(struct ListNode));
-    newNode->val = val;
-    newNode->next = NULL;
+	struct ListNode* entry = head;
+	struct ListNode* newNode = (struct ListNode*)malloc(sizeof(struct ListNode));
+	newNode->val = val;
+	newNode->next = NULL;
 
-    while (entry) {
-        if (entry->next == NULL) {
-            entry->next = newNode;
-            return;
-        }
-        entry = entry->next;
-    }
+	while (entry != NULL) {
+		if (entry->next == NULL) {
+			entry->next = newNode;
+			return;
+		}
+		entry = entry->next;
+	}
 }
-
 
 int slink_get_last(struct ListNode * head)
 {
-    struct ListNode * entry = head;
-    while(entry->next != NULL) {
-        entry = entry->next;
-    }
+	struct ListNode * entry = head;
+	while(entry->next != NULL) {
+		entry = entry->next;
+	}
 
-    return entry->val;
+	return entry->val;
 }
-
 
 int  slink_pop_last(struct ListNode * head)
 {
@@ -132,10 +116,9 @@ int  slink_pop_last(struct ListNode * head)
 	return -1;
 }
 
-
-void  slink_insert_before_idx(struct ListNode * head,int idx,int val)
+void  slink_insert_before_idx(struct ListNode * head, int idx, int val)
 {
-	if(idx < 0){
+	if(idx < 0) {
 		slink_push_first(head, val);
 		return;
 	}
@@ -151,63 +134,60 @@ void  slink_insert_before_idx(struct ListNode * head,int idx,int val)
 		entry = entry->next;
 	}
 
-	struct ListNode * newNode =(struct ListNode *)malloc(sizeof(struct ListNode));
+	struct ListNode * newNode = (struct ListNode *)malloc(sizeof(struct ListNode));
 	newNode->val = val;
 	newNode->next = entry->next;
-	entry->next = newNode;
+	entry->next = newNode;//?
 }
-
 
 int slink_get_val_by_idx(struct ListNode * head, int idx)
 {
-    int i = 0;
-    struct ListNode * entry = head;
+	int i = 0;
+	struct ListNode * entry = head;
 
-    while(entry->next != NULL) {
-        if(i++ == idx) {
-            return entry->next->val;
-        }
-        entry = entry->next;
-    }
+	while(entry->next != NULL) {
+		if(i++ == idx) {
+			return entry->next->val;
+		}
+		entry = entry->next;
+	}
 
-    return -1;
+	return -1;
 }
-
 
 void slink_amend_val(struct ListNode * head, int idx, int newVal)
 {
-    int i = 0;
-    struct ListNode * entry = head;
+	int i = 0;
+	struct ListNode * entry = head;
 
-    while(entry->next != NULL) {
-        if(i++ == idx) {
-		entry->next->val = newVal;
-            return ;
-        }
-        entry = entry->next;
-    }
+	while(entry->next != NULL) {
+		if(i++ == idx) {
+			entry->next->val = newVal;
+			return ;
+		}
+		entry = entry->next;
+	}
 }
-
 
 int slink_get_idx_by_val(struct ListNode *head, int val)
 {
-    struct ListNode *entry = head;
-    int i = 1;
-    while (entry->next != NULL) {
-        entry = entry->next;
-        if (entry->val == val) {
-            return i;
-        }
+	struct ListNode *entry = head;
+	int i = 1;
 
-        i++;
-    }
+	while (entry->next != NULL) {
+		entry = entry->next;
+		if (entry->val == val) {
+			return i;
+		}
 
-    return -1;
+		i++;
+	}
+
+	return -1;
 }
 
-
 //考虑删除节点为尾节点
-void slink_del_by_node(struct ListNode * head,struct ListNode *delNode)
+void (struct ListNode * head,struct ListNode *delNode)
 {
 	if (delNode == NULL)
 		return;
@@ -229,7 +209,6 @@ void slink_del_by_node(struct ListNode * head,struct ListNode *delNode)
 	}
 }
 
-
 /** Delete the idx-th node in the linked list, if the idx is valid. */
 void slink_del_by_idx(struct ListNode * head, int idx)
 {
@@ -247,7 +226,7 @@ void slink_del_by_idx(struct ListNode * head, int idx)
 }
 
 
-void slink_del_by_value(struct ListNode* head, int val)
+struct ListNode* slink_del_by_value(struct ListNode* head, int val)
 {
 /*
 删除值相同的头结点后，
@@ -572,21 +551,20 @@ struct ListNode* deleteDuplicates(struct ListNode* head) {
 }
 /*
 82. 删除排序链表中的重复元素 II
-给定一个排序链表，删除所有含有重复数字的节点，只保留原始链表中 没有重复出现 的数字。
-
+给定一个排序链表，删除所有含有重复数字的节点，
+只保留原始链表中 没有重复出现 的数字。
 示例 1:
-
 输入: 1->2->3->3->4->4->5
 输出: 1->2->5
 示例 2:
-
 输入: 1->1->1->2->3
 输出: 2->3
 */
 /*
 快慢指针
 1.设置dummy节点以便删除头节点重复元素
-2.当slow下一段节点为重复节点时，设置临时节点fast向前探路，当走到重复节点最后一个节点时，让slow->next = fast->next。作者：connors-tomatodeg链接：https://leetcode-cn.com/problems/remove-duplicates-from-sorted-list-ii/solution/cyu-yan-jie-fa-by-connors-tomatodeg-2/来源：力扣（LeetCode）著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+2.当slow下一段节点为重复节点时，设置临时节点fast向前探路，
+当走到重复节点最后一个节点时，让slow->next = fast->next。
 */
 struct ListNode* deleteDuplicates(struct ListNode* head)
 {
@@ -609,6 +587,44 @@ struct ListNode* deleteDuplicates(struct ListNode* head)
 	return dmy.next;
 }
 
+/*
+1171. 从链表中删去总和值为零的连续节点
+给你一个链表的头节点 head，请你编写代码，反复删去链表中由 总和 值为 0 的连续节点组成的序列，直到不存在这样的序列为止。
+
+删除完毕后，请你返回最终结果链表的头节点。
+
+
+
+你可以返回任何满足题目要求的答案。
+
+（注意，下面示例中的所有序列，都是对 ListNode 对象序列化的表示。）
+
+示例 1：
+
+输入：head = [1,2,-3,3,1]
+输出：[3,1]
+提示：答案 [1,2,1] 也是正确的。
+*/
+struct ListNode* removeZeroSumSublists(struct ListNode* head){
+    struct ListNode* pre = (struct ListNode*)malloc(sizeof(struct ListNode));
+    pre->val = 0;
+    pre->next = head;
+    struct ListNode* p = pre;
+    while (p){
+        int sum = 0;
+        struct ListNode* q = p->next;
+        while (q){
+            sum += q->val;
+            if (sum == 0){
+                p->next = q->next;
+            }
+            q = q->next;
+        }
+        p = p->next;
+    }
+    return pre->next;
+}
+
 
 //编写一个程序，找到两个单链表相交的起始节点。
 struct ListNode *getIntersectionNode(struct ListNode *headA, struct ListNode *headB) {
@@ -625,31 +641,28 @@ struct ListNode *getIntersectionNode(struct ListNode *headA, struct ListNode *he
 //递归实现
 struct ListNode * reverse(struct ListNode *pHead)
 {
-    if (pHead == NULL || pHead->next == NULL)
-    {
-        return pHead;
-    }
-    struct ListNode *p = pHead->next;
-    struct ListNode *pNewHead =  reverse(p);
-    p->next = pHead;
-    pHead ->next = NULL;
-    return pNewHead;
+//意思是如果链表只有一个节点的时候反转也是它自己，直接返回即可。
+	if (pHead == NULL || pHead->next == NULL) {
+		return pHead;
+	}
+
+	struct ListNode *p = pHead->next;
+	struct ListNode *pNewHead = reverse(p);
+	p->next = pHead;
+	pHead ->next = NULL;
+	return pNewHead;
 }
 
 
 //尾递归实现
-struct ListNode * do_reverse_tail(struct ListNode *pHead, struct ListNode *pNewHead)
+struct ListNode *do_reverse_tail(struct ListNode *pHead, struct ListNode *pNewHead)
 {
-    if(pHead == NULL)
-    {
-        return pNewHead;
-    }
-    else
-    {
-        struct ListNode *pNext = pHead->next;
-        pHead->next = pNewHead;
-        return do_reverse_tail(pNext, pHead);
-    }
+	if(pHead == NULL)
+		return pNewHead;
+
+	struct ListNode *pNext = pHead->next;
+	pHead->next = pNewHead;
+	return do_reverse_tail(pNext, pHead);
 }
 
 struct ListNode * reverse_tail(struct ListNode *pHead)
@@ -657,26 +670,98 @@ struct ListNode * reverse_tail(struct ListNode *pHead)
     return do_reverse_tail(pHead, NULL);
 }
 
-//迭代实现
+/*
+迭代实现
+在看具体算法之前，有必要先弄清楚链接反转的原理以及需要哪些指针。举例而言，有一个三个不同结点组成的链表 A → B → C，需要反转结点中的链接成为 A ← B ← C。
+
+假设我们有两个指针，一个指向结点 A，一个指向结点 B。 分别记为 prev 和 cur。则可以用这两个指针简单地实现 A 和 B 之间的链接反转：
+
+
+cur.next = prev
+这样做唯一的问题是，没有办法继续下去，换而言之，这样做之后就无法再访问到结点 C。因此，我们需要引入第三个指针，用于帮助反转过程的进行。因此，我们不采用上面的反转方法，而是：
+
+
+third = cur.next
+cur.next = prev
+prev = cur
+cur = third
+
+*/
 struct ListNode * reverse_it(struct ListNode *pHead)
 {
-    struct ListNode *pNewHead = NULL;
-    struct ListNode *pPrev = NULL;
-    struct ListNode *pCur = pHead;
-    while(pCur != NULL)
-    {
-        struct ListNode *pTmp = pCur->next;
-        if(pTmp == NULL)
-        {
-            pNewHead = pCur;
+	struct ListNode *pNewHead = NULL;
+	struct ListNode *pPrev = NULL;
+	struct ListNode *pCur = pHead;
+
+	while(pCur != NULL) {
+		struct ListNode *pTmp = pCur->next;
+		if(pTmp == NULL) {
+			pNewHead = pCur;
+		}
+		pCur->next = pPrev;
+		pPrev = pCur;
+		pCur = pTmp;
+	}
+
+	return pNewHead;
+}
+
+/*
+92. 反转链表 II
+反转从位置 m 到 n 的链表。请使用一趟扫描完成反转。
+
+说明:
+1 ≤ m ≤ n ≤ 链表长度。
+
+示例:
+
+输入: 1->2->3->4->5->NULL, m = 2, n = 4
+输出: 1->4->3->2->5->NULL
+*/
+struct ListNode* reverseBetween(struct ListNode* head, int m, int n)
+{
+        // Empty list
+        if (head == NULL) {
+            return NULL;
         }
-        pCur->next = pPrev;
-        pPrev = pCur;
-        pCur = pTmp;
+
+        // Move the two pointers until they reach the proper starting point
+        // in the list.
+        struct ListNode*cur = head;
+	struct ListNode *prev = NULL;
+        while (m > 1) {
+            prev = cur;
+            cur = cur->next;
+            m--;
+            n--;
+        }
+
+        // The two pointers that will fix the final connections.
+        struct ListNode*con = prev;
+	struct ListNode* tail = cur;
+
+        // Iteratively reverse the nodes until n becomes 0.
+        struct ListNode* third = NULL;
+        while (n > 0) {
+            third = cur->next;
+            cur->next = prev;
+            prev = cur;
+            cur = third;
+            n--;
+        }
+
+        // Adjust the final connections as explained in the algorithm
+        if (con != NULL) {
+            con->next = prev;
+        } else {
+            head = prev;
+        }
+
+        tail->next = cur;
+        return head;
     }
 
-    return pNewHead;
-}
+
 
 
 struct ListNode* middleNode(struct ListNode* head){
@@ -913,27 +998,52 @@ while(p)
 
 }
 
-int main()
-{
-	struct ListNode * head = slink_init();
-	slink_push_first(head, 1);
-	slink_push_last(head, 3);
-	slink_display(head);
-	slink_insert_before_idx(head, 2, 2);
-	slink_display(head);
-	printf("slink_get_val_by_idx: %d\n", slink_get_val_by_idx(head, 2));
-	slink_amend_val(head, 2, 5);
-	printf("slink_get_val_by_idx: %d\n", slink_get_val_by_idx(head, 2));
-	printf("slink_get_idx_by_val: %d\n", slink_get_idx_by_val(head, 5));
-	slink_del_by_idx(head, 1);
-	slink_display(head);
-	return 0;
+/*
+61. 旋转链表
+难度中等271
+给定一个链表，旋转链表，将链表每个节点向右移动 k 个位置，其中 k 是非负数。
+示例 1:
+输入: 1->2->3->4->5->NULL, k = 2
+输出: 4->5->1->2->3->NULL
+解释:
+向右旋转 1 步: 5->1->2->3->4->NULL
+向右旋转 2 步: 4->5->1->2->3->NULL
+}
+*/
 
-	slink_insert_before_idx(head,1,2);
-	int ret = slink_get_val_by_idx(head,1);
-	printf("%d\n",ret);
-	slink_del_by_idx(head,1);
-	ret = slink_get_val_by_idx(head,1);
-	printf("%d\n",ret);
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     struct ListNode *next;
+ * };
+ */
+
+struct ListNode* rotateRight(struct ListNode* head, int k)
+{
+    // base cases
+    if (head == NULL) return NULL;
+    if (head->next == NULL) return head;
+
+    // close the linked list into the ring
+    struct ListNode* old_tail = head;
+    int n;
+    for(n = 1; old_tail->next != NULL; n++)
+      old_tail = old_tail->next;
+
+    old_tail->next = head;
+
+    // find new tail : (n - k % n - 1)th node
+    // and new head : (n - k % n)th node
+    struct ListNode* new_tail = head;
+    for (int i = 0; i < n - k % n - 1; i++)
+      new_tail = new_tail->next;
+
+    struct ListNode* new_head = new_tail->next;
+
+    // break the ring
+    new_tail->next = NULL;
+
+    return new_head;
 }
 
