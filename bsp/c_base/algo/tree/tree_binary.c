@@ -1355,3 +1355,99 @@ struct TreeNode** findDuplicateSubtrees(struct TreeNode* root, int* returnSize)
 
 	return recordData;
 }
+
+/*
+114. 二叉树展开为链表
+给定一个二叉树，原地将它展开为一个单链表。
+
+
+
+例如，给定二叉树
+
+    1
+   / \
+  2   5
+ / \   \
+3   4   6
+将其展开为：
+
+1
+ \
+  2
+   \
+    3
+     \
+      4
+       \
+        5
+         \
+          6
+*/
+// 递归
+void flatten(struct TreeNode* root)
+{
+	if (root == NULL) {
+		return;
+	}
+	flatten(root->left);
+	flatten(root->right);
+	if (root->left != NULL) {
+		struct TreeNode* lr = root->left;
+		while (lr->right != NULL) {
+			lr = lr->right;
+		}
+		lr->right = root->right;
+		root->right = root->left;
+		root->left = NULL;
+	}
+}
+/*
+105. 从前序与中序遍历序列构造二叉树
+根据一棵树的前序遍历与中序遍历构造二叉树。
+
+注意:
+你可以假设树中没有重复的元素。
+
+例如，给出
+
+前序遍历 preorder = [3,9,20,15,7]
+中序遍历 inorder = [9,3,15,20,7]
+返回如下的二叉树：
+
+    3
+   / \
+  9  20
+    /  \
+   15   7
+*/
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     struct TreeNode *left;
+ *     struct TreeNode *right;
+ * };
+ */
+
+
+struct TreeNode* buildTree(int* preorder, int preorderSize, int* inorder, int inorderSize)
+{
+    if ((preorderSize == 0) || (inorderSize == 0)) {
+        return NULL;
+    }
+    struct TreeNode* res = (struct TreeNode*)malloc(sizeof(struct TreeNode));
+    res->val = *preorder;
+    res->left = NULL;
+    res->right = NULL;
+    int posion = 0;
+    for (int i = 0; i < preorderSize; i++) {
+        if (*preorder == inorder[i]) {
+            posion = i;
+            break;
+        }
+    }
+    res->left = buildTree(preorder + 1, posion, inorder, posion);
+    res->right = buildTree(preorder + posion + 1, inorderSize - posion - 1,
+                           inorder + posion + 1, inorderSize - posion - 1);
+    return res;
+}

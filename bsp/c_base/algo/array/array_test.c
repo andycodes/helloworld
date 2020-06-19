@@ -850,3 +850,162 @@ int nthSuperUglyNumber(int n, int* primes, int primesSize){
     return res[n - 1];
 }
 
+/*
+1414. 和为 K 的最少斐波那契数字数目
+给你数字 k ，请你返回和为 k 的斐波那契数字的最少数目，其中，每个斐波那契数字都可以被使用多次。
+
+斐波那契数字定义为：
+
+F1 = 1
+F2 = 1
+Fn = Fn-1 + Fn-2 ， 其中 n > 2 。
+数据保证对于给定的 k ，一定能找到可行解。
+*/
+int findMinFibonacciNumbers(int k)
+{
+        int a = 0, b = 1;
+        int fibo[100000];
+	memset(fibo, 0, sizeof(fibo));
+	fibo[a] = 1;
+	fibo[b] = 1;
+	int fiboCnt = 2;
+        while (fibo[a] + fibo[b] <= k) {
+		fibo[fiboCnt] = fibo[a] + fibo[b];
+		a = b;
+		b = fiboCnt;
+		fiboCnt++;
+        }
+
+        int ans = 0;
+        for (int i = fiboCnt - 1; i >= 0; --i) {
+            if (k >= fibo[i]) {
+                ++ans;
+                k -= fibo[i];
+            }
+        }
+        return ans;
+}
+
+/*
+面试题 16.04. 井字游戏
+设计一个算法，判断玩家是否赢了井字游戏。输入是一个 N x N 的数组棋盘，由字符" "，"X"和"O"组成，其中字符" "代表一个空位。
+
+以下是井字游戏的规则：
+
+玩家轮流将字符放入空位（" "）中。
+第一个玩家总是放字符"O"，且第二个玩家总是放字符"X"。
+"X"和"O"只允许放置在空位中，不允许对已放有字符的位置进行填充。
+当有N个相同（且非空）的字符填充任何行、列或对角线时，游戏结束，对应该字符的玩家获胜。
+当所有位置非空时，也算为游戏结束。
+如果游戏结束，玩家不允许再放置字符。
+如果游戏存在获胜者，就返回该游戏的获胜者使用的字符（"X"或"O"）；如果游戏以平局结束，则返回 "Draw"；如果仍会有行动（游戏未结束），则返回 "Pending"。
+
+示例 1：
+
+输入： board = ["O X"," XO","X O"]
+输出： "X"
+*/
+char* tictactoe(char** board, int boardSize){
+    int o1=0,x1=0,o2=0,x2=0,n=0;
+    for(int i=0;i<boardSize;i++)
+    {
+        if(board[i][i]=='O')
+        o1++;
+        if(board[i][i]=='X')
+        x1++;
+        if(board[i][boardSize-i-1]=='O')
+        o2++;
+        if(board[i][boardSize-i-1]=='X')
+        x2++;
+    }
+    if(o1==boardSize||o2==boardSize)
+    return "O";
+    if(x1==boardSize||x2==boardSize)
+    return "X";
+    for(int i=0;i<boardSize;i++)
+    {
+        o1=0;x1=0;o2=0;x2=0;
+        for(int j=0;j<boardSize;j++)
+        {
+            if(board[i][j]=='O')
+            o1++;
+            if(board[i][j]=='X')
+            x1++;
+            if(board[j][i]=='O')
+            o2++;
+            if(board[j][i]=='X')
+            x2++;
+            if(board[i][j]==' ')
+            n++;
+        }
+        if(o1==boardSize||o2==boardSize)
+        return "O";
+        if(x1==boardSize||x2==boardSize)
+        return "X";
+    }
+    if(n!=0)
+    return "Pending";
+    else
+    return "Draw";
+}
+
+/*
+48. 旋转图像
+给定一个 n × n 的二维矩阵表示一个图像。
+
+将图像顺时针旋转 90 度。
+
+说明：
+
+你必须在原地旋转图像，这意味着你需要直接修改输入的二维矩阵。请不要使用另一个矩阵来旋转图像。
+
+示例 1:
+
+给定 matrix =
+[
+  [1,2,3],
+  [4,5,6],
+  [7,8,9]
+],
+
+原地旋转输入矩阵，使其变为:
+[
+  [7,4,1],
+  [8,5,2],
+  [9,6,3]
+]
+*/
+void rotate(int** matrix, int matrixSize, int* matrixColSize)
+{
+    int n = matrixSize;
+
+    // transpose matrix
+    for (int i = 0; i < n; i++) {
+      for (int j = i; j < n; j++) {
+        int tmp = matrix[j][i];
+        matrix[j][i] = matrix[i][j];
+        matrix[i][j] = tmp;
+      }
+    }
+    // reverse each row
+    for (int i = 0; i < n; i++) {
+      for (int j = 0; j < n / 2; j++) {
+        int tmp = matrix[i][j];
+        matrix[i][j] = matrix[i][n - j - 1];
+        matrix[i][n - j - 1] = tmp;
+      }
+    }
+}
+
+#define swap(a,b) ((a) ^= (b), (b) ^= (a) ,(a) ^= (b))
+void rotate(int** matrix, int matrixSize, int* matrixColSize)
+{
+        int n = matrixSize;
+        for(int i = 0; i < (n >> 1); ++i){
+            for(int j = i; j < n - 1 - i; ++j){
+                swap(matrix[i][j], matrix[j][n - 1 - i]);
+                swap(matrix[i][j], matrix[n - 1 - i][n - 1 - j]);
+                swap(matrix[i][j], matrix[n - 1 - j][i]);
+            }
+        }
+}

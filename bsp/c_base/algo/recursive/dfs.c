@@ -1598,3 +1598,169 @@ int maxAreaOfIsland(int** grid, int gridSize, int* gridColSize)
 
 	return max;
 }
+
+/*
+1034. 边框着色
+给出一个二维整数网格 grid，网格中的每个值表示该位置处的网格块的颜色。
+
+只有当两个网格块的颜色相同，而且在四个方向中任意一个方向上相邻时，它们属于同一连通分量。
+
+连通分量的边界是指连通分量中的所有与不在分量中的正方形相邻（四个方向上）的所有正方形，或者在网格的边界上（第一行/列或最后一行/列）的所有正方形。
+
+给出位于 (r0, c0) 的网格块和颜色 color，使用指定颜色 color 为所给网格块的连通分量的边界进行着色，并返回最终的网格 grid 。
+
+
+
+示例 1：
+
+输入：grid = [[1,1],[1,2]], r0 = 0, c0 = 0, color = 3
+输出：[[3, 3], [3, 2]]
+*/
+/*
+联通分量内节点的颜色记为sColor，染边框的颜色为tColor。 （source color 与 target color）
+dfs遍历整个联通分量：
+
+对于遍历过的节点，我们都让他们的值为负数，这样，就不需要多开空间来记录节点是否遍历过
+对于联通分量中内部的节点，他们的值都为sColor，遍历过后，他们的值为-sColor。
+对于联通分量边框上的节点，他们的值都为sColor，遍历过后，他们的值为-tColor。
+遍历完整个联通分量，将整个grid中的负值改为正值
+关键在于怎么判断一个节点在联通分量中是否处于边框的位置：
+
+该节点在整个网格的四周:
+
+x == 0 || x+1 >= g.length || y == 0 || y+1 >= g[0].length
+该节点的↑↓←→节点有任意一个节点不属于当前联通分量；对于周围某个节点的颜色nextColor，如果它满足如下条件，那么他就不属于当前联通分量
+
+nextColor != sColor && nextColor != -sColor && nextColor != -tColor
+nextColor != sColor：颜色上看根本不属于当前联通分量
+nextColor != -sColor：它不是已经遍历过的联通分量内部节点
+nextColor != -tColor：它不是已经遍历过的联通分量边框节点
+
+*/
+
+    // 访问↑↓←→节点时坐标x, y的偏移量
+    int dis[4][2] = { {-1, 0}, {0, 1}, {1, 0}, {0, -1} };
+
+void dfs(int** g, int gridSize, int* gridColSize, int x, int y, int sColor, int tColor)
+{
+        // 越界 || 不属于同一个联通分量 || 被访问过
+        if(x < 0 || x >= gridSize || y < 0 || y >= gridColSize[x] || g[x][y] != sColor || g[x][y] < 0) {
+            return;
+        }
+
+        // 当前节点已经被访问，设置负值
+        g[x][y] = -sColor;
+
+        // 判断边界
+        if(x == 0 || x+1 >= gridSize || y == 0 || y+1 >= gridColSize[x]) {
+            // 区域边界
+            g[x][y] = -tColor;
+        } else {
+            // 连通分量的边界
+            for(int i = 0 ; i < 4 ; i++) {
+                int nextColor = g[x + dis[i][0]][y + dis[i][1]];
+                // 这里是关键点
+                if(nextColor != sColor && nextColor != -sColor && nextColor != -tColor) {
+                    g[x][y] = -tColor;
+                    break;
+                }
+            }
+        }
+
+        // 深度优先搜索，继续
+        for(int i = 0 ; i < 4 ; i++) {
+            dfs(g, gridSize, gridColSize, x+dis[i][0], y+dis[i][1], sColor, tColor);
+        }
+    }
+
+
+/**
+ * Return an array of arrays of size *returnSize.
+ * The sizes of the arrays are returned as *returnColumnSizes array.
+ * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ */
+int** colorBorder(int** grid, int gridSize, int* gridColSize, int r0, int c0, int color, int* returnSize, int** returnColumnSizes){
+
+	dfs(grid, gridSize, gridColSize, r0, c0, grid[r0][c0], color);
+        // 将负值置为正值
+        for(int i = 0 ; i < gridSize ; i++) {
+            for(int j = 0 ; j < gridColSize[i] ; j++) {
+                grid[i][j] = grid[i][j] > 0 ? grid[i][j] : -grid[i][j];
+            }
+        }
+
+	*returnSize = gridSize;
+	*returnColumnSizes = (int *)calloc(gridSize, sizeof(int));
+	for (int i = 0; i < gridSize; i++) {
+		(*returnColumnSizes)[i] = gridColSize[i];
+	}
+        return grid;
+}
+
+/*
+1254. 统计封闭岛屿的数目
+有一个二维矩阵 grid ，每个位置要么是陆地（记号为 0 ）要么是水域（记号为 1 ）。
+
+我们从一块陆地出发，每次可以往上下左右 4 个方向相邻区域走，能走到的所有陆地区域，我们将其称为一座「岛屿」。
+
+如果一座岛屿 完全 由水域包围，即陆地边缘上下左右所有相邻区域都是水域，那么我们将其称为 「封闭岛屿」。
+
+请返回封闭岛屿的数目。
+*/
+void show(int** grid, int gridSize, int* gridColSize)
+{
+	printf("\n");
+	for (int i = 0; i < gridSize; i++) {
+		for (int j = 0; j < gridColSize[i]; j++) {
+				printf("%d ", grid[i][j]);
+		}
+		printf("\n");
+	}
+}
+
+void dfs(int** grid, int gridSize, int* gridColSize, int startx, int starty)
+{
+	if (startx < 0 || startx >= gridSize || starty < 0 || starty >= gridColSize[startx] || grid[startx][starty] == 1) {
+		return;
+	}
+
+	grid[startx][starty] = 1;
+
+	int d[4][2] = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
+	for (int i = 0; i < 4; i++) {
+		dfs(grid, gridSize, gridColSize, startx + d[i][0], starty + d[i][1]);
+	}
+}
+
+int closedIsland(int** grid, int gridSize, int* gridColSize)
+{
+	//show(grid, gridSize, gridColSize);
+
+	for (int i = 0; i < gridSize; i++) {
+		if (grid[i][0] == 0)
+			dfs(grid, gridSize, gridColSize, i, 0);
+		if (grid[i][gridColSize[i] - 1] == 0)
+			dfs(grid, gridSize, gridColSize, i, gridColSize[i] - 1);
+	}
+	//show(grid, gridSize, gridColSize);
+
+	for (int j = 0; j < gridColSize[0]; j++) {
+		if (grid[0][j] == 0)
+			dfs(grid, gridSize, gridColSize, 0, j);
+		if (grid[gridSize - 1][j] == 0)
+			dfs(grid, gridSize, gridColSize, gridSize - 1, j);
+	}
+	//show(grid, gridSize, gridColSize);
+
+	int cnt = 0;
+	for (int i = 0; i < gridSize; i++) {
+		for (int j = 0; j < gridColSize[i]; j++) {
+			if (grid[i][j] == 0) {
+				dfs(grid, gridSize, gridColSize, i, j);
+				cnt++;
+			}
+		}
+	}
+
+	return cnt;
+}
