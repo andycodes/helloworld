@@ -1047,3 +1047,82 @@ struct ListNode* rotateRight(struct ListNode* head, int k)
     return new_head;
 }
 
+/*
+86. 分隔链表
+给定一个链表和一个特定值 x，对链表进行分隔，使得所有小于 x 的节点都在大于或等于 x 的节点之前。
+
+你应当保留两个分区中每个节点的初始相对位置。
+
+示例:
+
+输入: head = 1->4->3->2->5->2, x = 3
+输出: 1->2->2->4->3->5
+*/
+struct ListNode* partition(struct ListNode* head, int x){
+        // before and after are the two pointers used to create the two list
+        // before_head and after_head are used to save the heads of the two lists.
+        // All of these are initialized with the dummy nodes created.
+        struct ListNode* before_head = (struct ListNode*)calloc(1, sizeof(struct ListNode));
+        struct ListNode* before = before_head;
+        struct ListNode* after_head = (struct ListNode*)calloc(1, sizeof(struct ListNode));
+        struct ListNode* after = after_head;
+
+        while (head != NULL) {
+
+            // If the original list node is lesser than the given x,
+            // assign it to the before list.
+            if (head->val < x) {
+                before->next = head;
+                before = before->next;
+            } else {
+                // If the original list node is greater or equal to the given x,
+                // assign it to the after list.
+                after->next = head;
+                after = after->next;
+            }
+
+            // move ahead in the original list
+            head = head->next;
+        }
+
+        // Last node of "after" list would also be ending node of the reformed list
+        after->next = NULL;
+
+        // Once all the nodes are correctly assigned to the two lists,
+        // combine them to form a single list which would be returned.
+        before->next = after_head->next;
+
+        return before_head->next;
+}
+
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     struct ListNode *next;
+ * };
+ */
+
+
+struct ListNode* partition(struct ListNode* head, int x)
+{
+           struct ListNode* pre=head;
+           struct ListNode* cur=head;
+// cur走的比pre快， pre之前都小于x，pre到cur之间都是大于等于x的，当cur的值小于x时，于pre交换
+            while(cur){
+                if(cur->val<x){
+                    int tmp=pre->val;
+                    pre->val=cur->val;
+                    cur->val=tmp;
+                    pre=pre->next;
+                }
+                cur=cur->next;
+
+            }
+            return head;
+}
+
+
+
+
+
