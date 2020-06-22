@@ -86,3 +86,51 @@ int main()
 	return 0;
 }
 
+/*
+779. 第K个语法符号
+难度中等73
+在第一行我们写上一个 0。接下来的每一行，将前一行中的0替换为01，1替换为10。
+给定行数 N 和序数 K，返回第 N 行中第 K个字符。（K从1开始）
+
+例子:
+输入: N = 1, K = 1
+输出: 0
+
+输入: N = 2, K = 1
+输出: 0
+
+输入: N = 2, K = 2
+输出: 1
+
+输入: N = 4, K = 5
+输出: 1
+
+*/
+int kthGrammar(int N, int K){
+  if (N == 1) return 0;
+        return (~K & 1) ^ kthGrammar(N-1, (K+1)/2);
+}
+
+
+
+int kthGrammar(int N, int K){
+        if (N == 1) return 0;
+        if (K <= 1 << N-2)
+            return kthGrammar(N-1, K);
+        return kthGrammar(N-1, K - (1 << N-2)) ^ 1;
+}
+
+int hammingWeight(unsigned int n)
+{
+    int sum = 0;
+    while (n != 0) {
+        sum++;
+        n &= (n - 1);
+    }
+    return sum;
+}
+
+int kthGrammar(int N, int K){
+     return hammingWeight(K - 1) % 2;
+}
+

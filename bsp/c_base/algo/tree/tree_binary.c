@@ -1451,3 +1451,140 @@ struct TreeNode* buildTree(int* preorder, int preorderSize, int* inorder, int in
                            inorder + posion + 1, inorderSize - posion - 1);
     return res;
 }
+
+/*
+951. 翻转等价二叉树
+难度中等41
+我们可以为二叉树 T 定义一个翻转操作，如下所示：选择任意节点，然后交换它的左子树和右子树。
+只要经过一定次数的翻转操作后，能使 X 等于 Y，我们就称二叉树 X 翻转等价于二叉树 Y。
+编写一个判断两个二叉树是否是翻转等价的函数。这些树由根节点 root1 和 root2 给出。
+
+*/
+bool flipEquiv(struct TreeNode* root1, struct TreeNode* root2)
+{
+	if (root1 == NULL && root2 == NULL) return true;
+
+	if (root1 == NULL || root2 == NULL) return false;
+
+	return (root1->val == root2->val) &&
+		(flipEquiv(root1->right, root2->left) && flipEquiv(root1->left, root2->right) ||
+		flipEquiv(root1->right, root2->right) && flipEquiv(root1->left, root2->left));
+}
+
+/*
+1110. 删点成林
+难度中等46
+给出二叉树的根节点 root，树上每个节点都有一个不同的值。
+如果节点值在 to_delete 中出现，我们就把该节点从树上删去，最后得到一个森林（一些不相交的树构成的集合）。
+返回森林中的每棵树。你可以按任意顺序组织答案。
+
+示例：
+
+输入：root = [1,2,3,4,5,6,7], to_delete = [3,5]
+输出：[[1,2,null,4],[6],[7]]
+
+*/
+
+#define MAX 1000
+struct TreeNode **g_res;
+int resIndex;
+
+bool isDelete(struct TreeNode* root, int* to_delete, int to_deleteSize)
+{
+    for (int i = 0; i < to_deleteSize; i++) {
+        if (root->val == to_delete[i]) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void dfs(struct TreeNode* root, int* to_delete, int to_deleteSize)
+{
+    if (root == NULL) {
+        return;
+    }
+    if(isDelete(root, to_delete, to_deleteSize)) {
+        struct TreeNode* deleteNode = root;
+        if (deleteNode->left != NULL) {
+            g_res[resIndex] = deleteNode->left;
+            resIndex++;
+            dfs(deleteNode->left, to_delete, to_deleteSize);
+        }
+        if (deleteNode->right != NULL) {
+            g_res[resIndex] = deleteNode->right;
+            resIndex++;
+            dfs(deleteNode->right, to_delete, to_deleteSize);
+        }
+        return;
+    }
+    if (root->left != NULL) {
+        if(isDelete(root->left, to_delete, to_deleteSize)) {
+            struct TreeNode* deleteNode = root->left;
+            root->left = NULL;
+            if (deleteNode->left != NULL) {
+                g_res[resIndex] = deleteNode->left;
+                resIndex++;
+                dfs(deleteNode->left, to_delete, to_deleteSize);
+            }
+            if (deleteNode->right != NULL) {
+                g_res[resIndex] = deleteNode->right;
+                resIndex++;
+                dfs(deleteNode->right, to_delete, to_deleteSize);
+            }
+        } else {
+            dfs(root->left, to_delete, to_deleteSize);
+        }
+    }
+    if (root->right != NULL) {
+        if(isDelete(root->right, to_delete, to_deleteSize)) {
+            struct TreeNode* deleteNode = root->right;
+            root->right = NULL;
+            if (deleteNode->left != NULL) {
+                g_res[resIndex] = deleteNode->left;
+                resIndex++;
+                dfs(deleteNode->left, to_delete, to_deleteSize);
+            }
+            if (deleteNode->right != NULL) {
+                g_res[resIndex] = deleteNode->right;
+                resIndex++;
+                dfs(deleteNode->right, to_delete, to_deleteSize);
+            }
+        } else {
+            dfs(root->right, to_delete, to_deleteSize);
+        }
+    }
+}
+
+struct TreeNode** delNodes(struct TreeNode* root, int* to_delete, int to_deleteSize, int* returnSize)
+{
+    resIndex = 0;
+    if (root == NULL) {
+        return NULL;
+    }
+    if (to_delete == NULL) {
+        return root;
+    }
+    g_res = (struct TreeNode** )malloc(sizeof(struct TreeNode *) * MAX);
+    for (int i = 0; i < MAX; i++) {
+        g_res[i] = (struct TreeNode *)malloc(sizeof(struct TreeNode));
+    }
+    g_res[resIndex++] = root;
+    dfs(root, to_delete, to_deleteSize);
+    // printf("right = %d ", g_res[0]->right->val);
+    struct TreeNode **res = (struct TreeNode** )malloc(sizeof(struct TreeNode *) * resIndex);
+    for (int i = 0; i < resIndex; i++) {
+        res[i] = (struct TreeNode *)malloc(sizeof(struct TreeNode));
+    }
+    int fallyNum = 0;
+    for (int i = 0; i < resIndex; i++)
+    {
+        if (isDelete(g_res[i], to_delete, to_deleteSize) == false) {
+            res[fallyNum] = g_res[i];
+            fallyNum++;
+        }
+    }
+    *returnSize = fallyNum;
+    return res;
+}
+

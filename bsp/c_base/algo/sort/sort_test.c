@@ -321,6 +321,38 @@ char* minNumber(int* nums, int numsSize)
 }
 
 /*
+179. 最大数
+给定一组非负整数，重新排列它们的顺序使之组成一个最大的整数。
+
+示例 1:
+
+输入: [10,2]
+输出: 210
+示例 2:
+
+输入: [3,30,34,5,9]
+输出: 9534330
+*/
+int cmp(int *a,int *b){
+   char s[100],s1[100];
+   sprintf(s,"%d%d",*a,*b);
+   sprintf(s1,"%d%d",*b,*a);
+   return strcmp(s1,s);
+}
+char * largestNumber(int* nums, int numsSize){
+    qsort(nums,numsSize,sizeof(int),cmp);
+    if(nums[0]==0) return "0";
+    char *s,*p;
+    s=(char*)malloc(sizeof(char)*1000);
+    p=s;
+    for(int i=0;i<numsSize;i++){
+        sprintf(p,"%d",nums[i]);
+        p+=strlen(p);
+    }
+    return s;
+}
+
+/*
 31. 下一个排列
 难度中等461
 实现获取下一个排列的函数，算法需要将给定数字序列重新排列成字典序中下一个更大的排列。
