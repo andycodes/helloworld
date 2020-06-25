@@ -1091,3 +1091,36 @@ char * longestPalindrome(char * s)
         return false;
     	}
 
+/*
+567. 字符串的排列
+难度中等140
+给定两个字符串 s1 和 s2，写一个函数来判断 s2 是否包含 s1 的排列。
+换句话说，第一个字符串的排列之一是第二个字符串的子串。
+示例1:
+输入: s1 = "ab" s2 = "eidbaooo"
+输出: True
+解释: s2 包含 s1 的排列之一 ("ba").
+
+示例2:
+输入: s1= "ab" s2 = "eidboaoo"
+输出: False
+
+*/
+bool checkInclusion(char * s1, char * s2){
+        int mp[26] = {0};
+	for (int i = 0; i < strlen(s1); i++) {
+		mp[s1[i] - 'a']++;
+	}
+
+        int l = 0, r = 0;
+        while (r < strlen(s2)){
+            char c = s2[r++];
+            mp[c - 'a']--; // 入窗
+            while (l < r && mp[c - 'a'] < 0){ // 出窗
+                mp[s2[l++] - 'a'] ++;
+            }
+            if (r - l == strlen(s1)) return true;
+        }
+        return false;
+}
+

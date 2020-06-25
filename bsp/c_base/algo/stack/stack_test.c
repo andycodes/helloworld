@@ -608,3 +608,131 @@ int* nextGreaterElements(int* nums, int numsSize, int* returnSize)
 	return res;
 }
 
+/*
+1081. 不同字符的最小子序列
+难度中等33
+返回字符串 text 中按字典序排列最小的子序列，该子序列包含 text 中所有不同字符一次。
+
+示例 1：
+输入："cdadabcc"
+输出："adbc"
+示例 2：
+输入："abcd"
+输出："abcd"
+
+*/
+char * smallestSubsequence(char * text)
+{
+	if (strlen(text) <= 1 || text == NULL)
+		return text;
+
+	int slen = strlen(text);
+	int mask[26];
+	memset(mask, 0, sizeof(mask));
+	struct List dlist;
+	struct List *list = &dlist;
+	stack_init(list);
+
+	for (int i = 0; i < slen; i++) {
+		mask[text[i] - 'a']++;
+	}
+
+	for (int i = 0; i < slen; i++) {
+		if (isInList(list, text[i])) {
+            mask[text[i] - 'a']--;
+            continue;
+        }
+
+		while(!stack_empty(list)) {
+			struct DataEntry *top = stack_top_entry(list);
+			if (mask[top->key - 'a'] <= 1) {
+				break;
+			}
+
+			if (text[i] > top->key) {
+				break;
+			}
+
+			struct DataEntry *pop = stack_pop_entry(list);
+			mask[top->key - 'a']--;
+		}
+
+		stack_push_key(list, text[i]);
+	}
+
+	char *res = (char *)calloc(slen + 1, sizeof(char));
+	int resCnt = 0;
+	struct Node *node = NULL;
+	LIST_FOR_EACH(node, list) {
+		struct DataEntry *entry = NODE_ENTRY(node, struct DataEntry, node);
+		res[resCnt++] = entry->key;
+	}
+
+	return res;
+}
+
+
+
+#include <string.h>
+#include <stdlib.h>
+
+char * smallestSubsequence(char * text)
+{
+    // 处理特殊情况
+    if (text == NULL || strlen(text) == 0) {
+        return "";
+    }
+
+    if (strlen(text) == 1) {
+        return text;
+    }
+
+    int len = strlen(text);
+
+    // 统计字母频次
+    int record[26] = {0};
+    int i;       // text的指针
+    for (i = 0; i < len; i++) {
+        record[text[i] - 'a']++;
+    }
+
+    // 申请数组
+    char* stack = (char*)malloc(len * 2 * sizeof(char));
+    memset(stack, 0, len * 2 * sizeof(char));
+    int top = -1;   // 栈顶
+
+    // 遍历text
+    for (i = 0; i < len; i++) {
+        int isExist = 0;    // 当前字符text[i]是否存在于stack的标志，0表示不存在，1表示存在
+        int j;   // stack的指针
+        for (j = 0; j <= top; j++) {
+            if (stack[j] == text[i]) {  // 相等
+                isExist = 1;
+                break;
+            }
+        }
+
+        // 如果当前字符存在于stack中，跳过，对应频次减一，遍历下一个字符
+        // 如果当前字符不存在于stack中，则跳过所有比它大(此时不可能相等)、后面还会出现的栈顶元素，然后入栈，遍历下一个字符
+
+        if (isExist == 1) {
+            record[text[i] - 'a']--;
+        } else {
+            while (top > -1 && stack[top] > text[i] && record[stack[top] - 'a'] > 1) {
+                record[stack[top] - 'a']--;   // 跳过要求频次减一，栈顶下移一位
+                top--;
+            }
+
+            // 当结束while循环时，要么top==-1,要么stack[top]<text[i],要么record[stack[top] - 'a'] == 1
+            // 此时top要上移1位，然后将text[i]插入到栈顶
+            top++;
+            stack[top] = text[i];
+        }
+    }
+
+    // 添加结束符
+    stack[++top] = '\0';
+
+    return stack;
+}
+

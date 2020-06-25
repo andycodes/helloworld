@@ -93,33 +93,6 @@ int getMaximumGold(int** grid, int gridSize, int* gridColSize)
 	return sumMax;
 }
 
-int main(int argc, char* argv[])
-{
-	int ** grid = (int **)calloc(3, sizeof(int *));
-	int * gridColSize = (int *)calloc(3, sizeof(int));
-	for (int i = 0; i < 3; i++) {
-			grid[i] = (int *)calloc(3, sizeof(int));
-			gridColSize[i] = 3;
-	}
-
-	grid[0][0] = 0;
-	grid[0][1] = 6;
-	grid[0][2] = 0;
-
-	grid[1][0] = 5;
-	grid[1][1] = 8;
-	grid[1][2] = 7;
-
-	grid[2][0] = 0;
-	grid[2][1] = 9;
-	grid[2][2] = 0;
-
-	int ret = getMaximumGold(grid, 3, gridColSize);
-	printf("ret = %d\n", ret);
-}
-
-
-
 /*全排列*/
 void backtrack(int source[], int start, int end, int *resSize, int **res)
 {
@@ -160,6 +133,147 @@ int** permute(int* nums, int numsSize, int* returnSize,
 	}
 
 	return res;
+}
+/*
+47. 全排列 II
+难度中等320
+给定一个可包含重复数字的序列，返回所有不重复的全排列。
+示例:
+输入: [1,1,2]
+输出:
+[
+  [1,1,2],
+  [1,2,1],
+  [2,1,1]
+]
+通过次数65,930
+提交次数111,408
+
+*/
+/**
+ * Return an array of arrays of size *returnSize.
+ * The sizes of the arrays are returned as *returnColumnSizes array.
+ * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ */
+ //还是用老方法吧，用swap虽然节省了一些参数。但是这一题就解决不了，有重复元素的要排序剪枝，但swap会打乱顺序
+#define MAX_SIZE 5000
+
+static int compare(const void* a, const void* b)
+{
+    return *(int*)a - *(int*)b;
+}
+
+static void dfs(int* nums, int numsSize, int* returnSize, int** returnColumnSizes,
+                int** ppRes, bool* pbUsed, int* pBuffer)
+{
+    static int length = 0;
+    int index = 0;
+
+    if (numsSize == length)
+    {
+        ppRes[*returnSize] = (int*)malloc(numsSize * sizeof(int));
+        memcpy(ppRes[*returnSize], pBuffer, numsSize * sizeof(int));
+        (*returnColumnSizes)[*returnSize] = numsSize;
+        (*returnSize)++;
+    }
+    else
+    {
+        for (index = 0; index <= numsSize - 1; index++)
+        {
+            if (false == pbUsed[index])
+            {
+                if (index > 0 && nums[index - 1] == nums[index] && true == pbUsed[index - 1])
+                {
+                    continue; // 这里条件换成false == pbUsed[index - 1]也成立，本质是定一个规则这次找还是下次找
+                }
+
+                pbUsed[index] = true;
+                pBuffer[length] = nums[index];
+                length++;
+
+                dfs(nums, numsSize, returnSize, returnColumnSizes, ppRes, pbUsed, pBuffer);
+
+                length--; // 回溯
+                pbUsed[index] = false;
+            }
+        }
+    }
+}
+
+int** permuteUnique(int* nums, int numsSize, int* returnSize, int** returnColumnSizes){
+    qsort(nums, numsSize, sizeof(int), compare);
+
+    int** ppRes = (int**)malloc(MAX_SIZE * sizeof(int*));
+    bool* pbUsed = (bool*)malloc(numsSize * sizeof(bool));
+    memset(pbUsed, false, numsSize);
+    int* pBuffer = (int*)malloc(numsSize * sizeof(int));
+
+    *returnSize = 0;
+    *returnColumnSizes = (int*)malloc(MAX_SIZE * sizeof(int));
+
+    dfs(nums, numsSize, returnSize, returnColumnSizes, ppRes, pbUsed, pBuffer);
+
+    return ppRes;
+}
+
+
+
+
+/*
+剑指 Offer 38. 字符串的排列
+难度中等49
+输入一个字符串，打印出该字符串中字符的所有排列。
+
+你可以以任意顺序返回这个字符串数组，
+但里面不能有重复元素。
+
+示例:
+输入：s = "abc"
+输出：["abc","acb","bac","bca","cab","cba"]
+
+*/
+void backTrace(char* S, int* returnSize, int len, int depth, char **ret, char *path, char *visited)
+{
+  if(depth == len)
+  {
+    int retIndex = (*returnSize)++;
+    ret[retIndex] = malloc(len + 1);
+    strcpy(ret[retIndex], path);
+    return;
+  }
+
+  char duplicateMap[128] = {0};
+
+  for(int i = 0; i < len; i++)
+  {
+    if(visited[i])          continue;
+    if(duplicateMap[S[i]])  continue;   // the letter has shown up at this position
+
+    duplicateMap[S[i]] = 1;
+    visited[i] = 1;
+    path[depth] = S[i];
+    backTrace(S, returnSize, len, depth + 1, ret, path, visited);
+    visited[i] = 0;
+  }
+}
+
+#define MAX_LEN 1000
+
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+char** permutation(char* S, int* returnSize){
+
+  char **ret = calloc(MAX_LEN, sizeof(char *));
+  int len = strlen(S);
+
+  char path[10] = {0};
+  char visited[10] = {0};
+
+  *returnSize = 0;
+  backTrace(S, returnSize, len, 0, ret, path, visited);
+
+  return ret;
 }
 
 

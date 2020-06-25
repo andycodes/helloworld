@@ -174,8 +174,10 @@ int shipWithinDays(int* weights, int weightsSize, int D)
 /*
 378. 有序矩阵中第K小的元素
 难度中等245
-给定一个 n x n 矩阵，其中每行和每列元素均按升序排序，找到矩阵中第 k 小的元素。
-请注意，它是排序后的第 k 小元素，而不是第 k 个不同的元素。
+给定一个 n x n 矩阵，其中每行和每列元素均按升序排序，
+找到矩阵中第 k 小的元素。
+请注意，它是排序后的第 k 小元素，
+而不是第 k 个不同的元素。
 
 示例：
 matrix = [
@@ -190,19 +192,22 @@ k = 8,
 */
 /*
 首先第k大数一定落在[l, r]中，其中l = matrix[0][0], r = matrix[row - 1][col - 1].
-我们二分值域[l, r]区间，mid = (l + r) >> 1, 对于mid，我们检查矩阵中有多少元素小于等于mid，
+我们二分值域[l, r]区间，mid = (l + r) >> 1, 对于mid，我们检查矩阵中
+有多少元素小于等于mid，
 记个数为cnt，那么有：
-
-1、如果cnt < k, 那么[l, mid]中包含矩阵元素个数一定小于k，那么第k小元素一定不在[l, mid]
+1、如果cnt < k, 那么[l, mid]中包含矩阵元素个数一定小于k，那么
+第k小元素一定不在[l, mid]
 中，必定在[mid + 1, r]中，所以更新l = mid + 1.
-
-2、否则cnt >= k，那么[l, mid]中包含矩阵元素个数就大于等于k，即第k小元素一定在[l,mid]区间中，
+2、否则cnt >= k，那么[l, mid]中包含矩阵元素个数就大于等于k，
+即第k小元素一定在[l,mid]区间中，
 更新r = mid;
 
-至于怎么得矩阵中有多少元素小于等于k，可以利用矩阵本身性质，从左下角开始按列枚举，具体可参考代码。
+至于怎么得矩阵中有多少元素小于等于k，可以利用矩阵本身
+性质，从左下角开始按列枚举，具体可参考代码。
 
 综上：
-算法时间复杂度为O(n * log(m)), 其中n = max(row, col)，代表矩阵行数和列数的最大值,
+算法时间复杂度为O(n * log(m)), 其中n = max(row, col)，代表矩阵行数
+和列数的最大值,
  m代表二分区间的长度，即矩阵最大值和最小值的差。
 */
 int getLowerCnt(int **matrix, int row, int col, int mid)
@@ -219,19 +224,22 @@ int getLowerCnt(int **matrix, int row, int col, int mid)
     return cnt;
 }
 
-int kthSmallest(int** matrix, int matrixSize, int* matrixColSize, int k){
-    if (matrix == NULL || matrixColSize == NULL || matrixSize == 0) return -1;
-    int row = matrixSize, col = matrixColSize[0];
-    int l = matrix[0][0], r = matrix[row - 1][col - 1];
-    while (l < r) {
-        int mid = (l + r) >> 1;
-        if (getLowerCnt(matrix, row, col, mid) < k) { // 落在区间[l, mid]中数小于k，说明第k小的数一定大于mid
-            l = mid + 1;
-        } else {
-            r = mid;
-        }
-    }
-    return l;
+int kthSmallest(int** matrix, int matrixSize, int* matrixColSize, int k)
+{
+	if (matrix == NULL || matrixColSize == NULL || matrixSize == 0)
+		return -1;
+	int row = matrixSize, col = matrixColSize[0];
+	int l = matrix[0][0], r = matrix[row - 1][col - 1];
+	while (l < r) {
+		int mid = (l + r) >> 1;
+		if (getLowerCnt(matrix, row, col, mid) < k) { // 落在区间[l, mid]中数小于k，说明第k小的数一定大于mid
+			l = mid + 1;
+		} else {
+			r = mid;
+		}
+	}
+
+	return l;
 }
 
 int kthSmallest(int** matrix, int matrixSize, int* matrixColSize, int k){
@@ -257,4 +265,40 @@ int kthSmallest(int** matrix, int matrixSize, int* matrixColSize, int k){
 
     return heapsort_top_key(heap);
 }
+
+/*
+面试题 10.09. 排序矩阵查找
+给定M×N矩阵，每一行、每一列都按升序排列，请编写代码找出某元素。
+
+示例:
+
+现有矩阵 matrix 如下：
+
+[
+  [1,   4,  7, 11, 15],
+  [2,   5,  8, 12, 19],
+  [3,   6,  9, 16, 22],
+  [10, 13, 14, 17, 24],
+  [18, 21, 23, 26, 30]
+]
+给定 target = 5，返回 true。
+
+给定 target = 20，返回 false。
+
+通过次数3,044提交次数6,782
+*/
+
+bool searchMatrix(int** matrix, int matrixRowSize, int matrixColSize, int target) {
+    // int i = matrixRowSize - 1, j = 0;
+    int i = 0, j = matrixColSize-1;
+
+    while(j>=0 && i<matrixRowSize) {
+        if(matrix[i][j] > target) j--;
+        else if(matrix[i][j] < target) i++;
+        else return true;
+    }
+    return false;
+
+}
+
 

@@ -388,10 +388,6 @@ bool isPossibleDivide(int* nums, int numsSize, int k){
 [2,3]
 
 */
-int const cmp_int(const void *a, const void *b)
-{
-	return *((int *)a) - *((int *)b);
-}
 
 /**
  * Note: The returned array must be malloced, assume caller calls free().
