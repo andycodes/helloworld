@@ -732,3 +732,237 @@ int openLock(char ** deadends, int deadendsSize, char * target)
 	return -1;
 }
 
+/*
+863. 二叉树中所有距离为 K 的结点
+给定一个二叉树（具有根结点 root）， 一个目标结点 target ，和一个整数值 K 。
+
+返回到目标结点 target 距离为 K 的所有结点的值的列表。 答案可以以任何顺序返回。
+
+
+
+示例 1：
+
+输入：root = [3,5,1,6,2,0,8,null,null,7,4], target = 5, K = 2
+输出：[7,4,1]
+解释：
+所求结点为与目标结点（值为 5）距离为 2 的结点，
+值分别为 7，4，以及 1
+*/
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+ /*
+首先使用 DFS 遍历二叉树，为每个节点保存其父结点；
+使用 BFS 向三个方向搜索（左孩子、右孩子、父结点），当搜索第 K 次时，队列中的全部结点即为所求；
+
+注意：
+
+BFS 要保存已访问结点；
+每次都将当前队列中全部元素向外延伸一个结点；
+
+ */
+void dfs(struct List *listFather, struct TreeNode* root, struct TreeNode* father)
+{
+	if (root == NULL) {
+		return;
+	}
+
+	struct DataEntry  *entry = (struct DataEntry  *)calloc(1, sizeof(struct DataEntry));
+	entry->cur = root;
+	entry->father = father;
+	entry->visited = 0;
+	ListAddTail(listFather, &entry->node);
+
+	dfs(listFather, root->left, root);
+	dfs(listFather, root->right, root);
+}
+
+void setVisited(struct List *list, struct TreeNode* target)
+{
+	struct Node *node = NULL;
+	struct DataEntry *entry = NULL;
+
+	LIST_FOR_EACH(node, list) {
+		entry = NODE_ENTRY(node, struct DataEntry, node);
+		if (entry->cur == target) {
+			entry->visited = 1;
+		}
+	}
+}
+
+bool checkVisited(struct List *list, struct TreeNode* target)
+{
+	struct Node *node = NULL;
+	struct DataEntry *entry = NULL;
+
+	LIST_FOR_EACH(node, list) {
+		entry = NODE_ENTRY(node, struct DataEntry, node);
+		if (entry->cur == target) {
+			return entry->visited;
+		}
+	}
+
+	return false;
+}
+
+struct TreeNode* getFather(struct List *list, struct TreeNode* target)
+{
+	struct Node *node = NULL;
+	struct DataEntry *entry = NULL;
+
+	LIST_FOR_EACH(node, list) {
+		entry = NODE_ENTRY(node, struct DataEntry, node);
+		if (entry->cur == target) {
+			return entry->father;
+		}
+	}
+
+	return NULL;
+}
+
+
+int* distanceK(struct TreeNode* root, struct TreeNode* target, int K, int* returnSize)
+{
+	struct List dListFather;
+	struct List *listFather = &dListFather;
+
+	ListInit(listFather);
+	dfs(listFather, root, NULL); //记录父结点
+
+	struct List dqueue;
+	struct List *queue = &dqueue;
+
+	queue_init(queue);
+
+	struct DataEntry  *entry = (struct DataEntry  *)calloc(1, sizeof(struct DataEntry ));
+	entry->cur = target;
+	ListAddTail(queue, &entry->node);
+	setVisited(listFather, target);
+
+	while(!queue_empty(queue)) {
+		if (K-- == 0) {
+			*returnSize = 0;
+			int *res = (int *)calloc(2048, sizeof(int));
+			while(!queue_empty(queue)) {
+				struct DataEntry *pop = queue_pop_entry(queue);
+				res[*returnSize] = pop->cur->val;
+				(*returnSize)++;
+			}
+
+			return res;
+		}
+
+		int qSize = queue_size(queue);
+		for (int i = 0; i < qSize; i++) {
+			struct DataEntry *pop = queue_pop_entry(queue);
+			if (pop->cur->left && !checkVisited(listFather, pop->cur->left)) {
+				struct DataEntry  *entry = (struct DataEntry  *)calloc(1, sizeof(struct DataEntry ));
+				entry->cur = pop->cur->left;
+				ListAddTail(queue, &entry->node);
+				setVisited(listFather, pop->cur->left);
+			}
+
+			if (pop->cur->right && !checkVisited(listFather, pop->cur->right)) {
+				struct DataEntry  *entry = (struct DataEntry  *)calloc(1, sizeof(struct DataEntry ));
+				entry->cur = pop->cur->right;
+				ListAddTail(queue, &entry->node);
+				setVisited(listFather, pop->cur->right);
+			}
+
+			struct TreeNode* father = getFather(listFather, pop->cur);
+			if (father != NULL && !checkVisited(listFather, father)) {
+				struct DataEntry  *entry = (struct DataEntry  *)calloc(1, sizeof(struct DataEntry ));
+				entry->cur = father;
+				ListAddTail(queue, &entry->node);
+				setVisited(listFather, father);
+			}
+		}
+	}
+
+	return NULL;
+}
+
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     struct TreeNode *left;
+ *     struct TreeNode *right;
+ * };
+ */
+
+#define MAXSIZE 510
+struct TreeNode** parent_array;
+int flag[MAXSIZE];
+int count;
+
+void get_parent(struct TreeNode* node, struct TreeNode** parent_array);
+void dfs(struct TreeNode* node, int K, int dis, int* res);
+
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int* distanceK(struct TreeNode* root, struct TreeNode* target, int K, int* returnSize)
+{
+    if (root == NULL || target == NULL || K < 0 || K > 500) {
+        *returnSize = 0;
+        return NULL;
+    }
+
+    // 父结点数组申请内存
+    parent_array = (struct TreeNode**)malloc(sizeof(struct TreeNode*) * MAXSIZE);
+    memset(parent_array, 0, MAXSIZE * sizeof(struct TreeNode*));
+    // flag数组初始化，用于标记访问过的结点
+    memset(flag, 0, MAXSIZE * sizeof(int));
+    // 存放满足要求的结点值的结果数组
+    int *res = (int *)malloc(sizeof(int) * MAXSIZE);
+    memset(res, -1, MAXSIZE * sizeof(int));
+
+    // 二叉树遍历找到每个结点的父结点，将该结点的值作为parent_array的索引，在parent_array中存放对应父结点
+    get_parent(root, parent_array);
+
+    // DFS搜索
+    count = 0;
+    flag[target->val] = 1;
+    dfs(target, K, 0, res);
+
+    // 返回结果
+    *returnSize = count;
+    return res;
+}
+
+void get_parent(struct TreeNode* node, struct TreeNode** parent_array)
+{
+    if (node->right != NULL) {
+        parent_array[node->right->val] = node;
+        get_parent(node->right, parent_array);
+    }
+    if (node->left != NULL) {
+        parent_array[node->left->val] = node;
+        get_parent(node->left, parent_array);
+    }
+}
+
+void dfs(struct TreeNode* node, int K, int dis, int* res)
+{
+    if (dis == K) {
+        res[count] = node->val;
+        count++;
+        return;
+    }
+
+    if (node->left != NULL && flag[node->left->val] != 1) {
+        flag[node->left->val] = 1;
+        dfs(node->left, K, dis + 1, res);
+    }
+
+    if (node->right != NULL && flag[node->right->val] != 1) {
+        flag[node->right->val] = 1;
+        dfs(node->right, K, dis + 1, res);
+    }
+
+    if (parent_array[node->val] != 0 && flag[parent_array[node->val]->val] != 1) {
+        flag[parent_array[node->val]->val] = 1;
+        dfs(parent_array[node->val], K, dis + 1, res);
+    }
+}
