@@ -346,4 +346,53 @@ char * smallestStringWithSwaps(char * s, int** pairs, int pairsSize, int* pairsC
 	return res;
 }
 
+/*
+1391. 检查网格中是否存在有效路径
+给你一个 m x n 的网格 grid。网格里的每个单元都代表一条街道。grid[i][j] 的街道可以是：
 
+1 表示连接左单元格和右单元格的街道。
+2 表示连接上单元格和下单元格的街道。
+3 表示连接左单元格和下单元格的街道。
+4 表示连接右单元格和下单元格的街道。
+5 表示连接左单元格和上单元格的街道。
+6 表示连接右单元格和上单元格的街道。
+
+*/
+
+int patterns[7] = {0, 0b1010, 0b0101, 0b1100, 0b0110, 0b1001, 0b0011};
+int dirs[4][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}};
+
+int dimenMap(int x, int y, int colSize)
+{
+	return x * colSize+ y;
+}
+
+void hander(struct UnionFind* uf, int** grid, int row, int col, int x, int y)
+{
+            int pattern = patterns[grid[x][y]];
+            for (int i = 0; i < 4; ++i) {
+                if (pattern & (1 << i)) {
+                    int sx = x + dirs[i][0];
+                    int sy = y + dirs[i][1];
+                    if (sx >= 0 && sx < row && sy >= 0 && sy < col && (patterns[grid[sx][sy]] & (1 << ((i + 2) % 4)))) {
+                        uf_union(uf, dimenMap(x, y, col), dimenMap(sx, sy, col));
+                    }
+                }
+            }
+}
+
+bool hasValidPath(int** grid, int gridSize, int* gridColSize)
+{
+	int row = gridSize;
+	int col = gridColSize[0];
+
+	struct UnionFind* uf = uf_init(row * col);
+
+        for (int i = 0; i < row; ++i) {
+            for (int j = 0; j < col; ++j) {
+                hander(uf, grid, row, col, i, j);
+            }
+        }
+
+	return uf_isOneUnion(uf, dimenMap(0, 0, col), dimenMap(row - 1, col - 1, col));
+}

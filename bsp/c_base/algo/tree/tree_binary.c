@@ -183,51 +183,51 @@ int** levelOrder(struct TreeNode* root, int* returnSize, int** returnColumnSizes
             return NULL;
         }
 
-	struct aqueue_blk * aqueue = aqueue_init(1024);
+	struct List dlist;
+	struct List *list = &dlist;
+	queue_init(list);
 
-	struct aqueue_load load;
-	load.node = root;
-	aqueue_push_last_val(aqueue,  load);
 
-        int depth = getTreeDepth(root);
+	struct DataEntry  *entry = (struct DataEntry  *)calloc(1, sizeof(struct DataEntry ));
+	entry->root = root;
+	ListAddTail(list, &entry->node);
+
+        int depth = maxDepth(root);
         *returnSize = depth;
-        int **matrix = (int **)malloc(sizeof(int *) * depth);
+        int **res = (int **)malloc(sizeof(int *) * depth);
         *returnColumnSizes = (int *)malloc(sizeof(int) * depth);
-        if (matrix == NULL || returnColumnSizes == NULL)
+        if (res == NULL || returnColumnSizes == NULL)
                 return NULL;
 
         int cur_depth = 0;
-        while(aqueue_size(aqueue) != 0) {
-                int level_size = aqueue_size(aqueue);
+        while(!queue_empty(list)) {
+                int level_size = queue_size(list);
                 /* create raw */
                 (*returnColumnSizes)[cur_depth] = level_size;
-                matrix[cur_depth] = (int *)malloc(sizeof(int) * level_size);
+                res[cur_depth] = (int *)malloc(sizeof(int) * level_size);
                 int cur = 0;
                 while (level_size--) {
-                        struct TreeNode* node;
-
-			struct aqueue_load pop = aqueue_pop_first_val(aqueue);
-                       node = pop.node;
+			struct DataEntry *pop = queue_pop_entry(list);
                         /* add node->val to res */
-                        matrix[cur_depth][cur] = node->val;
+                        res[cur_depth][cur] = pop->root->val;
 
-                        if (node->left) {
-				struct aqueue_load next;
-				next.node = pop.node->left;
-				aqueue_push_last_val(aqueue,  next);
+                        if (pop->root->left) {
+				struct DataEntry  *entry = (struct DataEntry  *)calloc(1, sizeof(struct DataEntry ));
+				entry->root = pop->root->left;
+				ListAddTail(list, &entry->node);
 			}
 
-                        if (node->right) {
-				struct aqueue_load next;
-				next.node = pop.node->right;
-				aqueue_push_last_val(aqueue,  next);
+                        if (pop->root->right) {
+				struct DataEntry  *entry = (struct DataEntry  *)calloc(1, sizeof(struct DataEntry ));
+				entry->root = pop->root->right;
+				ListAddTail(list, &entry->node);
 			}
 
                     cur++;
                 }
                 cur_depth++;
         }
-        return matrix;
+        return res;
 }
 
 

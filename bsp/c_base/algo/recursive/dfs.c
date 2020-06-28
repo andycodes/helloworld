@@ -1764,3 +1764,79 @@ int closedIsland(int** grid, int gridSize, int* gridColSize)
 
 	return cnt;
 }
+
+/*
+1391. 检查网格中是否存在有效路径
+见UF
+*/
+
+//定义上 左 右 下
+//为了便于寻找对应方向的接口，定义接口时数值设计如下，这样方向x的对应方向即为3-x。
+//DIR_UP + DIR_DOWN = 3
+//DIR_LEFT + DIR_RIGHT = 3
+enum {
+    DIR_UP = 0,
+    DIR_LEFT = 1,
+    DIR_RIGHT = 2,
+    DIR_DOWN = 3,
+};
+
+//定义向各个方向搜索时，坐标的offset
+struct{
+    int r;
+    int c;
+}OffsetTbl[4] = {
+// row  col
+    {-1, 0},    //上
+    {0, -1},    //左
+    {0, 1},     //右
+    {1, 0}      //下
+};
+
+//定义各图案是否支持指定接口
+bool interfaces[7][4] = {
+    //上    左      右      下
+    {false, false, false,  false},      //0： dummy
+    {false, true,  true,   false},      //1： 左右
+    {true,  false, false,  true},       //2： 上下
+    {false, true,  false,  true},       //3： 左下
+    {false, false, true,   true},       //4： 右下
+    {true,  true,  false,  false},      //5： 左上
+    {true,  false, true,   false},      //6： 右上
+};
+
+void dfs(int** grid, int gridSize, int* gridColSize, int row, int col){
+    if(grid[row][col] == 0) return; //已经搜索过得会被置0，防止重复搜索
+
+    //置零
+    int val =grid[row][col];
+    grid[row][col] = 0;
+
+    //遍历四个方向
+    for(int i = 0; i < 4; i++){
+        //该图案没有当前方向接口,continue
+        if(interfaces[val][i] == false) continue;
+
+        //如果有当前方向接口，计算该方向上邻居的坐标
+        int r = row + OffsetTbl[i].r;
+        int c = col + OffsetTbl[i].c;
+
+        //坐标越界检查
+        if(r >= gridSize || r < 0 || c < 0 || c >= gridColSize[row]){
+            continue;
+        }
+        //判断该邻居是否有对应方向(即3-i)的接口，如果有则dfs该邻居；如果没有则代表无法连通，不继续dfs。
+        if(interfaces[grid[r][c]][3-i]){
+            dfs(grid, gridSize, gridColSize, r, c);
+        }
+    }
+}
+
+bool hasValidPath(int** grid, int gridSize, int* gridColSize){
+    //力扣惯例，参数检查
+    if(!grid || !gridSize || !gridColSize) return false;
+    //从位置0,0开始深度优先遍历
+    dfs(grid, gridSize, gridColSize, 0, 0);
+    //返回最后一个位置是否为0
+    return grid[gridSize-1][gridColSize[gridSize-1] - 1] == 0;
+}

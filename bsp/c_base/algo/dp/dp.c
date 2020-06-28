@@ -767,6 +767,64 @@ int rob(int* nums, int numsSize){
     }
     return MAX(a[numsSize-2], b[numsSize-1]);
 }
+/*
+740. 删除与获得点数
+难度中等147
+给定一个整数数组 nums ，你可以对它进行一些操作。
+每次操作中，选择任意一个 nums[i] ，删除它并获得 nums[i] 的点数。之后，你必须删除每个等于 nums[i] - 1 或 nums[i] + 1 的元素。
+开始你拥有 0 个点数。返回你能通过这些操作获得的最大点数。
+示例 1:
+输入: nums = [3, 4, 2]
+输出: 6
+解释:
+删除 4 来获得 4 个点数，因此 3 也被删除。
+之后，删除 2 来获得 2 个点数。总共获得 6 个点数。
+示例 2:
+输入: nums = [2, 2, 3, 3, 3, 4]
+输出: 9
+解释:
+删除 3 来获得 3 个点数，接着要删除两个 2 和 4 。
+之后，再次删除 3 获得 3 个点数，再次删除 3 获得 3 个点数。
+总共获得 9 个点数。
+
+*/
+/*
+想不到打家劫舍的同志，先读懂题目，先读懂题目，先读懂题目！！！！！ 是删除所有的nums[i] - 1和nums[i]+1。
+
+第一、是删除所有，是删除所有，是删除所有！
+
+第二、是nums[i] -1和nums[i]+1两个都删除，是nums[i] -1和nums[i]+1两个都删除，是nums[i] -1和nums[i]+1两个都删除。 重要的事情我说了9遍。。。。
+
+这里小偷偷的钱不再是nums[i]，而是所有的nums[i]， 也就是nums[i]乘以nums[i]出现的次数。 如果你选择偷nums[i]，那么nums数组中所有的nums[i]你都要选择偷，为什么是所有的nums[i]，因为所有nums[i]+-1的数都被你给干掉了，不允许再选择nums[i]+-1这样的家庭去偷了，所以其他的nums[i]不存在不去偷。所以一旦你偷了nums[i]家的财产，就要偷所有的nums[i]，也就是nums[i]乘以count(nums[i])这么多的钱小偷全部要偷去！！！
+
+所以这里的转移方程相比于打家劫舍里的转移方程，只是把打家劫舍里的正在偷的这个家庭的财产nums[i] 改为 偷财产和这个家庭相等的所有家庭的所有财产！！！此贼够大胆，够贪心，够勇敢！
+
+相比于打家劫舍，这里的nums[i]是打家劫舍里面数组的索引，这里的nums[i]乘次nums[i]出现的次数，也就是所有的nums[i]总和 等同于打家劫舍里数组的值
+
+转移方程为 dp[i] =Math.max(dp[i-1], dp[i-2] + nums[i] * count(nums[i]) ) 这里面i的最大值就是nums数组的最大值，因为nums[i]相当于索引
+
+所以这里相比于打家劫舍里的小偷，这里的小偷已经不再是小偷了，而是江洋大盗了！！！！
+
+*/
+int deleteAndEarn(int* nums, int numsSize){
+        int count[10001];
+	memset(count, 0, sizeof(count));
+        int maxNum = 0;
+        for (int i = 0; i < numsSize; i++) {
+            maxNum = fmax(nums[i], maxNum);
+            ++count[nums[i]];
+        }
+
+        int dp[10001];
+	memset(dp, 0, sizeof(dp));
+        dp[1] = count[1];
+
+        for (int i=2; i<=maxNum; ++i) {
+            dp[i] = fmax(dp[i-1], dp[i-2]+count[i]*i);
+        }
+
+        return dp[maxNum];
+}
 
 /*
 983. 最低票价
