@@ -87,46 +87,42 @@ int sum2d(int , int, int ar[*][*]);
 Array objects declared with the static or extern storage-class specifier
 cannot have a variable length array (VLA) type
 */
-void array_vla(int tmp)
-    {
-            int a;
-
-            scanf("%d", &a);
-            int b[tmp];
-            int c[a];
-            printf ("size(b) = %lu, size(c) = %lu\n", sizeof(b)/sizeof(int), sizeof(c)/sizeof(int));
-    }
 
 
 /*
+915. 分割数组
+难度中等40
 给定一个数组 A，将其划分为两个不相交（没有公共元素）
 的连续子数组 left 和 right， 使得：
+"	left 中的每个元素都小于或等于 right 中的每个元素。
+"	left 和 right 都是非空的。
+"	left 要尽可能小。
+在完成这样的分组后返回 left 的长度。可以保证存在这样
+的划分方法。
 
-left 中的每个元素都小于或等于 right 中的每个元素。
-left 和 right 都是非空的。
-left 要尽可能小。
-在完成这样的分组后返回 left 的长度。
-可以保证存在这样的划分方法。
+示例 1：
+输入：[5,0,3,8,6]
+输出：3
+解释
 */
-int partitionDisjoint(int* A, int ASize){
-	int *left_max = malloc(ASize * sizeof(int));
-	int *right_min = malloc(ASize * sizeof(int));
+int partitionDisjoint(int* A, int ASize)
+{
+	int leftMax[ASize];
+	int rightMin[ASize];
 
-	int tmp = A[0];
-	for (int i = 0; i < ASize; i++) {
-		tmp = tmp > A[i] ? tmp : A[i];
-		left_max[i] = tmp;
+	leftMax[0] = A[0];
+	for (int i = 1; i < ASize; i++) {
+		leftMax[i] = fmax(leftMax[i - 1], A[i]);
 	}
 
-	tmp = A[ASize - 1];
-	for (int i = ASize -1; i >= 0; i--) {
-		tmp = tmp < A[i] ? tmp : A[i];
-		right_min[i] = tmp;
+	rightMin[ASize - 1] = A[ASize - 1];
+	for (int i = ASize - 2; i >= 0; i--) {
+		rightMin[i] = fmin(rightMin[i + 1], A[i]);
 	}
 
-	for (int i = 1; i < ASize; i++){
-		if (left_max[i -1] <= right_min[i])
-			return i;
+	for (int i = 0; i < ASize - 1; i++) {
+		if (leftMax[i] <= rightMin[i + 1])
+			return i + 1;
 	}
 
 	return ASize;
@@ -1014,4 +1010,34 @@ void rotate(int** matrix, int matrixSize, int* matrixColSize)
                 swap(matrix[i][j], matrix[n - 1 - j][i]);
             }
         }
+}
+
+/*
+1184. 公交站间的距离
+难度简单27
+环形公交路线上有 n 个站，按次序从 0 到 n - 1 进行编号。我们已知每一对相邻公交站之间的距离，distance[i] 表示编号为 i 的车站和编号为 (i + 1) % n 的车站之间的距离。
+环线上的公交车都可以按顺时针和逆时针的方向行驶。
+返回乘客从出发点 start 到目的地 destination 之间的最短距离。
+
+示例 1：
+
+输入：distance = [1,2,3,4], start = 0, destination = 1
+输出：1
+解释：公交站 0 和 1 之间的距离是 1 或 9，最小值是 1。
+
+*/
+int distanceBetweenBusStops(int* distance, int distanceSize, int start, int destination){
+	int dis1 = 0, dis2 = 0;;
+	int s;
+	s = start;
+	while (s != destination) {
+		dis1 += distance[s];
+		s = (s + 1) % distanceSize;
+	}
+	while (s != start) {
+		dis2 += distance[s];
+		s = (s + 1) % distanceSize;
+	}
+	return dis1 < dis2 ? dis1 : dis2;
+
 }

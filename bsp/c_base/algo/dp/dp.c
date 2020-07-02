@@ -1096,3 +1096,120 @@ int minimumDeleteSum(char * s1, char * s2){
 
 }
 
+/*
+1483. 树节点的第 K 个祖先
+难度困难35
+给你一棵树，树上有 n 个节点，按从 0 到 n-1 编号。树以父节点数组的形式给出，其中 parent[i] 是节点 i 的父节点。树的根节点是编号为 0 的节点。
+请你设计并实现 getKthAncestor(int node, int k) 函数，函数返回节点 node 的第 k 个祖先节点。如果不存在这样的祖先节点，返回 -1 。
+树节点的第 k 个祖先节点是从该节点到根节点路径上的第 k 个节点。
+
+*/
+typedef struct {
+
+} TreeAncestor;
+
+    int dp[50010][20];//dp[i][j]表示 对于i节点来说,它的第2^j个祖先是某个节点
+                                      //dp[i][j] = dp[dp[i][j - 1]][j - 1] 相当于 我要到第2 ^ j 个祖先，我先到2 ^ (j - 1)个祖先
+                                      //再到祖先的2 ^ (j - 1)个祖先，举个例子，我要到dp[i][3] 先跳到dp[i][2] 再在dp[i][2]的基础上再
+                                      //跳 2 ^ 2 ，一共跳了8步,和 2 ^ 3 次方一样
+
+
+TreeAncestor* treeAncestorCreate(int n, int* parent, int parentSize) {
+        for(int i = 0 ;i < n ;i++){
+            for(int j = 0 ;j < 20 ;j++){
+                dp[i][j] = -1;
+            }
+        }
+
+        for(int i = 0 ;i < parentSize ;i++){
+            dp[i][0] = parent[i];
+        }
+        for(int i = 0 ; i < n ;i++){
+            for(int j = 1 ;j < 20 ;j++){
+                if(dp[i][j - 1] != -1)
+                dp[i][j] = dp[dp[i][j - 1]][j - 1];
+            }
+        }
+
+	return NULL;
+}
+
+int treeAncestorGetKthAncestor(TreeAncestor* obj, int node, int k) {
+        int j = 0;
+        while(k > 0){
+            if(k % 2 != 0){
+                node = dp[node][j];
+            }
+            if(node == -1) return node;
+            j++;
+            k = k >> 1;
+        }
+        return node;
+}
+
+void treeAncestorFree(TreeAncestor* obj) {
+
+}
+
+/*
+1186. 删除一次得到子数组最大和
+难度中等46
+给你一个整数数组，返回它的某个 非空 子数组（连续元素）在执行一次可选的删除操作后，所能得到的最大元素总和。
+换句话说，你可以从原数组中选出一个子数组，并可以决定要不要从中删除一个元素（只能删一次哦），（删除后）子数组中至少应当有一个元素，然后该子数组（剩下）的元素总和是所有子数组之中最大的。
+注意，删除一个元素后，子数组 不能为空。
+请看示例：
+示例 1：
+输入：arr = [1,-2,0,3]
+输出：4
+解释：我们可以选出 [1, -2, 0, 3]，然后删掉 -2，这样得到 [1, 0, 3]，和最大。
+
+*/
+int maximumSum(int* arr, int arrSize)
+{
+        int N = arrSize;
+
+        // 边界条件，直接判断返回
+        if (N == 1) {
+            return arr[0];
+        }
+
+        int dp1[N]; // dp1[i]代表以arr[i]为结尾的最大连续子数组和
+        int dp2[N]; // dp2[i]代表以arr[i]为结尾的并且删除了一个元素（可能是arr[i]自己）后最大的连续子数组和
+
+        dp1[0] = arr[0];
+        for (int i = 1; i < N; i++) {
+            dp1[i] = fmax(arr[i], dp1[i - 1] + arr[i]);
+        }
+
+        #if 0
+        for (int i = 0; i < N; i++) {
+            cout << "dp1[" << i << "] = " << dp1[i] << endl;
+        }
+        #endif
+
+
+        dp2[0] = arr[0];
+        dp2[1] = fmax(arr[0], arr[1]);  // 因为删除元素后不能为空，所以以arr[1]为结尾的只有一种情况即arr[0] arr[1]，要么删除arr[0]，要么删除arr[1]
+
+        for (int i = 2; i < N; i++) {
+            dp2[i] = fmax(dp1[i - 1], dp2[i - 1] + arr[i]);
+        }
+
+        #if 0
+        cout << "========================" << endl;
+        for (int i = 0; i < N; i++) {
+            cout << "dp2[" << i << "] = " << dp2[i] << endl;
+        }
+        #endif
+
+
+        int retCnt = INT_MIN;
+
+        // 遍历以arr[i]为结尾，并且删除和不删除元素的情况，找出最大值！
+        for (int i = 0; i < N; i++) {
+            retCnt = fmax(dp1[i], retCnt);
+            retCnt = fmax(retCnt, dp2[i]);
+        }
+
+        return retCnt;
+}

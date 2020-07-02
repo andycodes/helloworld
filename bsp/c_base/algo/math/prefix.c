@@ -69,3 +69,107 @@ int numOfSubarrays(int* arr, int arrSize, int k, int threshold) {
     }
     return retNum;
 }
+
+/*
+974. 和可被 K 整除的子数组
+难度中等170
+给定一个整数数组 A，返回其中元素之和可被 K 整除的（连续、非空）子数组的数目。
+
+示例：
+输入：A = [4,5,0,-2,-3,1], K = 5
+输出：7
+解释：
+有 7 个子数组满足其元素之和可被 K = 5 整除：
+[4, 5, 0, -2, -3, 1], [5], [5, 0], [5, 0, -2, -3], [0], [0, -2, -3], [-2, -3]
+
+*/
+int subarraysDivByK(int* A, int ASize, int K){
+    int hash[K];
+    memset(hash,0,sizeof(hash));
+    for(int i=1;i<ASize;i++)//前缀和
+    {
+        A[i]=A[i-1]+A[i];
+    }
+    for(int i=0;i<ASize;i++)//余数为键的哈希表
+    {
+       hash[(A[i]%K+K)%K]++;//消除负数
+    }
+    int sum=0;
+    for(int i=0;i<K;i++)//统计相同余数满足要求的数目
+    {
+        sum+=hash[i]*(hash[i]-1)/2;
+    }
+    return sum+hash[0];//加上单个满足余数为零的数目
+}
+
+int subarraysDivByK(int* A, int ASize, int K)
+{
+        int map[K];
+		memset(map, 0, sizeof(map));
+		map[0] = 1;
+
+        int PreSum=0;
+        int Count=0;
+        for(int i=0;i<ASize;i++){
+            PreSum=PreSum+A[i];//当前项的前缀和 = 上一项的前缀和 + 当前项
+            int remain=PreSum%K;//当前项前缀和%K的结果
+
+            //%K结果为负数的情况需要考虑
+            if(remain<0) remain=remain+K;
+
+            if(map[remain]){
+                Count+=map[remain];//余数remain之前存在，则和现在的当前项可以有map[remain]种组合可能
+                map[remain]++;//余数remain之前出现的次数需要更新
+            }
+            else{
+                map[remain]=1;//余数remain之前不存在
+            }
+        }
+
+        return Count;
+
+}
+
+int subarraysDivByK(int* A, int ASize, int K){
+    if (K == 0 || ASize == 0) {
+        return 0;
+    }
+    int ans=0;
+    int *presum=(int*)malloc(sizeof(int)*(ASize+1));
+    presum[0]=0;
+    for(int i=0;i<ASize;i++){
+        presum[i+1]=presum[i]+A[i];
+    }
+    int *arr=(int*)malloc(sizeof(int)*K);
+    memset(arr,0,K*sizeof(int));
+    for(int i=0;i<ASize+1;i++){
+        arr[(presum[i]%K +K)%K]++;
+    }
+    int count=0;
+    for(int i=0;i<K;i++){
+        count+=(arr[i]*(arr[i]-1))/2;
+
+    }
+    return count;
+}
+
+int subarraysDivByK(int* A, int ASize, int K){
+    if (K == 0 || ASize == 0 || A == NULL) {
+        return 0;
+    }
+
+    int *map = (int *)calloc(K, sizeof(int));
+    map[0] = 1;
+    int sum = 0;
+    int count = 0;
+
+    for (int i = 0; i < ASize; i++) {
+        sum += A[i];
+        int key = (sum % K + K) % K;
+        count += map[key];
+        map[key]++;
+    }
+
+    free(map);
+    return count;
+}
