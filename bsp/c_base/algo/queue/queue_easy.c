@@ -13,3 +13,26 @@ queue[rear++] = data;
 data = queue[head++];  // 出队列
 
 #define empty(head, rear)	head == rear
+
+////////////////////////
+top = 0;
+char stack[MAX];
+memset(stack, 0, sizeof(stack));
+top++;
+// 运算子入栈
+if (top < sizeof(stack)) {
+top++;
+stack[top] = op;
+}
+
+//printf("%c", stack[top]);
+		top--;
+/////////////////////////////
+const int MAXN = 64; // 栈的最大长度
+int stack[MAXN];
+int top = -1;
+stack[++top] = e; // push
+while(top >= 0) {
+		e = stack[top--]; // pop
+		printf("%X", e);
+}
