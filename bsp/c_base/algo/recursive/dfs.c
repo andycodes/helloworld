@@ -1840,3 +1840,140 @@ bool hasValidPath(int** grid, int gridSize, int* gridColSize){
     //返回最后一个位置是否为0
     return grid[gridSize-1][gridColSize[gridSize-1] - 1] == 0;
 }
+
+/*
+1376. 通知所有员工所需的时间
+难度中等24
+公司里有 n 名员工，每个员工的 ID 都是独一无二的，编号从 0 到 n - 1。公司的总负责人通过 headID 进行标识。
+在 manager 数组中，每个员工都有一个直属负责人，其中 manager[i] 是第 i 名员工的直属负责人。对于总负责人，manager[headID] = -1。题目保证从属关系可以用树结构显示。
+公司总负责人想要向公司所有员工通告一条紧急消息。他将会首先通知他的直属下属们，然后由这些下属通知他们的下属，直到所有的员工都得知这条紧急消息。
+第 i 名员工需要 informTime[i] 分钟来通知它的所有直属下属（也就是说在 informTime[i] 分钟后，他的所有直属下属都可以开始传播这一消息）。
+返回通知所有员工这一紧急消息所需要的 分钟数 。
+
+示例 1：
+输入：n = 1, headID = 0, manager = [-1], informTime = [0]
+输出：0
+解释：公司总负责人是该公司的唯一一名员工。
+示例 2：
+
+输入：n = 6, headID = 2, manager = [2,2,-1,2,2,2], informTime = [0,0,1,0,0,0]
+输出：1
+解释：id = 2 的员工是公司的总负责人，也是其他所有员工的直属负责人，他需要 1 分钟来通知所有员工。
+上图显示了公司员工的树结构。
+
+*/
+
+/*DFS自底向上*/
+int numOfMinutes(int n, int headID, int* manager, int managerSize, int* informTime, int informTimeSize)
+{
+        //最终结果
+        int res = 0;
+
+        for(int i =0;i<managerSize;i++){
+            //判断是否为结束点，剪枝
+            if(informTime[i]==0){
+                //临时值
+                int temp = 0;
+                int index=i;
+                //向上遍历
+                while(index!=-1){
+                    temp+=informTime[index];
+                    index=manager[index];
+                }
+                res = fmax(res,temp);
+            }
+        }
+        return res;
+}
+
+/*DFS自底向上
+遍历所有员工，对所有最底层员工（叶子节点），DFS搜索父节点，直到没有父节点为止。记录所有遍历的最大时间即为答案。*/
+int dfs(int* manager, int *informTime, int id, int t)
+{
+    int m = manager[id];
+    if (m == -1) {
+        return t;
+    }
+    return dfs(manager, informTime, m, t + informTime[m]);
+}
+
+int numOfMinutes(int n, int headID, int* manager, int managerSize, int* informTime, int informTimeSize){
+    int max = 0;
+    for (int i = 0; i < n; i++) {
+        if (informTime[i]) {
+            continue;
+        }
+
+        int t = dfs(manager, informTime, i, 0);
+        max = max >= t ? max : t;
+    }
+    return max;
+}
+
+/*
+DFS自顶向下
+算法描述
+使用邻接表来表示题目中的N叉树，
+再以headid为起点，进行树的遍历，记录搜索过程中计算出的最大通知时间，即为答案。
+*/
+typedef struct
+{
+    int key;
+    UT_hash_handle hh;
+}SetNode;
+
+typedef struct
+{
+    int key;
+    SetNode *set;
+    UT_hash_handle hh;
+}HashNode;
+
+void dfs(int *visited, int *inform, int n, HashNode *hash, int pt, int id, int *t) {
+    HashNode *node;
+    HASH_FIND_INT(hash, &id, node);
+    if (!node) {
+        return;
+    }
+
+    pt += inform[id];
+    *t = *t >= pt ? *t : pt;
+
+    SetNode *curr, *tmp;
+    HASH_ITER(hh, node->set, curr, tmp) {
+        if (visited[curr->key]) {
+            continue;
+        }
+
+        visited[curr->key] = 1;
+        dfs(visited, inform, n, hash, pt, curr->key, t);
+    }
+}
+
+int numOfMinutes(int n, int headID, int* manager, int managerSize, int* informTime, int informTimeSize){
+    int visited[n];
+    memset(visited, 0, sizeof(int)*n);
+
+    HashNode *hash = NULL;
+    for (int i = 0; i < n; i++) {
+        HashNode *node;
+        HASH_FIND_INT(hash, &manager[i], node);
+        if (!node) {
+            node = malloc(sizeof(HashNode));
+            node->key = manager[i];
+            node->set = NULL;
+            HASH_ADD_INT(hash, key, node);
+        }
+
+        SetNode *e = malloc(sizeof(SetNode));
+        e->key = i;
+        HASH_ADD_INT(node->set, key, e);
+    }
+
+    visited[headID] = 1;
+    int t = 0;
+    dfs(visited, informTime, n, hash, 0, headID, &t);
+    return t;
+}
+
+

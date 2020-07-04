@@ -103,6 +103,90 @@ int orangesRotting(int** grid, int gridSize, int* gridColSize){
 }
 
 
+void enque(int queue[][2], int* rear, int item[2])
+{
+    queue[*rear][0] = item[0];
+    queue[*rear][1] = item[1];
+    (*rear)++;
+}
+
+void deque(int queue[][2], int* head, int item[2])
+{
+    item[0] = queue[*head][0];
+    item[1] = queue[*head][1];
+    (*head)++;
+}
+
+bool empty(int queue[][2], int head, int rear)
+{
+    if (head == rear) {
+        return true;
+    }
+
+    return false;
+}
+
+int orangesRotting(int** grid, int gridSize, int* gridColSize)
+{
+    if (grid == NULL || gridSize == 0 || gridColSize == NULL || gridColSize[0] == 0) {
+        return 0;
+    }
+
+    int row = gridSize;
+    int col = gridColSize[0];
+
+    int queue[row * col][2];
+    int head = 0, rear = 0;
+
+    int step[4][2] = { {0, 1}, {0, -1}, {1, 0}, {-1, 0} };
+
+    // bfs
+    int cnt = 0;
+    for (int i = 0; i < gridSize; i++) {
+        for (int j = 0; j < gridColSize[0]; j++) {
+            if (grid[i][j] == 2) {
+                int push[2];
+                push[0] = i;
+                push[1] = j;
+                enque(queue, &rear, push);
+            } else if (grid[i][j] == 1) {
+                cnt++;
+            }
+        }
+    }
+
+    int ans = 0;
+    while (!empty(queue, head, rear))
+    {
+        int pop[2];
+        deque(queue, &head, pop);
+        for (int dir = 0; dir < 4; dir++) {
+            int dx = pop[0] + step[dir][0];
+            int dy = pop[1] + step[dir][1];
+            if (dx < 0 || dx >= row) {
+                continue;
+            }
+            if (dy < 0 || dy >= col) {
+                continue;
+            }
+            if (grid[dx][dy] != 1) {
+                continue;
+            }
+            printf("gird[%d][%d]=%d ", pop[0], pop[1], grid[pop[0]][pop[1]]);
+            grid[dx][dy] = grid[pop[0]][pop[1]] + 1;
+            cnt--;
+            int push[2];
+            push[0] = dx;
+            push[1] = dy;
+            enque(queue, &rear, push);
+            ans = grid[dx][dy] - 2;
+            printf("gird[%d][%d]=%d cnt=%d ans=%d \n", dx, dy, grid[dx][dy], cnt, ans);
+        }
+    }
+
+    return (cnt == 0) ? ans: -1;
+}
+
 
 struct queue_load{
 	int row;
