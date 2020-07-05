@@ -1,6 +1,6 @@
 
 #define MAX 100
-
+////////////////////////////////////
 int head = 0;
 int rear = 0;
 int queue[MAX];     // 辅组队列
@@ -14,25 +14,28 @@ data = queue[head++];  // 出队列
 
 #define empty(head, rear)	head == rear
 
-////////////////////////
-top = 0;
-char stack[MAX];
-memset(stack, 0, sizeof(stack));
-top++;
-// 运算子入栈
-if (top < sizeof(stack)) {
-top++;
-stack[top] = op;
+/////////////////////////////
+int stack[MAX];
+int top = -1;
+
+stack[++top] = data; // push
+
+while(top >= 0) {
+	e = stack[top--]; // pop
 }
 
-//printf("%c", stack[top]);
-		top--;
-/////////////////////////////
-const int MAXN = 64; // 栈的最大长度
-int stack[MAXN];
-int top = -1;
-stack[++top] = e; // push
-while(top >= 0) {
-		e = stack[top--]; // pop
-		printf("%X", e);
+empty:  top == -1
+not empty: top >= 0
+
+bool isInQueue(char* stack, int top, char data)
+{
+	if (top <= -1)
+		return false;
+
+	for (int i = 0; i <= top; i++) {
+		if (stack[i] == data)
+			return true;
+	}
+
+	return false;
 }

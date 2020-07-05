@@ -7,12 +7,12 @@ T 和?F (T 和?F?分别表示真和假）。
 
 注意：
 
-给定的字符串长度?≤ 10000。
+给定的字符串长度 ≤ 10000。
 所包含的数字都只有一位数。
 条件表达式从右至左结合（和大多数程序设计语言类似）。
-条件是?T?和?F其一，即条件永远不会是数字。
-表达式的结果是数字?0-9, T 或者?F。
-?
+条件是 T 和 F其一，即条件永远不会是数字。
+表达式的结果是数字 0-9, T 或者 F。
+
 
 示例 1：
 
@@ -23,6 +23,21 @@ T 和?F (T 和?F?分别表示真和假）。
 解释： 如果条件为真，结果为 2；否则，结果为 3。
 
 “F?1:T?4:5”Output: “4”
+
+
+“F?T?4:5:T?4:5
+
+示例 3：
+
+输入： "T?T?F:5:3"
+
+输出： "F"
+
+解释： 条件表达式自右向左结合。使用括号的话，相当于：
+
+             "(T ? (T ? F : 5) : 3)"                   "(T ? (T ? F : 5) : 3)"
+          -> "(T ? F : 3)"                 或者       -> "(T ? F : 5)"
+          -> "F"                                     -> "F"
 */
 
 /*
@@ -30,42 +45,36 @@ T 和?F (T 和?F?分别表示真和假）。
 可用两个栈分别记录操作（?的前一个字符）和值，
 当值有两个且有一个操作时，执行三元运算
 */
-char* parseTernary(char* expression) {
-	struct stack_blk* opStack = create_array_stack(10000);
-	struct stack_blk* valueStack = create_array_stack(10000);
+#define STACK_MAX 10000
+char* parseTernary(char* expression)
+{
+	int stackData[STACK_MAX];
+	int topData = -1;
 
-	for (int i = strlen(expression) - 1; i >= 0; --i) {
+	int stackOp[STACK_MAX];
+	int topOp = -1;
+
+	int slen = strlen(expression);
+	for (int i = slen - 1; i >= 0; i--) {
 		if (isdigit(expression[i]) || expression[i] == 'T' || expression[i] == 'F') {
-			struct stack_load load;
-			load.data = expression[i];
-			push(valueStack, load);
-		}else if (expression[i] == '?') {
-			i--;
-			struct stack_load load;
-			load.data = expression[i];
-			push(opStack, load);
+			stackData[++topData] = expression[i];
+		}else if(expression[i] == ':') {
+			continue;
+		} else if(expression[i] == '?') {
+			stackOp[++topOp] = expression[--i];
 		}
 
-		while (size(valueStack) >= 2 && size(opStack) >= 1) {
-
-			struct stack_load c = pop(opStack);
-			struct stack_load a = pop(valueStack);
-			struct stack_load b = pop(valueStack);
-
-			if (c.data == 'T') {
-				push(valueStack, a);
-			}
-			else {
-				push(valueStack, b);
-			}
+		if(topOp >= 0 && topData >= 1) {
+			int data1 = stackData[topData--];
+			int data2 = stackData[topData--];
+			int op = stackOp[topOp--];
+			stackData[++topData] = op == 'T' ? data1 : data2;
 		}
 	}
 
-	struct stack_load out = pop(valueStack);
-	char* outstr = (char *)malloc(2);
-	outstr[0] = out.data;
-	outstr[1] = '\0';
-	return  outstr;
+	char *out = (char *)calloc(2, sizeof(char));
+	out[0] =  stackData[0];
+	return out;
 }
 
 
@@ -87,40 +96,34 @@ char* parseTernary(char* expression) {
 输出："lee(t(c)o)de"
 解释："lee(t(co)de)" , "lee(t(c)ode)" 也是一个可行答案。
 
-struct stack_load{
-	char data;
-	int pos;
-};
-
+遇到'(' 直接入栈
+遇到')',如果栈顶是'(' 说明可以成对，移除栈顶，否者入栈
+答案就是字符串移除栈中符号。
 */
-
 char * minRemoveToMakeValid(char * s)
 {
-	struct stack_blk * stack = create_array_stack(strlen(s));
 	char *res = (char *)calloc(1, strlen(s) + 1);
+	int slen = strlen(s);
+
+	int stack[slen][2];// 0-data  1-idx
+	int top = -1;
+	memset(stack, 0, sizeof(stack));
 
 	for (int i = 0; i < strlen(s); i++){
 		if (s[i] == '(') {
-			struct stack_load load;
-			load.data = s[i];
-			load.pos = i;
-			push(stack,load);
+			stack[++top][0] = s[i];
+			stack[top][1] = i;
 		}else if(s[i] == ')') {
-			if (!is_empty(stack)) {
-				struct stack_load load = peek(stack);
-				if (load.data == '(')
-					(void)pop(stack);
-				else {
-					struct stack_load load;
-					load.data = s[i];
-					load.pos = i;
-					push(stack,load);
+			if (top >= 0) {
+				if(stack[top][0] == '(') {
+					top--;//能够成对，从队列中剔除
+				} else {//记录需要删除的
+					stack[++top][0] = s[i];
+					stack[top][1] = i;
 				}
-			} else {
-				struct stack_load load;
-				load.data = s[i];
-				load.pos = i;
-				push(stack,load);
+			} else {//记录需要删除的
+				stack[++top][0] = s[i];
+				stack[top][1] = i;
 			}
 		}
 	}
@@ -129,7 +132,7 @@ char * minRemoveToMakeValid(char * s)
 	int j = 0;
 	int k = 0;
 	while(s[i] != '\0') {
-		if (i == stack->load[k].pos && k < size(stack)){
+		if (i == stack[k][1] && k <= top){
 			k++;
 		} else {
 			res[j++] = s[i];
@@ -183,41 +186,41 @@ char * minRemoveToMakeValid(char * s)
 输出："/a/b/c"
 
 */
-char* simplifyPath(char * path)
+char * simplifyPath(char * path)
 {
 	if (path == NULL || path[0] != '/')
 		return NULL;
 
-	char *iterator;
-	struct astack *astack = astack_init(1024);
+	char *it = NULL;
+	char *tmp = NULL;
+	int slen = strlen(path);
 
-	iterator = strtok(path, "/");
-	while(iterator != NULL) {
-	        if(strcmp(iterator, "..") == 0) {
-			if (!astack_empty(astack)) {
-				(void)astack_pop(astack);
+	char* stack[slen];
+	int top = -1;
+
+	it = strtok_r(path, "/", &tmp);
+	while(it != NULL) {
+		if (strcmp(it, ".") == 0) {
+		} else if(strcmp(it, "..") == 0){
+			if (top >= 0) {
+				top--;
 			}
-	        } else if(strcmp(iterator, ".") == 0) {
-	        } else{
-			struct astack_load load;
-			load.string = iterator;
-			astack_push(astack, load);
-	        }
+		} else {
+			stack[++top] = it;
+		}
 
-	        iterator = strtok(NULL, "/");
+		it = strtok_r(NULL, "/", &tmp);
 	}
 
+	char *res = calloc(slen + 1, sizeof(char));
 
-	char * res = (char *)calloc(1024, sizeof(char));
-	res[0] = '/';
+	if (top == -1)
+		res[0] = '/';
 
-	for(int i = 0; i < astack_size(astack); i++) {
-		strcat(res, astack->load[i].string);
-		if (i  != astack_size(astack) - 1)
-			strcat(res, "/");
+	for (int i = 0; i <= top; i++) {
+		strcat(res, "/");
+		strcat(res, stack[i]);
 	}
-
-	astack_exit(astack);
 
 	return res;
 }
@@ -237,27 +240,21 @@ s = "3[a]2[bc]", 返回 "aaabcbc".
 s = "3[a2[c]]", 返回 "accaccacc".
 s = "2[abc]3[cd]ef", 返回 "abcabccdcdcdef".
 */
-struct astack_load{
-	union dtype { /*Overload*/
-		int times;
-		char str[1024000];
-	}utype;
-};
 
-
-struct astack{
-	int count;
-	int size;
-	struct astack_load load[0];
-};
-
-char * decodeString(char * s){
+char * decodeString(char * s)
+{
 	int num = 0;
 	char *str = (char *)calloc(1024000, sizeof(char));
 	int strCnt = 0;
+	int slen = strlen(s);
 
-	struct astack *numStack = astack_init(strlen(s));
-	struct astack *strStack = astack_init(strlen(s));
+	if (s == NULL || strlen(s) == 0)
+		return str;
+
+	int stackNum[slen];
+	int topnum = -1;
+	char stackStr[slen][1024000];
+	int topstr = -1;
 
 	for(int i = 0; i < strlen(s); i++) {
 		if (isdigit(s[i])) {
@@ -265,24 +262,17 @@ char * decodeString(char * s){
 		} else if (isalpha(s[i])) {
 			str[strCnt++] = s[i];
 		} else if (s[i] == '[') {
-			struct astack_load load;
-			load.utype.times = num;
-			astack_push(numStack, load);
+			stackNum[++topnum] = num;
 			num = 0;
 
-			struct astack_load strobj;
-			strcpy(strobj.utype.str, str);
-			astack_push(strStack, strobj);
+			strcpy(stackStr[++topstr], str);
 			memset(str, '\0', sizeof(str));
 			strCnt = 0;
 		} else {//"]"
-			struct astack_load load =  astack_pop(numStack);
-			int times = load.utype.times;
+			int times = stackNum[topnum--];
 
 			char tmp[1024000] = {{'\0'}};
-			struct astack_load strobj = astack_pop(strStack);
-
-			strcpy(tmp, strobj.utype.str);
+			strcpy(tmp, stackStr[topstr--]);//历史前缀
 
 			for (int j = 0; j < times; j++) {
 				 strcat(tmp, str);
@@ -295,6 +285,7 @@ char * decodeString(char * s){
 
 	return str;
 }
+
 
 /*
 1209. 删除字符串中的所有相邻重复项 II
@@ -318,58 +309,47 @@ k 个相邻且相等的字母，并删除它们，使被删去的字符串的
 最后删除 "ddd"，得到 "aa"
 
 */
-char * removeDuplicates(char * s, int k){
-	int sLen = strlen(s);
+char * removeDuplicates(char * s, int k)
+{
+	if (s == NULL || strlen(s) < k || k < 2)
+		return s;
 
-	struct astack * numstack = astack_init(sLen);
-	struct astack * strstack = astack_init(sLen);
+	int slen = strlen(s);
+	int stack[slen][2]; // 0 --al  1 --cnt
+	int top = -1;
 
-	for (int i = 0 ; i < sLen; i++) {
-		if (astack_empty(strstack)){
-			struct astack_load numLoad;
-			numLoad.utype.times = 1;
-			astack_push(numstack, numLoad);
-
-			struct astack_load strLoad;
-			strLoad.utype.str = s[i];
-			astack_push(strstack,strLoad);
+	int i = 0;
+	while(s[i] != '\0') {
+		if (top < 0) {
+			stack[++top][0] = s[i];
+			stack[top][1] = 1;
 		} else {
-				struct astack_load strload = astack_top(strstack);
-				if (strload.utype.str == s[i]) {
-					struct astack_load numload = astack_top(numstack);
-					if (numload.utype.times == k - 1) {
-							(void)astack_pop(numstack);
-							(void)astack_pop(strstack);
-					} else {
-							struct astack_load numLoad = astack_pop(numstack);
-							numLoad.utype.times++;
-							astack_push(numstack, numLoad);
-					}
+			if (s[i] == stack[top][0]) {
+				if (stack[top][1] == k -1) {
+					top--;
 				} else {
-						struct astack_load numLoad;
-						numLoad.utype.times = 1;
-						astack_push(numstack, numLoad);
-
-						struct astack_load strLoad;
-						strLoad.utype.str = s[i];
-						astack_push(strstack,strLoad);
+					stack[top][1]++;
 				}
+			} else {
+				stack[++top][0] = s[i];
+				stack[top][1] = 1;
+			}
 		}
+		i++;
 	}
 
-	char *out = (char *)calloc(sLen, sizeof(char));
-	int outCnt = 0;
-	for (int i = 0; i < astack_size(strstack); i++) {
-
-		for(int j = 0; j < numstack->load[i].utype.times; j++){
-			out[outCnt++] = strstack->load[i].utype.str;
-		}
+	char *res = (char *)calloc(slen + 1, sizeof(char));
+	int resCnt = 0;
+	for (int i = 0; i <= top; i++) {
+		for (int j = 0; j < stack[i][1]; j++)
+			res[resCnt++] = stack[i][0];
 	}
 
-	return out;
+	return res;
 }
 
 /*
+946. 验证栈序列
 给定 pushed 和 popped 两个序列，每个序列中的 值都不重复，
 只有当它们可能是在最初空栈上进行的推入 push 和弹出
 pop 操作序列的结果时，返回 true；否则，返回 false 。
@@ -385,17 +365,9 @@ push(5), pop() -> 5, pop() -> 3, pop() -> 2, pop() -> 1
 解释：1 不能在 2 之前弹出。
 */
 /*
-方法一： 贪心
-思路
-所有的元素一定是按顺序 push 进去的，重要的是怎么 pop 出来？
-假设当前栈顶元素值为 2，同时对应的 popped 序列中下一个要
-pop 的值也为 2，那就必须立刻把这个值 pop 出来。因为之后的
-push 都会让栈顶元素变成不同于 2 的其他值，这样再 pop 出来
-的数 popped 序列就不对应了。
-算法
-将 pushed 队列中的每个数都 push 到栈中，同时检查这个数是不
-是 popped 序列中下一个要 pop 的值，如果是就把它 pop 出来。
-最后，检查不是所有的该 pop 出来的值都是 pop 出来了。
+入栈
+栈顶等于popped 则出栈
+判断是否栈空
 */
 bool validateStackSequences(int* pushed, int pushedSize,
 	int* popped, int poppedSize)
@@ -404,60 +376,25 @@ bool validateStackSequences(int* pushed, int pushedSize,
 		return false;
 	}
 
-	struct astack *stack = astack_init(pushedSize);
-	int j = 0;
-	for (int i = 0; i < pushedSize; i++) {
-		struct astack_load load;
-		load.data = pushed[i];
-		astack_push(stack, load);
-
-		while(!astack_empty(stack) && j < pushedSize) {
-			struct astack_load load = astack_top(stack);
-			if (load.data == popped[j]) {
-				astack_pop(stack);
-				j++;
-			} else {
-				break;
-			}
-		}
-	}
-
-	return j == pushedSize;
-}
-/*
-解法一：
-使用数组来实现栈的作用，模拟栈的出栈入栈操作。
-size表示栈的大小，size-1就是栈顶的位置了。
-
-注意：用数组来实现栈，虽然存取更快，但多数情况下其
-实不推荐。特别是数组pushed可能特别大的时候，那作为栈
-的数组stack也会特别大。但实际上同时存在栈中的元素往
-往不是特别多，这就存在很大的浪费了。
-*/
-bool validateStackSequences(int* pushed, int pushedSize,
-	int* popped, int poppedSize)
-{
-	if (pushed == NULL || popped == NULL) {
+	if (pushedSize == 0 && poppedSize == 0)
+		return true;
+	else if(pushedSize != poppedSize)
 		return false;
-	}
-
-    if (pushedSize == 0 && poppedSize == 0)
-        return true;
-    else if(pushedSize != poppedSize)
-        return false;
 
 	int stack[pushedSize];
+	int top = -1;
 
-	int size = 0;
 	for (int i = 0, j = 0; i < pushedSize; i++) {
-		stack[size++] = pushed[i];
-		while(size != 0 && stack[size -1] == popped[j]) {
-			size--;j++;
+		stack[++top] = pushed[i];
+		while(top >= 0 && stack[top] == popped[j]) {
+			top--;
+			j++;
 		}
 	}
 
-	return size ==0;
+	return top == -1;
 }
+
 
 /*  递减栈
 739. 每日温度
@@ -471,6 +408,7 @@ temperatures = [73, 74, 75, 71, 69, 72, 76, 73]，
 提示：气温 列表长度的范围是 [1, 30000]。每个气温的值的均
 为华氏度，都是在 [30, 100] 范围内的整数。
 */
+
 /*
 遍历整个数组，如果栈不空，且当前数字大于栈顶元素，
 那么如果直接入栈的话就不是 递减栈 ，
@@ -484,33 +422,43 @@ temperatures = [73, 74, 75, 71, 69, 72, 76, 73]，
 */
 int* dailyTemperatures(int* T, int TSize, int* returnSize)
 {
-	int *ret = (int *)calloc(TSize, sizeof(int));
-	struct List list;
-	stack_init(&list);
-	for(int i = 0; i < TSize; i++) {
-		while(!stack_empty(&list)) {
-			struct DataEntry *entry = stack_entry_top(&list);
-			if (T[i] > T[entry->key])  {
-				stack_pop(&list);
-				ret[entry->key] = i - entry->key;
-			} else {
-				break;
-			}
-		}
-		stack_key_push(&list, i);
+	*returnSize = TSize;
+	if (T == NULL || TSize <= 0) {
+		return T;
 	}
 
-	*returnSize = TSize;
-	return ret;
+	int stack[TSize][2];//0--value ; 1---idx
+	int top = -1;
+
+	int *res = (int *)calloc(TSize, sizeof(int));
+
+	for (int i = 0; i < TSize; i++) {
+		if (top < 0 || T[i] <= stack[top][0]) {
+			stack[++top][0] = T[i];
+			stack[top][1] = i;
+			continue;
+		}
+
+		while(top >= 0 && T[i] > stack[top][0]) {
+			int idx = stack[top--][1];
+			res[idx] = i - idx;
+		}
+
+		stack[++top][0] = T[i];
+		stack[top][1] = i;
+	}
+
+	return res;
 }
 
-/*单调栈
+/*
 496. 下一个更大元素 I
 难度简单186
 给定两个没有重复元素的数组 nums1 和 nums2 ，其中nums1 是
-nums2 的子集。找到 nums1 中每个元素在 nums2 中的下一个比其大的值。
-nums1 中数字 x 的下一个更大元素是指 x 在 nums2 中对应位置
-的右边的第一个比 x 大的元素。如果不存在，对应位置输出-1。
+nums2 的子集。找到 nums1 中每个元素在 nums2 中的下一个比其大
+的值。nums1 中数字 x 的下一个更大元素是指 x 在 nums2 中对应位
+置的右边的第一个比 x 大的元素。如果不存在，对应位置输
+出-1。
 示例 1:
 输入: nums1 = [4,1,2], nums2 = [1,3,4,2].
 输出: [-1,3,-1]
@@ -523,43 +471,37 @@ nums1 中数字 x 的下一个更大元素是指 x 在 nums2 中对应位置
     因此输出 -1。
 注意:
 1.	nums1和nums2中所有元素是唯一的。
-
 */
 /**
  * Note: The returned array must be malloced, assume caller calls free().
  */
-int* nextGreaterElement(
-int* nums1, int nums1Size, int* nums2, int nums2Size, int* returnSize)
+int* nextGreaterElement(int* nums1, int nums1Size,
+int* nums2, int nums2Size, int* returnSize)
 {
 	if (nums1Size == 0 || nums2Size == 0) {
 		*returnSize = 0;
 		return NULL;
 	}
 
-	int nextBig[nums2Size];
-	memset(nextBig, -1, sizeof(nextBig));
+	int nums2NextBig[nums2Size];//对nums2 建立一下个更大元素
+	memset(nums2NextBig, -1, sizeof(nums2NextBig));
 
-	struct List list;
-	stack_init(&list);
+	int stack[nums2Size];//idx
+	int top = -1;
 	for(int i = 0; i < nums2Size; i++) {
-		while (!stack_empty(&list) ) {
-			struct DataEntry *top =  stack_top_entry(&list);
-			if (nums2[i] > nums2[top->key]) {
-				stack_pop(&list);
-				nextBig[top->key] = nums2[i];
-			}else {
-				break;
-			}
+		while (top >= 0 && nums2[i] > nums2[stack[top]]) {
+			nums2NextBig[stack[top]] = nums2[i];
+			top--;
 		}
 
-		stack_push_key(&list, i);
+		stack[++top] = i;
 	}
 
 	int *ret = calloc(nums1Size, sizeof(int));
 	for(int i = 0; i < nums1Size; i++) {
 		for (int j = 0; j < nums2Size; j++) {
 			if (nums1[i] == nums2[j]) {
-				ret[i] = nextBig[j];
+				ret[i] = nums2NextBig[j];
 			}
 		}
 	}
@@ -570,10 +512,11 @@ int* nums1, int nums1Size, int* nums2, int nums2Size, int* returnSize)
 
 /*
 503. 下一个更大元素 II
-给定一个循环数组（最后一个元素的下一个元素是数组的第一
-个元素），输出每个元素的下一个更大元素。数字 x 的下一个
-更大的元素是按数组遍历顺序，这个数字之后的第一个比它
-更大的数，这意味着你应该循环地搜索它的下一个更大的数。
+给定一个循环数组（最后一个元素的下一个元素
+是数组的第一个元素），输出每个元素的下一个更大元素。
+数字 x 的下一个更大的元素是按数组遍历顺序，
+这个数字之后的第一个比它更大的数，这意味着你应该
+循环地搜索它的下一个更大的数。
 如果不存在，则输出 -1。
 示例 1:
 输入: [1,2,1]
@@ -582,36 +525,38 @@ int* nums1, int nums1Size, int* nums2, int nums2Size, int* returnSize)
 数字 2 找不到下一个更大的数；
 第二个 1 的下一个最大的数需要循环搜索，结果也是 2。
 */
-/**
- * Note: The returned array must be malloced, assume caller calls free().
- */
 int* nextGreaterElements(int* nums, int numsSize, int* returnSize)
 {
-	struct astack *stack = astack_init(2 * numsSize);
+	if (nums == NULL || numsSize <= 0) {
+		*returnSize = 0;
+		return NULL;
+	}
+
 	int *res = (int *)calloc(numsSize, sizeof(int));
 	memset(res, -1, sizeof(int) * numsSize);
 
-	for (int i = 0; i < 2 * numsSize - 1; i++) {
+	int stack[2 * numsSize];//idx
+	int top = -1;
+
+	for (int i = 0; i < 2 * numsSize; i++) {
 		int idx = i % numsSize;
-		while(!astack_empty(stack) && nums[astack_top_key(stack)] < nums[idx]) {
-			struct astack_load pop = astack_pop(stack);
-			res[pop.key] =  nums[idx];
+		while(top >= 0 && nums[stack[top]] < nums[idx]) {
+			res[stack[top--]] = nums[idx];
 		}
 
-		struct astack_load load;
-		load.key = idx;
-		astack_push(stack, load);
+		stack[++top] = idx;
 	}
 
 	*returnSize = numsSize;
-	astack_exit(stack);
 	return res;
 }
+
 
 /*
 1081. 不同字符的最小子序列
 难度中等33
-返回字符串 text 中按字典序排列最小的子序列，该子序列包含 text 中所有不同字符一次。
+返回字符串 text 中按字典序排列最小的子序列，该子序列包
+含 text 中所有不同字符一次。
 
 示例 1：
 输入："cdadabcc"
@@ -619,120 +564,57 @@ int* nextGreaterElements(int* nums, int numsSize, int* returnSize)
 示例 2：
 输入："abcd"
 输出："abcd"
-
 */
 char * smallestSubsequence(char * text)
 {
-	if (strlen(text) <= 1 || text == NULL)
+	// 处理特殊情况
+	if (text == NULL || strlen(text) == 0) {
+		return "";
+	}
+
+	if (strlen(text) == 1) {
 		return text;
+	}
 
 	int slen = strlen(text);
 	int mask[26];
 	memset(mask, 0, sizeof(mask));
-	struct List dlist;
-	struct List *list = &dlist;
-	stack_init(list);
 
 	for (int i = 0; i < slen; i++) {
 		mask[text[i] - 'a']++;
 	}
 
+	char *stack = (char *)calloc(slen * 2, sizeof(char));
+	int top = -1;
+
 	for (int i = 0; i < slen; i++) {
-		if (isInList(list, text[i])) {
-            mask[text[i] - 'a']--;
-            continue;
-        }
-
-		while(!stack_empty(list)) {
-			struct DataEntry *top = stack_top_entry(list);
-			if (mask[top->key - 'a'] <= 1) {
-				break;
-			}
-
-			if (text[i] > top->key) {
-				break;
-			}
-
-			struct DataEntry *pop = stack_pop_entry(list);
-			mask[top->key - 'a']--;
-		}
-
-		stack_push_key(list, text[i]);
-	}
-
-	char *res = (char *)calloc(slen + 1, sizeof(char));
-	int resCnt = 0;
-	struct Node *node = NULL;
-	LIST_FOR_EACH(node, list) {
-		struct DataEntry *entry = NODE_ENTRY(node, struct DataEntry, node);
-		res[resCnt++] = entry->key;
-	}
-
-	return res;
-}
-
-
-
-#include <string.h>
-#include <stdlib.h>
-
-char * smallestSubsequence(char * text)
-{
-    // 处理特殊情况
-    if (text == NULL || strlen(text) == 0) {
-        return "";
-    }
-
-    if (strlen(text) == 1) {
-        return text;
-    }
-
-    int len = strlen(text);
-
-    // 统计字母频次
-    int record[26] = {0};
-    int i;       // text的指针
-    for (i = 0; i < len; i++) {
-        record[text[i] - 'a']++;
-    }
-
-    // 申请数组
-    char* stack = (char*)malloc(len * 2 * sizeof(char));
-    memset(stack, 0, len * 2 * sizeof(char));
-    int top = -1;   // 栈顶
-
-    // 遍历text
-    for (i = 0; i < len; i++) {
-        int isExist = 0;    // 当前字符text[i]是否存在于stack的标志，0表示不存在，1表示存在
-        int j;   // stack的指针
-        for (j = 0; j <= top; j++) {
-            if (stack[j] == text[i]) {  // 相等
-                isExist = 1;
-                break;
-            }
-        }
-
-        // 如果当前字符存在于stack中，跳过，对应频次减一，遍历下一个字符
-        // 如果当前字符不存在于stack中，则跳过所有比它大(此时不可能相等)、后面还会出现的栈顶元素，然后入栈，遍历下一个字符
-
-        if (isExist == 1) {
-            record[text[i] - 'a']--;
-        } else {
-            while (top > -1 && stack[top] > text[i] && record[stack[top] - 'a'] > 1) {
-                record[stack[top] - 'a']--;   // 跳过要求频次减一，栈顶下移一位
+	/*
+		如果当前字符存在于stack中，跳过，对应频次减一，
+		遍历下一个字符
+	*/
+		if (isInQueue(stack, top, text[i])) {
+			mask[text[i] - 'a']--;
+			continue;
+        	}
+/*
+	如果当前字符不存在于stack中，
+	则跳过所有比它大(此时不可能相等)、
+	后面还会出现的栈顶元素，然后入栈，
+	遍历下一个字符
+*/
+            while (top > -1 && stack[top] > text[i] && mask[stack[top] - 'a'] > 1) {
+                mask[stack[top] - 'a']--;   // 跳过要求频次减一，栈顶下移一位
                 top--;
             }
 
-            // 当结束while循环时，要么top==-1,要么stack[top]<text[i],要么record[stack[top] - 'a'] == 1
-            // 此时top要上移1位，然后将text[i]插入到栈顶
-            top++;
-            stack[top] = text[i];
-        }
-    }
+		stack[++top] = text[i];
+	}
 
-    // 添加结束符
-    stack[++top] = '\0';
-
-    return stack;
+	return stack;
 }
+
+
+
+
+
 
