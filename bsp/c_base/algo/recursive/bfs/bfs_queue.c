@@ -1,43 +1,32 @@
 /*
 
-BFS 求最短路径
+BFS
 
-BFS模板
 
-创建队列
+while queue 非空:
+	node = queue.pop()
+    for node 的所有相邻结点 m:
+        if m 未访问过:
+            queue.push(m)
 
-在队列中加入第一个满足条件的元素
 
-while(队列不为空) {
-    取出队列头部元素
-    操作
-    根据头部元素，往队列中再次加入满足条件的元素
-}
+求最短路径!!!!!!
+
+depth = 0 # 记录遍历到第几层
+while queue 非空:
+    depth++
+    n = queue 中的元素个数
+    循环 n 次:
+        node = queue.pop()
+        for node 的所有相邻结点 m:
+            if m 未访问过:
+                queue.push(m)
 
 */
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
-#include <stdbool.h>
-#include <ctype.h>
 
 
 /*
-[
-[2,1,1],
-[1,1,0],
-[0,1,1]
-]
-*/
-
-struct queue_load{
-	int num;
-	int deep;
-};
-
-
-/*
+994. 腐烂的橘子
 在给定的网格中，每个单元格可以有以下三个值之一：
 
 值 0 代表空单元格；
@@ -50,142 +39,80 @@ struct queue_load{
 方法：广度优先搜索
 思路
 
-每一轮，腐烂将会从每一个烂橘子蔓延到与其相邻的新鲜橘子上。一开始，腐烂的橘子的深度为 0，每一轮腐烂会从腐烂橘子传染到之相邻新鲜橘子上，并且设置这些新的腐烂橘子的深度为自己深度 +1，我们想知道完成这个过程之后的最大深度值是多少。
+每一轮，腐烂将会从每一个烂橘子蔓延到与其相邻的新鲜橘子
+上。一开始，腐烂的橘子的深度为 0，
+每一轮腐烂会从腐烂橘子传染到之相邻新鲜橘子上，
+并且设置这些新的腐烂橘子的深度为自己深度 +1，
+我们想知道完成这个过程之后的最大深度值是多少。
 
 算法
 
-我们可以用一个广度优先搜索来建模这一过程。因为我们总是选择去使用深度值最小的（且之前未使用过的）腐烂橘子去腐化新鲜橘子，如此保证每一个橘子腐烂时的深度标号也是最小的。
+我们可以用一个广度优先搜索来建模这一过程。
+因为我们总是选择去使用深度值最小的（且之前未使用过的）
+腐烂橘子去腐化新鲜橘子，
+如此保证每一个橘子腐烂时的深度标号也是最小的。
 
 我们还应该检查最终状态下，是否还有新鲜橘子。
 
 */
-int orangesRotting(int** grid, int gridSize, int* gridColSize){
-		int ans = 0;
-		int dr[] = { -1,0,1,0 };
-		int dc[] = { 0,-1,0,1 };
-		int row = gridSize, col = gridColSize[0];
-
-		struct queue_blk *queue = create_array_queue(row*col);
-
-		for(int r=0;r<row;r++)
-			for(int c=0;c<col;c++)
-				if (grid[r][c] == 2){
-					struct queue_load load;
-					load.deep = 0;
-					load.num = r*col + c;
-					push(queue,load);
-				}
-
-		while (!is_empty(queue)) {
-			struct queue_load curr = pop(queue);
-			int r = curr.num / col, c = curr.num % col;
-			for (int k = 0; k < 4; k++) {
-				int nr = r + dr[k];
-				int nc = c + dc[k];
-				if (0 <= nr && nr < row && 0 <= nc && nc < col && grid[nr][nc] == 1) {
-					grid[nr][nc] = 2;
-					struct queue_load load;
-					load.num = nr * col + nc;
-					load.deep = curr.deep + 1;
-					push(queue,load);
-					ans = curr.deep + 1;
-				}
-			}
-		}
-
-		for(int r=0;r<row;r++)
-			for(int c=0;c<col;c++)
-				if (grid[r][c] == 1){
-					return -1;
-				}
-
-		return ans;
-}
-
-
-void enque(int queue[][2], int* rear, int item[2])
-{
-    queue[*rear][0] = item[0];
-    queue[*rear][1] = item[1];
-    (*rear)++;
-}
-
-void deque(int queue[][2], int* head, int item[2])
-{
-    item[0] = queue[*head][0];
-    item[1] = queue[*head][1];
-    (*head)++;
-}
-
-bool empty(int queue[][2], int head, int rear)
-{
-    if (head == rear) {
-        return true;
-    }
-
-    return false;
-}
-
 int orangesRotting(int** grid, int gridSize, int* gridColSize)
 {
     if (grid == NULL || gridSize == 0 || gridColSize == NULL || gridColSize[0] == 0) {
         return 0;
     }
 
-    int row = gridSize;
-    int col = gridColSize[0];
+	int row = gridSize;
+	int col = gridColSize[0];
 
-    int queue[row * col][2];
-    int head = 0, rear = 0;
-
-    int step[4][2] = { {0, 1}, {0, -1}, {1, 0}, {-1, 0} };
+	int queue[row * col];
+	int head = 0;
+	int rear = 0;
 
     // bfs
-    int cnt = 0;
-    for (int i = 0; i < gridSize; i++) {
-        for (int j = 0; j < gridColSize[0]; j++) {
+    int count = 0;// count 表示新鲜橘子的数量
+    for (int i = 0; i < row; i++) {
+        for (int j = 0; j < col; j++) {
             if (grid[i][j] == 2) {
-                int push[2];
-                push[0] = i;
-                push[1] = j;
-                enque(queue, &rear, push);
+		 queue[rear++] = i * col + j;//烂橘子入队列
             } else if (grid[i][j] == 1) {
-                cnt++;
+                count++;
             }
         }
     }
 
-    int ans = 0;
-    while (!empty(queue, head, rear))
-    {
-        int pop[2];
-        deque(queue, &head, pop);
-        for (int dir = 0; dir < 4; dir++) {
-            int dx = pop[0] + step[dir][0];
-            int dy = pop[1] + step[dir][1];
-            if (dx < 0 || dx >= row) {
-                continue;
-            }
-            if (dy < 0 || dy >= col) {
-                continue;
-            }
-            if (grid[dx][dy] != 1) {
-                continue;
-            }
-            printf("gird[%d][%d]=%d ", pop[0], pop[1], grid[pop[0]][pop[1]]);
-            grid[dx][dy] = grid[pop[0]][pop[1]] + 1;
-            cnt--;
-            int push[2];
-            push[0] = dx;
-            push[1] = dy;
-            enque(queue, &rear, push);
-            ans = grid[dx][dy] - 2;
-            printf("gird[%d][%d]=%d cnt=%d ans=%d \n", dx, dy, grid[dx][dy], cnt, ans);
-        }
+    int deep = 0;// round 表示腐烂的轮数，或者分钟数
+    while (count > 0 && head != rear) {
+	deep++;
+	int floorSize = rear - head;
+
+	for (int i = 0; i < floorSize; i++) {
+		int pop = queue[head++];// 一定是烂橘子
+		int pop_x = pop / col;
+		int pop_y = pop % col;
+
+		int dir[4][2] = { {0, 1}, {0, -1}, {1, 0}, {-1, 0} };
+	        for (int k = 0; k < 4; k++) {
+	            int dx = pop_x + dir[k][0];
+	            int dy = pop_y + dir[k][1];
+	            if (dx < 0 || dx >= row || dy < 0 || dy >= col) {
+	                continue;
+	            }
+
+	            if (grid[dx][dy] != 1) {
+	                continue;
+	            }
+
+			grid[dx][dy] = 2;
+			count--;
+			queue[rear++] = dx * col + dy;//烂橘子入队列
+	        }
+	}
     }
 
-    return (cnt == 0) ? ans: -1;
+    return (count > 0) ? -1: deep;
 }
+
+
 
 
 struct queue_load{
@@ -1050,3 +977,73 @@ void dfs(struct TreeNode* node, int K, int dis, int* res)
         dfs(parent_array[node->val], K, dis + 1, res);
     }
 }
+
+/*
+1102. 得分最高的路径
+难度中等33
+给你一个 R 行 C 列的整数矩阵 A。矩阵上的路径从 [0,0] 开始，在 [R-1,C-1] 结束。
+路径沿四个基本方向（上、下、左、右）展开，从一个已访问单元格移动到任一相邻的未访问单元格。
+路径的得分是该路径上的 最小 值。例如，路径 8 →  4 →  5 →  9 的值为 4 。
+找出所有路径中得分 最高 的那条路径，返回其 得分。
+
+示例 1：
+
+输入：[[5,4,5],[1,2,6],[7,4,6]]
+输出：4
+解释：
+得分最高的路径用黄色突出显示。
+
+*/
+
+/*
+不能直接每次取路径中的最大值当做下一条路径，需要利用优先队列，把当前所有能走的路，按分值从大到小排好序，不能做剪枝，否则可能会无解；每次都走当前路径中的最大值，则最后走到终点时，自然就是所有路径中分值的最大值，返回结果即可；每次取出当前点的时候，要计算一下当前的结果，更新最大分数。作者：goodgoodstudy-5链接：https://leetcode-cn.com/problems/path-with-maximum-minimum-value/solution/li-yong-you-xian-dui-lie-bfsqiu-lu-jing-zhong-de-z/来源：力扣（LeetCode）著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+*/
+int maximumMinimumPath(int** A, int ASize, int* AColSize)
+{
+	int row = ASize;
+	int col = AColSize[0];
+
+	struct HeapSort *hp = heapsort_init(col * row, PRIORITY_QUEUE_MAX);
+	int visited[row][col];
+	memset(visited, 0, sizeof(visited));
+
+	struct heapEntry node;
+	node.key = A[0][0];
+	node.x = 0;
+	node.y = 0;
+	heapsort_push(hp, node);
+	visited[0][0] = 1;
+
+	int d[4][2] = { { 0, 1 }, { 1, 0 }, { -1, 0 }, { 0, -1 } };
+	int res = INT_MAX;
+	while(!heapsort_empty(hp)) {
+		struct heapEntry pop = heapsort_pop(hp);
+		res = fmin(res, pop.key);
+		if (pop.x == row -1 && pop.y == col - 1) {
+			return res;
+		}
+
+		for (int i = 0; i < 4; i++) {
+			int x = pop.x + d[i][0];
+			int y = pop.y + d[i][1];
+
+			if (x < 0 || x >= row || y < 0 || y >= col) {
+				continue;
+			}
+
+			if (visited[x][y] == 1) {
+				continue;
+			}
+
+			struct heapEntry node;
+			node.key = A[x][y];
+			node.x = x;
+			node.y = y;
+			heapsort_push(hp, node);
+			visited[x][y] = 1;
+		}
+	}
+
+	return res;
+}
+

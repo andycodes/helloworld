@@ -1,10 +1,11 @@
 
 #define MAX 100
 ////////////////////////////////////
-int head = 0;
-int rear = 0;
+struct QUEUE
 int queue[MAX];     // 辅组队列
 int visited[MAX];   // 顶点访问标记
+int head = 0;
+int rear = 0;
 //memset(visited, 0, sizeof(visited));
 
  // 入队列(rear 指向队尾没有数据的地方)

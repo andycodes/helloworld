@@ -1,6 +1,36 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
+/*
+/*
+[lb, ub]
+int lb = 0, ub = size;
+while (ub - lb > 1) {
+	int mid = (lb + ub) / 2;
+	if (check mid) {//根据nums[mid]来判断搜索左半部分还是右半部分
+		lb = mid;
+	} else {
+		ub = mid;
+	}
+}
+
+return nums[lb] >= target ? lb : ub;
+
+二维
+
+int lb = 0; ub = row * col;
+
+while (ub - lb > 1) {
+	int mid = (lb + ub) / 2;
+	int i = mid / width;
+	int j = mid % width;
+	if (matrix[i][j] <= target) {//根据nums[mid]来判断搜索左半部分还是右半部分
+		lb = mid;
+	} else {
+		ub = mid;
+	}
+}
+
+return matrix[lb / width][lb % width] == target;
+*/
+*/
 
 /** 数组元素的类型*/
 typedef int elem_t;
@@ -301,4 +331,288 @@ bool searchMatrix(int** matrix, int matrixRowSize, int matrixColSize, int target
 
 }
 
+/*
+1198. 找出所有行中最小公共元素
+难度中等8
+给你一个矩阵 mat，其中每一行的元素都已经按 递增 顺序排好了。请你帮忙找出在所有这些行中 最小的公共元素。
+如果矩阵中没有这样的公共元素，就请返回 -1。
 
+示例：
+输入：mat = [[1,2,3,4,5],[2,4,5,8,10],[3,5,7,9,11],[1,3,5,7,9]]
+输出：5
+
+*/
+int smallestCommonElement(int** mat, int matSize, int* matColSize)
+{
+	int map[10001];
+
+	memset(map, 0, sizeof(map));
+	for (int i = 0; i < matSize; i++) {
+		for (int j = 0; j < matColSize[i]; j++) {
+			map[mat[i][j]]++;
+		}
+	}
+
+	for (int i = 0; i < 10001; i++) {
+		if (map[i] == matSize)
+			return i;
+	}
+
+	return -1;
+}
+
+int smallestCommonElement(int** mat, int matSize, int* matColSize)
+{
+	int map[10001];
+
+	memset(map, 0, sizeof(map));
+
+	int row = matSize;
+	int col = matColSize[0];
+	for (int j = 0; j < col; j++) {
+		for (int i = 0; i < row; i++) {
+			if (++map[mat[i][j]] == row) {
+				return mat[i][j];
+			}
+		}
+	}
+
+	return -1;
+}
+
+int cmp_int ( const void *a , const void *b)
+{
+        return *(int *)a - *(int *)b;
+}
+
+int smallestCommonElement(int** mat, int matSize, int* matColSize)
+{
+	int map[10001];
+
+	memset(map, 0, sizeof(map));
+
+	int fd;
+	int row = matSize;
+	int col = matColSize[0];
+	int *find_num = NULL;
+
+	for (int j = 0; j < col; j++) {
+		for (int i = 1; i < row; i++) {
+			find_num = bsearch(&mat[0][j], mat[i], col, sizeof(int), cmp_int);
+			if (find_num == NULL) {
+				break;
+			}
+		}
+
+		if (find_num != NULL)
+			return mat[0][j];
+	}
+
+	return -1;
+}
+
+/*
+702. 搜索长度未知的有序数组
+难度中等11
+给定一个升序整数数组，写一个函数搜索 nums 中数字 target。如果 target 存在，返回它的下标，否则返回 -1。注意，这个数组的大小是未知的。你只可以通过 ArrayReader 接口访问这个数组，ArrayReader.get(k) 返回数组中第 k 个元素（下标从 0 开始）。
+你可以认为数组中所有的整数都小于 10000。如果你访问数组越界，ArrayReader.get 会返回 2147483647。
+
+样例 1：
+输入: array = [-1,0,3,5,9,12], target = 9
+输出: 4
+解释: 9 存在在 nums 中，下标为 4
+
+*/
+int search(struct ArrayReader* reader, int target) {
+	if (getElement(reader, 0) == target)
+		return 0;
+
+    // search boundaries
+    int left = 0, right = 1;
+    while (getElement(reader, right) < target) {
+      left = right;
+      right <<= 1;
+    }
+
+    // binary search
+    int pivot, num;
+    while (left <= right) {
+      pivot = left + ((right - left) >> 1);
+      num = getElement(reader, pivot);
+
+      if (num == target) return pivot;
+      if (num > target) right = pivot - 1;
+      else left = pivot + 1;
+    }
+
+    // there is no target element
+    return -1;
+}
+
+#include <stdlib.h>
+#include <stdio.h>
+#include <limits.h>
+
+/**
+ * *********************************************************************
+ * // This is the ArrayReader's API interface.
+ * // You should not implement it, or speculate about its implementation
+ * *********************************************************************
+ *
+ * int getElement(ArrayReader *, int index);
+ */
+
+#define MAX_LEN     10000
+
+//【算法思路】二分。超范围情况下的二分模型，需要判断ll和ll-1
+int search(struct ArrayReader* reader, int target) {
+    int ll = 0, rr = 10000;
+
+    while(ll < rr) {
+        int mid = (ll + rr) / 2;
+
+        int tmp = getElement(reader, mid);
+
+        if(tmp == INT_MAX) {
+            rr = mid;
+
+            continue;
+        }
+
+        if(tmp > target) {
+            rr = mid;
+        } else {
+            ll = mid + 1;
+        }
+    }
+
+    int ret = getElement(reader, ll) == target? ll : (getElement(reader, ll - 1) == target? ll - 1 : -1);
+
+    return ret;
+}
+
+/*
+153. 寻找旋转排序数组中的最小值
+难度中等208
+假设按照升序排序的数组在预先未知的某个点上进行了旋转。
+( 例如，数组 [0,1,2,4,5,6,7] 可能变为 [4,5,6,7,0,1,2] )。
+请找出其中最小的元素。
+你可以假设数组中不存在重复元素。
+示例 1:
+输入: [3,4,5,1,2]
+输出: 1
+
+*/
+int findMin(int* nums, int numsSize)
+{
+	int min = INT_MAX;
+
+	for (int i = 0; i < numsSize; i++) {
+		min = fmin(nums[i], min);
+	}
+
+	return min;
+}
+
+int findMin(int* nums, int numsSize){
+    int left=0;
+    int right=numsSize-1;
+    while(right>left)
+    {
+        int mid=left+(right-left)/2;
+        if(nums[mid]>nums[right])
+            left=mid+1;
+        else
+            right=mid;
+    }
+    return nums[left];
+}
+
+/*
+300. 最长上升子序列
+难度中等812
+给定一个无序的整数数组，找到其中最长上升子序列的长度。
+示例:
+输入: [10,9,2,5,3,7,101,18]
+输出: 4
+解释: 最长的上升子序列是 [2,3,7,101]，它的长度是 4。
+说明:
+"	可能会有多种最长上升子序列的组合，你只需要输出对应的长度即可。
+"	你算法的时间复杂度应该为 O(n2) 。
+进阶:
+
+*/
+
+int lengthOfLIS(int* nums, int numsSize)
+{
+	if (nums == NULL || numsSize <= 0) {
+		return 0;
+	}
+
+	int dp[numsSize];
+	dp[0] = 1;
+
+	int max = 1;
+
+        for (int i = 0; i < numsSize; ++i) {
+            dp[i] = 1;
+            for (int j = 0; j < i; ++j) {
+                if (nums[j] < nums[i]) {
+                    dp[i] = fmax(dp[i], dp[j] + 1);
+                }
+            }
+		max = fmax(max, dp[i]);
+        }
+
+	return max;
+}
+
+int lengthOfLIS(int* nums, int numsSize){
+    if(numsSize==0)
+    return 0;
+    int stack[numsSize],i=0,top=0,j;
+    stack[top++]=nums[0];
+    for(i=1;i<numsSize;i++)
+        {
+            if(nums[i]>stack[top-1])//大于栈顶元素，入栈
+            stack[top++]=nums[i];
+            else
+            {//小于栈顶元素
+                for(j=0;j<top;j++)
+                if(nums[i]<=stack[j])
+                {
+                    stack[j]=nums[i];
+                    break;
+                }
+            }
+        }
+    return top;
+}
+
+int lengthOfLIS(int* nums, int numsSize){
+    if(numsSize==0)
+    return 0;
+    int stack[numsSize],i=0,top=0,j;
+    int low,high,mid;
+    stack[top++]=nums[0];
+    for(i=1;i<numsSize;i++)
+        {
+            if(nums[i]>stack[top-1])//大于栈顶元素，入栈
+            stack[top++]=nums[i];
+            else
+            {//小于栈顶元素
+                low=0;
+                high=top-1;
+                while(high>=low)
+                {
+                    mid=(low+high)/2;
+                    if(stack[mid]>=nums[i])
+                    high=mid-1;
+                    else
+                    low=mid+1;
+                }
+                stack[high+1]=nums[i];
+            }
+        }
+    return top;
+}

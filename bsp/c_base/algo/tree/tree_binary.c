@@ -1588,3 +1588,86 @@ struct TreeNode** delNodes(struct TreeNode* root, int* to_delete, int to_deleteS
     return res;
 }
 
+/*
+199. 二叉树的右视图
+难度中等271
+给定一棵二叉树，想象自己站在它的右侧，按照从顶部到底部的顺序，返回从右侧所能看到的节点值。
+示例:
+输入: [1,2,3,null,5,null,4]
+输出: [1, 3, 4]
+解释:
+
+   1            <---
+ /   \
+2     3         <---
+ \     \
+  5     4       <---
+
+*/
+#define MAX 1024 * 1024
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int* rightSideView(struct TreeNode* root, int* returnSize)
+{
+	int *res = (int *)calloc(MAX, sizeof(int));
+	*returnSize = 0;
+
+	if (root == NULL)
+		return res;
+
+	struct TreeNode* queue[MAX];
+	int head = 0;
+	int rear = 0;
+
+	queue[rear++] = root;
+
+	while(head != rear) {
+		int floorSize = rear - head;
+		while(floorSize) {
+			struct TreeNode* pop = queue[head++];
+
+			if (floorSize == 1) {
+				res[*returnSize] = pop->val;
+				(*returnSize)++;
+			}
+
+			if (pop->left)
+				queue[rear++] = pop->left;
+
+			if (pop->right)
+				queue[rear++] = pop->right;
+
+			floorSize--;
+		}
+	}
+
+	return res;
+}
+
+#define MAX 1024 * 1024
+void dfs(struct TreeNode* root, int deep, int *res, int* returnSize)
+{
+	if (root == NULL)
+		return;
+
+	if (*returnSize == deep) {// 当数组长度等于当前 深度 时, 把当前的值加入数组
+		res[*returnSize] = root->val;
+		(*returnSize)++;
+	}
+
+	dfs(root->right, deep + 1, res, returnSize); // 先从右边开始, 当右边没了, 再轮到左边
+	dfs(root->left, deep + 1, res, returnSize);
+}
+
+int* rightSideView(struct TreeNode* root, int* returnSize)
+{
+	int *res = (int *)calloc(MAX, sizeof(int));
+	*returnSize = 0;
+
+	if (root == NULL)
+		return res;
+
+	dfs(root, 0, res, returnSize);
+	return res;
+}
