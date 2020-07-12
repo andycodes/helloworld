@@ -8,40 +8,33 @@ Q:
 1)	计算最后有多少个不相交的集合
 2)	需要多少条边可以成为连通图(即计算有多少个 parent[i] == i;)
 
-[root1][root1][sun3][sun4][root1]
 */
 #ifndef UNION_FIND_H
 #define UNION_FIND_H
-
+#define UF_MAX 1024
 struct UnionFind {
-	int *father;
-	int *rank;
+	int root[UF_MAX];
+	int rank[UF_MAX];
 };
 
-struct UnionFind* uf_init(int size)
+void uf_init(struct UnionFind *uf)
 {
-	struct UnionFind* obj = (struct UnionFind*)malloc(sizeof(struct UnionFind));
-	obj->father = (int *)calloc(size, sizeof(int));
-	obj->rank = (int *)calloc(size, sizeof(int));
-	for (int i = 0; i < size; ++i) {
-		obj->father[i] = i;//init root is self
-		obj->rank[i] = 0;
+	memset(uf, 0, sizeof(int) * UF_MAX);
+	for (int i = 0; i < UF_MAX; i++) {
+		uf->root[i] = i;
 	}
-
-	return obj;
 }
-
 
 /*find root of the node*/
 int uf_findRoot(struct UnionFind* obj, int x)
 {
-    if (x != obj->father[x]) {//x有father
-        obj->rank[obj->father[x]] += obj->rank[x];
-        obj->father[x] = uf_findRoot(obj, obj->father[x]);
+    if (x != obj->root[x]) {//x有root
+        obj->rank[obj->root[x]] += obj->rank[x];
+        obj->root[x] = uf_findRoot(obj, obj->root[x]);
     }
 
 /*最终找到祖宗为自己的家伙*/
-    return obj->father[x];
+    return obj->root[x];
 }
 
 
@@ -51,36 +44,37 @@ bool uf_isOneUnion(struct UnionFind* obj, int x, int y)
 	 return uf_findRoot(obj, x) == uf_findRoot(obj, y);
 }
 
-#if 0
+#if 1
+void uf_union(struct UnionFind* obj, int sun0, int sun1)
+{
+	int root0 = uf_findRoot(obj, sun0);
+	int root1 = uf_findRoot(obj, sun1);
+	if (root0 == root1)
+		return;
+
+	if (obj->rank[root0] > obj->rank[root1]) {
+		obj->root[root1] = root0;
+		obj->rank[root0] += obj->rank[root1];
+	} else {
+		if (obj->rank[root0] == obj->rank[root1]) {
+			obj->rank[root1]++;
+		}
+		obj->root[root0] = root1;
+	}
+}
+#else
 void uf_union(struct UnionFind* obj, int i, int j)
 {
     int x = uf_findRoot(obj, i), y = uf_findRoot(obj, j);
     if (obj->rank[x] <= obj->rank[y])
-        obj->father[x] = y;
+        obj->root[x] = y;
     else
-        obj->father[y] = x;
+        obj->root[y] = x;
 
     if (obj->rank[x] == obj->rank[y] && x!=y)
         obj->rank[y]++;
 }
-#else
-void uf_union(struct UnionFind* obj, int x, int y)
-{
-	x = uf_findRoot(obj, x);
-	y = uf_findRoot(obj, y);
-	if (x == y)
-		return;
-
-	if (obj->rank[x] > obj->rank[y]) {
-		obj->father[y] = x;
-		obj->rank[x] += obj->rank[y];
-	} else {
-		if (obj->rank[x] == obj->rank[y]) {
-			obj->rank[y]++;
-		}
-		obj->father[x] = y;
-	}
-}
 #endif
+
 #endif
 
