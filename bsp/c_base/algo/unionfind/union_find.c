@@ -1,14 +1,3 @@
-/*并查集（Disjoint set或者Union-find set）是一种树型
-它主要涉及两个基本操作，分别为：
-合并（Union）：把两个不相交的集合合并为一个集合。
-查询（Find）：查询两个元素是否在同一个集合中。
-(寻找两个元素的最久远祖先是否相同)
-
-Q:
-1)	计算最后有多少个不相交的集合
-2)	需要多少条边可以成为连通图(即计算有多少个 parent[i] == i;)
-
-*/
 #ifndef UNION_FIND_H
 #define UNION_FIND_H
 #define UF_MAX 1024
@@ -19,62 +8,52 @@ struct UnionFind {
 
 void uf_init(struct UnionFind *uf)
 {
-	memset(uf, 0, sizeof(int) * UF_MAX);
+	memset(uf->rank, 0, sizeof(int) * UF_MAX);
 	for (int i = 0; i < UF_MAX; i++) {
 		uf->root[i] = i;
 	}
 }
 
-/*find root of the node*/
-int uf_findRoot(struct UnionFind* obj, int x)
+int uf_findRoot(struct UnionFind* uf, int sun)
 {
-    if (x != obj->root[x]) {//x有root
-        obj->rank[obj->root[x]] += obj->rank[x];
-        obj->root[x] = uf_findRoot(obj, obj->root[x]);
-    }
+	if (sun == uf->root[sun]) {
+		return sun;
+	}
 
-/*最终找到祖宗为自己的家伙*/
-    return obj->root[x];
+        return uf->root[sun] = uf_findRoot(uf, uf->root[sun]);
 }
 
-
-/* if in one union*/
-bool uf_isOneUnion(struct UnionFind* obj, int x, int y)
+bool uf_isOneUnion(struct UnionFind* uf, int sun0, int sun1)
 {
-	 return uf_findRoot(obj, x) == uf_findRoot(obj, y);
+	 return uf_findRoot(uf, sun0) == uf_findRoot(uf, sun1);
 }
 
-#if 1
-void uf_union(struct UnionFind* obj, int sun0, int sun1)
+/*Rank[i]表示以 i 为根节点的集合的层数，即树的高度。*/
+/*
+对于两个集合来说，如果两个集合的层数不一样，
+我们只需要把层数小的集合的根元素的父亲节点指向另一个
+集合的根元素就好了，而且最后合并出来的集合的层数是不变的。
+合并后集合层数唯一会变的情况，就是两个集合的层数一模一样时。
+我们可以这样去理解，假设两个集合都只有一个元素，
+那么这两个集合的层数都为一层，层数相同时，
+此时谁的根节点的父亲节点指向另一个根节点都无所谓了，
+但是这样合并后的集合层数要比原来多了一层。
+（原来两个集合都为一层，合并后的集合就变成两层了）
+*/
+void uf_union(struct UnionFind* uf, int sun0, int sun1)
 {
-	int root0 = uf_findRoot(obj, sun0);
-	int root1 = uf_findRoot(obj, sun1);
+	int root0 = uf_findRoot(uf, sun0);
+	int root1 = uf_findRoot(uf, sun1);
 	if (root0 == root1)
 		return;
 
-	if (obj->rank[root0] > obj->rank[root1]) {
-		obj->root[root1] = root0;
-		obj->rank[root0] += obj->rank[root1];
+	if (uf->rank[root0] < uf->rank[root1]) {
+		uf->root[root0] = root1;
+	} else if (uf->rank[root0] > uf->rank[root1]) {
+		uf->root[root1] = root0;
 	} else {
-		if (obj->rank[root0] == obj->rank[root1]) {
-			obj->rank[root1]++;
-		}
-		obj->root[root0] = root1;
+		uf->root[root0] = root1;
+		uf->rank[root1]++;
 	}
 }
-#else
-void uf_union(struct UnionFind* obj, int i, int j)
-{
-    int x = uf_findRoot(obj, i), y = uf_findRoot(obj, j);
-    if (obj->rank[x] <= obj->rank[y])
-        obj->root[x] = y;
-    else
-        obj->root[y] = x;
-
-    if (obj->rank[x] == obj->rank[y] && x!=y)
-        obj->rank[y]++;
-}
 #endif
-
-#endif
-
