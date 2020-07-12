@@ -44,13 +44,16 @@ int* edgesColSize, int* returnSize){
 	int *res = (int *)calloc(2, sizeof(int));
 	*returnSize = 2;
 
-	uf_init(MAX);
+	struct UnionFind duf;
+	struct UnionFind *uf = &duf;
+
+	uf_init(uf);
 	for (int i = 0; i < edgesSize; i++) {
-		if (uf_isOneUnion(edges[i][0], edges[i][1])) {
+		if (uf_isOneUnion(uf, edges[i][0], edges[i][1])) {
 			res[0] = edges[i][0];
 			res[1] = edges[i][1];
 		} else {
-			uf_union(edges[i][0], edges[i][1]);
+			uf_union(uf, edges[i][0], edges[i][1]);
 		}
 	}
 
@@ -102,26 +105,27 @@ int makeConnected(int n, int** connections, int connectionsSize, int* connection
 	if (n <= 0 || connections == NULL || connectionsSize <= 0 || connectionsColSize == NULL)
 		return 0;
 
-	uf_init(n);
+	struct UnionFind duf;
+	struct UnionFind *uf = &duf;
+
+	uf_init(uf, n);
 
 	int cnt = 0;// 多余的线缆数量
 	int part = n;//连通分量
 	for (int i = 0; i < connectionsSize; i++) {
-		int x = connections[i][0];
-		int y = connections[i][1];
 		// 两个点已经连通，不需要这个线缆
-		if (uf_find(x) == uf_find(y)) {
+		if (uf_isOneUnion(uf, connections[i][0], connections[i][1])) {
 			cnt++;
 		}else {
-			uf_union(x, y);
+			uf_union(uf, connections[i][0], connections[i][1]);
 			part--;
 		}
 	}
 
 	if (connectionsSize < n -1)
 		return -1;
-
-	return part - 1;
+	part--;
+	return cnt >=  part? part : -1;
 }
 
 
