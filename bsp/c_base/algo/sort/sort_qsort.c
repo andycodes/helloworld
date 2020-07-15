@@ -113,47 +113,14 @@ void qsort_point_array(void)
 
 /*
 二、对char类型数组排序（同int类型）
-
-char word[100];
-Sample:
-int cmp( const void *a , const void *b){
-        return *(char *)a - *(char *)b;
-}
-qsort(word,100,sizeof(word[0]),cmp);
-
 */
 int cmp_char( const void *a , const void *b){
         return *(char *)a - *(char *)b;
 }
 
-void qsort_char_test(void)
-{
-	char word[100];
-	for(int i =0;i < 100;i++){
-		word[i] = 100 -i;
-	}
-	qsort(word,100,sizeof(word[0]),cmp_char);
-	for(int i =0;i < 100;i++){
-		printf("%d \n",word[i]);
-	}
-}
-
-
 /*三、对double类型数组排序（特别要注意）*/
 int cmp_double( const void *a , const void *b){
         return *(double *)a > *(double *)b ? 1 : -1;
-}
-
-void qsort_double_test(void)
-{
-	double num[100];
-	for(int i =0;i < 100;i++){
-		num[i] = 100.5 -i;
-	}
-	qsort(num,100,sizeof(num[0]),cmp_double);
-	for(int i =0;i < 100;i++){
-		printf("%f \n",num[i]);
-	}
 }
 
 

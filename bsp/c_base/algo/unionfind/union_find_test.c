@@ -641,3 +641,279 @@ int maximumMinimumPath(int** A, int ASize, int* AColSize){
     }
     return ans;
 }
+
+/*
+959. 由斜杠划分区域
+难度中等73
+在由 1 x 1 方格组成的 N x N 网格 grid 中，每个 1 x 1 方块由 /、\ 或空格构成。这些字符会将方块划分为一些共边的区域。
+（请注意，反斜杠字符是转义的，因此 \ 用 "\\" 表示。）。
+返回区域的数目。
+
+示例 1：
+输入：
+[
+  " /",
+  "/ "
+]
+输出：2
+解释：2x2 网格如下：
+
+*/
+struct UnionFind {
+	int *root;
+	int *rank;
+};
+
+int uf_findRoot(struct UnionFind* uf, int sun)
+{
+	if (sun == uf->root[sun])
+		return sun;
+
+	return uf->root[sun] = uf_findRoot(uf, uf->root[sun]);
+}
+
+bool uf_isOneUnion(struct UnionFind* uf, int sun0, int sun1)
+{
+	return uf_findRoot(uf, sun0) == uf_findRoot(uf, sun1);
+}
+
+void uf_union(struct UnionFind* uf, int sun0, int sun1)
+{
+	if (uf_isOneUnion(uf, sun0, sun1)) {
+		return;
+	}
+
+	int root0 = uf_findRoot(uf, sun0);
+	int root1 = uf_findRoot(uf, sun1);
+
+	uf->root[root0] = root1;
+}
+
+int regionsBySlashes(char ** grid, int gridSize)
+{
+        int N = gridSize;
+
+	struct UnionFind duf;
+	struct UnionFind* uf = &duf;
+	int ufSize = 4 * N * N;
+	uf->root = (int *)calloc(ufSize, sizeof(ufSize));
+	for (int i = 0; i < ufSize; i++) {
+		uf->root[i] = i;
+	}
+	uf->rank = (int *)calloc(ufSize, sizeof(ufSize));
+
+        for (int r = 0; r < N; ++r) //row代表行
+            for (int c = 0; c < N; ++c) { //col代表列  两个for遍历grid的每个字符
+                int root = 4 * (r * N + c);
+                char val = grid[r][c]; //字符
+
+                if (val != '\\') {    //如果为 '/'或者' '则组合（0，1），（2，3）.
+                    uf_union(uf, root + 0, root + 1);
+                    uf_union(uf, root + 2, root + 3);
+                }
+                if (val != '/') {    //如果为 '\\'或者' '则组合（0，2），（1，3）
+                    uf_union(uf, root + 0, root + 2);
+                    uf_union(uf, root + 1, root + 3);
+                }
+
+                if (r + 1 < N)   // 如果不是最后一行，则向下归并 ：3 归并下行的0      0         0
+                    uf_union(uf, root + 3, (root + 4 * N) + 0);                //     1    2    1    2
+                if (r - 1 >= 0)  //如果不是第一行，则向上归并：0归并上行的3           3         3
+                    uf_union(uf, root + 0, (root - 4 * N) + 3);                  //      0        0
+                                                                           //       1   2    1    2
+                if (c + 1 < N)//如果不是最后一列，则向右归并：2归并右邻的1            3         3
+                    uf_union(uf, root + 2, (root + 4) + 1);
+                if (c - 1 >= 0)//如果不是第一列，则向左归并：1归并左邻的2
+                    uf_union(uf, root + 1, (root - 4) + 2);
+            }
+
+        int ans = 0;
+        for (int x = 0; x < 4 * N * N; ++x) { //最后在使每个点的值为最高级主人，再计数一共有几个主人。就得出结果
+            if (uf_findRoot(uf, x) == x)
+                ans++;
+        }
+
+        return ans;
+    }
+
+int dx[4] = {0, 0, 1, -1};
+    int dy[4] = {1, -1, 0, 0};
+
+    void dfs(int x, int y, int n, int grid[n][n]) {
+
+        for (int i = 0; i < 4; ++i) {
+            int nx = x + dx[i], ny = y + dy[i];
+            if (0 <= nx && nx < n && 0 <= ny && ny < n && !grid[nx][ny]) {
+                grid[nx][ny] = 1;
+                dfs(nx, ny, n, grid);
+            }
+        }
+    }
+
+
+int regionsBySlashes(char ** grid, int gridSize)
+{
+        int n = gridSize;
+	int newGridSize = 3 * n;
+	 int new_grid[newGridSize][newGridSize];
+	memset(new_grid, 0, sizeof(new_grid));
+        for (int i = 0; i < n; ++i) {
+            for (int j = 0; j < n; ++j) {
+                if (grid[i][j] == '/') {
+                    new_grid[3*i][3*j+2] = 1;
+                    new_grid[3*i+1][3*j+1] = 1;
+                    new_grid[3*i+2][3*j] = 1;
+                } else if (grid[i][j] == '\\') {
+                    new_grid[3*i][3*j] = 1;
+                    new_grid[3*i+1][3*j+1] = 1;
+                    new_grid[3*i+2][3*j+2] = 1;
+                }
+            }
+        }
+        int cnt = 0;
+        for (int i = 0; i < 3*n; ++i) {
+            for (int j = 0; j < 3*n; ++j) {
+                if (!new_grid[i][j]) {
+                    cnt++;
+                    new_grid[i][j] = 1;
+                    dfs(i, j, newGridSize, new_grid);
+                }
+            }
+        }
+        return cnt;
+}
+
+/*
+947. 移除最多的同行或同列石头
+难度中等65
+我们将石头放置在二维平面中的一些整数坐标点上。每个坐标点上最多只能有一块石头。
+每次 move 操作都会移除一块所在行或者列上有其他石头存在的石头。
+请你设计一个算法，计算最多能执行多少次 move 操作？
+
+示例 1：
+输入：stones = [[0,0],[0,1],[1,0],[1,2],[2,1],[2,2]]
+输出：5
+示例 2：
+输入：stones = [[0,0],[0,2],[1,1],[2,0],[2,2]]
+输出：3
+
+*/
+#ifndef UNION_FIND_H
+#define UNION_FIND_H
+
+struct UnionFind {
+	int cnt;
+	int *root;
+	int *rank;
+};
+
+void uf_init(struct UnionFind *uf)
+{
+	memset(uf->rank, 0, sizeof(int) * uf->cnt);
+	for (int i = 0; i < uf->cnt; i++) {
+		uf->root[i] = i;
+	}
+}
+
+int uf_findRoot(struct UnionFind* uf, int sun)
+{
+	if (sun == uf->root[sun]) {
+		return sun;
+	}
+
+        return uf->root[sun] = uf_findRoot(uf, uf->root[sun]);
+}
+
+bool uf_isOneUnion(struct UnionFind* uf, int sun0, int sun1)
+{
+	 return uf_findRoot(uf, sun0) == uf_findRoot(uf, sun1);
+}
+
+/*Rank[i]表示以 i 为根节点的集合的层数，即树的高度。*/
+/*
+对于两个集合来说，如果两个集合的层数不一样，
+我们只需要把层数小的集合的根元素的父亲节点指向另一个
+集合的根元素就好了，而且最后合并出来的集合的层数是不变的。
+合并后集合层数唯一会变的情况，就是两个集合的层数一模一样时。
+我们可以这样去理解，假设两个集合都只有一个元素，
+那么这两个集合的层数都为一层，层数相同时，
+此时谁的根节点的父亲节点指向另一个根节点都无所谓了，
+但是这样合并后的集合层数要比原来多了一层。
+（原来两个集合都为一层，合并后的集合就变成两层了）
+*/
+void uf_union(struct UnionFind* uf, int sun0, int sun1)
+{
+	int root0 = uf_findRoot(uf, sun0);
+	int root1 = uf_findRoot(uf, sun1);
+	if (root0 == root1)
+		return;
+
+	if (uf->rank[root0] < uf->rank[root1]) {
+		uf->root[root0] = root1;
+	} else if (uf->rank[root0] > uf->rank[root1]) {
+		uf->root[root1] = root0;
+	} else {
+		uf->root[root0] = root1;
+		uf->rank[root1]++;
+	}
+
+	uf->cnt--;
+}
+#endif
+
+int removeStones(int** stones, int stonesSize, int* stonesColSize)
+{
+        int n = stonesSize;
+        if(!n) return 0;
+
+	struct UnionFind duf;
+	struct UnionFind *uf = &duf;
+	uf->root = (int *)calloc(n, sizeof(int));
+	uf->rank = (int *)calloc(n, sizeof(int));
+	uf->cnt = n;
+	uf_init(uf);
+
+        for(int i=0;i<n;i++){
+            for(int j=i;j<n;j++){
+                if(stones[i][0] == stones[j][0] ||
+                    stones[i][1] == stones[j][1]){
+                        uf_union(uf, i,j);
+                    }
+            }
+        }
+        return n -uf->cnt;
+}
+
+int row = 0;
+void dfs(int x, int y, int** stones, int* visit) {
+    for (int i = 0; i < row; i++) {
+
+        if ((stones[i][0] == x || stones[i][1] == y)) {
+            if (visit[i] == 0) {
+                //printf("%d %d %d %d \n", stones[i][0], stones[i][1], x , y);
+                visit[i] = 1;
+                dfs(stones[i][0], stones[i][1], stones, visit);
+            }
+        }
+    }
+}
+
+int removeStones(int** stones, int stonesSize, int* stonesColSize){
+    if (stones == NULL || stonesSize == 0) {
+        return 0;
+    }
+    int *visit = (int *)malloc(sizeof(int) * stonesSize);
+    memset(visit, 0, sizeof(int) * stonesSize);
+    int num = 0; // 连通数
+    row = stonesSize;
+    for (int i = 0; i < stonesSize; i++) {
+            if (visit[i] == 0) {
+                num++;
+                visit[i] = 1;
+                //printf("%d %d\n", stones[i][0], stones[i][1]);
+                dfs(stones[i][0], stones[i][1], stones, visit);
+            }
+    }
+    return stonesSize - num;
+
+}

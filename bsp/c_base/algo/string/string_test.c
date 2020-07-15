@@ -292,3 +292,114 @@ char * intToRoman(int num)
 	return ret;
 }
 
+/*
+443. 压缩字符串
+难度简单119
+给定一组字符，使用原地算法将其压缩。
+压缩后的长度必须始终小于或等于原数组长度。
+数组的每个元素应该是长度为1 的字符（不是 int 整数类型）。
+在完成原地修改输入数组后，返回数组的新长度。
+
+进阶：
+你能否仅使用O(1) 空间解决问题？
+
+示例 1：
+输入：
+["a","a","b","b","c","c","c"]
+
+输出：
+返回 6 ，输入数组的前 6 个字符应该是：["a","2","b","2","c","3"]
+
+说明：
+"aa" 被 "a2" 替代。"bb" 被 "b2" 替代。"ccc" 被 "c3" 替代。
+
+*/
+int compress(char* chars, int charsSize){
+    int write = 0;
+    char buf[1000];
+    for(int read=0, anchor=0;read<charsSize;anchor=read)
+    {
+        while(read<charsSize&&chars[read]==chars[anchor])
+            read++;
+        chars[write++] = chars[anchor];
+        if(read-anchor==1)
+            continue;
+        sprintf(buf,"%d",read-anchor);
+        for(int i=0;i<strlen(buf);i++)
+            chars[write++] = buf[i];
+    }
+    return write;
+}
+
+/*
+271. 字符串的编码与解码
+请你设计一个算法，可以将一个 字符串列表 编码成为一个 字符串。这个编码后的字符串是可以通过网络进行高效传送的，并且可以在接收端被解码回原来的字符串列表。
+
+1 号机（发送方）有如下函数：
+
+string encode(vector<string> strs) {
+  // ... your code
+  return encoded_string;
+}
+2 号机（接收方）有如下函数：
+
+vector<string> decode(string s) {
+  //... your code
+  return strs;
+}
+1 号机（发送方）执行：
+
+string encoded_string = encode(strs);
+2 号机（接收方）执行：
+
+vector<string> strs2 = decode(encoded_string);
+此时，2 号机（接收方）的 strs2 需要和 1 号机（发送方）的 strs 相同。
+
+请你来实现这个 encode 和 decode 方法。
+
+注意：
+
+因为字符串可能会包含 256 个合法 ascii 字符中的任何字符，所以您的算法必须要能够处理任何可能会出现的字符。
+请勿使用 “类成员”、“全局变量” 或 “静态变量” 来存储这些状态，您的编码和解码算法应该是非状态依赖的。
+请不要依赖任何方法库，例如 eval 又或者是 serialize 之类的方法。本题的宗旨是需要您自己实现 “编码” 和 “解码” 算法。
+*/
+
+/** Encodes a list of strings to a single string */
+char* encode(char** strs, int strsSize) {
+	char *out = (char *)calloc(102400, sizeof(char));
+	for (int i = 0; i < strsSize; i++) {
+		sprintf(out + strlen(out), "%08d%s", strlen(strs[i]), strs[i]);
+	}
+    //printf("[e]%s\n",out);
+	return out;
+}
+
+/**
+ * Decodes a single string to a list of strings.
+ *
+ * Return an array of size *returnSize.
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+//00000005Hello00000005World
+char** decode(char* s, int* returnSize) {
+	char *p = s;
+	*returnSize = 0;
+	char **out = (char **)calloc(1024, sizeof(char*));
+	while(*p != '\0') {
+		int len;
+		char str[16];
+		memset(str, 0, sizeof(str));
+		strncpy(str, p, 8);//没有结束符
+		len = atoi(str);
+		out[*returnSize] = (char *)calloc(len + 1, sizeof(char));
+		strncpy(out[*returnSize], p + 8, len);
+		p += len + 8;
+		(*returnSize)++;
+	}
+
+	return out;
+}
+
+// Your functions will be called as such:
+// char* s = encode(strs, strsSize);
+// decode(s, &returnSize);

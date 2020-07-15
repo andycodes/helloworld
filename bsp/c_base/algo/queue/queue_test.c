@@ -148,4 +148,99 @@ void snakeGameFree(SnakeGame* obj) {
 	free(obj);
 	obj == NULL;
 }
+/*
+604. 迭代压缩字符串
+难度简单17
+对于一个压缩字符串，设计一个数据结构，它支持如下两种操作： next 和 hasNext。
+给定的压缩字符串格式为：每个字母后面紧跟一个正整数，这个整数表示该字母在解压后的字符串里连续出现的次数。
+next() - 如果压缩字符串仍然有字母未被解压，则返回下一个字母，否则返回一个空格。
+hasNext() - 判断是否还有字母仍然没被解压。
+注意：
+请记得将你的类在 StringIterator 中 初始化 ，因为静态变量或类变量在多组测试数据中不会被自动清空。更多细节请访问 这里 。
+示例：
+StringIterator iterator = new StringIterator("L1e2t1C1o1d1e1");
 
+iterator.next(); // 返回 'L'
+iterator.next(); // 返回 'e'
+iterator.next(); // 返回 'e'
+iterator.next(); // 返回 't'
+iterator.next(); // 返回 'C'
+iterator.next(); // 返回 'o'
+iterator.next(); // 返回 'd'
+iterator.hasNext(); // 返回 true
+iterator.next(); // 返回 'e'
+iterator.hasNext(); // 返回 false
+iterator.next(); // 返回 ' '
+
+*/
+typedef struct {
+	int head;
+	int rear;
+	int *queue;
+} StringIterator;
+
+//"L1e2t1C1o1d1e1"
+StringIterator* stringIteratorCreate(char * compressedString) {
+	StringIterator* obj = (StringIterator*)calloc(1, sizeof(StringIterator));
+	obj->queue = (int *)calloc(strlen(compressedString) * 10, sizeof(int));
+
+	int i = 0;
+	int num = 0;
+	while(compressedString[i] != '\0') {
+		if (isalpha(compressedString[i])) {
+			if (num != 0) {
+				obj->queue[obj->rear++] = num;
+				num = 0;
+			}
+
+			obj->queue[obj->rear++] = compressedString[i];
+		} else if (isdigit(compressedString[i])) {
+			num = num * 10 + compressedString[i] - '0';
+		}
+
+		i++;
+	}
+
+	if (num != 0)
+		obj->queue[obj->rear++] = num;
+
+	//for (int i = 0; i < obj->rear; i += 2) {
+	//	printf("[c]%c %d\n", obj->queue[i], obj->queue[i + 1]);
+	//}
+
+	return obj;
+}
+//"L1e2t1C1o1d1e1"
+char stringIteratorNext(StringIterator* obj) {
+	if (obj->head == obj->rear)
+		return ' ';
+
+	int top = obj->queue[obj->head];
+	obj->queue[obj->head + 1]--;
+	//printf("[s]%c %d\n", top, obj->queue[obj->head + 1]);
+	if (obj->queue[obj->head + 1] <= 0) {
+		obj->head += 2;
+	}
+
+	return top;
+}
+
+bool stringIteratorHasNext(StringIterator* obj) {
+	return obj->head != obj->rear;
+}
+
+void stringIteratorFree(StringIterator* obj) {
+	free(obj->queue);
+	free(obj);
+	obj = NULL;
+}
+
+/**
+ * Your StringIterator struct will be instantiated and called as such:
+ * StringIterator* obj = stringIteratorCreate(compressedString);
+ * char param_1 = stringIteratorNext(obj);
+
+ * bool param_2 = stringIteratorHasNext(obj);
+
+ * stringIteratorFree(obj);
+*/
