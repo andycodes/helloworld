@@ -1,15 +1,19 @@
 #ifndef UNION_FIND_H
 #define UNION_FIND_H
-#define UF_MAX 1024
+
 struct UnionFind {
-	int root[UF_MAX];
-	int rank[UF_MAX];
+	int cnt;
+	int *root;
+	int *rank;
 };
 
-void uf_init(struct UnionFind *uf)
+void uf_init(struct UnionFind *uf, size_t size)
 {
-	memset(uf->rank, 0, sizeof(int) * UF_MAX);
-	for (int i = 0; i < UF_MAX; i++) {
+	uf->cnt = size;
+	uf->root = (int *)calloc(size, sizeof(int));
+	uf->rank = (int *)calloc(size, sizeof(int));
+	memset(uf->rank, 0, sizeof(int) * size);
+	for (int i = 0; i < size; i++) {
 		uf->root[i] = i;
 	}
 }

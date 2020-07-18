@@ -1976,4 +1976,90 @@ int numOfMinutes(int n, int headID, int* manager, int managerSize, int* informTi
     return t;
 }
 
+/*
+959 unionfind
+*/
+int dx[4] = {0, 0, 1, -1};
+    int dy[4] = {1, -1, 0, 0};
+
+    void dfs(int x, int y, int n, int grid[n][n]) {
+
+        for (int i = 0; i < 4; ++i) {
+            int nx = x + dx[i], ny = y + dy[i];
+            if (0 <= nx && nx < n && 0 <= ny && ny < n && !grid[nx][ny]) {
+                grid[nx][ny] = 1;
+                dfs(nx, ny, n, grid);
+            }
+        }
+    }
+
+
+int regionsBySlashes(char ** grid, int gridSize)
+{
+        int n = gridSize;
+	int newGridSize = 3 * n;
+	 int new_grid[newGridSize][newGridSize];
+	memset(new_grid, 0, sizeof(new_grid));
+        for (int i = 0; i < n; ++i) {
+            for (int j = 0; j < n; ++j) {
+                if (grid[i][j] == '/') {
+                    new_grid[3*i][3*j+2] = 1;
+                    new_grid[3*i+1][3*j+1] = 1;
+                    new_grid[3*i+2][3*j] = 1;
+                } else if (grid[i][j] == '\\') {
+                    new_grid[3*i][3*j] = 1;
+                    new_grid[3*i+1][3*j+1] = 1;
+                    new_grid[3*i+2][3*j+2] = 1;
+                }
+            }
+        }
+        int cnt = 0;
+        for (int i = 0; i < 3*n; ++i) {
+            for (int j = 0; j < 3*n; ++j) {
+                if (!new_grid[i][j]) {
+                    cnt++;
+                    new_grid[i][j] = 1;
+                    dfs(i, j, newGridSize, new_grid);
+                }
+            }
+        }
+        return cnt;
+}
+
+/*
+947 unionfind
+*/
+int row = 0;
+void dfs(int x, int y, int** stones, int* visit) {
+    for (int i = 0; i < row; i++) {
+
+        if ((stones[i][0] == x || stones[i][1] == y)) {
+            if (visit[i] == 0) {
+                //printf("%d %d %d %d \n", stones[i][0], stones[i][1], x , y);
+                visit[i] = 1;
+                dfs(stones[i][0], stones[i][1], stones, visit);
+            }
+        }
+    }
+}
+
+int removeStones(int** stones, int stonesSize, int* stonesColSize){
+    if (stones == NULL || stonesSize == 0) {
+        return 0;
+    }
+    int *visit = (int *)malloc(sizeof(int) * stonesSize);
+    memset(visit, 0, sizeof(int) * stonesSize);
+    int num = 0; // Á¬Í¨Êý
+    row = stonesSize;
+    for (int i = 0; i < stonesSize; i++) {
+            if (visit[i] == 0) {
+                num++;
+                visit[i] = 1;
+                //printf("%d %d\n", stones[i][0], stones[i][1]);
+                dfs(stones[i][0], stones[i][1], stones, visit);
+            }
+    }
+    return stonesSize - num;
+
+}
 

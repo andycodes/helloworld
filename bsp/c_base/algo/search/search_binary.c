@@ -616,3 +616,92 @@ int lengthOfLIS(int* nums, int numsSize){
         }
     return top;
 }
+
+/*
+436. 寻找右区间
+难度中等41
+给定一组区间，对于每一个区间 i，检查是否存在一个区间 j，它的起始点大于或等于区间 i 的终点，这可以称为 j 在 i 的"右侧"。
+对于任何区间，你需要存储的满足条件的区间 j 的最小索引，这意味着区间 j 有最小的起始点可以使其成为"右侧"区间。如果区间 j 不存在，则将区间 i 存储为 -1。最后，你需要输出一个值为存储的区间值的数组。
+注意:
+1.	你可以假设区间的终点总是大于它的起始点。
+2.	你可以假定这些区间都不具有相同的起始点。
+示例 1:
+输入: [ [1,2] ]
+输出: [-1]
+
+解释:集合中只有一个区间，所以输出-1。
+示例 2:
+输入: [ [3,4], [2,3], [1,2] ]
+输出: [-1, 0, 1]
+
+解释:对于[3,4]，没有满足条件的"右侧"区间。
+对于[2,3]，区间[3,4]具有最小的"右"起点;
+对于[1,2]，区间[2,3]具有最小的"右"起点。
+示例 3:
+输入: [ [1,4], [2,3], [3,4] ]
+输出: [-1, 2, -1]
+
+*/
+
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+// 二维数组排序
+int MyCmp(const void *pa, const void *pb)
+{
+    return (*(int**)pa)[0] - (*(int**)pb)[0];
+}
+
+int BinarySerach(int **intervalsTmp, int intervalsSize, int left, int right, int target)
+{
+    int mid;
+    while (left <= right) {
+        mid = (left + right) / 2;
+        // 正好搜索到目标直接返回
+        if (target == intervalsTmp[mid][0]) {
+            return intervalsTmp[mid][1];
+        } else if (target < intervalsTmp[mid][0]) {
+            // 目标小 砍掉右区间right = mid - 1
+            right = mid - 1;
+        } else if (target > intervalsTmp[mid][0]){
+            left = mid + 1;
+        }
+    }
+
+    // 走到这里 while循环结束的条件只有一个left == right + 1 所以实际left需要减掉1
+    // 第一种情况 left元素 大于target 满足条件 直接返回
+    // 第二种情况 left元素 小于target 试探下left是否超过 最大边界 不越界直接返回left元素 越界说明找不到比target大的了
+    // 其他情况 通通返回-1
+    if (intervalsTmp[left - 1][0] >= target) {
+        return intervalsTmp[left - 1][1];
+    } else if (left < intervalsSize) {
+        return intervalsTmp[left][1];
+    }
+
+    return -1;
+}
+
+int* findRightInterval(int** intervals, int intervalsSize, int* intervalsColSize, int* returnSize){
+    *returnSize = 0;
+    if (intervalsSize == 0) {
+        return NULL;
+    }
+    int* retArray = (int*)malloc(sizeof(int) * intervalsSize);
+    int** intervalsTmp = (int**)malloc(sizeof(int*) * intervalsSize);
+    for (int i = 0; i < intervalsSize; i++) {
+        intervalsTmp[i] = (int*)malloc(sizeof(int) * (*intervalsColSize));
+        // 起始点坐标
+        intervalsTmp[i][0] = intervals[i][0];
+        // 原始数组中的位置
+        intervalsTmp[i][1] = i;
+    }
+
+    qsort(intervalsTmp, intervalsSize, sizeof(int*), MyCmp);
+
+    // 二分查找
+    for (int i = 0; i < intervalsSize; i++) {
+        retArray[i] = BinarySerach(intervalsTmp, intervalsSize, 0, intervalsSize - 1, intervals[i][1]);
+    }
+    *returnSize = intervalsSize;
+    return retArray;
+}
