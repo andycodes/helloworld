@@ -1242,3 +1242,79 @@ int lengthOfLIS(int* nums, int numsSize)
 	return max;
 }
 
+/*
+面试题 16.16. 部分排序
+给定一个整数数组，编写一个函数，找出索引m和n，只要将
+索引区间[m,n]的元素排好序，整个数组就是有序的。注意：
+n-m尽量最小，也就是说，找出符合条件的最短序列。
+函数返回值为[m,n]，若不存在这样的m和n（例如整个数组是有
+序的），请返回[-1,-1]。
+
+示例：
+
+输入： [1,2,4,7,10,11,7,12,6,7,16,18,19]
+输出： [3,9]
+提示：
+
+0 <= len(array) <= 1000000
+*/
+
+/*
+array中某个数字在排序前后位置不变，必须满足两个条件：
+1. 前面没有比自己小的数字；
+2.后面没有比自己打的数字。
+定义dp保存上面表述的信息， dp[i]=true表示array[i]在排序前后位置
+不变，dp[i]=false，表示在排序前后array[i]位置发生变化。
+从前向后扫描数组，不断更新扫描到的最大值，既可以判断
+当前array[i]之前是否存在比自己小的数字，如果存在则dp[i]置为
+false;
+从后向前扫描数组，不断更新扫描到的最小值，既可以判断
+当前array[i]之后是否存在比自己小的数字，如果存在则dp[i]置为
+false;
+找到dp[i]为false的最小和最大的i，即为要返回的数据
+*/
+
+int* subSort(int* array, int arraySize, int* returnSize){
+     int *ret = (int *)calloc(2, sizeof(int));
+     ret[0] = -1;
+    ret[1] = -1;
+    *returnSize = 2;
+    if (arraySize <= 0 || arraySize == NULL ) {
+        return ret;
+    }
+
+    int dp[arraySize];
+    memset(dp, 0, sizeof(dp));
+    int maxval = array[0];
+    for (int i = 0; i < arraySize; i++) {
+        if (array[i] < maxval) {
+            dp[i] = 1;
+        } else {
+            maxval = array[i];
+        }
+    }
+
+    int minval = array[arraySize - 1];
+    int rmax = -1;
+    int rmin = arraySize;
+    for(int i = arraySize - 1; i >= 0; i--) {
+        if (array[i] > minval) {
+            dp[i] = 1;
+        } else {
+            minval = array[i];
+        }
+
+        if(dp[i] == 1) {
+                rmax = fmax(rmax, i);
+                rmin = fmin(rmin, i);
+        }
+    }
+
+    if (rmax != -1) {
+        ret[0] = rmin;
+        ret[1] = rmax;
+    }
+
+    return ret;
+}
+

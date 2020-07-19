@@ -498,14 +498,6 @@ int cmp_int1(const void* a, const void* b)
 	}
 }
 
-int cmp_int ( const void *a , const void *b)
-{
-        return *(int *)a - *(int *)b;
-}
-
-/**
- * Note: The returned array must be malloced, assume caller calls free().
- */
 int* findClosestElements(int* arr, int arrSize, int k, int x, int* returnSize)
 {
 	g_x = x;
