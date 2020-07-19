@@ -2,52 +2,23 @@
 #include <stdlib.h>
 #include <string.h>
 
-/*
-qsort函数包含在<stdlib.h>的头文件里。
-
-qsort函数声明如下：
-void qsort(void *base, size_t nmemb, size_t size, int(*compar)(const void *, const void *));
-
-参数说明如下：
-base: 要排序的数组
-nmemb: 数组中的元素数目
-size: 每个数组元素占用内存空间，可使用sizeof获得
-compar: 比较两个数组元素的比较函数。
-本比较函数的
-第一个参数值小于、等于、大于第二参数值时，
-本比较函数的返回值应分别小于、等于、大于零。
-
-也就说你要实现一个这样的函数（升序）：
-int cmp(const void *a, const void *b)
-如果a > b，返回>0
-如果a == b, 返回0
-如果a < b，返回<0
-这里的a和b的关系仅仅是逻辑上的，并不是值比较，所以排序的可以不仅仅是数字，还可以是字符。
-
-
-< 以下排序都是采用的从小到大排序>
-一、对int类型数组排序
-*/
-
 int cmp_int ( const void *a , const void *b)
 {
         return *(int *)a - *(int *)b;
 }
 
-void qsort_int_test(void)
-{
-	int num[100];
-	for(int i =0;i < 100;i++){
-		num[i] = 100 -i;
-	}
-
-	qsort(num,sizeof(num)/sizeof(num[0]),sizeof(num[0]),cmp_int);
-
-	for(int i =0;i < 100;i++){
-		printf("%d \n",num[i]);
-	}
+/*
+二、对char类型数组排序（同int类型）
+*/
+int cmp_char( const void *a , const void *b){
+        return *(char *)a - *(char *)b;
 }
 
+/*三、对double类型数组排序（特别要注意）*/
+int cmp_double( const void *a , const void *b){
+        return *(double *)a > *(double *)b ? 1 : -1;
+}
+//qsort(num,sizeof(num)/sizeof(num[0]),sizeof(num[0]),cmp_int);
 
 int comp_array(const void *a,const void *b)
 {
@@ -57,7 +28,6 @@ int comp_array(const void *a,const void *b)
 		return ((int *)a)[1]-((int *)b)[1];//Second column
 	}
 }
-
 
 void qsort_array_test(void)
 {
@@ -91,7 +61,6 @@ int cmp_point_array(const void *a,const void *b)
         return ap[0] - bp[0];
 }
 
-
 void qsort_point_array(void)
 {
 	int **a = (int **)malloc(100 * sizeof(int *));
@@ -107,20 +76,6 @@ void qsort_point_array(void)
 	for (int i = 0; i < 100; i++) {
 		printf("%d %d\n", a[i][0], a[i][1]);
 	}
-
-	//free
-}
-
-/*
-二、对char类型数组排序（同int类型）
-*/
-int cmp_char( const void *a , const void *b){
-        return *(char *)a - *(char *)b;
-}
-
-/*三、对double类型数组排序（特别要注意）*/
-int cmp_double( const void *a , const void *b){
-        return *(double *)a > *(double *)b ? 1 : -1;
 }
 
 
@@ -182,19 +137,4 @@ struct Str{
 int cmp_str ( const void *a , const void *b){
         return strcmp( (*(struct Str *)a).str , (*(struct Str *)b).str);
 }
-
-void qsort_string_test(void)
-{
-	strcpy(str[0].str , "aa");
-	strcpy(str[1].str , "bb");
-	strcpy(str[2].str , "gg");
-	strcpy(str[3].str , "dd");
-	strcpy(str[4].str , "ee");
-
-	qsort(str,5,sizeof(str[0]),cmp_str);
-	for(int i =0;i < 5;i++){
-		printf("%s \n",str[i].str);
-	}
-}
-
 
