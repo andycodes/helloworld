@@ -613,6 +613,101 @@ char * smallestSubsequence(char * text)
 	return stack;
 }
 
+/*
+300. 最长上升子序列
+难度中等812
+给定一个无序的整数数组，找到其中最长上升子序列的长度。
+示例:
+输入: [10,9,2,5,3,7,101,18]
+输出: 4
+解释: 最长的上升子序列是 [2,3,7,101]，它的长度是 4。
+说明:
+"	可能会有多种最长上升子序列的组合，你只需要输出对
+应的长度即可。
+"	你算法的时间复杂度应该为 O(n2) 。
+进阶:
+
+*/
+int lengthOfLIS(int* nums, int numsSize)
+{
+	if(numsSize==0)
+		return 0;
+
+	int stack[numsSize],i=0;
+	int top = -1;
+	int j;
+
+	stack[++top]=nums[0];
+	for(i = 1;i < numsSize; i++) {
+		if(nums[i] > stack[top])//大于栈顶元素，入栈
+			stack[++top]=nums[i];
+		else {//小于栈顶元素
+			for(j=0;j <= top;j++) {
+				if(nums[i] <= stack[j]) {//从底部开始修改，保持递增
+					stack[j] = nums[i];
+					break;
+				}
+			}
+		}
+	}
+
+	return top + 1;
+}
+
+int lengthOfLIS(int* nums, int numsSize){
+    if(numsSize==0)
+    return 0;
+    int stack[numsSize],i=0,top=0,j;
+    int low,high,mid;
+    stack[top++]=nums[0];
+    for(i=1;i<numsSize;i++)
+        {
+            if(nums[i]>stack[top-1])//大于栈顶元素，入栈
+            stack[top++]=nums[i];
+            else
+            {//小于栈顶元素
+                low=0;
+                high=top-1;
+                while(high>=low)
+                {
+                    mid=(low+high)/2;
+                    if(stack[mid]>=nums[i])
+                    high=mid-1;
+                    else
+                    low=mid+1;
+                }
+                stack[high+1]=nums[i];
+            }
+        }
+    return top;
+}
+
+int lengthOfLIS(int* nums, int numsSize)
+{
+	if(numsSize==0)
+		return 0;
+	int stack[numsSize],i=0,top=0,j;
+	int low,high,mid;
+	stack[top++]=nums[0];
+	for(i = 1;i<numsSize;i++) {
+		if(nums[i]>stack[top-1])//大于栈顶元素，入栈
+			stack[top++]=nums[i];
+		else {//小于栈顶元素
+			low=0;
+			high=top-1;
+			while(high>=low) {
+				mid=(low+high)/2;
+				if(stack[mid]>=nums[i])
+					high=mid-1;
+				else
+					low=mid+1;
+			}
+			stack[high+1]=nums[i];
+		}
+	}
+	return top;
+}
+
 
 
 

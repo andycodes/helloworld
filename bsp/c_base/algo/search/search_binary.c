@@ -1,17 +1,32 @@
 /*
-/*
-[lb, ub]
-int lb = 0, ub = size;
-while (ub - lb > 1) {
-	int mid = (lb + ub) / 2;
-	if (check mid) {//根据nums[mid]来判断搜索左半部分还是右半部分
-		lb = mid;
-	} else {
-		ub = mid;
-	}
-}
+int search(struct ArrayReader* reader, int target)
+{
+	if (getElement(reader, 0) == target)
+		return 0;
 
-return nums[lb] >= target ? lb : ub;
+	// search boundaries
+	int left = 0, right = 1;
+	while (getElement(reader, right) < target) {
+		left = right;
+		right <<= 1;
+	}
+
+	// binary search
+	int mid, seachValue;
+	while (left <= right) {
+		mid = (left + right) >> 1;
+		seachValue = getElement(reader, mid);
+
+		if (seachValue == target)
+			return mid;
+		if (seachValue > target)
+			right = mid - 1;
+		else
+			left = mid + 1;
+	}
+
+	return -1;
+}
 
 二维
 
@@ -21,7 +36,7 @@ while (ub - lb > 1) {
 	int mid = (lb + ub) / 2;
 	int i = mid / width;
 	int j = mid % width;
-	if (matrix[i][j] <= target) {//根据nums[mid]来判断搜索左半部分还是右半部分
+	if (matrix[i][j] <= target) {
 		lb = mid;
 	} else {
 		ub = mid;
@@ -30,37 +45,6 @@ while (ub - lb > 1) {
 
 return matrix[lb / width][lb % width] == target;
 */
-*/
-
-/** 数组元素的类型*/
-typedef int elem_t;
-/**
-* @brief 有序顺序表的折半查找算法.
-**
-@param[in] a 存放数据元素的数组，已排好序
-* @param[in] n 数组的元素个数
-* @param[in] x 要查找的元素
-* @return 如果找到x，则返回其下标。如果找
-* 不到x 且x 小于array 中的一个或多个元素，则为一个负数，该负数是大
-* 于x 的第一个元素的索引的按位求补。如果找不到x 且x 大于array 中的
-* 任何元素，则为一个负数，该负数是（最后一个元素的索引加1）的按位求补。
-*/
-int binary_search(const elem_t a[], const int n, const elem_t x) {
-    int left = 0, right = n -1, mid;
-    while(left <= right) {
-        mid = left + (right - left) / 2;
-        if(x > a[mid]) {
-            left = mid + 1;
-        } else if(x < a[mid]) {
-            right = mid - 1;
-        } else {
-            return mid;
-        }
-    }
-    return -(left+1);
-}
-
-
 int binary_find_recur(int a[],int key,int start,int end)
 {
 	int middle=(start+end)/2;
@@ -74,17 +58,9 @@ int binary_find_recur(int a[],int key,int start,int end)
 		binary_find_recur(a,key,middle,end);
 }
 
-
-int test_binary_find_recur()
-{
-    int a[]={1,2,3,4,5,6,7,8,9,10};
-    printf("%d\n",binary_find_recur(a,10,0,10));
-}
-
-
 /*bseach用法:
-void *bsearch(const void *key, const void *base,
-size_t nelem, size_t width, int(*fcmp)(const void *, const *));
+void *bsearch(const void *key, const void *base, size_t nelem, size_t width,
+int(*fcmp)(const void *, const *));
 参数：
 key指向所要查找的元素.
 第一个找的关键字。
@@ -93,45 +69,6 @@ key指向所要查找的元素.
 第四个：每个元素的长度（以字符为单位）。
 第五个：指向比较函数的指针.
 */
-#define LEN 5
-void arr_init(int num[], int len)
-{
-	int i;
-
-	srand(time(NULL));
-	for(i = 0; i < len; i++){
-		num[i] = rand()%50;
-	}
-
-}
-
-void arr_print(int num[], int len)
-{
-	int i;
-
-	for(i = 0; i < len; i++){
-		printf("%d ", num[i]);
-	}
-	printf("\n");
-
-}
-
-
-void test_bsearch(void)
-{
-	int num[LEN];
-	int fd;
-	int *find_num;
-
-	arr_init(num, LEN);
-	arr_print(num, LEN);
-	qsort(num, LEN, sizeof(int), cmp_int);
-	arr_print(num, LEN);
-	printf("enter search num:\n");
-	scanf("%d", &fd);
-	find_num = bsearch(&fd, num, LEN, sizeof(int), cmp_int);
-	(find_num == NULL) ? printf("no find\n") : printf("find the num %d\n", fd);
-}
 
 /*
 1011. 在 D 天内送达包裹的能力
@@ -160,10 +97,7 @@ void test_bsearch(void)
 如果船在承载力为K的条件下可以完成在D天内送达包裹的任务，那么任何承载力大于K的条件下依然也能完成任务。
 我们可以让这个承载力K从max(weights)max(weights)开始（即所有包裹中质量最大包裹的重量，低于这个重量我们不可能完成任务），逐渐增大承载力K，直到K可以让我们在D天内送达包裹。此时K即为我们所要求的最低承载力。
 逐渐增大承载力K的方法效率过低，让我们用二分查找的方法来优化它。
-
-
 */
-
 bool canShip(int* weights, int weightsSize, int D, int shipCapacity)
 {
 	int cur = shipCapacity ;
@@ -233,8 +167,7 @@ k = 8,
 更新r = mid;
 
 至于怎么得矩阵中有多少元素小于等于k，可以利用矩阵本身
-性质，从左下角开始按列枚举，具体可参考代码。
-
+性质，从左下角开始按列枚举
 综上：
 算法时间复杂度为O(n * log(m)), 其中n = max(row, col)，代表矩阵行数
 和列数的最大值,
@@ -260,9 +193,9 @@ int kthSmallest(int** matrix, int matrixSize, int* matrixColSize, int k)
 		return -1;
 	int row = matrixSize, col = matrixColSize[0];
 	int l = matrix[0][0], r = matrix[row - 1][col - 1];
-	while (l < r) {
+	while (l < r) {//值域
 		int mid = (l + r) >> 1;
-		if (getLowerCnt(matrix, row, col, mid) < k) { // 落在区间[l, mid]中数小于k，说明第k小的数一定大于mid
+		if (getLowerCnt(matrix, row, col, mid) < k) {
 			l = mid + 1;
 		} else {
 			r = mid;
@@ -272,33 +205,10 @@ int kthSmallest(int** matrix, int matrixSize, int* matrixColSize, int k)
 	return l;
 }
 
-int kthSmallest(int** matrix, int matrixSize, int* matrixColSize, int k){
-    struct HeapSort *heap = heapsort_init(k, PRIORITY_QUEUE_MAX);
-
-    for (int i = 0; i < matrixSize; i++) {
-        for (int j = 0; j < matrixColSize[i]; j++) {
-                if (heapsort_full(heap)) {
-                    if (matrix[i][j] < heapsort_top_key(heap))                      {
-                        heapsort_pop(heap);
-                        struct heapEntry node;
-                        node.key = matrix[i][j];
-                        heapsort_push(heap, node);
-                    }
-                } else {
-                        struct heapEntry node;
-                        node.key = matrix[i][j];
-                        heapsort_push(heap, node);
-                }
-
-        }
-    }
-
-    return heapsort_top_key(heap);
-}
-
 /*
 面试题 10.09. 排序矩阵查找
-给定M×N矩阵，每一行、每一列都按升序排列，请编写代码找出某元素。
+给定M×N矩阵，每一行、每一列都按升序排列，
+请编写代码找出某元素。
 
 示例:
 
@@ -312,33 +222,40 @@ int kthSmallest(int** matrix, int matrixSize, int* matrixColSize, int k){
   [18, 21, 23, 26, 30]
 ]
 给定 target = 5，返回 true。
-
 给定 target = 20，返回 false。
-
-通过次数3,044提交次数6,782
 */
 
-bool searchMatrix(int** matrix, int matrixRowSize, int matrixColSize, int target) {
-    // int i = matrixRowSize - 1, j = 0;
-    int i = 0, j = matrixColSize-1;
+bool searchMatrix(int** matrix, int matrixRowSize, int matrixColSize, int target)
+{
+	int i = 0, j = matrixColSize-1;
 
-    while(j>=0 && i<matrixRowSize) {
-        if(matrix[i][j] > target) j--;
-        else if(matrix[i][j] < target) i++;
-        else return true;
-    }
-    return false;
+	while(j >= 0 && i < matrixRowSize) {
+		if(matrix[i][j] > target)
+			j--;
+		else if(matrix[i][j] < target)
+			i++;
+		else
+			return true;
+	}
 
+	return false;
 }
 
 /*
 1198. 找出所有行中最小公共元素
 难度中等8
-给你一个矩阵 mat，其中每一行的元素都已经按 递增 顺序排好了。请你帮忙找出在所有这些行中 最小的公共元素。
+给你一个矩阵 mat，其中每一行的元素都已经按 递增 顺序
+排好了。请你帮忙找出在所有这些行中 最小的公共元素。
 如果矩阵中没有这样的公共元素，就请返回 -1。
 
 示例：
-输入：mat = [[1,2,3,4,5],[2,4,5,8,10],[3,5,7,9,11],[1,3,5,7,9]]
+输入：
+mat = [
+[1,2,3,4,5],
+[2,4,5,8,10],
+[3,5,7,9,11],
+[1,3,5,7,9]
+]
 输出：5
 
 */
@@ -360,11 +277,17 @@ int smallestCommonElement(int** mat, int matSize, int* matColSize)
 
 	return -1;
 }
-
+/*
+mat = [
+[1,2,3,4,5],
+[2,4,5,8,10],
+[3,5,7,9,11],
+[1,3,5,7,9]
+]
+*/
 int smallestCommonElement(int** mat, int matSize, int* matColSize)
 {
 	int map[10001];
-
 	memset(map, 0, sizeof(map));
 
 	int row = matSize;
@@ -379,16 +302,17 @@ int smallestCommonElement(int** mat, int matSize, int* matColSize)
 
 	return -1;
 }
-
-int cmp_int ( const void *a , const void *b)
-{
-        return *(int *)a - *(int *)b;
-}
-
+/*
+mat = [
+[1,2,3,4,5],
+[2,4,5,8,10],
+[3,5,7,9,11],
+[1,3,5,7,9]
+]
+*/
 int smallestCommonElement(int** mat, int matSize, int* matColSize)
 {
 	int map[10001];
-
 	memset(map, 0, sizeof(map));
 
 	int fd;
@@ -414,81 +338,44 @@ int smallestCommonElement(int** mat, int matSize, int* matColSize)
 /*
 702. 搜索长度未知的有序数组
 难度中等11
-给定一个升序整数数组，写一个函数搜索 nums 中数字 target。如果 target 存在，返回它的下标，否则返回 -1。注意，这个数组的大小是未知的。你只可以通过 ArrayReader 接口访问这个数组，ArrayReader.get(k) 返回数组中第 k 个元素（下标从 0 开始）。
-你可以认为数组中所有的整数都小于 10000。如果你访问数组越界，ArrayReader.get 会返回 2147483647。
-
+给定一个升序整数数组，写一个函数搜索 nums 中数字 target。
+如果 target 存在，返回它的下标，否则返回 -1。注意，这个数
+组的大小是未知的。你只可以通过 ArrayReader 接口访问这个数组，
+ArrayReader.get(k) 返回数组中第 k 个元素（下标从 0 开始）。
+你可以认为数组中所有的整数都小于 10000。如果你访问数组
+越界，ArrayReader.get 会返回 2147483647。
 样例 1：
 输入: array = [-1,0,3,5,9,12], target = 9
 输出: 4
 解释: 9 存在在 nums 中，下标为 4
-
 */
-int search(struct ArrayReader* reader, int target) {
+int search(struct ArrayReader* reader, int target)
+{
 	if (getElement(reader, 0) == target)
 		return 0;
 
-    // search boundaries
-    int left = 0, right = 1;
-    while (getElement(reader, right) < target) {
-      left = right;
-      right <<= 1;
-    }
+	// search boundaries
+	int left = 0, right = 1;
+	while (getElement(reader, right) < target) {
+		left = right;
+		right <<= 1;
+	}
 
-    // binary search
-    int pivot, num;
-    while (left <= right) {
-      pivot = left + ((right - left) >> 1);
-      num = getElement(reader, pivot);
+	// binary search
+	int mid, seachValue;
+	while (left <= right) {
+		mid = (left + right) >> 1;
+		seachValue = getElement(reader, mid);
 
-      if (num == target) return pivot;
-      if (num > target) right = pivot - 1;
-      else left = pivot + 1;
-    }
+		if (seachValue == target)
+			return mid;
+		if (seachValue > target)
+			right = mid - 1;
+		else
+			left = mid + 1;
+	}
 
-    // there is no target element
-    return -1;
-}
-
-#include <stdlib.h>
-#include <stdio.h>
-#include <limits.h>
-
-/**
- * *********************************************************************
- * // This is the ArrayReader's API interface.
- * // You should not implement it, or speculate about its implementation
- * *********************************************************************
- *
- * int getElement(ArrayReader *, int index);
- */
-
-#define MAX_LEN     10000
-
-//【算法思路】二分。超范围情况下的二分模型，需要判断ll和ll-1
-int search(struct ArrayReader* reader, int target) {
-    int ll = 0, rr = 10000;
-
-    while(ll < rr) {
-        int mid = (ll + rr) / 2;
-
-        int tmp = getElement(reader, mid);
-
-        if(tmp == INT_MAX) {
-            rr = mid;
-
-            continue;
-        }
-
-        if(tmp > target) {
-            rr = mid;
-        } else {
-            ll = mid + 1;
-        }
-    }
-
-    int ret = getElement(reader, ll) == target? ll : (getElement(reader, ll - 1) == target? ll - 1 : -1);
-
-    return ret;
+	return -1;
 }
 
 /*
@@ -513,115 +400,34 @@ int findMin(int* nums, int numsSize)
 
 	return min;
 }
-
-int findMin(int* nums, int numsSize){
-    int left=0;
-    int right=numsSize-1;
-    while(right>left)
-    {
-        int mid=left+(right-left)/2;
-        if(nums[mid]>nums[right])
-            left=mid+1;
-        else
-            right=mid;
-    }
-    return nums[left];
-}
-
-/*
-300. 最长上升子序列
-难度中等812
-给定一个无序的整数数组，找到其中最长上升子序列的长度。
-示例:
-输入: [10,9,2,5,3,7,101,18]
-输出: 4
-解释: 最长的上升子序列是 [2,3,7,101]，它的长度是 4。
-说明:
-"	可能会有多种最长上升子序列的组合，你只需要输出对应的长度即可。
-"	你算法的时间复杂度应该为 O(n2) 。
-进阶:
-
-*/
-
-int lengthOfLIS(int* nums, int numsSize)
+//[4,5,6,7,0,1,2]
+int findMin(int* nums, int numsSize)
 {
-	if (nums == NULL || numsSize <= 0) {
-		return 0;
+	int left = 0;
+	int right = numsSize - 1;
+
+	while(left < right) {
+		int mid= (left + right) >> 1;
+		if(nums[mid] > nums[right])
+			left = mid + 1;
+		else
+			right = mid;
 	}
 
-	int dp[numsSize];
-	dp[0] = 1;
-
-	int max = 1;
-
-        for (int i = 0; i < numsSize; ++i) {
-            dp[i] = 1;
-            for (int j = 0; j < i; ++j) {
-                if (nums[j] < nums[i]) {
-                    dp[i] = fmax(dp[i], dp[j] + 1);
-                }
-            }
-		max = fmax(max, dp[i]);
-        }
-
-	return max;
+	return nums[left];
 }
 
-int lengthOfLIS(int* nums, int numsSize){
-    if(numsSize==0)
-    return 0;
-    int stack[numsSize],i=0,top=0,j;
-    stack[top++]=nums[0];
-    for(i=1;i<numsSize;i++)
-        {
-            if(nums[i]>stack[top-1])//大于栈顶元素，入栈
-            stack[top++]=nums[i];
-            else
-            {//小于栈顶元素
-                for(j=0;j<top;j++)
-                if(nums[i]<=stack[j])
-                {
-                    stack[j]=nums[i];
-                    break;
-                }
-            }
-        }
-    return top;
-}
-
-int lengthOfLIS(int* nums, int numsSize){
-    if(numsSize==0)
-    return 0;
-    int stack[numsSize],i=0,top=0,j;
-    int low,high,mid;
-    stack[top++]=nums[0];
-    for(i=1;i<numsSize;i++)
-        {
-            if(nums[i]>stack[top-1])//大于栈顶元素，入栈
-            stack[top++]=nums[i];
-            else
-            {//小于栈顶元素
-                low=0;
-                high=top-1;
-                while(high>=low)
-                {
-                    mid=(low+high)/2;
-                    if(stack[mid]>=nums[i])
-                    high=mid-1;
-                    else
-                    low=mid+1;
-                }
-                stack[high+1]=nums[i];
-            }
-        }
-    return top;
-}
 
 /*
 436. 寻找右区间
 难度中等41
-给定一组区间，对于每一个区间 i，检查是否存在一个区间 j，它的起始点大于或等于区间 i 的终点，这可以称为 j 在 i 的"右侧"。
-对于任何区间，你需要存储的满足条件的区间 j 的最小索引，这意味着区间 j 有最小的起始点可以使其成为"右侧"区间。如果区间 j 不存在，则将区间 i 存储为 -1。最后，你需要输出一个值为存储的区间值的数组。
+给定一组区间，对于每一个区间 i，检查是否存在一个区间 j，
+它的起始点大于或等于区间 i 的终点，这可以称为 j 在 i
+的"右侧"。
+对于任何区间，你需要存储的满足条件的区间 j 的最小索引，
+这意味着区间 j 有最小的起始点可以使其成为"右侧"区间。
+如果区间 j 不存在，则将区间 i 存储为 -1。最后，你需要输出
+一个值为存储的区间值的数组。
 注意:
 1.	你可以假设区间的终点总是大于它的起始点。
 2.	你可以假定这些区间都不具有相同的起始点。
@@ -643,9 +449,6 @@ int lengthOfLIS(int* nums, int numsSize){
 
 */
 
-/**
- * Note: The returned array must be malloced, assume caller calls free().
- */
 // 二维数组排序
 int MyCmp(const void *pa, const void *pb)
 {
@@ -681,27 +484,29 @@ int BinarySerach(int **intervalsTmp, int intervalsSize, int left, int right, int
     return -1;
 }
 
-int* findRightInterval(int** intervals, int intervalsSize, int* intervalsColSize, int* returnSize){
-    *returnSize = 0;
-    if (intervalsSize == 0) {
-        return NULL;
-    }
-    int* retArray = (int*)malloc(sizeof(int) * intervalsSize);
-    int** intervalsTmp = (int**)malloc(sizeof(int*) * intervalsSize);
-    for (int i = 0; i < intervalsSize; i++) {
-        intervalsTmp[i] = (int*)malloc(sizeof(int) * (*intervalsColSize));
-        // 起始点坐标
-        intervalsTmp[i][0] = intervals[i][0];
-        // 原始数组中的位置
-        intervalsTmp[i][1] = i;
-    }
+int* findRightInterval(int** intervals, int intervalsSize, int* intervalsColSize,
+	int* returnSize)
+{
+	*returnSize = 0;
+	if (intervalsSize == 0) {
+		return NULL;
+	}
 
-    qsort(intervalsTmp, intervalsSize, sizeof(int*), MyCmp);
+	int* retArray = (int*)malloc(sizeof(int) * intervalsSize);
+	int** intervalsTmp = (int**)malloc(sizeof(int*) * intervalsSize);
+	for (int i = 0; i < intervalsSize; i++) {
+		intervalsTmp[i] = (int*)malloc(sizeof(int) * (*intervalsColSize));
+		intervalsTmp[i][0] = intervals[i][0];
+		intervalsTmp[i][1] = i;
+	}
 
-    // 二分查找
-    for (int i = 0; i < intervalsSize; i++) {
-        retArray[i] = BinarySerach(intervalsTmp, intervalsSize, 0, intervalsSize - 1, intervals[i][1]);
-    }
-    *returnSize = intervalsSize;
-    return retArray;
+	qsort(intervalsTmp, intervalsSize, sizeof(int*), MyCmp);
+
+	// 二分查找
+	for (int i = 0; i < intervalsSize; i++) {
+	retArray[i] = BinarySerach(intervalsTmp, intervalsSize, 0, intervalsSize - 1, intervals[i][1]);
+	}
+	*returnSize = intervalsSize;
+	return retArray;
 }
+

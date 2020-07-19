@@ -159,3 +159,32 @@ int getKthMagicNumber(int k){
 
 	return ret;
 }
+/*
+378. 有序矩阵中第K小的元素
+bseach
+*/
+int kthSmallest(int** matrix, int matrixSize, int* matrixColSize, int k){
+    struct HeapSort *heap = heapsort_init(k, PRIORITY_QUEUE_MAX);
+
+    for (int i = 0; i < matrixSize; i++) {
+        for (int j = 0; j < matrixColSize[i]; j++) {
+                if (heapsort_full(heap)) {
+                    if (matrix[i][j] < heapsort_top_key(heap))                      {
+                        heapsort_pop(heap);
+                        struct heapEntry node;
+                        node.key = matrix[i][j];
+                        heapsort_push(heap, node);
+                    }
+                } else {
+                        struct heapEntry node;
+                        node.key = matrix[i][j];
+                        heapsort_push(heap, node);
+                }
+
+        }
+    }
+
+    return heapsort_top_key(heap);
+}
+
+
