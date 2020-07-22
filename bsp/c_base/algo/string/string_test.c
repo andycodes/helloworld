@@ -403,3 +403,36 @@ char** decode(char* s, int* returnSize) {
 // Your functions will be called as such:
 // char* s = encode(strs, strsSize);
 // decode(s, &returnSize);
+
+/*
+161. 相隔为 1 的编辑距离
+难度中等27
+给定两个字符串 s 和 t，判断他们的编辑距离是否为 1。
+注意：
+满足编辑距离等于 1 有三种可能的情形：
+1.	往 s 中插入一个字符得到 t
+2.	从 s 中删除一个字符得到 t
+3.	在 s 中替换一个字符得到 t
+示例 1：
+输入: s = "ab", t = "acb"
+输出: true
+解释: 可以将 'c' 插入字符串 s 来得到 t。
+*/
+bool isOneEditDistance(char * s, char * t)
+{
+    int ns=strlen(s),nt=strlen(t);
+    if(ns>nt)
+        return isOneEditDistance(t,s);
+    if(nt-ns>1)return 0;
+    int replace=0;
+    for(int i=0;i<ns;i++){
+        if(s[i]!=t[i]){
+            if(nt!=ns)
+              //  return (s[i] ==t.substr(i+1));
+			return !strcmp(s + i, t + i + 1);
+            //else return (i==ns-1)||(s.substr(i+1)==t.substr(i+1));
+		else return (i==ns-1)||(!strcmp(s + i+1, t +i+1));
+        }
+    }
+    return nt!=ns;
+}

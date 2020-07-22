@@ -747,3 +747,54 @@ struct TreeNode* deleteNode(struct TreeNode* root, int key){
 	root->right = deleteNode(root->right, key);// 再在交换过的树中删除key
 	return root;
 }
+
+ /*
+270. 最接近的二叉搜索树值
+难度简单31
+给定一个不为空的二叉搜索树和一个目标值 target，请在该二叉搜索树中找到最接近目标值 target 的数值。
+注意：
+"	给定的目标值 target 是一个浮点数
+"	题目保证在该二叉搜索树中只会存在一个最接近目标值的数
+示例：
+输入: root = [4,2,5,1,3]，目标值 target = 3.714286
+
+    4
+   / \
+  2   5
+ / \
+1   3
+
+输出: 4
+
+ */
+int closestValue(struct TreeNode* root, double target)
+{
+        int l = root->val, r = root->val;
+        while(root){
+            if(target < root->val){
+                r = root->val;
+                root = root->left;
+            }else if(target > root->val){
+                l = root->val;
+                root = root->right;
+            }else
+                return root->val;
+        }
+        return fabs(target - l) < fabs(r - target) ? l:r;
+}
+
+ int closestValue(struct TreeNode* root, double target)
+{
+	int val;
+	int closest = root->val;
+
+	while(root != NULL) {
+		val = root->val;
+		closest = fabs(val - target) < fabs(closest - target) ? val : closest;
+		root = target < root->val ? root->left : root->right;
+	}
+
+	return closest;
+}
+
+

@@ -1,32 +1,15 @@
 /*
-int search(struct ArrayReader* reader, int target)
-{
-	if (getElement(reader, 0) == target)
-		return 0;
 
-	// search boundaries
-	int left = 0, right = 1;
-	while (getElement(reader, right) < target) {
-		left = right;
-		right <<= 1;
-	}
-
-	// binary search
-	int mid, seachValue;
-	while (left <= right) {
-		mid = (left + right) >> 1;
-		seachValue = getElement(reader, mid);
-
-		if (seachValue == target)
-			return mid;
-		if (seachValue > target)
-			right = mid - 1;
-		else
-			left = mid + 1;
-	}
-
-	return -1;
+while (ub - lb > 1) {
+    int mid = (lb + ub) / 2;
+    if (Check mid) { // 根据nums[mid]来判断搜索左半部分还是右半部分
+        lb = mid;
+    } else {
+        ub = mid;
+    }
 }
+// 视情况处理最后的lb或者ub，此时ub == lb + 1
+return nums[lb] >= target ? lb : ub;
 
 二维
 
