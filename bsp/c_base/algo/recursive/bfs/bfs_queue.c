@@ -730,3 +730,83 @@ int maximumMinimumPath(int** A, int ASize, int* AColSize)
 	return res;
 }
 
+/*
+317. 离建筑物最近的距离
+难度困难29
+你是个房地产开发商，想要选择一片空地 建一栋大楼。你想把这栋大楼够造在一个距离周边设施都比较方便的地方，通过调研，你希望从它出发能在 最短的距离和 内抵达周边全部的建筑物。请你计算出这个最佳的选址到周边全部建筑物的 最短距离和。
+
+提示：
+你只能通过向上、下、左、右四个方向上移动。
+给你一个由 0、1 和 2 组成的二维网格，其中：
+"	0 代表你可以自由通过和选择建造的空地
+"	1 代表你无法通行的建筑物
+"	2 代表你无法通行的障碍物
+
+示例：
+输入：[[1,0,2,0,1],[0,0,0,0,0],[0,0,1,0,0]]
+
+1 - 0 - 2 - 0 - 1
+|   |   |   |   |
+0 - 0 - 0 - 0 - 0
+|   |   |   |   |
+0 - 0 - 1 - 0 - 0
+输出：7
+解析：
+给定三个建筑物 (0,0)、(0,4) 和 (2,2) 以及一个位于 (0,2) 的障碍物。
+由于总距离之和 3+3+1=7 最优，所以位置 (1,2) 是符合要求的最优地点，故返回7。
+*/
+#define QUEUE_LEN (10000)
+int MinDist(int sum, int res){
+    if(sum < res){
+        return sum;
+    }
+    return res;
+}
+int shortestDistance(int** grid, int gridSize, int* gridColSize){
+    int sum[gridSize][*gridColSize];
+    memset(sum, 0, gridSize * (*gridColSize) * sizeof(int));
+    int dist[gridSize][*gridColSize];
+    memset(dist, 0, gridSize * (*gridColSize) * sizeof(int));
+    int queue[QUEUE_LEN][2];
+    memset(queue, 0, QUEUE_LEN * 2 * sizeof(int));
+    int dirlist[][2] = { { -1, 0 }, { 1, 0 }, { 0, 1 }, { 0, -1 } };
+    int head = 0;
+    int tail = 0;
+    int res = INT_MAX;
+
+    int val = 0;
+    for(int i  = 0; i < gridSize; i++){
+        for(int j = 0; j < *gridColSize; j++){
+            if(grid[i][j] == 1){
+                queue[tail][0] = i;
+                queue[tail][1] = j;
+                tail++;
+               // printf("pos is [%d, %d]", i, j);
+                res = INT_MAX;
+                while(head != tail){
+                    int a = queue[head][0];
+                    int b = queue[head][1];
+                    head++;
+                    for(int k = 0; k < 4; k++){
+                        int x = a + dirlist[k][0];
+                        int y = b + dirlist[k][1];
+                        if(x >= 0 && x < gridSize && y >= 0 && y < *gridColSize && grid[x][y] == val){
+                            --grid[x][y];
+                            dist[x][y] = dist[a][b] + 1;
+                            sum[x][y] += dist[x][y];// todo
+                            res = MinDist(sum[x][y], res);
+                            queue[tail][0] = x;
+                            queue[tail][1] = y;
+                            tail++;
+                        }
+                    }
+                }
+                val--;
+                if(res == INT_MAX){
+                    return -1;
+                }
+            }
+        }
+    }
+    return res;
+}

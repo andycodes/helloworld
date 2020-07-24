@@ -123,3 +123,91 @@ int* shortestAlternatingPaths(int n, int **red_edges, int red_edgesSize, int* re
 	return ans;
 }
 
+/*
+310. 最小高度树
+难度中等169
+对于一个具有树特征的无向图，我们可选择任何一个节点作为根。图因此可以成为树，在所有可能的树中，具有最小高度的树被称为最小高度树。给出这样的一个图，写出一个函数找到所有的最小高度树并返回他们的根节点。
+格式
+该图包含 n 个节点，标记为 0 到 n - 1。给定数字 n 和一个无向边 edges 列表（每一个边都是一对标签）。
+你可以假设没有重复的边会出现在 edges 中。由于所有的边都是无向边， [0, 1]和 [1, 0] 是相同的，因此不会同时出现在 edges 里。
+示例 1:
+输入: n = 4, edges = [[1, 0], [1, 2], [1, 3]]
+
+        0
+        |
+        1
+       / \
+      2   3
+
+*/
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int* findMinHeightTrees(int n, int** edges, int edgesSize, int* edgesColSize, int* returnSize){
+    int* pQueue = (int*)malloc(n * sizeof(int)); // 队列
+    memset(pQueue, 0, n * sizeof(int));
+    int front = -1; // 队头下标
+    int rear = -1; // 队尾下标
+    int curr = 0; // 当前队头元素
+    int lenghOfQue = 0; // 队长
+
+    if (1 == n && 0 == edgesSize)
+    {
+        *returnSize = 1;
+        return pQueue;
+    }
+
+    int* pIndegree = (int*)malloc(n * sizeof(int)); // 入度数组
+    memset(pIndegree, 0, n * sizeof(int)); // 入度初始为0
+
+    int** ppGraph = (int**)malloc(n * sizeof(int*)); // 二维数组邻接表
+    int* pColOfGraph = (int*)malloc(n * sizeof(int)); // 每个结点相邻结点个数
+    memset(pColOfGraph, 0, n * sizeof(int));
+    int row = 0;
+    int col = 0;
+    for (row = 0; row <= n - 1; row++)
+    {
+        ppGraph[row] = (int*)malloc(n * sizeof(int*));
+    }
+
+    for (row = 0; row <= edgesSize - 1; row++) // 初始化邻接表：图 入度 相邻点
+    {
+        ppGraph[edges[row][1]][pIndegree[edges[row][1]]++] = edges[row][0];
+        ppGraph[edges[row][0]][pIndegree[edges[row][0]]++] = edges[row][1];
+        pColOfGraph[edges[row][1]]++;
+        pColOfGraph[edges[row][0]]++;
+    }
+
+    for (row = 0; row <= n - 1; row++) // 入度为1的结点进队
+    {
+        if (1 == pIndegree[row])
+        {
+            pQueue[++rear] = row;
+        }
+    }
+
+    while (2 < n) // 结果只能是1或者2，证明略
+    {
+        lenghOfQue = rear - front; // 队长
+        n -= lenghOfQue; // 更新结点个数
+
+        while (lenghOfQue--)
+        {
+            curr = pQueue[++front]; // peek & pop
+
+            for (col = 0; col <= pColOfGraph[curr] - 1; col++)
+            {
+                --pIndegree[curr];
+                --pIndegree[ppGraph[curr][col]];
+
+                if (1 == pIndegree[ppGraph[curr][col]])
+                {
+                    pQueue[++rear] = ppGraph[curr][col]; // push
+                }
+            }
+        }
+    }
+
+    *returnSize = rear - front;
+    return pQueue + front + 1;
+}

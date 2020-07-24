@@ -375,29 +375,18 @@ int search(struct ArrayReader* reader, int target)
 */
 int findMin(int* nums, int numsSize)
 {
-	int min = INT_MAX;
-
-	for (int i = 0; i < numsSize; i++) {
-		min = fmin(nums[i], min);
-	}
-
-	return min;
-}
-//[4,5,6,7,0,1,2]
-int findMin(int* nums, int numsSize)
-{
 	int left = 0;
 	int right = numsSize - 1;
 
-	while(left < right) {
+	while(right - left > 1) {
 		int mid= (left + right) >> 1;
 		if(nums[mid] > nums[right])
-			left = mid + 1;
+			left = mid;
 		else
 			right = mid;
 	}
 
-	return nums[left];
+	return fmin(nums[left], nums[right]);
 }
 
 
@@ -493,3 +482,58 @@ int* findRightInterval(int** intervals, int intervalsSize, int* intervalsColSize
 	return retArray;
 }
 
+/*
+33. 搜索旋转排序数组
+难度中等840
+假设按照升序排序的数组在预先未知的某个点上进行了旋转。
+( 例如，数组 [0,1,2,4,5,6,7] 可能变为 [4,5,6,7,0,1,2] )。
+搜索一个给定的目标值，如果数组中存在这个目标值，则返回它的索引，否则返回 -1 。
+你可以假设数组中不存在重复的元素。
+你的算法时间复杂度必须是 O(log n) 级别。
+示例 1:
+输入: nums = [4,5,6,7,0,1,2], target = 0
+输出: 4
+示例 2:
+输入: nums = [4,5,6,7,0,1,2], target = 3
+输出: -1
+
+*/
+int search(int* nums, int numsSize, int target)
+{
+        int l = 0;
+        int r = numsSize - 1;
+        int mid;
+        while (l < r){
+            mid = l + (r - l) / 2;
+            if ((nums[0]> target) ^ (nums[mid] < nums[0]) ^ (nums[mid] < target))
+                l = mid + 1;
+            else
+                r = mid;
+        }
+        return l == r && nums[l] == target? l:-1;
+}
+
+int search(int* nums, int numsSize, int target)
+{
+        int left=0,right=numsSize-1,mid;
+        while(left<=right){
+            mid=left+(right-left)/2;
+            if(nums[0]>target){  //目标在右子数组
+                if(nums[mid]>=nums[0]) left=mid+1; //中点在左子数组
+                else{ //中点在右子数组
+                    if(nums[mid]==target) return mid;
+                    else if(nums[mid]<target) left=mid+1;
+                    else right=mid-1;
+                }
+            }
+            else {//目标在左子数组
+                if(nums[mid]<nums[0]) right=mid-1;//中点在右子数组
+                else{ //中点在左子数组
+                    if(nums[mid]==target) return mid;
+                    else if(nums[mid]<target) left=mid+1;
+                    else right=mid-1;
+                }
+            }
+        }
+        return -1;
+}
