@@ -1,4 +1,5 @@
 /*
+264. 丑数 II
 编写一个程序，找出第 n 个丑数。
 
 丑数就是只包含质因数 2, 3, 5 的正整数。
@@ -24,22 +25,24 @@ n 不超过1690。
 然后扔堆里。直到拿堆顶次数为n。
 */
 int b[] = {2,3,5};
-int nthUglyNumber(int n){
-
-	minHeap *H = minheap_init(16900);
-	minHeapPush(H,1);
-	long int res = 0;
-
-	for (long int i = 0; i < n;i++) {
-		res = minHeapPop(H);
-		for (long int j = 0;  j < sizeof(b)/sizeof(int); j++) {
-			long int a = res * b[j];
-			if (minHeapGetIndex(H, a) == -1)
-				minHeapPush(H, a);
-		}
+int nthUglyNumber(int n)
+{
+	struct HeapCtrl *hp = heap_init(n);
+	struct heapEntry node;
+	node.key = 1;
+	heap_push(hp, node);
+	struct heapEntry pop;
+	for (int i = 0; i < n; i++) {
+		pop = heap_pop(hp);
+		node.key = pop.key * 2;
+		heap_push(hp, node);// sole push
+		node.key = pop.key * 3;
+		heap_push(hp, node);
+		node.key = pop.key * 5;
+		heap_push(hp, node);
 	}
 
-	return res;
+	return pop.key;
 }
 
 

@@ -810,3 +810,145 @@ int shortestDistance(int** grid, int gridSize, int* gridColSize){
     }
     return res;
 }
+
+/*
+490. 迷宫
+难度中等43
+由空地和墙组成的迷宫中有一个球。球可以向上下左右四个方向滚动，但在遇到墙壁前不会停止滚动。当球停下时，可以选择下一个方向。
+给定球的起始位置，目的地和迷宫，判断球能否在目的地停下。
+迷宫由一个0和1的二维数组表示。 1表示墙壁，0表示空地。你可以假定迷宫的边缘都是墙壁。起始位置和目的地的坐标通过行号和列号给出。
+
+示例 1:
+输入 1: 迷宫由以下二维数组表示
+
+0 0 1 0 0
+0 0 0 0 0
+0 0 0 1 0
+1 1 0 1 1
+0 0 0 0 0
+
+输入 2: 起始位置坐标 (rowStart, colStart) = (0, 4)
+输入 3: 目的地坐标 (rowDest, colDest) = (4, 4)
+
+输出: true
+
+*/
+bool hasPath(int** maze, int mazeSize, int* mazeColSize, int* start, int startSize,
+int* destination, int destinationSize)
+{
+	int row = mazeSize;
+	int col = *mazeColSize;
+
+	int visited[row][col];
+	memset(visited, 0, sizeof(visited));
+
+        int dirs[4][2] = {{0, 1}, {0, -1}, {-1, 0}, {1, 0}};
+	int queueSize = fmax(1024, row * col);
+	int queue[queueSize];
+	memset(queue, 0, sizeof(queue));
+	int head = 0;
+	int rear = 0;
+        queue[rear++] = start[0] * col + start[1];
+        visited[start[0]][start[1]] = true;
+        while (head != rear) {
+		int top = queue[head++];
+		int s[2];
+		s[0] = top / col;
+		s[1] = top % col;
+
+            if (s[0] == destination[0] && s[1] == destination[1])
+                return true;
+            for (int i = 0; i < 4; i++) {
+                int x = s[0] + dirs[i][0];
+                int y = s[1] + dirs[i][1];
+                while (x >= 0 && y >= 0 && x < row && y < col && maze[x][y] == 0) {
+                    x += dirs[i][0];
+                    y += dirs[i][1];
+                }
+
+			x -= dirs[i][0];
+			y -= dirs[i][1];
+
+                if (visited[x][y] == 0) {
+			queue[rear++] = x * col + y;
+                    visited[x][y] = 1;
+                }
+            }
+        }
+        return false;
+}
+
+/*
+505. 迷宫 II
+难度中等32
+由空地和墙组成的迷宫中有一个球。球可以向上下左右四个方向滚动，但在遇到墙壁前不会停止滚动。当球停下时，可以选择下一个方向。
+给定球的起始位置，目的地和迷宫，找出让球停在目的地的最短距离。距离的定义是球从起始位置（不包括）到目的地（包括）经过的空地个数。如果球无法停在目的地，返回 -1。
+迷宫由一个0和1的二维数组表示。 1表示墙壁，0表示空地。你可以假定迷宫的边缘都是墙壁。起始位置和目的地的坐标通过行号和列号给出。
+
+示例 1:
+输入 1: 迷宫由以下二维数组表示
+
+0 0 1 0 0
+0 0 0 0 0
+0 0 0 1 0
+1 1 0 1 1
+0 0 0 0 0
+
+输入 2: 起始位置坐标 (rowStart, colStart) = (0, 4)
+输入 3: 目的地坐标 (rowDest, colDest) = (4, 4)
+
+输出: 12
+
+解析: 一条最短路径 : left -> down -> left -> down -> right -> down -> right。
+             总距离为 1 + 1 + 3 + 1 + 2 + 2 + 2 = 12。
+
+*/
+int shortestDistance(int** maze, int mazeSize, int* mazeColSize,
+int* start, int startSize, int* destination, int destinationSize){
+	int row = mazeSize;
+	int col = *mazeColSize;
+
+	int distance[row][col];
+	for (int i = 0; i < row; i++) {
+		for (int j = 0; j < col; j++) {
+			distance[i][j] = INT_MAX;
+		}
+	}
+
+	int dirs[4][2] = {{0, 1}, {0, -1}, {-1, 0}, {1, 0}};
+	int queueSize = fmax(1024, row * col);
+	int queue[queueSize];
+	memset(queue, 0, sizeof(queue));
+	int head = 0;
+	int rear = 0;
+	queue[rear++] = start[0] * col + start[1];
+	distance[start[0]][start[1]] = 0;
+
+        while (head != rear) {
+		int top = queue[head++];
+		int s[2];
+		s[0] = top / col;
+		s[1] = top % col;
+            for (int i = 0; i < 4; i++) {
+                int x = s[0] + dirs[i][0];
+                int y = s[1] + dirs[i][1];
+			int count = 0;
+                while (x >= 0 && y >= 0 && x < row && y < col && maze[x][y] == 0) {
+                    x += dirs[i][0];
+                    y += dirs[i][1];
+			count++;
+                }
+
+			x -= dirs[i][0];
+			y -= dirs[i][1];
+
+			if (distance[s[0]][s[1]] + count < distance[x][y]) {
+				distance[x][y] = distance[s[0]][s[1]] + count;
+				queue[rear++] = x * col + y;
+			}
+            }
+        }
+
+        return distance[destination[0]][destination[1]] == INT_MAX ? -1 : distance[destination[0]][destination[1]];
+}
+

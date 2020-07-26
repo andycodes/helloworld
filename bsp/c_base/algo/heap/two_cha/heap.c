@@ -7,7 +7,7 @@
 
 二叉堆的核心是"添加节点"和"删除节点"
 */
-#define HEAP_MAX 1024
+
 struct heapEntry {
 	int key;
 	int value;
@@ -18,8 +18,94 @@ struct HeapCtrl{
 	int capacity;
 	void (*remove_down)(struct HeapCtrl *, int , int);
 	void (*push_up)(struct HeapCtrl *, int);
-	struct heapEntry heap[HEAP_MAX];
+	struct heapEntry heap[0];
 };
+
+#ifdef PRIORITY_QUEUE_H
+void maxheap_pushup(struct HeapCtrl *hp, int start)
+{
+	int child = start; // 当前节点(current)的位置
+	int p = (child - 1) / 2;// 父(parent)结点的位置
+	struct heapEntry cur = hp->heap[child];// 当前节点(current)的大小
+
+	while(child > 0) {
+		if(hp->heap[p].key >= cur.key) {
+			break;
+		} else {
+			hp->heap[child] = hp->heap[p];
+			child = p;
+			p = (child - 1) / 2;
+		}
+	}
+
+	hp->heap[child] = cur;
+}
+
+void maxheap_rmdown(struct HeapCtrl *hp, int start, int end)
+{
+	int p = start;
+	int lchild = 2*p + 1;
+	struct heapEntry cur = hp->heap[p];
+
+	while(lchild <= end) {
+		if(lchild < end && hp->heap[lchild].key < hp->heap[lchild+1].key)
+			lchild++;// 左右两孩子中选择较大者，即m_heap[l+1]
+
+		if(cur.key >= hp->heap[lchild].key) {
+			break;//调整结束
+		} else {
+			hp->heap[p] = hp->heap[lchild];
+			p = lchild;
+			lchild = 2*p + 1;
+		}
+	}
+
+	hp->heap[p] = cur;
+}
+#endif
+
+#ifdef PRIORITY_QUEUE_MIN
+void minheap_pushup(struct HeapCtrl *hp, int start)
+{
+	int cur = start;
+	int p = (cur - 1) / 2;
+	struct heapEntry newNode = hp->heap[cur];
+
+	while(cur > 0) {
+		if (hp->heap[p].key <= newNode.key) {
+			break;
+		} else {
+			hp->heap[cur] = hp->heap[p];
+			cur = p;
+			p = (cur - 1) / 2;
+		}
+	}
+
+	hp->heap[cur] = newNode;
+}
+
+void minheap_rmdown(struct HeapCtrl *hp, int start, int end)
+{
+	int p = start;
+	int lchild = 2*p + 1;
+	struct heapEntry cur = hp->heap[p];
+
+	while(lchild <= end) {
+		if(lchild < end && hp->heap[lchild].key > hp->heap[lchild+1].key)
+			lchild++;// 左右两孩子中选择较小者，即m_heap[l+1]
+
+		if(cur.key <= hp->heap[lchild].key)
+			break;//调整结束
+		else {
+			hp->heap[p] = hp->heap[lchild];
+			p = lchild;
+			lchild = 2*lchild + 1;
+		}
+	}
+
+	hp->heap[p] = cur;
+}
+#endif
 
 int heap_getIdx(struct HeapCtrl *hp, int key)
 {
@@ -47,114 +133,6 @@ int heap_size(struct HeapCtrl *hp)
 	return hp->size;
 }
 
-struct HeapCtrl *heap_init(int capacity, int type)
-{
-	struct HeapCtrl * hp = (struct HeapCtrl *)malloc(sizeof(struct HeapCtrl) + sizeof(struct heapEntry) * capacity);
-	hp->size = 0;
-	hp->capacity = capacity;
-	hp->type = type;
-	return hp;
-}
-
-#ifdef PRIORITY_QUEUE_H
-void maxheap_filterdown(struct HeapCtrl *hp, int start, int end)
-{
-	int parent = start;
-	int leftChild = 2*parent + 1;
-	struct heapEntry tmp = hp->heap[parent];
-
-	while(leftChild <= end) {
-		if(leftChild < end && hp->heap[leftChild].key < hp->heap[leftChild+1].key)
-			leftChild++;// 左右两孩子中选择较大者，即m_heap[l+1]
-
-		if(tmp.key >= hp->heap[leftChild].key) {
-			break;//调整结束
-		} else {
-			hp->heap[parent] = hp->heap[leftChild];
-			parent = leftChild;
-			leftChild = 2*parent + 1;
-		}
-	}
-
-	hp->heap[parent] = tmp;
-}
-
-void maxheap_filterup(struct HeapCtrl *hp, int start)
-{
-	int child = start; // 当前节点(current)的位置
-	int parent = (child - 1) / 2;// 父(parent)结点的位置
-	struct heapEntry tmp = hp->heap[child];// 当前节点(current)的大小
-
-	while(child > 0) {
-		if(hp->heap[parent].key >= tmp.key) {
-			break;
-		} else {
-			hp->heap[child] = hp->heap[parent];
-			child = parent;
-			parent = (child - 1) / 2;
-		}
-	}
-
-	hp->heap[child] = tmp;
-}
-
-#endif
-
-#ifdef PRIORITY_QUEUE_MIN
-static void minheap_filterdown(struct HeapCtrl *pq, int start, int end)
-{
-	int parent = start;
-	int leftChild = 2*parent + 1;
-	struct heapEntry tmp = pq->heap[parent];
-
-	while(leftChild <= end) {
-		if(leftChild < end && pq->heap[leftChild].key > pq->heap[leftChild+1].key)
-			leftChild++;// 左右两孩子中选择较小者，即m_heap[l+1]
-
-		if(tmp.key <= pq->heap[leftChild].key)
-			break;//调整结束
-		else {
-			pq->heap[parent] = pq->heap[leftChild];
-			parent = leftChild;
-			leftChild = 2*leftChild + 1;
-		}
-	}
-
-	pq->heap[parent] = tmp;
-}
-
-static void minheap_filterup(struct HeapCtrl *pq, int start)
-{
-	int curIdx = start;
-	int parent = (curIdx - 1) / 2;
-	struct heapEntry newNode = pq->heap[curIdx];
-
-	while(curIdx > 0) {
-		if (pq->heap[parent].key <= newNode.key) {
-			break;
-		} else {
-			pq->heap[curIdx] = pq->heap[parent];
-			curIdx = parent;
-			parent = (curIdx - 1) / 2;
-		}
-	}
-
-	pq->heap[curIdx] = newNode;
-}
-#endif
-
-struct HeapCtrl *heap_init(int capacity, int type)
-{
-	struct HeapCtrl * pq = (struct HeapCtrl *)malloc(sizeof(struct HeapCtrl) + sizeof(struct heapEntry) * capacity);
-	pq->size = 0;
-	pq->capacity = capacity;
-	pq->type = type;
-
-	pq->remove_down = maxheap_filterdown;//minheap_filterdown
-
-	return pq;
-}
-
 int heap_remove(struct HeapCtrl *hp, int data)
 {
 	int index;
@@ -172,12 +150,12 @@ int heap_remove(struct HeapCtrl *hp, int data)
 	return 0;
 }
 
-struct heapEntry heap_pop(struct HeapCtrl *pq)
+struct heapEntry heap_pop(struct HeapCtrl *hp)
 {
 	struct heapEntry top;
 
-	top = pq->heap[0];
-	heap_remove(pq, top.key);
+	top = hp->heap[0];
+	heap_remove(hp, top.key);
 	return top;
 }
 
@@ -194,4 +172,12 @@ int heap_push(struct HeapCtrl *hp, struct heapEntry node)
 	return 0;
 }
 
+struct HeapCtrl *heap_init(int capacity)
+{
+	struct HeapCtrl * hp = (struct HeapCtrl *)calloc(1, sizeof(struct HeapCtrl) + sizeof(struct heapEntry) * capacity);
+	hp->capacity = capacity;
+	hp->remove_down = maxheap_rmdown;//minheap_rmdown
+	hp->push_up = maxheap_pushup;
+	return hp;
+}
 
