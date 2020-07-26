@@ -952,3 +952,55 @@ int* start, int startSize, int* destination, int destinationSize){
         return distance[destination[0]][destination[1]] == INT_MAX ? -1 : distance[destination[0]][destination[1]];
 }
 
+/*
+22. 括号生成dfs
+bfs  left right 为总数减法到0 */
+char** generateParenthesis(int n, int* returnSize)
+{
+	*returnSize = 0;
+	if (n == 0) {
+		return NULL;
+	}
+
+	char** res = (char**)calloc(1024 * 1024, sizeof(char*));
+	struct List list;
+	queue_init(&list);
+
+	struct DataEntry  *entry = (struct DataEntry  *)calloc(1, sizeof(struct DataEntry));
+	entry->left = n;
+	entry->right = n;
+	memset(entry->data, 0, sizeof(entry->data));
+	ListAddTail(&list, &entry->node);
+
+	while(!queue_empty(&list)) {
+		struct Node *pop = queue_pop(&list);
+		struct DataEntry  *popEntry = NODE_ENTRY(pop, struct DataEntry, node);
+
+		if (popEntry->left == 0 && popEntry->right == 0) {
+			res[*returnSize] = (char*)calloc(1024 * 1024, sizeof(char));
+			strcpy(res[*returnSize], popEntry->data);
+			(*returnSize)++;
+		}
+
+		if (popEntry->left > 0) {
+			struct DataEntry  *leftentry = (struct DataEntry  *)calloc(1, sizeof(struct DataEntry));
+			leftentry->left = popEntry->left - 1;
+			leftentry->right = popEntry->right;
+			strcpy(leftentry->data, popEntry->data);
+			strcat(leftentry->data, "(");
+			ListAddTail(&list, &leftentry->node);
+		}
+
+		if (popEntry->right > 0 && popEntry->left < popEntry->right) {
+			struct DataEntry  *rightentry = (struct DataEntry  *)calloc(1, sizeof(struct DataEntry));
+			rightentry->left = popEntry->left;
+			rightentry->right = popEntry->right - 1;
+			strcpy(rightentry->data, popEntry->data);
+			strcat(rightentry->data, ")");
+			ListAddTail(&list, &rightentry->node);
+		}
+	}
+
+	return res;
+}
+

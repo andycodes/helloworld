@@ -1,7 +1,11 @@
-#include <stddef.h>
-#include <stdio.h>
-#include <math.h>
-#include <stdlib.h>
+/*
+在二叉搜索树中：
+1.若任意结点的左子树不空，则左子树上所有结点的值均
+不大于它的根结点的值。
+2. 若任意结点的右子树不空，则右子树上所有结点的
+值均不小于它的根结点的值。
+3.任意结点的左、右子树也分别为二叉搜索树。
+*/
 
 /*  Definition for a binary tree node.*/
 struct TreeNode {
@@ -12,11 +16,11 @@ struct TreeNode {
 
 
 /*
+669. 修剪二叉搜索树
 给定一个二叉搜索树，同时给定最小边界L?和
 最大边界?R。通过修剪二叉搜索树，使得所有
 节点的值在[L, R]中 (R>=L) 。你可能需要改变树的根节点，
 所以结果应当返回修剪好的二叉搜索树的新的根节点。
-
 输入:
     1
    / \
@@ -29,14 +33,15 @@ struct TreeNode {
     1
       \
        2
-
-
 */
-
-struct TreeNode* trimBST(struct TreeNode* root, int L, int R){
-        if (root ==  NULL) return root;
-        if (root->val > R) return trimBST(root->left, L, R);
-        if (root->val < L) return trimBST(root->right, L, R);
+struct TreeNode* trimBST(struct TreeNode* root, int L, int R)
+{
+        if (root ==  NULL)
+			return root;
+        if (root->val > R)
+			return trimBST(root->left, L, R);
+        if (root->val < L)
+			return trimBST(root->right, L, R);
 
         root->left = trimBST(root->left, L, R);
         root->right = trimBST(root->right, L, R);
@@ -45,49 +50,43 @@ struct TreeNode* trimBST(struct TreeNode* root, int L, int R){
 
 
 /*
- 二叉搜索树结点最小距离
-
+783. 二叉搜索树节点最小距离
 二叉搜索树的中序遍历是升序数组。
 比如对于样例输入 root = [4,2,6,1,3,null,null]，
 中序遍历的结果就是 [1, 2, 3, 4, 6]。
 题目要求两个结点的最小距离，
 就是要求中序遍历数组里相邻
 两个元素差的最小值。
-
 */
-
 
 int ret = 2147483647;
 bool first = true;
 int last;//上一个结点的值
-void help(struct TreeNode* root)
+void dfs(struct TreeNode* root)
 {
-    if(root)
-    {
-        //左子树
-        help(root->left);
+	if (root == NULL)
+		return;
 
-        //当前结点处理
-        if(!first)
-            ret = min(ret, abs(root->val - last));
-        else
-        {
-            first = false;
-        }
-        last = root->val;
+	dfs(root->left);
 
-        //右子树
-        help(root->right);
-    }
+	//当前结点处理
+	if(!first)
+		ret = min(ret, abs(root->val - last));
+	else {
+		first = false;
+	}
+
+	last = root->val;
+
+	dfs(root->right);
 }
 
-
-
-int minDiffInBST(struct TreeNode* root){
-     ret = 2147483647;
-    first = true;
-    help(root);
-    return ret;
+int minDiffInBST(struct TreeNode* root)
+{
+	ret = 2147483647;
+	first = true;
+	dfs(root);
+	return ret;
 }
 
 /*

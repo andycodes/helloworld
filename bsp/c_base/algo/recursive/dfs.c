@@ -27,126 +27,6 @@ def dfs(路径, 选择列表):
 
 */
 
-
-
-/*
-733. 图像渲染
-有一幅以二维整数数组表示的图画，
-每一个整数表示该图画的像素值大小，
-数值在 0 到 65535 之间。
-给你一个坐标 (sr, sc) 表示图像渲染开始的像素值（行 ，列）
-和一个新的颜色值 newColor，让你重新上色这幅图像。
-
-为了完成上色工作，从初始坐标开始，
-记录初始坐标的上下左右四个方向上像素值与初始坐
-标相同的相连像素点，接着再记录这四个方向上符合条
-件的像素点与他们对应四个方向上像素值与初始坐标相同
-的相连像素点，……，重复该过程。
-将所有有记录的像素点的颜色值改为新的颜色值。
-
-最后返回经过上色渲染后的图像。
-
-输入:
-image = [
-[1,1,1],
-[1,1,0],
-[1,0,1]
-]
-sr = 1, sc = 1, newColor = 2
-输出:
-[
-[2,2,2],
-[2,2,0],
-[2,0,1]]
-解析:
-在图像的正中间，(坐标(sr,sc)=(1,1)),
-在路径上所有符合条件的像素点的颜色都被更改成2。
-注意，右下角的像素没有更改为2，
-因为它不是在上下左右四个方向上与初始点相连的像素点。
-
-*/
-void changeValue(int** image, int imageSize, int* imageColSize,
-int sr, int sc, int newColor, int oldColor)
-{
-	if ( sr < 0 || sr >= imageSize || sc < 0 || sc >= imageColSize[sr] || image[sr][sc] != oldColor)
-		return;
-
-	image[sr][sc] = newColor;
-
-	int d[4][2] = {{0,1}, {1,0}, {0,-1}, {-1,0}};
-	for (int k = 0; k < 4; k++) {
-		  changeValue(image, imageSize, imageColSize,
-				sr + d[k][0], sc + d[k][1], newColor, oldColor);
-	}
-}
-
-int** floodFill(int** image, int imageSize, int* imageColSize, int sr, int sc,
-	int newColor, int* returnSize, int** returnColumnSizes)
-{
-	*returnSize = imageSize;
-	*returnColumnSizes = malloc(sizeof(int) * imageSize);
-	for (int i = 0; i < imageSize; i++) {
-		(*returnColumnSizes)[i] = imageColSize[i];
-	}
-
-	if (newColor == image[sr][sc])
-		return image;
-
-	changeValue(image, imageSize, imageColSize, sr, sc, newColor, image[sr][sc]);
-	return image;
-}
-
-
-/*
-200. 岛屿数量
-给定一个由 '1'（陆地）和 '0'（水）组成的的二维网格，
-计算岛屿的数量。一个岛被水包围，
-并且它是通过水平方向或垂直方向上相邻的陆地连接而成的。
-你可以假设网格的四个边均被水包围。
-
-示例 1:
-
-输入:
-11110
-11010
-11000
-00000
-
-输出: 1
-
-};
-*/
-void dfs(char** grid, int gridSize, int gridColSize, int x ,int y)
-{
-	if (x < 0 || x >= gridSize || y < 0 || y >= gridColSize || grid[x][y] == '0')
-		return;
-
-	grid[x][y] = '0';//前序操作
-
-	int d[4][2] = {{0,1}, {1,0}, {0,-1}, {-1,0}};
-	for(int k = 0; k < 4; k++) {
-		dfs(grid,gridSize,gridColSize, x + d[k][0], y + d[k][1]);
-	}
-}
-
-int numIslands(char** grid, int gridSize, int* gridColSize){
-	int num = 0;
-
-	if(grid == NULL  || gridSize == 0 || gridColSize == NULL)
-		return num;
-
-	for (int i = 0; i < gridSize; i++) {
-		for(int j = 0; j < *gridColSize; j++) {
-			if (grid[i][j] == '1') {
-				num++;
-				dfs(grid,gridSize,*gridColSize,i,j);
-			}
-		}
-	}
-
-	return num;
-}
-
 /*
 22. 括号生成
 给出 n 代表生成括号的对数，请你写出一个函数，
@@ -162,83 +42,18 @@ int numIslands(char** grid, int gridSize, int* gridColSize){
   "()()()"
 ]
 
-方法一：暴力法
-思路
-
-我们可以生成所有 2^{2n}2
-2n
-  个 '(' 和 ')' 字符构成的序列。
-  然后，我们将检查每一个是否有效。
-
-算法
-
 为了生成所有序列，我们使用递归。长度为 n 的序列就
-是 '(' 加上所有长度为 n-1 的序列，以及 ')' 加上所有长度为 n-1 的序列。
-
-为了检查序列是否为有效的，我们会跟踪 平衡，
-也就是左括号的数量减去右括号的数量的净值。
-如果这个值始终小于零或者不以零结束，
-该序列就是无效的，否则它是有效的。
-
+是 '(' 加上所有长度为 n-1 的序列，以及 ')' 加上所有长度为 n-1 的
+序列。
 */
 
-bool isValid(char* str, int strSize)
-{
-    int balance = 0;
-
-    for (unsigned int i = 0; i < strlen(str); i++) {
-        if (str[i] == '(')
-            balance++;
-        else
-            balance--;
-
-        if (balance < 0)
-            return false;
-    }
-
-    return (balance == 0);
-}
-
-void generateAll(char* current, int currentSize, int pos, char** res, int* returnSize)
-{
-    if (pos == currentSize) {
-        if (isValid(current, currentSize)) {
-            res[*returnSize] = (char*)calloc(1024 * 1024, sizeof(char));
-            strcpy(res[*returnSize], current);
-            (*returnSize)++;
-        }
-
-        return;
-    }
-
-	/*当前位置有两种情况*/
-	current[pos] = '(';
-	generateAll(current, currentSize, pos + 1, res, returnSize);
-	current[pos] = ')';
-	generateAll(current, currentSize, pos + 1, res, returnSize);
-}
-
-char** generateParenthesis(int n, int* returnSize)
-{
-	*returnSize = 0;
-	if (n == 0) {
-		return NULL;
-	}
-
-	char** res = (char**)calloc(1024 * 1024, sizeof(char*));
-	char* current = (char*)calloc(1024 * 1024, sizeof(char));
-	generateAll(current, 2 * n, 0, res, returnSize);
-	return res;
-}
-
 /*
-方法二：DFS
+DFS
 思路和算法
 
 加法
 
 只有在我们知道序列仍然保持有效时才添加 '(' or ')'，
-而不是像 方法一 那样每次添加。
 我们可以通过跟踪到目前为止放置的左括号和
 右括号的数目来做到这一点，
 
@@ -246,23 +61,23 @@ char** generateParenthesis(int n, int* returnSize)
 如果它不超过左括号的数量，我们可以放一个右括号。
 
 */
-void dfs(char** res, int* returnSize, char* current, int currentSize, int leftCnt, int rightCnt, int max)
+void dfs(char **res, int* returnSize, int left, int right, int n, int idx, char *tmp)
 {
-	if (currentSize == max * 2) {
-		res[*returnSize] = (char*)calloc(1024 * 1024, sizeof(char));
-		strcpy(res[*returnSize], current);
+	if (left + right == 2 * n) {
+		res[*returnSize] = (char *)calloc(2 * n + 1, sizeof(char));
+		strcpy(res[*returnSize], tmp);
 		(*returnSize)++;
 		return;
 	}
 
-	if (leftCnt < max) {
-		current[currentSize] = '(';
-		dfs(res, returnSize, current, currentSize + 1, leftCnt + 1, rightCnt, max);
+	if (left < n) {
+		tmp[idx] = '(';
+		dfs(res, returnSize, left + 1, right, n, idx + 1, tmp);
 	}
 
-	if (rightCnt < leftCnt) {
-		current[currentSize] = ')';
-		dfs(res, returnSize, current, currentSize + 1, leftCnt, rightCnt + 1, max);
+	if (right < left) {
+		tmp[idx] = ')';
+		dfs(res, returnSize, left, right + 1, n, idx + 1, tmp);
 	}
 }
 
@@ -273,7 +88,7 @@ void dfs(char** res, int* returnSize, char* current, int currentSize, int leftCn
 	}
 
 	if (currentSize == max * 2) {
-		res[*returnSize] = (char*)calloc(1024 * 1024, sizeof(char));
+		res[*returnSize] = (char*)calloc(max * 2 + 1, sizeof(char));
 		strcpy(res[*returnSize], current);
 		(*returnSize)++;
 		return;
@@ -298,175 +113,71 @@ char** generateParenthesis(int n, int* returnSize)
     return res;
 }
 
-/* bfs  left right 为总数减法到0 */
-char** generateParenthesis(int n, int* returnSize)
-{
-	*returnSize = 0;
-	if (n == 0) {
-		return NULL;
-	}
-
-	char** res = (char**)calloc(1024 * 1024, sizeof(char*));
-	struct List list;
-	queue_init(&list);
-
-	struct DataEntry  *entry = (struct DataEntry  *)calloc(1, sizeof(struct DataEntry));
-	entry->left = n;
-	entry->right = n;
-	memset(entry->data, 0, sizeof(entry->data));
-	ListAddTail(&list, &entry->node);
-
-	while(!queue_empty(&list)) {
-		struct Node *pop = queue_pop(&list);
-		struct DataEntry  *popEntry = NODE_ENTRY(pop, struct DataEntry, node);
-
-		if (popEntry->left == 0 && popEntry->right == 0) {
-			res[*returnSize] = (char*)calloc(1024 * 1024, sizeof(char));
-			strcpy(res[*returnSize], popEntry->data);
-			(*returnSize)++;
-		}
-
-		if (popEntry->left > 0) {
-			struct DataEntry  *leftentry = (struct DataEntry  *)calloc(1, sizeof(struct DataEntry));
-			leftentry->left = popEntry->left - 1;
-			leftentry->right = popEntry->right;
-			strcpy(leftentry->data, popEntry->data);
-			strcat(leftentry->data, "(");
-			ListAddTail(&list, &leftentry->node);
-		}
-
-		if (popEntry->right > 0 && popEntry->left < popEntry->right) {
-			struct DataEntry  *rightentry = (struct DataEntry  *)calloc(1, sizeof(struct DataEntry));
-			rightentry->left = popEntry->left;
-			rightentry->right = popEntry->right - 1;
-			strcpy(rightentry->data, popEntry->data);
-			strcat(rightentry->data, ")");
-			ListAddTail(&list, &rightentry->node);
-		}
-	}
-
-	return res;
-}
-
-
-/*
-设所求序列为S[n]，记其序号为n，则S[n]可以来自于之前求出的
-序列的组合再加上左右括号。
-
-比如 n = 3 时，我们要求3对括号能组成的有效组合，
-现在我们先摆好1对括号" （）"，思考是否能利用之前的组合
-填充这个括号，使其组成3对括号？ 可以得出这个填充是：
-"（2对括号的有效组合）"，"（1对括号的有效组合）1对括号的
-有效组合"，"（）2对括号的有效组合"。
-
-不用考虑"2对括号的有效组合（）"，因为已经包含在上述情
-况"（1对括号的有效组合）1对括号的有效组合"。
-
-将S[n]表示为"（左序列）右序列 " ，并且左右序列的序号之和
-为n-1，即 S[n] = { '(' + S[n-1] + ')' + S[0] , '(' + S[n-2] + ')' + S[1] , '(' + S[n-2] + ')' + S[1] ...... '(' + S[0]+ ')' + S[n - 1] }
-可知S[0] = "" ;
-
-  S[0]         S[1]         S[2]
-  { }          { "()" }       {"()()","(())"}
-S[3] = { '(' + S[2] + ')' + S[0] ， '(' + S[1] + ')' + S[1] , '(' + S[0] + ')' + S[2] }
-
-      =   {         "(()())" ,"((()))",     "(())()",    "()()()","()(())"      }
-class Solution {
-public:
-    vector<string> generateParenthesis(int n) {
-             vector<string> ans ;
-        if (n == 0) {
-            ans.push_back("");
-        } else {
-            for (int c = n-1; c >= 0; --c)
-                for (string left: generateParenthesis(c))
-                    for (string right: generateParenthesis(n-1-c))
-                        ans.push_back("(" + left + ")" + right);
-        }
-        return ans;
-    }
-
-};
-
-*/
-
 
 /*529 see bfs*/
-const int dir[8][2] = {{0,1}, {1,0}, {0,-1}, {-1,0},
-                 	      {1,1}, {-1,-1},{-1,1},{1,-1}
-                 	     };
-
-
-int  NeighborsHavenumsM(int x, int y,  char **res, int boardSize, int* boardColSize)
+int d[8][2] = {{0,1}, {1,0}, {0,-1}, {-1,0}, {1,1}, {-1,-1},{-1,1},{1,-1}};
+void dfs(char** board, int row, int col, int x, int y)
 {
-	int Mcnt = 0;
-
-	for (int i = 0; i < 8; i++) {
-		int nx = x + dir[i][0];
-		int ny = y + dir[i][1];
-
-		if (nx >= 0 && nx < boardSize && ny >= 0 && ny < boardColSize[nx]) {
-			if (res[nx][ny] == 'M' || res[nx][ny] == 'X')
-				Mcnt++;
-		}
-	}
-
-	return Mcnt;
-}
-
-
-void dfs(int boardSize, int* boardColSize, int x, int y, char **res)
-{
-	int nums = NeighborsHavenumsM(x, y, res, boardSize, boardColSize);
-
-	if (nums > 0) {
-		res[x][y] = '0' + nums;
+	if (board[x][y] == 'M') {
+		board[x][y] = 'X';
 		return;
 	}
 
-	res[x][y] = 'B';
-	for (int i = 0; i < 8; i++) {
-		int nx = x + dir[i][0];
-		int ny = y + dir[i][1];
+	if (board[x][y] != 'E') {
+		return;
+	}
 
-		if (nx >= 0 && nx < boardSize && ny >= 0 && ny < boardColSize[nx]) {
-			if (res[nx][ny] == 'E') {
-				dfs(boardSize, boardColSize, nx, ny, res);
-			}
+	int cnt = 0;
+	for (int i = 0; i < 8; i++) {
+		int nx = x + d[i][0];
+		int ny = y + d[i][1];
+
+		if (nx < 0 || nx >= row || ny < 0 || ny >= col) {
+			continue;
 		}
+
+		if (board[nx][ny] == 'X' || board[nx][ny] == 'M') {
+			cnt++;
+		}
+	}
+
+	if (cnt == 0) {
+		board[x][y] = 'B';
+
+		for (int i = 0; i < 8; i++) {
+		int nx = x + d[i][0];
+		int ny = y + d[i][1];
+
+		if (nx < 0 || nx >= row || ny < 0 || ny >= col) {
+			continue;
+		}
+
+		if (board[nx][ny] == 'M' || board[nx][ny] == 'E') {
+			dfs(board, row, col, nx, ny);
+		}
+	}
+	} else {
+		board[x][y] = '0' + cnt;
 	}
 }
 
 char** updateBoard(char** board, int boardSize, int* boardColSize,
-int* click, int clickSize, int* returnSize, int** returnColumnSizes){
-
-	char **res = (char **)calloc(boardSize, sizeof(char *));
-	for (int i = 0; i < boardSize; i++) {
-	        res[i] = (char *)calloc(boardColSize[i], sizeof(char));
-	}
-
-	*returnColumnSizes = calloc(boardSize, sizeof(int *));
-
-	for (int i = 0; i < boardSize; i++){
-	        for (int j = 0; j < boardColSize[i]; j++) {
-	            res[i][j] = board[i][j];
-	        }
-
-		(*returnColumnSizes)[i] = boardColSize[i];
-	}
-
+int* click, int clickSize, int* returnSize, int** returnColumnSizes)
+{
 	*returnSize = boardSize;
+	*returnColumnSizes = boardColSize;
 
-	int x = click[0];
-	int y = click[1];
-
-	if (res[x][y] == 'M') {
-	    res[x][y] = 'X';
-	} else if (res[x][y] == 'E') {
-		dfs(boardSize, boardColSize, x, y, res);
+	if (board[click[0]][click[1]] == 'M') {
+		board[click[0]][click[1]] = 'X';
+		return board;
 	}
-	return res;
+
+	int row = boardSize;
+	int col = *boardColSize;
+	dfs(board, row, col, click[0], click[1]);
+	return board;
 }
+
 
 /*
 130. 被围绕的区域
