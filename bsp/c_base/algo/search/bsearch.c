@@ -537,3 +537,70 @@ int search(int* nums, int numsSize, int target)
         }
         return -1;
 }
+
+/*
+4. 寻找两个正序数组的中位数
+难度困难2980
+给定两个大小为 m 和 n 的正序（从小到大）数组 nums1 和 nums2。
+请你找出这两个正序数组的中位数，并且要求算法的时间复杂度为 O(log(m + n))。
+你可以假设 nums1 和 nums2 不会同时为空。
+
+示例 1:
+nums1 = [1, 3]
+nums2 = [2]
+
+则中位数是 2.0
+示例 2:
+nums1 = [1, 2]
+nums2 = [3, 4]
+
+则中位数是 (2 + 3)/2 = 2.5
+
+*/
+double findMedianSortedArrays(int* nums1, int nums1Size, int* nums2, int nums2Size)
+{
+    int m = nums1Size;
+    int n = nums2Size;
+    int len = m + n;
+    int left = -1, right = -1;
+    int aStart = 0, bStart = 0;
+    for (int i = 0; i <= len / 2; i++) {
+        left = right;
+        if (aStart < m && (bStart >= n || nums1[aStart] < nums2[bStart])) {
+            right = nums1[aStart++];
+        } else {
+            right = nums2[bStart++];
+        }
+    }
+    if ((len & 1) == 0)
+        return (left + right) / 2.0;
+    else
+        return right;
+}
+
+double getNum(int* nums1, int nums1Size, int* nums2, int nums2Size, int k){
+        int result[nums1Size + nums2Size];
+        int i = 0, j = 0;
+        int cur = 0;
+        while(i < nums1Size && j <nums2Size && cur <= k){
+            if(nums1[i] < nums2[j]) result[cur++] = nums1[i++];
+            else result[cur++] = nums2[j++];
+        }
+        while(i < nums1Size && cur <=k) result[cur++] = nums1[i++];
+        while(j < nums2Size && cur <=k) result[cur++] = nums2[j++];
+        return result[cur-1];
+    }
+
+double findMedianSortedArrays(int* nums1, int nums1Size, int* nums2, int nums2Size)
+{
+        int length = nums1Size + nums2Size;
+        double result = 0;
+        //分别进行奇数偶数处理
+        if(length % 2 != 0){
+            result = getNum(nums1,nums1Size, nums2, nums2Size, length/2);
+        }else{
+            result = getNum(nums1,nums1Size, nums2, nums2Size, length/2-1)/2 +
+				getNum(nums1,nums1Size, nums2, nums2Size, length/2)/2;
+        }
+        return result;
+}

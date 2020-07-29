@@ -173,3 +173,107 @@ int subarraysDivByK(int* A, int ASize, int K){
     free(map);
     return count;
 }
+
+/*
+42. 接雨水
+难度困难1499
+给定 n 个非负整数表示每个宽度为 1 的柱子的高度图，计算按此排列的柱子，下雨之后能接多少雨水。
+
+上面是由数组 [0,1,0,2,1,0,1,3,2,1,2,1] 表示的高度图，在这种情况下，可以接 6 个单位的雨水（蓝色部分表示雨水）。 感谢 Marcos 贡献此图。
+示例:
+输入: [0,1,0,2,1,0,1,3,2,1,2,1]
+输出: 6
+
+*/
+int trap(int* height, int heightSize)
+{
+    int ans = 0;
+    int size = heightSize;
+    for (int i = 1; i < size - 1; i++) {
+        int max_left = 0, max_right = 0;
+        for (int j = i; j >= 0; j--) { //Search the left part for max bar size
+            max_left = fmax(max_left, height[j]);
+        }
+        for (int j = i; j < size; j++) { //Search the right part for max bar size
+            max_right = fmax(max_right, height[j]);
+        }
+        ans += fmin(max_left, max_right) - height[i];
+    }
+    return ans;
+}
+
+int trap(int* height, int heightSize)
+{
+	if(height == NULL || heightSize <= 0)
+		return 0;
+	int ans = 0;
+	int size = heightSize;
+	int left_max[size];
+	int right_max[size];
+    left_max[0] = height[0];
+    for (int i = 1; i < size; i++) {
+        left_max[i] = fmax(height[i], left_max[i - 1]);
+    }
+    right_max[size - 1] = height[size - 1];
+    for (int i = size - 2; i >= 0; i--) {
+        right_max[i] = fmax(height[i], right_max[i + 1]);
+    }
+    for (int i = 1; i < size - 1; i++) {
+        ans += fmin(left_max[i], right_max[i]) - height[i];
+    }
+    return ans;
+
+}
+
+int trap(int* height, int heightSize)
+{
+	if (height == NULL || heightSize <= 0)
+		return 0;
+
+	int ans = 0, current = 0;
+	int stackSize = fmax(heightSize, 1024);
+	int stack[stackSize];
+	int top = -1;
+
+	while (current < heightSize) {
+		while (top > -1 && height[current] > height[stack[top]]) {
+			int low = stack[top--];
+			if (top < 0)
+				break;
+			int distance = current - stack[top] - 1;
+			int bounded_height = fmin(height[current], height[stack[top]]) - height[low];
+			ans += distance * bounded_height;
+		}
+
+		stack[++top] = current++;
+	}
+
+	return ans;
+}
+
+int trap(int* height, int heightSize)
+{
+    int left = 0, right = heightSize - 1;
+    int ans = 0;
+    int left_max = 0, right_max = 0;
+
+    while (left < right) {
+        if (height[left] < height[right]) {
+		if (height[left] >= left_max)
+			left_max = height[left];
+		else
+			ans += (left_max - height[left]);
+
+            ++left;
+        } else {
+            if (height[right] >= right_max) {
+			right_max = height[right];
+		} else
+			ans += (right_max - height[right]);
+
+            --right;
+        }
+    }
+
+    return ans;
+}

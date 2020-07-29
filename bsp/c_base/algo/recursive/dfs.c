@@ -206,48 +206,51 @@ X O X X
 不连通的 OO）；遇到 #，替换回 $O(和边界连通
 的 OO)。
 */
-void dfs(char** board, int boardSize, int* boardColSize, int x, int y)
+int d[][2] = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+void dfs(char** board, int row , int col, int x, int y)
 {
 	if (board[x][y] != 'O')
-		return;//false
+		return;
 
-	board[x][y] = 'F';
+	board[x][y] = 'B';
 
-	int d[4][2] = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
-	for (int i = 0;i < 4; i++) {
+	for (int i = 0; i < 4; i++) {
 		int nx = x + d[i][0];
 		int ny = y + d[i][1];
 
-		if (nx >= 0 && nx < boardSize && ny >= 0 &&
-			ny < boardColSize[nx] && board[nx][ny] == 'O') {
-			dfs(board, boardSize, boardColSize, nx, ny);
+		if (nx < 0 || nx >= row || ny < 0 || ny >= col) {
+			continue;
 		}
+
+		dfs(board, row, col, nx, ny);
 	}
 }
 
+void solve(char** board, int boardSize, int* boardColSize)
+{
+	if (board == NULL || boardSize <= 0 || boardColSize == NULL)
+		return board;
 
+	int row = boardSize;
+	int col = *boardColSize;
 
-void solve(char** board, int boardSize, int* boardColSize) {
-	if (board == NULL || boardSize <= 0 || boardColSize == NULL )
-		return;
-
-	for (int i = 0; i < boardSize; i++) {
-		dfs(board, boardSize, boardColSize, i, 0);
-		dfs(board, boardSize, boardColSize, i, boardColSize[i] - 1);
+	for (int i = 0; i < col; i++) {
+		dfs(board, row, col, 0, i);
+		dfs(board, row, col, row - 1, i);
 	}
 
-	for (int j = 0; j < boardColSize[0]; j++) {
-		dfs(board, boardSize, boardColSize, 0, j);
-		dfs(board, boardSize, boardColSize, boardSize - 1, j);
+	for (int i = 0; i < row; i++) {
+		dfs(board, row, col, i, 0);
+		dfs(board, row, col, i, col - 1);
 	}
 
-
-	for(int i = 0; i < boardSize; i++) {
-		for (int j = 0; j < boardColSize[i]; j++) {
-			if (board[i][j] == 'O')
+	for (int i = 0; i < row; i++) {
+		for (int j = 0; j < col; j++) {
+			if (board[i][j] == 'O') {
 				board[i][j] = 'X';
-			else if (board[i][j] == 'F')
+			} else if (board[i][j] == 'B'){
 				board[i][j] = 'O';
+			}
 		}
 	}
 }
@@ -256,7 +259,11 @@ void solve(char** board, int boardSize, int* boardColSize) {
 /*
 面试题 16.19. 水域大小
 难度中等1
-你有一个用于表示一片土地的整数矩阵land，该矩阵中每个点的值代表对应地点的海拔高度。若值为0则表示水域。由垂直、水平或对角连接的水域为池塘。池塘的大小是指相连接的水域的个数。编写一个方法来计算矩阵中所有池塘的大小，返回值需要从小到大排序。
+你有一个用于表示一片土地的整数矩阵land，该矩阵中每个点的
+值代表对应地点的海拔高度。若值为0则表示水域。由垂直、
+水平或对角连接的水域为池塘。池塘的大小是指相连接的水域
+的个数。编写一个方法来计算矩阵中所有池塘的大小，
+返回值需要从小到大排序。
 示例：
 输入：
 [
@@ -269,50 +276,109 @@ void solve(char** board, int boardSize, int* boardColSize) {
 
 */
 
-#define PARAM_CHECK(land, landSize, landColSize, returnSize) 	\
-{\
-	if (land == NULL || landSize > 1000 || landSize <= 0 || landColSize == NULL || returnSize == NULL)\
-		return NULL;\
-}\
-
-
-void dfs(int** land, int landSize, int* landColSize, int *res, int i, int j)
-{
-	if (i < 0 || i >= landSize || j < 0 || j >= landColSize[i] || land[i][j] != 0) {
-		return;
-	}
-
-	(*res)++;
-	land[i][j] = 1;
-
-	int d[8][2] = {{0,1},{1,1},{1,0},{1,-1},
+int d[8][2] = {{0,1},{1,1},{1,0},{1,-1},
 		{0,-1},{-1,-1},{-1,0},{-1,1}};
 
-	for (int k = 0; k < 8; k++) {
-		dfs(land, landSize, landColSize, res, i + d[k][0], j + d[k][1]);
+int cmp_int(const void *a, const void *b)
+{
+	return *((int *)a) - *((int *)b);
+}
+
+void  dfs(int** land, int row, int col, int x, int y, int *cnt)
+{
+	if (land[x][y] != 0)
+		return;
+
+	land[x][y] = 1;
+	(*cnt)++;
+
+	for (int i = 0; i < 8; i++) {
+		int nx = x + d[i][0];
+		int ny = y + d[i][1];
+
+		if (nx < 0 || nx >= row || ny < 0 || ny >= col) {
+			continue;
+		}
+
+		dfs(land, row, col, nx, ny, cnt);
 	}
 }
 
-
 int* pondSizes(int** land, int landSize, int* landColSize, int* returnSize)
 {
+	if (land == NULL || landSize <= 0 || landColSize == NULL || returnSize == NULL)
+		return NULL;
+
+	int *res = (int *)calloc(1001 * 1001, sizeof(int));
+	int row = landSize;
+	int col = *landColSize;
+
 	*returnSize = 0;
-
-	PARAM_CHECK(land, landSize, landColSize, returnSize);
-
-	int * res = (int *)calloc(landSize * 1024, sizeof(int));
-
-	for(int i = 0; i < landSize; i++) {
-		for (int j = 0; j < landColSize[i]; j++) {
+	for (int i = 0; i < row; i++) {
+		for (int j = 0; j < col; j++) {
 			if (land[i][j] == 0) {
-				dfs(land, landSize, landColSize, res + *returnSize, i, j);
+				int cnt = 0;
+				dfs(land, row, col, i, j, &cnt);
+				res[*returnSize] = cnt;
 				(*returnSize)++;
 			}
 		}
 	}
 
-	qsort(res, *returnSize, sizeof(int), cmp_int);
+	qsort(res, *returnSize, sizeof(res[0]), cmp_int);
+	return res;
+}
 
+int d[8][2] = {{0,1},{1,1},{1,0},{1,-1},
+		{0,-1},{-1,-1},{-1,0},{-1,1}};
+
+int cmp_int(const void *a, const void *b)
+{
+	return *((int *)a) - *((int *)b);
+}
+
+int  dfs(int** land, int row, int col, int x, int y)
+{
+	if (land[x][y] != 0)
+		return 0;
+
+	land[x][y] = 1;
+	int ret = 1;
+
+	for (int i = 0; i < 8; i++) {
+		int nx = x + d[i][0];
+		int ny = y + d[i][1];
+
+		if (nx < 0 || nx >= row || ny < 0 || ny >= col) {
+			continue;
+		}
+
+		ret += dfs(land, row, col, nx, ny);
+	}
+
+	return ret;
+}
+
+int* pondSizes(int** land, int landSize, int* landColSize, int* returnSize)
+{
+	if (land == NULL || landSize <= 0 || landColSize == NULL || returnSize == NULL)
+		return NULL;
+
+	int *res = (int *)calloc(1001 * 1001, sizeof(int));
+	int row = landSize;
+	int col = *landColSize;
+
+	*returnSize = 0;
+	for (int i = 0; i < row; i++) {
+		for (int j = 0; j < col; j++) {
+			if (land[i][j] == 0) {
+				res[*returnSize] = dfs(land, row, col, i, j);
+				(*returnSize)++;
+			}
+		}
+	}
+
+	qsort(res, *returnSize, sizeof(res[0]), cmp_int);
 	return res;
 }
 
