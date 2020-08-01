@@ -1384,3 +1384,230 @@ int trapRainWater(int** heightMap, int heightMapSize, int* heightMapColSize)
         }
         return ans;
 }
+
+int dir[4][2] = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+
+int** updateMatrix(int** matrix, int matrixSize, int* matrixColSize, int* returnSize, int** returnColumnSizes)
+{
+        int row = matrixSize;
+	int col = *matrixColSize;
+	int **dist = (int **)calloc(row, sizeof(int *));
+	for (int i = 0; i < row; i++) {
+		dist[i] = (int *)calloc(col, sizeof(int));
+	}
+
+	int visited[row][col];
+	memset(visited, 0, sizeof(visited));
+	   int queue[10001];
+		memset(queue, 0, sizeof(queue));
+	   int head = 0;
+	   int rear = 0;
+        // 将所有的 0 添加进初始队列中
+        for (int i = 0; i < row; ++i) {
+            for (int j = 0; j < col; ++j) {
+                if (matrix[i][j] == 0) {
+			queue[rear++] = i * col + j;
+                    visited[i][j] = 1;
+                }
+            }
+        }
+
+        // 广度优先搜索
+        while (head != rear) {
+             int top = queue[head++];
+		  int i = top / col;
+		  int j = top % col;
+            for (int d = 0; d < 4; ++d) {
+                int ni = i + dir[d][0];
+                int nj = j + dir[d][1];
+                if (ni >= 0 && ni < row && nj >= 0 && nj < col && !visited[ni][nj]) {
+                    dist[ni][nj] = dist[i][j] + 1;
+				queue[rear++] = ni * col + nj;
+                    visited[ni][nj] = 1;
+                }
+            }
+        }
+
+	*returnSize = matrixSize;
+	*returnColumnSizes = matrixColSize;
+    return dist;
+}
+
+/*
+Tree 的 BFS 单源 BFS
+图 的 BFS 多源 BFS
+*/
+
+int** updateMatrix(int** matrix, int matrixSize, int* matrixColSize, int* returnSize, int** returnColumnSizes)
+{
+    int m = matrixSize, n = *matrixColSize;
+
+
+    for (int i = 0; i < m; i++) {
+      for (int j = 0; j < n; j++) {
+        matrix[i][j] = matrix[i][j] == 0 ? 0 : 10000;
+      }
+    }
+
+    // 从左上角开始
+    for (int i = 0; i < m; i++) {
+      for (int j = 0; j < n; j++) {
+        if (i - 1 >= 0) {
+          matrix[i][j] = fmin(matrix[i][j], matrix[i - 1][j] + 1);
+        }
+        if (j - 1 >= 0) {
+          matrix[i][j] = fmin(matrix[i][j], matrix[i][j - 1] + 1);
+        }
+      }
+    }
+    // 从右下角开始
+    for (int i = m - 1; i >= 0; i--) {
+      for (int j = n - 1; j >= 0; j--) {
+        if (i + 1 < m) {
+          matrix[i][j] = fmin(matrix[i][j], matrix[i + 1][j] + 1);
+        }
+        if (j + 1 < n) {
+          matrix[i][j] = fmin(matrix[i][j], matrix[i][j + 1] + 1);
+        }
+      }
+    }
+
+	*returnColumnSizes = matrixColSize;
+	*returnSize = matrixSize;
+    return matrix;
+}
+
+/*
+1162. 地图分析
+难度中等134
+你现在手里有一份大小为 N x N 的「地图」（网格） grid，上面的每个「区域」（单元格）都用 0 和 1 标记好了。其中 0 代表海洋，1 代表陆地，请你找出一个海洋区域，这个海洋区域到离它最近的陆地区域的距离是最大的。
+我们这里说的距离是「曼哈顿距离」（ Manhattan Distance）：(x0, y0) 和 (x1, y1) 这两个区域之间的距离是 |x0 - x1| + |y0 - y1| 。
+如果我们的地图上只有陆地或者海洋，请返回 -1。
+
+示例 1：
+
+输入：[[1,0,1],[0,0,0],[1,0,1]]
+输出：2
+解释：
+海洋区域 (1, 1) 和所有陆地区域之间的距离都达到最大，最大距离为 2。
+
+*/
+/*
+[
+[1,0,1],
+[0,0,0],
+[1,0,1]
+]
+0 --sea
+1---land
+如果我们的地图上只有陆地或者海洋，请返回 -1。
+*/
+int maxDistance(int** grid, int gridSize, int* gridColSize)
+{
+	int queue[100 * 1000];
+	int rear = 0;
+	int head = 0;
+	int row = gridSize;
+	int col = *gridColSize;
+
+	int cnt = 0;
+	for (int i = 0; i < row; i++) {
+		for (int j = 0; j < col; j++) {
+			if (grid[i][j] == 1) {
+				queue[rear++] = i * col + j;
+				cnt++;
+			}
+		}
+	}
+
+	if (cnt == 0 || cnt == row * col)
+		return -1;
+
+	int deep = -1;
+	int dir[][2] = {{0,1}, {0, -1}, {1, 0}, {-1, 0}};
+	while(rear != head) {
+		deep++;
+		int floorSize = rear - head;
+		for (int i = 0; i < floorSize; i++) {
+			int top = queue[head++];
+			int cx = top / col;
+			int cy = top % col;
+
+			for (int j = 0; j < 4; j ++) {
+				int nx = cx + dir[j][0];
+				int ny = cy + dir[j][1];
+
+				if (nx < 0 || nx >= row || ny < 0 || ny >= col) {
+					continue;
+				}
+
+				if (grid[nx][ny] != 0)
+					continue;
+
+				grid[nx][ny] = 1;
+				queue[rear++] = nx * col + ny;
+			}
+		}
+	}
+
+	return deep;
+}
+
+/*
+显然这不是一个「单源」最短路问题（SSSP）。在我们学习过的最短路算法中，求解 SSSP 问题的方法有 Dijkstra 算法和 SPFA算法，而求解任意两点之间的最短路一般使用 Floyd 算法。那我们在这里就应该使用 Floyd 算法吗？要考虑这个问题，我们需要分析一下这里使用 Floyd 算法的时间复杂度。我们知道在网格图中求最短路，作者：LeetCode-Solution链接：https://leetcode-cn.com/problems/as-far-from-land-as-possible/solution/di-tu-fen-xi-by-leetcode-solution/来源：力扣（LeetCode）著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+*/
+int maxDistance(int** grid, int gridSize, int* gridColSize)
+{
+	int row = gridSize;
+	int col = *gridColSize;
+	int d[row][col];
+	int visited[row][col];
+        for (int i = 0; i < row; ++i) {
+            for (int j = 0; j < col; ++j) {
+                d[i][j] = INT_MAX;
+		visited[i][j] = 0;
+            }
+        }
+
+	int queue[100 * 1000];
+	int head = 0;
+	int rear = 0;
+        for (int i = 0; i < row; ++i) {
+            for (int j = 0; j < col; ++j) {
+                if (grid[i][j]) {
+                    d[i][j] = 0;
+                    //q.push({i, j});
+			queue[rear++] = i * col + j;
+                    visited[i][j] = 1;
+                }
+            }
+        }
+
+	int dir[][2] = {{0,1}, {0, -1}, {1, 0}, {-1, 0}};
+        while (head != rear) {
+            int f = queue[head++];
+		int cx = f / col;
+		int cy = f % col;
+			visited[cx][cy] = 0;
+            for (int i = 0; i < 4; ++i) {
+                int nx = cx + dir[i][0], ny = cy + dir[i][1];
+                if (!(nx >= 0 && nx <= row - 1 && ny >= 0 && ny <= col - 1)) continue;
+                if (d[nx][ny] > d[cx][cy] + 1) {
+                    d[nx][ny] = d[cx][cy] + 1;
+                    if (!visited[nx][ny]) {
+                        queue[rear++] = nx * col + ny;
+                        visited[nx][ny] = 1;
+                    }
+                }
+            }
+        }
+
+        int ans = -1;
+        for (int i = 0; i < row; ++i) {
+            for (int j = 0; j < col; ++j) {
+                if (!grid[i][j]) ans = fmax(ans, d[i][j]);
+            }
+        }
+
+        return (ans == INT_MAX) ? -1 : ans;
+}

@@ -1,17 +1,7 @@
 /*
-深度优先搜索（Depth-First-Search，DFS）是一种
-用于遍历或搜索树或图的算法。
-沿着树的深度遍历树的节点，
-尽可能深的搜索树的分支。
-当节点v的所在边都己被探寻过，
-搜索将回溯到发现节点v的那条边的起始节点。
-这一过程一直进行到已发现从源节点可达
-的所有节点为止。如果还存在未被发现的节点，
-则选择其中一个作为源节点并重复以上过程，
-整个进程反复进行直到所有节点都被访问为止。
+DFS
 
-DFS模板
-
+模板
 result = []
 def dfs(路径, 选择列表):
     if 满足「结束条件」:
@@ -25,6 +15,9 @@ def dfs(路径, 选择列表):
         dfs(路径, 选择列表)
 	 (注意跟回溯差异:没有反悔撤销而剪枝)
 
+
+BFS+DFS问题
+逆向传播
 */
 
 /*
@@ -206,7 +199,6 @@ X O X X
 不连通的 OO）；遇到 #，替换回 $O(和边界连通
 的 OO)。
 */
-int d[][2] = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
 void dfs(char** board, int row , int col, int x, int y)
 {
 	if (board[x][y] != 'O')
@@ -278,12 +270,6 @@ void solve(char** board, int boardSize, int* boardColSize)
 
 int d[8][2] = {{0,1},{1,1},{1,0},{1,-1},
 		{0,-1},{-1,-1},{-1,0},{-1,1}};
-
-int cmp_int(const void *a, const void *b)
-{
-	return *((int *)a) - *((int *)b);
-}
-
 void  dfs(int** land, int row, int col, int x, int y, int *cnt)
 {
 	if (land[x][y] != 0)
@@ -331,11 +317,6 @@ int* pondSizes(int** land, int landSize, int* landColSize, int* returnSize)
 
 int d[8][2] = {{0,1},{1,1},{1,0},{1,-1},
 		{0,-1},{-1,-1},{-1,0},{-1,1}};
-
-int cmp_int(const void *a, const void *b)
-{
-	return *((int *)a) - *((int *)b);
-}
 
 int  dfs(int** land, int row, int col, int x, int y)
 {
@@ -405,57 +386,48 @@ char letter[][4] = {
     {'t', 'u', 'v', 0},
     {'w', 'x', 'y', 'z'}
 };
+int nums[] = {3,3,3,3,3,4,3,4};
 
-int nums[] = { 3,3,3,3,3,4,3,4 };
-
-void dfs(char* digits, int srcSize, int* returnSize,
-    char* tmp, int tmpIdx, int start, char** res)
+void dfs(char* digits, int srcSize, int* returnSize, char* tmp, int start, char** res)
 {
 	if (start == srcSize) {
-		res[*returnSize] = (char*)calloc(1024, sizeof(char));
-		strcpy(res[*returnSize], tmp);
+		res[*returnSize] = strdup(tmp);
 		(*returnSize)++;
 		return;
 	}
 
 	int leSize = nums[digits[start] - '2'];
-	for (int i = 0; i < leSize; i++) { /*每一层leSize种case */
-		tmp[tmpIdx] = letter[digits[start] - '2'][i];
-		dfs(digits, srcSize, returnSize, tmp, tmpIdx + 1, start + 1, res);
+	for (int i = 0; i < leSize; i++) { /*当前层次的种类*/
+		tmp[start] = letter[digits[start] - '2'][i];
+		dfs(digits, srcSize, returnSize, tmp, start + 1, res);
 	}
 }
 
-
 char** letterCombinations(char* digits, int* returnSize)
 {
-    if (digits == NULL || 0 == strcmp(digits, "")) {
-        *returnSize = 0;
-        return NULL;
-    }
+	*returnSize = 0;
+	int slen = strlen(digits);
+	if (digits == NULL || slen == 0) {
+		return NULL;
+	}
 
-    char** res = (char **)calloc(1024, sizeof(char*));
-    char* tmp = (char*)calloc(1024, sizeof(char));
-    int strSize = strlen(digits);
-
-    *returnSize = 0;
-    dfs(digits, strSize, returnSize, tmp, 0, 0, res);
-
-    return res;
+	char** res = (char **)calloc(1024, sizeof(char*));
+	char tmp[1024];
+	memset(tmp, 0, sizeof(tmp));
+	dfs(digits, slen, returnSize, tmp, 0, res);
+	return res;
 }
+
 
 /*
 39. 组合总和
 给定一个无重复元素的数组 candidates 和一个目标数 target ，
 找出 candidates 中所有可以使数字和为 target 的组合。
-
 candidates 中的数字可以无限制重复被选取。
-
 说明：
-
 所有数字（包括 target）都是正整数。
 解集不能包含重复的组合。
 示例 1:
-
 输入: candidates = [2,3,6,7], target = 7,
 所求解集为:
 [
@@ -463,9 +435,8 @@ candidates 中的数字可以无限制重复被选取。
   [2,2,3]
 ]
 
-思路：以 target = 7 为根结点，每一个分支做减法。
-减到 00 或者负数的时候，剪枝。其中，
-减到 00 的时候结算，这里 "结算" 的意思是添加到结果集。
+target 减法-->0
+sum 加法--->target
 */
 void dfs(int* candidates, int candidatesSize, int start,
     int target, int* returnSize, int** returnColumnSizes,
@@ -479,6 +450,8 @@ void dfs(int* candidates, int candidatesSize, int start,
 		return;
 	}
 
+	/*start:组合不重复，上一层已经选用的元
+	素下一层再使用造成重复*/
 	for (int i = start; i < candidatesSize &&  candidates[i] <= target; i++) {
 		current[curIdx] = candidates[i];
 		dfs(candidates, candidatesSize, i, target - candidates[i],
@@ -494,109 +467,21 @@ int** combinationSum(int* candidates, int candidatesSize,
 		return NULL;
 	}
 
-	qsort(candidates, candidatesSize, sizeof(int), cmp_int);
+	qsort(candidates, candidatesSize, sizeof(int), cmp_int);/*must*/
 	int** res = (int**)calloc(1024, sizeof(int*));
 	*returnColumnSizes = (int*)calloc(1024, sizeof(int));
-	int* current = (int*)calloc(1024, sizeof(int));
+	int current[1024] = {0};
 	dfs(candidates, candidatesSize, 0, target, returnSize,
 		returnColumnSizes, res, current, 0);
 	return res;
 }
 
-
-void dfs(int* candidates, int candidatesSize, int start,
-    int target, int* returnSize, int** returnColumnSizes,
-    int **res, int *current, int curIdx, int sum)
-{
-    if (sum > target) {
-        return;
-    } else if (sum == target) {
-        res[*returnSize] = (int*)calloc(1024, sizeof(int));
-        memcpy(res[*returnSize], current, sizeof(int) * curIdx);
-        (*returnColumnSizes)[*returnSize] = curIdx;
-        (*returnSize)++;
-        return;
-    }
-
-    for (int i = start; i < candidatesSize &&  sum + candidates[i] <= target; i++) {
-        current[curIdx] = candidates[i];
-        dfs(candidates, candidatesSize, i, target,
-            returnSize, returnColumnSizes, res, current, curIdx + 1, sum + candidates[i]);
-    }
-}
-
-int** combinationSum(int* candidates, int candidatesSize,
-    int target, int* returnSize, int** returnColumnSizes) {
-
-    *returnSize = 0;
-    if (candidates == NULL || candidatesSize <= 0) {
-        return NULL;
-    }
-
-    qsort(candidates, candidatesSize, sizeof(int), cmp_int);
-    int** res = (int**)calloc(1024, sizeof(int*));
-    *returnColumnSizes = (int*)calloc(1024, sizeof(int));
-    int* current = (int*)calloc(1024, sizeof(int));
-    dfs(candidates, candidatesSize, 0, target, returnSize,
-        returnColumnSizes, res, current, 0, 0);
-    return res;
-}
-
-
-void dfs(int* candidates, int candidatesSize, int start,
-    int target, int* returnSize, int** returnColumnSizes,
-    int** res, int* current, int curIdx)
-{
-    if (target == 0) {
-        res[*returnSize] = (int*)calloc(1024, sizeof(int));
-        memcpy(res[*returnSize], current, sizeof(int) * curIdx);
-        (*returnColumnSizes)[*returnSize] = curIdx;
-        (*returnSize)++;
-        return;
-    }
-
-    if (start == candidatesSize || candidates[start] > target) {
-        return;
-    }
-
-/*一直重复使用当前数降维target*/
-    current[curIdx] = candidates[start];
-    dfs(candidates, candidatesSize, start, target - candidates[start],
-        returnSize, returnColumnSizes, res, current, curIdx + 1);
-
-/*使用下一个数进行递归遍历*/
-    dfs(candidates, candidatesSize, start + 1, target,
-        returnSize, returnColumnSizes, res, current, curIdx);
-}
-
-int main(void)
-{
-	int intput[] = {2,3,6,7};
-	int target = 7;
-
-	int retSize;
-	int *returnColumnSizes;
-	int **ret;
-	ret = combinationSum(intput, sizeof(intput)/sizeof(int),
-		target, &retSize, &returnColumnSizes);
-	for (int i = 0; i < retSize; i++) {
-		 for(int j = 0; j < retColSize[i]; j++) {
-			printf("%d", ret[i][j]);
-		 }
-		 printf("\n");
-	}
-}
-
-
 /*
 40. 组合总和 II
 给定一个数组 candidates 和一个目标数 target ，
 找出 candidates 中所有可以使数字和为 target 的组合。
-
 candidates 中的每个数字在每个组合中只能使用一次。
-
 说明：
-
 所有数字（包括目标数）都是正整数。
 解集不能包含重复的组合。
 
@@ -628,10 +513,19 @@ int start, int **res, int *curBuf, int curSize)
 		return;
 	}
 
-	if (start >= candidatesSize || candidates[start] > target)
-		return;
-
 	for (int i = start; i < candidatesSize && target > 0 && candidates[i] <= target; i++) {
+/*排序之后相同的肯定是挨着的，
+if（candidates[i] == candidates[i - 1]）我们就过滤掉candidates[i]*/
+/*
+无论是求组合/子集/排列，只要原数组中含有重复元素，通用一个去重方法：
+1.先排序，使相同元素相邻；
+2.在backtrack的for循环里：
+
+
+if(i>start&&candidates[i]==candidates[i-1]) continue;
+其中i>start一定要理解，i是当前考察的元素下标，start是本层最开始的那个元素的下标，我们的去重是要同层去重，
+如果你只写candidates[i]==candidates[i-1]这一个判断条件，那么在dfs树的时候，身处不同层的相同元素的组合/排列也都生成不了
+*/
 		if ( i > start && candidates[i] == candidates[i - 1])
 			continue;
 
@@ -651,14 +545,13 @@ int target, int* returnSize, int** returnColumnSizes)
 
 	int ** res = (int **)calloc(1024, sizeof(int *));
 	*returnColumnSizes = (int *)calloc(1024, sizeof(int));
-	int *curBuf = (int *)calloc(1024, sizeof(int));
+	int curBuf[1024] = {0};
 
 	qsort(candidates, candidatesSize, sizeof(int), cmp_int);
 	dfs(candidates, candidatesSize, target,
 	returnSize, returnColumnSizes, 0, res, curBuf, 0);
 	return res;
 }
-
 
 /*
 216. 组合总和 III
@@ -680,43 +573,33 @@ int target, int* returnSize, int** returnColumnSizes)
 输出: [[1,2,6], [1,3,5], [2,3,4]]
 
 */
-
-void dfs(
-int target, int* returnSize, int** returnColumnSizes,
-int start, int **res, int *curBuf, int curSize, int k)
+void dfs(int k, int n, int* returnSize, int** returnColumnSizes,
+int **res, int *tmp, int tmpIdx, int start)
 {
-	if (target == 0 && curSize == k) {
-		res[*returnSize] = (int *)calloc(1024, sizeof(int));
-		memcpy(res[*returnSize], curBuf, curSize * sizeof(int));
-		(*returnColumnSizes)[*returnSize] = curSize;
+	if (k == 0 && n == 0) {
+		res[*returnSize] = (int *)calloc(tmpIdx, sizeof(int));
+		memcpy(res[*returnSize], tmp, tmpIdx * sizeof(int));
+		(*returnColumnSizes)[*returnSize] = tmpIdx;
 		(*returnSize)++;
 		return;
 	}
 
-	if (start >= 10 || start > target || curSize >= k || target < 0)
-		return;
-
-	for (int i = start; i < 10; i++) {
-        	curBuf[curSize] = i;
+	for (int i = start; i <= 9 && k > 0 && n > 0 && i <= n; i++) {
+		tmp[tmpIdx] = i;
 		/*i + 1 :每种组合中不存在重复的数字。
 		因为结果集里的元素互不相同，
 		因此下一层搜索的起点应该是上一层搜索的起点值 + 1；*/
-		dfs(target - i, returnSize, returnColumnSizes, i + 1, res, curBuf, curSize + 1, k);
+		dfs(k - 1, n  - i, returnSize, returnColumnSizes, res, tmp, tmpIdx + 1, i + 1);
 	}
-
-	return;
 }
 
-
-int** combinationSum3(int k, int n,
-	int* returnSize, int** returnColumnSizes)
+int** combinationSum3(int k, int n, int* returnSize, int** returnColumnSizes)
 {
-	*returnSize = 0;
-	int ** res = (int **)calloc(1024, sizeof(int *));
+	int **res = (int **)calloc(1024, sizeof(int **));
 	*returnColumnSizes = (int *)calloc(1024, sizeof(int));
-	int *curBuf = (int *)calloc(1024, sizeof(int));
-
-	dfs(n, returnSize, returnColumnSizes, 1, res, curBuf, 0, k);
+	*returnSize = 0;
+	int tmp[1024] = {0};
+	dfs(k, n, returnSize, returnColumnSizes, res, tmp, 0, 1);
 	return res;
 }
 
@@ -741,42 +624,7 @@ int** combinationSum3(int k, int n,
 解释: 因为路径 1→3→1→1→1 的总和最小。
 
 */
-
-
-int minsum = INT_MAX;
-
-void dfs(int** grid, int gridSize,
-	int* gridColSize, int sum, int x, int y)
-{
-	if (x == gridSize - 1 && y == gridColSize[x] - 1) {
-		minsum = fmin(minsum, sum);
-		return;
-	}
-
-	int d[2][2] = { {1, 0}, {0, 1} };//down,right
-	for (int i = 0; i < 2; i++) {
-		int nx = x + d[i][0];
-		int ny = y + d[i][1];
-
-		if (nx < gridSize && ny < gridColSize[nx]) {
-			dfs(grid, gridSize, gridColSize, sum + grid[nx][ny], nx, ny);
-		}
-	}
-}
-
-int minPathSum(int** grid, int gridSize, int* gridColSize) {
-	minsum = INT_MAX;
-
-	if (grid == NULL || gridSize < 1 || gridColSize == NULL)
-		return 0;
-
-	dfs(grid, gridSize, gridColSize, grid[0][0], 0, 0);
-
-    return minsum;
-}
-
-int  dfs(int** grid, int gridSize,
-	int* gridColSize, int x, int y)
+int  dfs(int** grid, int gridSize, int* gridColSize, int x, int y)
 {
 	if (x == gridSize - 1 && y == gridColSize[x] - 1) {
 		return grid[x][y];
@@ -792,157 +640,21 @@ int  dfs(int** grid, int gridSize,
 		dfs(grid, gridSize, gridColSize, x + 1, y));
 }
 
-int minPathSum(int** grid, int gridSize, int* gridColSize) {
+int minPathSum(int** grid, int gridSize, int* gridColSize)
+{
 	if (grid == NULL || gridSize < 1 || gridColSize == NULL)
 		return 0;
 
 	return dfs(grid, gridSize, gridColSize, 0, 0);
 }
 
-int minPathSum(int** grid, int gridSize, int* gridColSize) {
-	if (grid == NULL || gridSize < 1 || gridColSize == NULL)
-		return 0;
-
-
-	int dp[gridSize][gridColSize[0]];
-
-	dp[0][0] = grid[0][0];
-	for (int i = 0; i < gridSize; i++) {
-		for (int j = 0; j < gridColSize[i]; j++) {
-			if (i >= 1 && j >= 1)
-				dp[i][j] = grid[i][j] + fmin(dp[i - 1][j], dp[i][j - 1]);
-			else if (i >= 1)
-				dp[i][j] = grid[i][j] + dp[i - 1][j];
-			else if (j >= 1)
-				dp[i][j] = grid[i][j] + dp[i][j - 1];
-		}
-	}
-
-	return dp[gridSize - 1][gridColSize[0] - 1];
-}
-
-/*DP
-解题思路：
-此题是典型的动态规划题目。
-
-状态定义：
-
-设 dpdp 为大小 m \times nm×n 矩阵，其中 dp[i][j]dp[i][j] 的值代表直到走到 (i,j)(i,j) 的最小路径和。
-转移方程：
-
-题目要求，只能向右或向下走，换句话说，当前单元格 (i,j)(i,j) 只能从左方单元格 (i-1,j)(i?1,j) 或上方单元格 (i,j-1)(i,j?1) 走到，因此只需要考虑矩阵左边界和上边界。
-
-走到当前单元格 (i,j)(i,j) 的最小路径和 == "从左方单元格 (i-1,j)(i?1,j) 与 从上方单元格 (i,j-1)(i,j?1) 走来的 两个最小路径和中较小的 " ++ 当前单元格值 grid[i][j]grid[i][j] 。具体分为以下 44 种情况：
-当左边和上边都不是矩阵边界时： 即当i \not= 0i
-
-
- =0, j \not= 0j
-
-
- =0时，dp[i][j] = min(dp[i - 1][j], dp[i][j - 1]) + grid[i][j]dp[i][j]=min(dp[i?1][j],dp[i][j?1])+grid[i][j] ；
-当只有左边是矩阵边界时： 只能从上面来，即当i = 0, j \not= 0i=0,j
-
-
- =0时， dp[i][j] = dp[i][j - 1] + grid[i][j]dp[i][j]=dp[i][j?1]+grid[i][j] ；
-当只有上边是矩阵边界时： 只能从左面来，即当i \not= 0, j = 0i
-
-
- =0,j=0时， dp[i][j] = dp[i - 1][j] + grid[i][j]dp[i][j]=dp[i?1][j]+grid[i][j] ；
-当左边和上边都是矩阵边界时： 即当i = 0, j = 0i=0,j=0时，其实就是起点， dp[i][j] = grid[i][j]dp[i][j]=grid[i][j]；
-初始状态：
-
-dpdp 初始化即可，不需要修改初始 00 值。
-返回值：
-
-返回 dpdp 矩阵右下角值，即走到终点的最小路径和。
-其实我们完全不需要建立 dpdp 矩阵浪费额外空间，直接遍历 grid[i][j]grid[i][j] 修改即可。这是因为：grid[i][j] = min(grid[i - 1][j], grid[i][j - 1]) + grid[i][j] ；原 gridgrid 矩阵元素中被覆盖为 dpdp 元素后（都处于当前遍历点的左上方），不会再被使用到。
-*/
-int minPathSum(int** grid, int gridSize, int* gridColSize) {
-	if (grid == NULL || gridSize < 1 || gridColSize == NULL)
-		return 0;
-
-	for (int i = 0; i < gridSize; i++) {
-		for (int j = 0; j < gridColSize[i]; j++) {
-			if (i == 0 && j == 0)
-				continue;
-			else if (i == 0)
-				grid[i][j] += grid[i][j - 1];
-			else if (j == 0)
-				grid[i][j] += grid[i - 1][j];
-			else
-				grid[i][j] += fmin(grid[i][j - 1], grid[i - 1][j]);
-		}
-	}
-
-	return grid[gridSize - 1][gridColSize[0] - 1];
-}
-
-
-/*
-77. 组合
-难度中等238
-给定两个整数 n 和 k，返回 1 ... n 中所有可能的 k 个数的组合。
-示例:
-输入: n = 4, k = 2
-输出:
-[
-  [2,4],
-  [3,4],
-  [2,3],
-  [1,2],
-  [1,3],
-  [1,4],
-]
-
-*/
-
-void backtrack(int n, int k, int* returnSize,
-				int** returnColumnSizes, int **ret, int *cur, int curCnt, int start)
-{
-	if (k == curCnt) {
-		ret[*returnSize] = (int *)calloc(k, sizeof(int));
-		memcpy(ret[*returnSize], cur, sizeof(int) * k);
-		(*returnSize)++;
-		return;
-	}
-
-	if (curCnt > k) {
-		return;
-	}
-
-	for(int i = start; i <= n; i++) {
-		cur[curCnt] = i;
-		backtrack(n, k, returnSize, returnColumnSizes, ret, cur, curCnt + 1, i + 1);
-	}
-}
-
-
-/**
- * Return an array of arrays of size *returnSize.
- * The sizes of the arrays are returned as *returnColumnSizes array.
- * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
- */
-int** combine(int n, int k, int* returnSize, int** returnColumnSizes)
-{
-	int **ret = (int **)calloc(1 << n, sizeof(int *));
-	int *cur = (int *)calloc(1 << n, sizeof(int));
-
-	*returnSize = 0;
-	backtrack(n, k, returnSize, returnColumnSizes, ret, cur, 0, 1);
-	*returnColumnSizes = (int *)calloc(*returnSize, sizeof(int));
-	for (int i = 0; i < *returnSize; i++) {
-		(*returnColumnSizes)[i] = k;
-	}
-
-	return ret;
-}
-
-
 /*
 934. 最短的桥
 难度中等68
-在给定的二维二进制数组 A 中，存在两座岛。（岛是由四面相连的 1 形成的一个最大组。）
-现在，我们可以将 0 变为 1，以使两座岛连接起来，变成一座岛。
+在给定的二维二进制数组 A 中，存在两座岛。（岛是由四面
+相连的 1 形成的一个最大组。）
+现在，我们可以将 0 变为 1，以使两座岛连接起来，变成一
+座岛。
 返回必须翻转的 0 的最小数目。（可以保证答案至少是 1。）
 
 示例 1：
@@ -957,12 +669,10 @@ int** combine(int n, int k, int* returnSize, int** returnColumnSizes)
 
 */
 
-
-/*
-DFS深度优先遍历先找到第一个岛，并进行染色标志未
-2；找到第一个后退出；将找到的第一个岛的位置入队列（C语言没有现成的队列封装函数，需要自己实现）对第一个岛的节点进行广度优先遍历，找到1的层数就是需要返回的值；作者：aabbcc-3链接：https://leetcode-cn.com/problems/shortest-bridge/solution/cyu-yan-bian-xie-dfsbfsdfsran-se-bfsjin-xing-zhao-/来源：力扣（LeetCode）著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
-第一步：dfs将第一个的岛屿元素全部标记出来，并顺序入队；第二步：bfs遍历队内各元素，将未标记元素标记并入队，step++;第三步：找到新的元素为1即为新岛屿，step++返回即可。作者：roychen链接：https://leetcode-cn.com/problems/shortest-bridge/solution/dfsbfs-nei-cun-he-yun-xing-shi-jian-jiao-shao-by-r/来源：力扣（LeetCode）著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
-
+/*(明确是2座岛)
+第一步：dfs将第一个的岛屿元素全部标记出来，并顺序入队；
+第二步：bfs遍历队内各元素，将未标记元素标记并入队，step++;
+第三步：找到新的元素为1即为新岛屿，step++返回即可。
 */
 int d[4][2] = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
 void dfs(int** A, int ASize, int* AColSize, int x, int y)
@@ -1038,18 +748,17 @@ int shortestBridge(int** A, int ASize, int* AColSize)
 	return 0;
 }
 
+
 /*
 494. 目标和
-给定一个非负整数数组，a1, a2, ..., an, 和一个目标数，S。现在你有两个符号 + 和 -。对于数组中的任意一个整数，你都可以从 + 或 -中选择一个符号添加在前面。
-
+给定一个非负整数数组，a1, a2, ..., an, 和一个目标数，S。
+现在你有两个符号 + 和 -。对于数组中的任意一个整数，
+你都可以从 + 或 -中选择一个符号添加在前面。
 返回可以使最终数组和为目标数 S 的所有添加符号的方法数。
-
 示例 1:
-
 输入: nums: [1, 1, 1, 1, 1], S: 3
 输出: 5
 解释:
-
 -1+1+1+1+1 = 3
 +1-1+1+1+1 = 3
 +1+1-1+1+1 = 3
@@ -1065,105 +774,44 @@ int shortestBridge(int** A, int ASize, int* AColSize)
 通过次数24,886提交次数56,525
 在真实的面试中遇到过这道题？
 */
-
-void dfs(int* nums, int numsSize, int S, int *cnt, int start)
+void dfs(int* nums, int n, long int S, int idx, int *cnt)
 {
-	if (start == numsSize) {
-		if (S == 0)
-			(*cnt)++;
-		return;
+	if (S == 0 && n == 0) {
+		(*cnt)++;
+		return ;
 	}
 
+	if (n <= 0)
+		return;
 
-	dfs(nums, numsSize, S - nums[start],  cnt, start + 1);
-	dfs(nums, numsSize, S + nums[start],  cnt, start + 1);
+	dfs(nums, n - 1, S - nums[idx], idx + 1, cnt);
+	dfs(nums, n - 1, S + nums[idx], idx + 1, cnt);
 }
 
 int findTargetSumWays(int* nums, int numsSize, int S)
 {
 	int cnt = 0;
-	dfs(nums, numsSize, S,  &cnt, 0);
-
+	dfs(nums, numsSize, S, 0, &cnt);
 	return cnt;
 }
 
-/*
-面试题13. 机器人的运动范围
-地上有一个m行n列的方格，从坐标 [0,0] 到坐标 [m-1,n-1] 。一个机器人从坐标 [0, 0] 的格子开始移动，它每次可以向左、右、上、下移动一格（不能移动到方格外），也不能进入行坐标和列坐标的数位之和大于k的格子。例如，当k为18时，机器人能够进入方格 [35, 37] ，因为3+5+3+7=18。但它不能进入方格 [35, 38]，因为3+5+3+8=19。请问该机器人能够到达多少个格子？
-
-
-
-示例 1：
-
-输入：m = 2, n = 3, k = 1
-输出：3
-示例 2：
-
-输入：m = 3, n = 1, k = 0
-输出：1
-*/
-int numsum(int obj)
-{
-	int sum = 0;
-	while(obj != 0) {
-		sum += obj % 10;
-		obj /= 10;
-	}
-
-	return sum;
-}
-
-void dfs(int m, int n, int k, int x, int y, int *res, int **visited)
-{
-	if (x < 0 || x >= m || y < 0 || y >= n) {
-		return;
-	}
-
-	if (visited[x][y] == 1)
-		return;
-
-	int sum = numsum(x) + numsum(y);
-	if (sum > k) {
-		return;
-	}
-
-	(*res)++;
-	visited[x][y] = 1;
-
-	int d[2][2] = {{0, 1}, {1, 0}};
-	for (int i = 0; i < 2; i++) {
-		dfs(m, n, k, x + d[i][0], y + d[i][1], res, visited);
-	}
-}
-
-int movingCount(int m, int n, int k)
-{
-	int res = 0;
-
-	int **visited = (int **)calloc(m, sizeof(int *));
-	for (int i = 0; i < m; i++) {
-		visited[i] = (int *)calloc(n, sizeof(int));
-	}
-
-	dfs(m, n, k, 0, 0, &res, visited);
-	return res;
-}
 
 /*
 417. 太平洋大西洋水流问题
 难度中等109
-给定一个 m x n 的非负整数矩阵来表示一片大陆上各个单元格的高度。"太平洋"处于大陆的左边界和上边界，而"大西洋"处于大陆的右边界和下边界。
-规定水流只能按照上、下、左、右四个方向流动，且只能从高到低或者在同等高度上流动。
-请找出那些水流既可以流动到"太平洋"，又能流动到"大西洋"的陆地单元的坐标。
+给定一个 m x n 的非负整数矩阵来表示一片大陆上各个单元格
+的高度。"太平洋"处于大陆的左边界和上边界，而"大西洋"处
+于大陆的右边界和下边界。
+规定水流只能按照上、下、左、右四个方向流动，且只能从
+高到低或者在同等高度上流动。
+请找出那些水流既可以流动到"太平洋"，又能流动到"大西洋"
+的陆地单元的坐标。
 
 提示：
 1.	输出坐标的顺序不重要
 2.	m 和 n 都小于150
-
 示例：
-
 给定下面的 5x5 矩阵:
-
   太平洋 ~   ~   ~   ~   ~
        ~  1   2   2   3  (5) *
        ~  3   2   3  (4) (4) *
@@ -1171,13 +819,9 @@ int movingCount(int m, int n, int k)
        ~ (6) (7)  1   4   5  *
        ~ (5)  1   1   2   4  *
           *   *   *   *   * 大西洋
-
 返回:
-
 [[0, 4], [1, 3], [1, 4], [2, 2], [3, 0], [3, 1], [4, 0]] (上图中带括号的单元)
-
 */
-
 void dfs(int** matrix, int i, int j, int pre, int row, int col, int visited[row][col])
 {
     // 设定边界
@@ -1235,97 +879,14 @@ int** pacificAtlantic(int** matrix, int matrixSize, int* matrixColSize, int* ret
 }
 
 /*
-638. 大礼包
-难度中等97
-在LeetCode商店中， 有许多在售的物品。
-然而，也有一些大礼包，每个大礼包以优惠的价格捆绑销售一组物品。
-现给定每个物品的价格，每个大礼包包含物品的清单，以及待购物品清单。请输出确切完成待购清单的最低花费。
-每个大礼包的由一个数组中的一组数据描述，最后一个数字代表大礼包的价格，其他数字分别表示内含的其他种类物品的数量。
-任意大礼包可无限次购买。
-示例 1:
-输入: [2,5], [[3,0,5],[1,2,10]], [3,2]
-输出: 14
-解释:
-有A和B两种物品，价格分别为?2和?5。
-大礼包1，你可以以?5的价格购买3A和0B。
-大礼包2， 你可以以?10的价格购买1A和2B。
-你需要购买3个A和2个B， 所以你付了?10购买了1A和2B（大礼包2），以及?4购买2A。
-示例 2:
-输入: [2,3,4], [[1,1,0,4],[2,2,1,9]], [1,2,1]
-输出: 11
-解释:
-A，B，C的价格分别为?2，?3，?4.
-你可以用?4购买1A和1B，也可以用?9购买2A，2B和1C。
-你需要买1A，2B和1C，所以你付了?4买了1A和1B（大礼包1），以及?3购买1B， ?4购买1C。
-你不可以购买超出待购清单的物品，尽管购买大礼包2更加便宜。
-.
-
-*/
-
-/*
-本题实质是一个组合问题
-
-求出原价购买所有物品的总花费.
-
-求出每个礼包原价购买的花费.
-
-用礼包替价格去替换原价，算出替换后的总价，更新最小总价
-*/
-
-int Min(int a, int b)
-{
-    return a > b ? b : a;
-}
-
-int g_res;
-
-void Dfs(int** special, int specialSize, int* specialColSize, int* needs, int needsSize, int *specialOrinPrice, int totalOrinPrice) {
-    for (int i = 0; i < needsSize; i++) {
-        if (needs[i] < 0) {
-            return;
-        }
-    }
-    g_res = Min(g_res, totalOrinPrice);
-    for (int i = 0; i < specialSize; i++) {
-        for (int j = 0; j < specialColSize[i] - 1; j++) {
-            needs[j] -= special[i][j];
-        }
-        //printf("123");
-        Dfs(special, specialSize, specialColSize, needs, needsSize, specialOrinPrice, totalOrinPrice - specialOrinPrice[i] + special[i][specialColSize[i] - 1]);
-        for (int j = 0; j < specialColSize[i] - 1; j++) {
-            needs[j] += special[i][j];
-        }
-    }
-}
-
-int shoppingOffers(int* price, int priceSize, int** special, int specialSize, int* specialColSize, int* needs, int needsSize){
-    if (priceSize <= 0) {
-        return 0;
-    }
-    int specialOrinPrice[specialSize];
-    for (int i = 0; i < specialSize; i++) {
-        int tPrice = 0;
-        for (int j = 0; j < specialColSize[i] - 1; j++) {
-            tPrice += price[j] * special[i][j];
-        }
-        specialOrinPrice[i] = tPrice;
-    }
-
-    int totalOrinPrice = 0;
-    for (int i = 0; i < needsSize; i++) {
-        totalOrinPrice += price[i] * needs[i];
-    }
-    g_res = totalOrinPrice;
-    Dfs(special, specialSize, specialColSize, needs, needsSize, specialOrinPrice, totalOrinPrice);
-    return g_res;
-}
-
-/*
 695. 岛屿的最大面积
 难度中等288
 给定一个包含了一些 0 和 1 的非空二维数组 grid 。
-一个 岛屿 是由一些相邻的 1 (代表土地) 构成的组合，这里的「相邻」要求两个 1 必须在水平或者竖直方向上相邻。你可以假设 grid 的四个边缘都被 0（代表水）包围着。
-找到给定的二维数组中最大的岛屿面积。(如果没有岛屿，则返回面积为 0 。)
+一个 岛屿 是由一些相邻的 1 (代表土地) 构成的组合，这里的
+「相邻」要求两个 1 必须在水平或者竖直方向上相邻。你可
+以假设 grid 的四个边缘都被 0（代表水）包围着。
+找到给定的二维数组中最大的岛屿面积。(如果没有岛屿，
+则返回面积为 0 。)
 
 示例 1:
 [[0,0,1,0,0,0,0,1,0,0,0,0,0],
@@ -1340,11 +901,16 @@ int shoppingOffers(int* price, int priceSize, int** special, int specialSize, in
 */
 
 /*
- // 每次调用的时候默认num为1，进入后判断如果不是岛屿，则直接返回0，就可以避免预防错误的情况。    // 每次找到岛屿，则直接把找到的岛屿改成0，这是传说中的沉岛思想，就是遇到岛屿就把他和周围的全部沉默。    // ps：如果能用沉岛思想，那么自然可以用朋友圈思想。有兴趣的朋友可以去尝试。作者：mark-42链接：https://leetcode-cn.com/problems/max-area-of-island/solution/biao-zhun-javadong-tai-gui-hua-jie-fa-100-by-mark-/来源：力扣（LeetCode）著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+ // 每次调用的时候默认num为1，进入后判断如果不是岛屿，
+ 则直接返回0，就可以避免预防错误的情况。
+ // 每次找到岛屿，则直接把找到的岛屿改成0，
+ 这是传说中的沉岛思想，就是遇到岛屿就把他和周围的
+ 全部沉默。
+ // ps：如果能用沉岛思想，那么自然可以用朋友圈思想。
 */
-int dfs(int** grid, int mrow, int mcol, int sx, int sy)
+int dfs(int** grid, int row, int col, int sx, int sy)
 {
-	if (sx < 0 || sx >= mrow || sy < 0 || sy >= mcol || grid[sx][sy] == 0) {
+	if (sx < 0 || sx >= row || sy < 0 || sy >= col || grid[sx][sy] == 0) {
 		return 0;
 	}
 
@@ -1353,7 +919,7 @@ int dfs(int** grid, int mrow, int mcol, int sx, int sy)
 
 	int d[4][2] = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
 	for (int i = 0; i < 4; i++) {
-		res += dfs(grid, mrow, mcol, sx + d[i][0], sy + d[i][1]);
+		res += dfs(grid, row, col, sx + d[i][0], sy + d[i][1]);
 	}
 
 	return res;
@@ -1362,13 +928,13 @@ int dfs(int** grid, int mrow, int mcol, int sx, int sy)
 int maxAreaOfIsland(int** grid, int gridSize, int* gridColSize)
 {
 	int max = 0;
-	int mrow = gridSize;
-	int mcol = *gridColSize;
+	int row = gridSize;
+	int col = *gridColSize;
 
 	for (int i = 0; i < gridSize; i++) {
 		for (int j = 0; j < gridColSize[i]; j++) {
 			if (grid[i][j] != 0) {
-				max = fmax(max, dfs(grid, mrow, mcol, i,j));
+				max = fmax(max, dfs(grid, row, col, i,j));
 			}
 		}
 	}
@@ -1378,46 +944,50 @@ int maxAreaOfIsland(int** grid, int gridSize, int* gridColSize)
 
 /*
 1034. 边框着色
-给出一个二维整数网格 grid，网格中的每个值表示该位置处的网格块的颜色。
-
-只有当两个网格块的颜色相同，而且在四个方向中任意一个方向上相邻时，它们属于同一连通分量。
-
-连通分量的边界是指连通分量中的所有与不在分量中的正方形相邻（四个方向上）的所有正方形，或者在网格的边界上（第一行/列或最后一行/列）的所有正方形。
-
-给出位于 (r0, c0) 的网格块和颜色 color，使用指定颜色 color 为所给网格块的连通分量的边界进行着色，并返回最终的网格 grid 。
-
-
-
+给出一个二维整数网格 grid，网格中的每个值表示该位置处的
+网格块的颜色。
+只有当两个网格块的颜色相同，而且在四个方向中任意一个
+方向上相邻时，它们属于同一连通分量。
+连通分量的边界是指连通分量中的所有与不在分量中的正方
+形相邻（四个方向上）的所有正方形，或者在网格的边界
+上（第一行/列或最后一行/列）的所有正方形。
+给出位于 (r0, c0) 的网格块和颜色 color，使用指定颜色 color 为所
+给网格块的连通分量的边界进行着色，并返回最终的网格
+grid 。
 示例 1：
-
 输入：grid = [[1,1],[1,2]], r0 = 0, c0 = 0, color = 3
 输出：[[3, 3], [3, 2]]
+示例 3：
+输入：grid = [[1,1,1],[1,1,1],[1,1,1]], r0 = 1, c0 = 1, color = 2
+输出：[[2, 2, 2], [2, 1, 2], [2, 2, 2]]
 */
+
 /*
-联通分量内节点的颜色记为sColor，染边框的颜色为tColor。 （source color 与 target color）
+联通分量内节点的颜色记为sColor，染边框的颜色为tColor。
+（source color 与 target color）
 dfs遍历整个联通分量：
-
-对于遍历过的节点，我们都让他们的值为负数，这样，就不需要多开空间来记录节点是否遍历过
-对于联通分量中内部的节点，他们的值都为sColor，遍历过后，他们的值为-sColor。
-对于联通分量边框上的节点，他们的值都为sColor，遍历过后，他们的值为-tColor。
+对于遍历过的节点，我们都让他们的值为负数，
+这样，就不需要多开空间来记录节点是否遍历过
+对于联通分量中内部的节点，他们的值都为sColor，遍历过后，
+他们的值为-sColor。
+对于联通分量边框上的节点，他们的值都为sColor，遍历过后，
+他们的值为-tColor。
 遍历完整个联通分量，将整个grid中的负值改为正值
-关键在于怎么判断一个节点在联通分量中是否处于边框的位置：
-
+关键在于怎么判断一个节点在联通分量中是否处于边框的位
+置：
 该节点在整个网格的四周:
 
 x == 0 || x+1 >= g.length || y == 0 || y+1 >= g[0].length
-该节点的↑↓←→节点有任意一个节点不属于当前联通分量；对于周围某个节点的颜色nextColor，如果它满足如下条件，那么他就不属于当前联通分量
-
+该节点的↑↓←→节点有任意一个节点不属于当前联通分量；
+对于周围某个节点的颜色nextColor，如果它满足如下条件，
+那么他就不属于当前联通分量
 nextColor != sColor && nextColor != -sColor && nextColor != -tColor
 nextColor != sColor：颜色上看根本不属于当前联通分量
 nextColor != -sColor：它不是已经遍历过的联通分量内部节点
 nextColor != -tColor：它不是已经遍历过的联通分量边框节点
-
 */
-
-    // 访问↑↓←→节点时坐标x, y的偏移量
-    int dis[4][2] = { {-1, 0}, {0, 1}, {1, 0}, {0, -1} };
-
+// 访问↑↓←→节点时坐标x, y的偏移量
+int dis[4][2] = { {-1, 0}, {0, 1}, {1, 0}, {0, -1} };
 void dfs(int** g, int gridSize, int* gridColSize, int x, int y, int sColor, int tColor)
 {
         // 越界 || 不属于同一个联通分量 || 被访问过
@@ -1475,88 +1045,9 @@ int** colorBorder(int** grid, int gridSize, int* gridColSize, int r0, int c0, in
 }
 
 /*
-1254. 统计封闭岛屿的数目
-有一个二维矩阵 grid ，每个位置要么是陆地（记号为 0 ）要么是水域（记号为 1 ）。
-
-我们从一块陆地出发，每次可以往上下左右 4 个方向相邻区域走，能走到的所有陆地区域，我们将其称为一座「岛屿」。
-
-如果一座岛屿 完全 由水域包围，即陆地边缘上下左右所有相邻区域都是水域，那么我们将其称为 「封闭岛屿」。
-
-请返回封闭岛屿的数目。
-*/
-void show(int** grid, int gridSize, int* gridColSize)
-{
-	printf("\n");
-	for (int i = 0; i < gridSize; i++) {
-		for (int j = 0; j < gridColSize[i]; j++) {
-				printf("%d ", grid[i][j]);
-		}
-		printf("\n");
-	}
-}
-
-void dfs(int** grid, int gridSize, int* gridColSize, int startx, int starty)
-{
-	if (startx < 0 || startx >= gridSize || starty < 0 || starty >= gridColSize[startx] || grid[startx][starty] == 1) {
-		return;
-	}
-
-	grid[startx][starty] = 1;
-
-	int d[4][2] = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
-	for (int i = 0; i < 4; i++) {
-		dfs(grid, gridSize, gridColSize, startx + d[i][0], starty + d[i][1]);
-	}
-}
-
-int closedIsland(int** grid, int gridSize, int* gridColSize)
-{
-	//show(grid, gridSize, gridColSize);
-
-	for (int i = 0; i < gridSize; i++) {
-		if (grid[i][0] == 0)
-			dfs(grid, gridSize, gridColSize, i, 0);
-		if (grid[i][gridColSize[i] - 1] == 0)
-			dfs(grid, gridSize, gridColSize, i, gridColSize[i] - 1);
-	}
-	//show(grid, gridSize, gridColSize);
-
-	for (int j = 0; j < gridColSize[0]; j++) {
-		if (grid[0][j] == 0)
-			dfs(grid, gridSize, gridColSize, 0, j);
-		if (grid[gridSize - 1][j] == 0)
-			dfs(grid, gridSize, gridColSize, gridSize - 1, j);
-	}
-	//show(grid, gridSize, gridColSize);
-
-	int cnt = 0;
-	for (int i = 0; i < gridSize; i++) {
-		for (int j = 0; j < gridColSize[i]; j++) {
-			if (grid[i][j] == 0) {
-				dfs(grid, gridSize, gridColSize, i, j);
-				cnt++;
-			}
-		}
-	}
-
-	return cnt;
-}
-
-/*
 1391. 检查网格中是否存在有效路径
 见UF
 */
-
-//定义上 左 右 下
-//为了便于寻找对应方向的接口，定义接口时数值设计如下，这样方向x的对应方向即为3-x。
-//DIR_UP + DIR_DOWN = 3
-//DIR_LEFT + DIR_RIGHT = 3
-enum {
-    DIR_UP = 0,
-    DIR_LEFT = 1,
-    DIR_RIGHT = 2,
-    DIR_DOWN = 3,
-};
 
 //定义向各个方向搜索时，坐标的offset
 struct{
@@ -1570,29 +1061,29 @@ struct{
     {1, 0}      //下
 };
 
-//定义各图案是否支持指定接口
 bool interfaces[7][4] = {
     //上    左      右      下
     {false, false, false,  false},      //0： dummy
-    {false, true,  true,   false},      //1： 左右
-    {true,  false, false,  true},       //2： 上下
-    {false, true,  false,  true},       //3： 左下
-    {false, false, true,   true},       //4： 右下
-    {true,  true,  false,  false},      //5： 左上
-    {true,  false, true,   false},      //6： 右上
+    {false, true,  true,   false},
+    {true,  false, false,  true},
+    {false, true,  false,  true},
+    {false, false, true,   true},
+    {true,  true,  false,  false},
+    {true,  false, true,   false}
 };
 
-void dfs(int** grid, int gridSize, int* gridColSize, int row, int col){
-    if(grid[row][col] == 0) return; //已经搜索过得会被置0，防止重复搜索
+void dfs(int** grid, int gridSize, int* gridColSize, int row, int col)
+{
+    if(grid[row][col] == 0)
+		return;
 
-    //置零
     int val =grid[row][col];
     grid[row][col] = 0;
 
-    //遍历四个方向
     for(int i = 0; i < 4; i++){
         //该图案没有当前方向接口,continue
-        if(interfaces[val][i] == false) continue;
+        if(interfaces[val][i] == false)
+			continue;
 
         //如果有当前方向接口，计算该方向上邻居的坐标
         int r = row + OffsetTbl[i].r;
@@ -1602,29 +1093,40 @@ void dfs(int** grid, int gridSize, int* gridColSize, int row, int col){
         if(r >= gridSize || r < 0 || c < 0 || c >= gridColSize[row]){
             continue;
         }
-        //判断该邻居是否有对应方向(即3-i)的接口，如果有则dfs该邻居；如果没有则代表无法连通，不继续dfs。
+/*
+判断该邻居是否有对应方向(即3-i)的接口，
+*/
         if(interfaces[grid[r][c]][3-i]){
             dfs(grid, gridSize, gridColSize, r, c);
         }
     }
 }
 
-bool hasValidPath(int** grid, int gridSize, int* gridColSize){
-    //力扣惯例，参数检查
-    if(!grid || !gridSize || !gridColSize) return false;
-    //从位置0,0开始深度优先遍历
-    dfs(grid, gridSize, gridColSize, 0, 0);
-    //返回最后一个位置是否为0
-    return grid[gridSize-1][gridColSize[gridSize-1] - 1] == 0;
+bool hasValidPath(int** grid, int gridSize, int* gridColSize)
+{
+	if(grid == NULL || gridSize  <= 0|| gridColSize == NULL)
+		return false;
+
+	dfs(grid, gridSize, gridColSize, 0, 0);
+
+	return grid[gridSize-1][gridColSize[gridSize-1] - 1] == 0;
 }
+
 
 /*
 1376. 通知所有员工所需的时间
 难度中等24
-公司里有 n 名员工，每个员工的 ID 都是独一无二的，编号从 0 到 n - 1。公司的总负责人通过 headID 进行标识。
-在 manager 数组中，每个员工都有一个直属负责人，其中 manager[i] 是第 i 名员工的直属负责人。对于总负责人，manager[headID] = -1。题目保证从属关系可以用树结构显示。
-公司总负责人想要向公司所有员工通告一条紧急消息。他将会首先通知他的直属下属们，然后由这些下属通知他们的下属，直到所有的员工都得知这条紧急消息。
-第 i 名员工需要 informTime[i] 分钟来通知它的所有直属下属（也就是说在 informTime[i] 分钟后，他的所有直属下属都可以开始传播这一消息）。
+公司里有 n 名员工，每个员工的 ID 都是独一无二的，编号从 0
+到 n - 1。公司的总负责人通过 headID 进行标识。
+在 manager 数组中，每个员工都有一个直属负责人，其中 manager[i]
+是第 i 名员工的直属负责人。对于总负责人，manager[headID] = -1。
+题目保证从属关系可以用树结构显示。
+公司总负责人想要向公司所有员工通告一条紧急消息。他将
+会首先通知他的直属下属们，然后由这些下属通知他们的下
+属，直到所有的员工都得知这条紧急消息。
+第 i 名员工需要 informTime[i] 分钟来通知它的所有直属下属（也就
+是说在 informTime[i] 分钟后，他的所有直属下属都可以开始传播
+这一消息）。
 返回通知所有员工这一紧急消息所需要的 分钟数 。
 
 示例 1：
@@ -1635,13 +1137,15 @@ bool hasValidPath(int** grid, int gridSize, int* gridColSize){
 
 输入：n = 6, headID = 2, manager = [2,2,-1,2,2,2], informTime = [0,0,1,0,0,0]
 输出：1
-解释：id = 2 的员工是公司的总负责人，也是其他所有员工的直属负责人，他需要 1 分钟来通知所有员工。
+解释：id = 2 的员工是公司的总负责人，也是其他所有员工的
+直属负责人，他需要 1 分钟来通知所有员工。
 上图显示了公司员工的树结构。
 
 */
 
 /*DFS自底向上*/
-int numOfMinutes(int n, int headID, int* manager, int managerSize, int* informTime, int informTimeSize)
+int numOfMinutes(int n, int headID, int* manager, int managerSize, int* informTime,
+int informTimeSize)
 {
         //最终结果
         int res = 0;
@@ -1840,3 +1344,374 @@ int removeStones(int** stones, int stonesSize, int* stonesColSize){
 
 }
 
+/*
+301. 删除无效的括号
+难度困难217
+删除最小数量的无效括号，使得输入的字符串有效，返回所有可能的结果。
+说明: 输入可能包含了除 ( 和 ) 以外的字符。
+示例 1:
+输入: "()())()"
+输出: ["()()()", "(())()"]
+示例 2:
+输入: "(a)())()"
+输出: ["(a)()()", "(a())()"]
+
+*/
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int gResultSize = 0;
+char **gResult;
+bool IsValid(char *s){
+    int cnt = 0;
+    char *p = s;
+    while (*p != '\0') {
+        if (*p == '(') {
+            cnt++;
+        }
+        else if (*p == ')') {
+            cnt--;
+        }
+        if (cnt < 0) {
+            return false;
+        }
+        p++;
+    }
+    return cnt == 0;
+}
+
+void removeInvalidParentheses2(char * s, int sLen , int start, int leftCnt, int rightCnt){
+    if (start > sLen) {
+        return;
+    }
+    //printf("enter:%s :%d:%d:%d\n", s, start, leftCnt, rightCnt);
+    if (leftCnt == 0 && rightCnt == 0) {
+        //printf("wait:%s\n", s);
+        if (IsValid(s)) {
+            gResult[gResultSize] = malloc(sizeof(char) * sLen + 1);
+            strcpy(gResult[gResultSize], s);
+            gResultSize++;
+            //printf("%s\n", s);
+        }
+        return;
+    }
+    char subStr[sLen];
+    for (int i = start; i < sLen; ++i) {
+        if (i > start && s[i] == s[i - 1]){
+            continue;
+        }
+        if (s[i] == '(' && leftCnt > 0){
+            memcpy(subStr, s, i);
+            subStr[i] = '\0';
+            strcat(subStr, s + i + 1);
+            removeInvalidParentheses2(subStr, sLen - 1, i, leftCnt - 1, rightCnt);
+        } else if (s[i] == ')' && rightCnt > 0){
+            memcpy(subStr, s, i);
+            subStr[i] = '\0';
+            strcat(subStr, s + i + 1);
+            //printf("subStr-->%s\n", subStr);
+            removeInvalidParentheses2(subStr, sLen - 1, i, leftCnt, rightCnt - 1);
+        }
+    }
+}
+#define MAX_RESULT_LEN 10000
+char ** removeInvalidParentheses(char * s, int* returnSize){
+    int leftCnt = 0;
+    int rightCnt = 0;
+    for (int i = 0; i < strlen(s); ++i) {
+        if (s[i] == '(') {
+            leftCnt++;
+        } else if (s[i] == ')'){
+            if (leftCnt == 0){
+                rightCnt++;
+            } else {
+                leftCnt--;
+            }
+        }
+    }
+    char **ans = malloc(sizeof(char*) * MAX_RESULT_LEN);
+    memset(ans, 0, sizeof(char*) * MAX_RESULT_LEN);
+    gResult = ans;
+    gResultSize = 0;
+    removeInvalidParentheses2(s, strlen(s), 0, leftCnt, rightCnt);
+    //printf("%d\n", gResultSize);
+    if (gResultSize == 0){
+        gResult[0] = "";
+        gResultSize = 1;
+    }
+    *returnSize = gResultSize;
+
+    return ans;
+}
+#define MAX_QUEUE_SIZE 10000
+#define MAX_WORD_SIZE  50
+#define LEFT_P '('
+#define RIGHT_P ')'
+
+struct Queue {
+    char** parentheses;
+    int head;
+    int rear;
+};
+typedef struct Queue Queue_t;
+
+void InitQueue(Queue_t* que)
+{
+    que->parentheses = (char**)calloc(MAX_QUEUE_SIZE, sizeof(char*));
+    for (int i = 0; i < MAX_QUEUE_SIZE; i++) {
+        que->parentheses[i] = (char*)calloc(MAX_WORD_SIZE, sizeof(char));
+    }
+    que->head = que->rear = 0;
+}
+
+void DeInitQueue(Queue_t* que)
+{
+    for (int i = 0; i < MAX_QUEUE_SIZE; i++) {
+        free(que->parentheses[i]);
+    }
+    free(que->parentheses);
+}
+
+bool IsEmpty(Queue_t* que)
+{
+    return que->head == que->rear;
+}
+
+void EnQueue(Queue_t* que, char* strParentheses)
+{
+    strcpy(que->parentheses[que->rear], strParentheses);
+    que->rear = (que->rear + 1) % MAX_QUEUE_SIZE;
+}
+
+void DeQueue(Queue_t* que, char** strParentheses)
+{
+    if (que->head >= que->rear) {
+        return;
+    }
+
+    // strcpy(strParentheses, que->parentheses[que->head]);
+    *strParentheses =  que->parentheses[que->head];
+    que->head = (que->head + 1) % MAX_QUEUE_SIZE;
+}
+
+int GetQueueSize(Queue_t* que)
+{
+    return que->rear - que->head;
+}
+
+bool IsStringValid(char* pString, int* delta)
+{
+    int leftCount = 0;
+    int rightCount = 0;
+    bool flag = true;
+    for (int i = 0; i < strlen(pString); i++) {
+        if (pString[i] == LEFT_P) {
+            leftCount++;
+        } else if (pString[i] == RIGHT_P) {
+            rightCount++;
+        }
+        if (leftCount < rightCount) {
+            flag = false;
+        }
+    }
+    *delta = leftCount - rightCount;
+    if (flag && *delta == 0) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+bool IsInQueue(char* pString, Queue_t* que)
+{
+    for (int i = que->head; i < que->rear; i++) {
+        if (strcmp(pString, que->parentheses[i]) == 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void RemoveChar(char* pString, int index)
+{
+    int len = strlen(pString);
+    if (index < 0 || index >= len) {
+        return;
+    }
+
+    for (int i = index; i < len - 1; i++) {
+        pString[i] = pString[i + 1];
+    }
+    pString[len - 1] = '\0';
+}
+
+void BFS(Queue_t* quePtr, char** rst, int* returnSize)
+{
+    char* tmpStr = NULL;
+    bool flag = false;
+    int delta = 0;
+
+    while (!IsEmpty(quePtr)) {
+        int curSize = GetQueueSize(quePtr);
+        for (int i = 0; i < curSize; i++) {
+            // termination is result ok
+            DeQueue(quePtr, &tmpStr);
+            // process
+            if (IsStringValid(tmpStr, &delta)) {
+                rst[*returnSize] = (char*)calloc(strlen(tmpStr) + 1, sizeof(char));
+                strcpy(rst[*returnSize], tmpStr);
+                *returnSize = *returnSize + 1;
+                flag = true;
+            }
+
+            // drill down and enqueue
+            if (!flag) { // if find result this round
+                for (int k = 0; k < strlen(tmpStr); k++) {
+                    if (tmpStr[k] != LEFT_P && tmpStr[k] != RIGHT_P) {
+                        continue;
+                    }
+
+                    if (tmpStr[k] == LEFT_P && delta < 0) {
+                        continue;
+                    }
+
+                    if (tmpStr[k] == RIGHT_P && delta > 0) {
+                        continue;
+                    }
+
+                    char* tmpStr2 = (char*)calloc(strlen(tmpStr) + 1, sizeof(char));
+                    strcpy(tmpStr2, tmpStr);
+                    RemoveChar(tmpStr2, k);
+                    if (!IsInQueue(tmpStr2, quePtr)) {
+                        EnQueue(quePtr, tmpStr2);
+                    } else {
+                        free(tmpStr2);
+                    }
+                }
+            }
+        }
+        if (flag) {
+            return;
+        }
+    }
+    return;
+}
+
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+char** removeInvalidParentheses(char* s, int* returnSize)
+{
+    Queue_t que;
+    InitQueue(&que);
+    EnQueue(&que, s);
+    char** rst = (char**)calloc(MAX_QUEUE_SIZE, sizeof(char*));
+    *returnSize = 0;
+
+    BFS(&que, rst, returnSize);
+    return rst;
+}
+
+void GetInvalidNum(char *s, int *left, int *right) {
+    int leftNum = 0;
+    int rightNum = 0;
+
+    for (int i = 0; i < strlen(s); i++) {
+        if (s[i] == '(') {
+            leftNum++;
+        } else if (s[i] == ')') {
+            if (leftNum > 0) {
+                leftNum--;
+            } else {
+                rightNum++;
+            }
+        }
+    }
+    *left = leftNum;
+    *right = rightNum;
+    return;
+}
+
+bool IsValid(char *s) {
+    int leftNum = 0;
+
+    for (int i = 0; i < strlen(s); i++) {
+        if (s[i] == '(') {
+            leftNum++;
+        } else if (s[i] == ')') {
+            leftNum--;
+        }
+        if (leftNum < 0) {
+            return false;
+        }
+    }
+    return leftNum == 0 ? true : false;
+}
+
+void AddToArry(char *s, char **returnArry, int *returnSize) {
+    int row = *returnSize;
+    returnArry[row] = (char *)malloc((strlen(s) + 1) * sizeof(char));
+    memcpy(returnArry[row], s, (strlen(s) + 1) * sizeof(char));
+    *returnSize = row + 1;
+    return;
+}
+
+void DeletChar(char *s, int num) {
+    char *p = s;
+    char *q = s;
+    for (int i = 0; i < strlen(s); i++) {
+        if (i == num) {
+            q++;
+        }
+        *(p++) = *(q++);
+    }
+
+    *p = '\0';
+    return;
+}
+
+void dfs(char *s, int left, int right, int start, char **returnArry, int *returnSize) {
+    char *temp;
+    if ((left == 0) && (right == 0)) {
+        if (IsValid(s)) {
+            AddToArry(s, returnArry, returnSize);
+        }
+        return;
+    }
+
+    temp = (char *)malloc((strlen(s)+1) * sizeof(char));
+    for (int i = start; i < strlen(s); i++) {
+        if ((i >= 1) && (s[i] == s[i-1])) {
+            continue;
+        }
+
+        memcpy(temp, s, strlen(s)+1);
+
+        if ((left > 0) && (s[i] == '(')) {
+            DeletChar(temp, i);
+            dfs(temp, left-1, right, i, returnArry, returnSize);
+        }
+        if ((right > 0) && (s[i] == ')')) {
+            DeletChar(temp, i);
+            dfs(temp, left, right-1, i, returnArry, returnSize);
+        }
+    }
+
+    return;
+}
+
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+char ** removeInvalidParentheses(char * s, int* returnSize){
+    int left, right;
+    char **returnArry;
+
+    returnArry = (char **)malloc(100 * sizeof(char *));
+    memset(returnArry, 0, 100 * sizeof(char *));
+    *returnSize = 0;
+    GetInvalidNum(s, &left, &right);
+    dfs(s, left, right, 0, returnArry, returnSize);
+
+    return returnArry;
+}

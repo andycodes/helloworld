@@ -1318,3 +1318,27 @@ int* subSort(int* array, int arraySize, int* returnSize){
     return ret;
 }
 
+/*
+DP  see dfs
+dp[i][j] = fmin(dp[i - 1][j], dp[i][j - 1]) + dp[i][j];
+*/
+int minPathSum(int** grid, int gridSize, int* gridColSize) {
+	if (grid == NULL || gridSize < 1 || gridColSize == NULL)
+		return 0;
+
+	for (int i = 0; i < gridSize; i++) {
+		for (int j = 0; j < gridColSize[i]; j++) {
+			if (i == 0 && j == 0)
+				continue;
+			else if (i == 0)
+				grid[i][j] += grid[i][j - 1];
+			else if (j == 0)
+				grid[i][j] += grid[i - 1][j];
+			else
+				grid[i][j] += fmin(grid[i][j - 1], grid[i - 1][j]);
+		}
+	}
+
+	return grid[gridSize - 1][gridColSize[0] - 1];
+}
+

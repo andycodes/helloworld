@@ -163,7 +163,7 @@ static int compare(const void* a, const void* b)
     return *(int*)a - *(int*)b;
 }
 
-static void dfs(int* nums, int numsSize, int* returnSize, int** returnColumnSizes,
+static void backtrack(int* nums, int numsSize, int* returnSize, int** returnColumnSizes,
                 int** ppRes, bool* pbUsed, int* pBuffer)
 {
     static int length = 0;
@@ -191,7 +191,7 @@ static void dfs(int* nums, int numsSize, int* returnSize, int** returnColumnSize
                 pBuffer[length] = nums[index];
                 length++;
 
-                dfs(nums, numsSize, returnSize, returnColumnSizes, ppRes, pbUsed, pBuffer);
+                backtrack(nums, numsSize, returnSize, returnColumnSizes, ppRes, pbUsed, pBuffer);
 
                 length--; // 回溯
                 pbUsed[index] = false;
@@ -211,7 +211,7 @@ int** permuteUnique(int* nums, int numsSize, int* returnSize, int** returnColumn
     *returnSize = 0;
     *returnColumnSizes = (int*)malloc(MAX_SIZE * sizeof(int));
 
-    dfs(nums, numsSize, returnSize, returnColumnSizes, ppRes, pbUsed, pBuffer);
+    backtrack(nums, numsSize, returnSize, returnColumnSizes, ppRes, pbUsed, pBuffer);
 
     return ppRes;
 }
@@ -364,7 +364,7 @@ char ** readBinaryWatch(int num, int* returnSize)
 
 */
 
-bool dfs(int** obstacleGrid, int obstacleGridSize, int* obstacleGridColSize, int row, int col,
+bool backtrack(int** obstacleGrid, int obstacleGridSize, int* obstacleGridColSize, int row, int col,
 int **ret, int *returnSize,  bool visited[][100], int** returnColumnSizes)
 {
 	if(row >= obstacleGridSize || col >= obstacleGridColSize[row] || obstacleGrid[row][col] == 1 || visited[row][col])
@@ -381,8 +381,8 @@ int **ret, int *returnSize,  bool visited[][100], int** returnColumnSizes)
 		return true;
 	}
 
-	if (dfs(obstacleGrid, obstacleGridSize, obstacleGridColSize, row, col + 1, ret, returnSize, visited, returnColumnSizes) ||
-		dfs(obstacleGrid, obstacleGridSize, obstacleGridColSize, row + 1, col, ret, returnSize, visited, returnColumnSizes)) {
+	if (backtrack(obstacleGrid, obstacleGridSize, obstacleGridColSize, row, col + 1, ret, returnSize, visited, returnColumnSizes) ||
+		backtrack(obstacleGrid, obstacleGridSize, obstacleGridColSize, row + 1, col, ret, returnSize, visited, returnColumnSizes)) {
 		return true;
 	}
 
@@ -409,7 +409,7 @@ int* obstacleGridColSize, int* returnSize, int** returnColumnSizes){
 	bool visited[100][100];
 	memset(visited, 0, sizeof(visited));
 	*returnColumnSizes = calloc(200, sizeof(int));
-	bool  arrived = dfs(obstacleGrid, obstacleGridSize, obstacleGridColSize,
+	bool  arrived = backtrack(obstacleGrid, obstacleGridSize, obstacleGridColSize,
 	0, 0, ret, returnSize, visited, returnColumnSizes);
 	if(arrived == false) {
 		*returnSize = 0;
@@ -440,7 +440,7 @@ int* obstacleGridColSize, int* returnSize, int** returnColumnSizes){
  */
  #define STR_LEN 4
 int g_flag[300];
- void dfs(char *** tickets, int ticketsSize, char *** res, char *start, int *count)
+ void backtrack(char *** tickets, int ticketsSize, char *** res, char *start, int *count)
  {  //遍历飞机票
     for (int i = 0; i < ticketsSize; i++) {
         if (g_flag[i] == 0 && strcmp(start, tickets[i][0]) == 0) {//找到目的地
@@ -453,7 +453,7 @@ int g_flag[300];
             //将目的地加到结果数组中
             strncpy((*res)[(*count)], newStart, STR_LEN);
             //遍历下个目的地
-            dfs(tickets, ticketsSize, res, newStart, count);
+            backtrack(tickets, ticketsSize, res, newStart, count);
             //当结果数组满了，则返回。
             if (*count  == ticketsSize ) {
                 return;
@@ -486,7 +486,7 @@ char ** findItinerary(char *** tickets, int ticketsSize, int* ticketsColSize, in
     char *start= "JFK";
     int count = 0;
 
-    dfs(tickets, ticketsSize, &res, start, &count);
+    backtrack(tickets, ticketsSize, &res, start, &count);
 
     res[0] = (char*)calloc(STR_LEN, sizeof(char));
     strncpy(res[0], start, STR_LEN);
@@ -494,4 +494,97 @@ char ** findItinerary(char *** tickets, int ticketsSize, int* ticketsColSize, in
     return res;
 }
 
+/*
+638. 大礼包
+难度中等97
+在LeetCode商店中， 有许多在售的物品。
+然而，也有一些大礼包，每个大礼包以优惠的价格捆绑销售
+一组物品。
+现给定每个物品的价格，每个大礼包包含物品的清单，以及
+待购物品清单。请输出确切完成待购清单的最低花费。
+每个大礼包的由一个数组中的一组数据描述，最后一个数字
+代表大礼包的价格，其他数字分别表示内含的其他种类物品
+的数量。
+任意大礼包可无限次购买。
+示例 1:
+输入: [2,5], [[3,0,5],[1,2,10]], [3,2]
+输出: 14
+解释:
+有A和B两种物品，价格分别为?2和?5。
+大礼包1，你可以以?5的价格购买3A和0B。
+大礼包2， 你可以以?10的价格购买1A和2B。
+你需要购买3个A和2个B， 所以你付了?10购买了1A和2B（大礼包2），以及?4购买2A。
+示例 2:
+输入: [2,3,4], [[1,1,0,4],[2,2,1,9]], [1,2,1]
+输出: 11
+解释:
+A，B，C的价格分别为?2，?3，?4.
+你可以用?4购买1A和1B，也可以用?9购买2A，2B和1C。
+你需要买1A，2B和1C，所以你付了?4买了1A和1B（大礼包1），以及?3购买1B， ?4购买1C。
+你不可以购买超出待购清单的物品，尽管购买大礼包2更加便宜。
+.
+*/
+
+/*
+本题实质是一个组合问题
+求出原价购买所有物品的总花费.
+求出每个礼包原价购买的花费.
+用礼包替价格去替换原价，算出替换后的总价，
+更新最小总价
+*/
+
+int g_res;
+void backtrack(int** special, int specialSize, int* specialColSize, int* needs,
+	int needsSize, int *specialOrinPrice, int totalNeedOrinPrice)
+{
+	for (int i = 0; i < needsSize; i++) {
+		if (needs[i] < 0) {
+			return;
+		}
+	}
+
+	g_res = fmin(g_res, totalNeedOrinPrice);
+
+	for (int i = 0; i < specialSize; i++) {
+		for (int j = 0; j < specialColSize[i] - 1; j++) {
+			needs[j] -= special[i][j];
+		}
+
+		backtrack(special, specialSize, specialColSize, needs, needsSize,
+		specialOrinPrice, totalNeedOrinPrice - specialOrinPrice[i] +
+		special[i][specialColSize[i] - 1]);
+
+		for (int j = 0; j < specialColSize[i] - 1; j++) {
+			needs[j] += special[i][j];
+		}
+	}
+}
+
+int shoppingOffers(int* price, int priceSize,
+	int** special, int specialSize,
+	int* specialColSize, int* needs, int needsSize)
+{
+	if (priceSize <= 0) {
+		return 0;
+	}
+
+	int specialOrinPrice[specialSize];
+	memset(specialOrinPrice, 0, sizeof(specialOrinPrice));
+
+	/*礼包各类礼品原始总价*/
+	for (int i = 0; i < specialSize; i++) {
+		for (int j = 0; j < specialColSize[i] - 1; j++) {
+			specialOrinPrice[i] += price[j] * special[i][j];
+		}
+	}
+
+	int totalNeedOrinPrice = 0;
+	for (int i = 0; i < needsSize; i++) {
+		totalNeedOrinPrice += price[i] * needs[i];
+	}
+
+	g_res = totalNeedOrinPrice;
+	backtrack(special, specialSize, specialColSize, needs, needsSize, specialOrinPrice, totalNeedOrinPrice);
+	return g_res;
+}
 
