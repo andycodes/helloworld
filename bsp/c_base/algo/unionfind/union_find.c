@@ -1,3 +1,6 @@
+/*
+连通器个数
+*/
 #ifndef UNION_FIND_H
 #define UNION_FIND_H
 

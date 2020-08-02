@@ -18,6 +18,7 @@ def dfs(路径, 选择列表):
 
 BFS+DFS问题
 逆向传播
+连通器个数
 */
 
 /*
@@ -1143,16 +1144,17 @@ bool hasValidPath(int** grid, int gridSize, int* gridColSize)
 
 */
 
-/*DFS自底向上*/
+/*DFS自底向上
+1) 从每个叶子节点出发递归向上,得出每个路劲的累计分钟
+2)球各个路径最大值
+*/
 int numOfMinutes(int n, int headID, int* manager, int managerSize, int* informTime,
 int informTimeSize)
 {
-        //最终结果
         int res = 0;
 
         for(int i =0;i<managerSize;i++){
-            //判断是否为结束点，剪枝
-            if(informTime[i]==0){
+            if(informTime[i]==0){ //叶子节点
                 //临时值
                 int temp = 0;
                 int index=i;
@@ -1168,7 +1170,9 @@ int informTimeSize)
 }
 
 /*DFS自底向上
-遍历所有员工，对所有最底层员工（叶子节点），DFS搜索父节点，直到没有父节点为止。记录所有遍历的最大时间即为答案。*/
+遍历所有员工，对所有最底层员工（叶子节点），
+DFS搜索父节点，直到没有父节点为止。记录所有遍历
+的最大时间即为答案。*/
 int dfs(int* manager, int *informTime, int id, int t)
 {
     int m = manager[id];
@@ -1178,171 +1182,121 @@ int dfs(int* manager, int *informTime, int id, int t)
     return dfs(manager, informTime, m, t + informTime[m]);
 }
 
-int numOfMinutes(int n, int headID, int* manager, int managerSize, int* informTime, int informTimeSize){
-    int max = 0;
-    for (int i = 0; i < n; i++) {
-        if (informTime[i]) {
-            continue;
-        }
+int numOfMinutes(int n, int headID, int* manager, int managerSize,
+int* informTime, int informTimeSize)
+{
+	int max = 0;
+	for (int i = 0; i < n; i++) {
+		if (informTime[i] != 0) {//不是叶子节点
+			continue;
+	}
 
-        int t = dfs(manager, informTime, i, 0);
-        max = max >= t ? max : t;
-    }
-    return max;
+		int t = dfs(manager, informTime, i, 0);
+		max = max >= t ? max : t;
+	}
+	return max;
 }
 
 /*
 DFS自顶向下
 算法描述
 使用邻接表来表示题目中的N叉树，
-再以headid为起点，进行树的遍历，记录搜索过程中计算出的最大通知时间，即为答案。
+再以headid为起点，进行树的遍历，记录搜索过程中计算出的
+最大通知时间，即为答案。
 */
-typedef struct
-{
-    int key;
-    UT_hash_handle hh;
-}SetNode;
-
-typedef struct
-{
-    int key;
-    SetNode *set;
-    UT_hash_handle hh;
-}HashNode;
-
-void dfs(int *visited, int *inform, int n, HashNode *hash, int pt, int id, int *t) {
-    HashNode *node;
-    HASH_FIND_INT(hash, &id, node);
-    if (!node) {
-        return;
-    }
-
-    pt += inform[id];
-    *t = *t >= pt ? *t : pt;
-
-    SetNode *curr, *tmp;
-    HASH_ITER(hh, node->set, curr, tmp) {
-        if (visited[curr->key]) {
-            continue;
-        }
-
-        visited[curr->key] = 1;
-        dfs(visited, inform, n, hash, pt, curr->key, t);
-    }
-}
-
-int numOfMinutes(int n, int headID, int* manager, int managerSize, int* informTime, int informTimeSize){
-    int visited[n];
-    memset(visited, 0, sizeof(int)*n);
-
-    HashNode *hash = NULL;
-    for (int i = 0; i < n; i++) {
-        HashNode *node;
-        HASH_FIND_INT(hash, &manager[i], node);
-        if (!node) {
-            node = malloc(sizeof(HashNode));
-            node->key = manager[i];
-            node->set = NULL;
-            HASH_ADD_INT(hash, key, node);
-        }
-
-        SetNode *e = malloc(sizeof(SetNode));
-        e->key = i;
-        HASH_ADD_INT(node->set, key, e);
-    }
-
-    visited[headID] = 1;
-    int t = 0;
-    dfs(visited, informTime, n, hash, 0, headID, &t);
-    return t;
-}
 
 /*
 959 unionfind
 */
-int dx[4] = {0, 0, 1, -1};
-    int dy[4] = {1, -1, 0, 0};
+int d[4][2] = { {-1, 0}, {0, 1}, {1, 0}, {0, -1} };
+void dfs(int x, int y, int n, int grid[n][n])
+{
+	grid[x][y] = 1;
 
-    void dfs(int x, int y, int n, int grid[n][n]) {
+	for (int i = 0; i < 4; i++) {
+		int nx = x + d[i][0];
+		int ny = y + d[i][1];
 
-        for (int i = 0; i < 4; ++i) {
-            int nx = x + dx[i], ny = y + dy[i];
-            if (0 <= nx && nx < n && 0 <= ny && ny < n && !grid[nx][ny]) {
-                grid[nx][ny] = 1;
-                dfs(nx, ny, n, grid);
-            }
-        }
-    }
+		if (nx < 0 || nx >= n || ny < 0 || ny >= n) {
+			continue;
+		}
 
+		if (grid[nx][ny] == 1)
+			continue;
+
+		dfs(nx, ny, n, grid);
+	}
+}
 
 int regionsBySlashes(char ** grid, int gridSize)
 {
-        int n = gridSize;
+	int n = gridSize;
 	int newGridSize = 3 * n;
-	 int new_grid[newGridSize][newGridSize];
+	int new_grid[newGridSize][newGridSize];
 	memset(new_grid, 0, sizeof(new_grid));
-        for (int i = 0; i < n; ++i) {
-            for (int j = 0; j < n; ++j) {
-                if (grid[i][j] == '/') {
-                    new_grid[3*i][3*j+2] = 1;
-                    new_grid[3*i+1][3*j+1] = 1;
-                    new_grid[3*i+2][3*j] = 1;
-                } else if (grid[i][j] == '\\') {
-                    new_grid[3*i][3*j] = 1;
-                    new_grid[3*i+1][3*j+1] = 1;
-                    new_grid[3*i+2][3*j+2] = 1;
-                }
-            }
-        }
-        int cnt = 0;
-        for (int i = 0; i < 3*n; ++i) {
-            for (int j = 0; j < 3*n; ++j) {
-                if (!new_grid[i][j]) {
-                    cnt++;
-                    new_grid[i][j] = 1;
-                    dfs(i, j, newGridSize, new_grid);
-                }
-            }
-        }
-        return cnt;
+
+	for (int i = 0; i < n; ++i) {
+		for (int j = 0; j < n; ++j) {
+			if (grid[i][j] == '/') {
+				new_grid[3*i][3*j+2] = 1;
+				new_grid[3*i+1][3*j+1] = 1;
+				new_grid[3*i+2][3*j] = 1;
+			} else if (grid[i][j] == '\\') {
+				new_grid[3*i][3*j] = 1;
+				new_grid[3*i+1][3*j+1] = 1;
+				new_grid[3*i+2][3*j+2] = 1;
+			}
+		}
+	}
+
+	int cnt = 0;
+	for (int i = 0; i < 3*n; ++i) {
+		for (int j = 0; j < 3*n; ++j) {
+			if (new_grid[i][j] == 0) {
+				cnt++;
+				dfs(i, j, newGridSize, new_grid);
+			}
+		}
+	}
+
+	return cnt;
 }
 
 /*
 947 unionfind
 */
-int row = 0;
-void dfs(int x, int y, int** stones, int* visit) {
-    for (int i = 0; i < row; i++) {
-
-        if ((stones[i][0] == x || stones[i][1] == y)) {
-            if (visit[i] == 0) {
-                //printf("%d %d %d %d \n", stones[i][0], stones[i][1], x , y);
-                visit[i] = 1;
-                dfs(stones[i][0], stones[i][1], stones, visit);
-            }
-        }
-    }
+void dfs(int x, int y, int** stones, int* visited, int row)
+{
+	for (int i = 0; i < row; i++) {
+		if ((stones[i][0] == x || stones[i][1] == y)) {
+			if (visited[i] == 0) {
+				visited[i] = 1;
+				dfs(stones[i][0], stones[i][1], stones, visited, row);
+			}
+		}
+	}
 }
 
-int removeStones(int** stones, int stonesSize, int* stonesColSize){
-    if (stones == NULL || stonesSize == 0) {
-        return 0;
-    }
-    int *visit = (int *)malloc(sizeof(int) * stonesSize);
-    memset(visit, 0, sizeof(int) * stonesSize);
-    int num = 0; // 连通数
-    row = stonesSize;
-    for (int i = 0; i < stonesSize; i++) {
-            if (visit[i] == 0) {
-                num++;
-                visit[i] = 1;
-                //printf("%d %d\n", stones[i][0], stones[i][1]);
-                dfs(stones[i][0], stones[i][1], stones, visit);
-            }
-    }
-    return stonesSize - num;
+int removeStones(int** stones, int stonesSize, int* stonesColSize)
+{
+	if (stones == NULL || stonesSize == 0) {
+		return 0;
+	}
 
+	int visited[stonesSize];
+	memset(visited, 0, sizeof(visited));
+	int num = 0; // 连通数
+	for (int i = 0; i < stonesSize; i++) {
+		if (visited[i] == 0) {
+			num++;
+			visited[i] = 1;
+			dfs(stones[i][0], stones[i][1], stones, visited, stonesSize);
+		}
+	}
+
+	return stonesSize - num;
 }
+
 
 /*
 301. 删除无效的括号
@@ -1362,255 +1316,94 @@ int removeStones(int** stones, int stonesSize, int* stonesColSize){
  */
 int gResultSize = 0;
 char **gResult;
-bool IsValid(char *s){
-    int cnt = 0;
-    char *p = s;
-    while (*p != '\0') {
-        if (*p == '(') {
-            cnt++;
-        }
-        else if (*p == ')') {
-            cnt--;
-        }
-        if (cnt < 0) {
-            return false;
-        }
-        p++;
-    }
-    return cnt == 0;
+bool IsValid(char *s)
+{
+	int cnt = 0;
+	char *p = s;
+	while (*p != '\0') {
+		if (*p == '(') {
+			cnt++;
+		} else if (*p == ')') {
+			cnt--;
+		}
+
+		if (cnt < 0) {
+			return false;
+		}
+		p++;
+	}
+	return cnt == 0;
 }
 
-void removeInvalidParentheses2(char * s, int sLen , int start, int leftCnt, int rightCnt){
+void dfs(char * s, int sLen , int start, int leftCnt, int rightCnt)
+{
     if (start > sLen) {
         return;
     }
-    //printf("enter:%s :%d:%d:%d\n", s, start, leftCnt, rightCnt);
+
     if (leftCnt == 0 && rightCnt == 0) {
-        //printf("wait:%s\n", s);
         if (IsValid(s)) {
             gResult[gResultSize] = malloc(sizeof(char) * sLen + 1);
             strcpy(gResult[gResultSize], s);
             gResultSize++;
-            //printf("%s\n", s);
         }
         return;
     }
+
     char subStr[sLen];
     for (int i = start; i < sLen; ++i) {
         if (i > start && s[i] == s[i - 1]){
             continue;
         }
+
         if (s[i] == '(' && leftCnt > 0){
             memcpy(subStr, s, i);
             subStr[i] = '\0';
             strcat(subStr, s + i + 1);
-            removeInvalidParentheses2(subStr, sLen - 1, i, leftCnt - 1, rightCnt);
+            dfs(subStr, sLen - 1, i, leftCnt - 1, rightCnt);
         } else if (s[i] == ')' && rightCnt > 0){
             memcpy(subStr, s, i);
             subStr[i] = '\0';
             strcat(subStr, s + i + 1);
             //printf("subStr-->%s\n", subStr);
-            removeInvalidParentheses2(subStr, sLen - 1, i, leftCnt, rightCnt - 1);
+            dfs(subStr, sLen - 1, i, leftCnt, rightCnt - 1);
         }
     }
 }
+
 #define MAX_RESULT_LEN 10000
-char ** removeInvalidParentheses(char * s, int* returnSize){
-    int leftCnt = 0;
-    int rightCnt = 0;
-    for (int i = 0; i < strlen(s); ++i) {
-        if (s[i] == '(') {
-            leftCnt++;
-        } else if (s[i] == ')'){
-            if (leftCnt == 0){
-                rightCnt++;
-            } else {
-                leftCnt--;
-            }
-        }
-    }
-    char **ans = malloc(sizeof(char*) * MAX_RESULT_LEN);
-    memset(ans, 0, sizeof(char*) * MAX_RESULT_LEN);
-    gResult = ans;
-    gResultSize = 0;
-    removeInvalidParentheses2(s, strlen(s), 0, leftCnt, rightCnt);
-    //printf("%d\n", gResultSize);
-    if (gResultSize == 0){
-        gResult[0] = "";
-        gResultSize = 1;
-    }
-    *returnSize = gResultSize;
-
-    return ans;
-}
-#define MAX_QUEUE_SIZE 10000
-#define MAX_WORD_SIZE  50
-#define LEFT_P '('
-#define RIGHT_P ')'
-
-struct Queue {
-    char** parentheses;
-    int head;
-    int rear;
-};
-typedef struct Queue Queue_t;
-
-void InitQueue(Queue_t* que)
+char ** removeInvalidParentheses(char * s, int* returnSize)
 {
-    que->parentheses = (char**)calloc(MAX_QUEUE_SIZE, sizeof(char*));
-    for (int i = 0; i < MAX_QUEUE_SIZE; i++) {
-        que->parentheses[i] = (char*)calloc(MAX_WORD_SIZE, sizeof(char));
-    }
-    que->head = que->rear = 0;
+	int leftCnt = 0;
+	int rightCnt = 0;
+	int slen = strlen(s);
+
+	for (int i = 0; i < slen; ++i) {
+		if (s[i] == '(') {
+			leftCnt++;
+		} else if (s[i] == ')'){
+			if (leftCnt == 0) {
+				rightCnt++;
+			} else {
+				leftCnt--;
+			}
+		}
+	}
+
+	char **ans = (char **)calloc(MAX_RESULT_LEN, sizeof(char *));
+
+	gResult = ans;
+	gResultSize = 0;
+	dfs(s, slen, 0, leftCnt, rightCnt);
+	if (gResultSize == 0){
+		gResult[0] = "";
+		gResultSize = 1;
+	}
+	*returnSize = gResultSize;
+
+	return ans;
 }
 
-void DeInitQueue(Queue_t* que)
-{
-    for (int i = 0; i < MAX_QUEUE_SIZE; i++) {
-        free(que->parentheses[i]);
-    }
-    free(que->parentheses);
-}
-
-bool IsEmpty(Queue_t* que)
-{
-    return que->head == que->rear;
-}
-
-void EnQueue(Queue_t* que, char* strParentheses)
-{
-    strcpy(que->parentheses[que->rear], strParentheses);
-    que->rear = (que->rear + 1) % MAX_QUEUE_SIZE;
-}
-
-void DeQueue(Queue_t* que, char** strParentheses)
-{
-    if (que->head >= que->rear) {
-        return;
-    }
-
-    // strcpy(strParentheses, que->parentheses[que->head]);
-    *strParentheses =  que->parentheses[que->head];
-    que->head = (que->head + 1) % MAX_QUEUE_SIZE;
-}
-
-int GetQueueSize(Queue_t* que)
-{
-    return que->rear - que->head;
-}
-
-bool IsStringValid(char* pString, int* delta)
-{
-    int leftCount = 0;
-    int rightCount = 0;
-    bool flag = true;
-    for (int i = 0; i < strlen(pString); i++) {
-        if (pString[i] == LEFT_P) {
-            leftCount++;
-        } else if (pString[i] == RIGHT_P) {
-            rightCount++;
-        }
-        if (leftCount < rightCount) {
-            flag = false;
-        }
-    }
-    *delta = leftCount - rightCount;
-    if (flag && *delta == 0) {
-        return true;
-    } else {
-        return false;
-    }
-}
-
-bool IsInQueue(char* pString, Queue_t* que)
-{
-    for (int i = que->head; i < que->rear; i++) {
-        if (strcmp(pString, que->parentheses[i]) == 0) {
-            return true;
-        }
-    }
-    return false;
-}
-
-void RemoveChar(char* pString, int index)
-{
-    int len = strlen(pString);
-    if (index < 0 || index >= len) {
-        return;
-    }
-
-    for (int i = index; i < len - 1; i++) {
-        pString[i] = pString[i + 1];
-    }
-    pString[len - 1] = '\0';
-}
-
-void BFS(Queue_t* quePtr, char** rst, int* returnSize)
-{
-    char* tmpStr = NULL;
-    bool flag = false;
-    int delta = 0;
-
-    while (!IsEmpty(quePtr)) {
-        int curSize = GetQueueSize(quePtr);
-        for (int i = 0; i < curSize; i++) {
-            // termination is result ok
-            DeQueue(quePtr, &tmpStr);
-            // process
-            if (IsStringValid(tmpStr, &delta)) {
-                rst[*returnSize] = (char*)calloc(strlen(tmpStr) + 1, sizeof(char));
-                strcpy(rst[*returnSize], tmpStr);
-                *returnSize = *returnSize + 1;
-                flag = true;
-            }
-
-            // drill down and enqueue
-            if (!flag) { // if find result this round
-                for (int k = 0; k < strlen(tmpStr); k++) {
-                    if (tmpStr[k] != LEFT_P && tmpStr[k] != RIGHT_P) {
-                        continue;
-                    }
-
-                    if (tmpStr[k] == LEFT_P && delta < 0) {
-                        continue;
-                    }
-
-                    if (tmpStr[k] == RIGHT_P && delta > 0) {
-                        continue;
-                    }
-
-                    char* tmpStr2 = (char*)calloc(strlen(tmpStr) + 1, sizeof(char));
-                    strcpy(tmpStr2, tmpStr);
-                    RemoveChar(tmpStr2, k);
-                    if (!IsInQueue(tmpStr2, quePtr)) {
-                        EnQueue(quePtr, tmpStr2);
-                    } else {
-                        free(tmpStr2);
-                    }
-                }
-            }
-        }
-        if (flag) {
-            return;
-        }
-    }
-    return;
-}
-
-/**
- * Note: The returned array must be malloced, assume caller calls free().
- */
-char** removeInvalidParentheses(char* s, int* returnSize)
-{
-    Queue_t que;
-    InitQueue(&que);
-    EnQueue(&que, s);
-    char** rst = (char**)calloc(MAX_QUEUE_SIZE, sizeof(char*));
-    *returnSize = 0;
-
-    BFS(&que, rst, returnSize);
-    return rst;
-}
 
 void GetInvalidNum(char *s, int *left, int *right) {
     int leftNum = 0;
@@ -1715,3 +1508,4 @@ char ** removeInvalidParentheses(char * s, int* returnSize){
 
     return returnArry;
 }
+

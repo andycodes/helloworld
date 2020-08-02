@@ -1611,3 +1611,178 @@ int maxDistance(int** grid, int gridSize, int* gridColSize)
 
         return (ans == INT_MAX) ? -1 : ans;
 }
+
+
+/*
+DFS
+301
+*/
+#define MAX_QUEUE_SIZE 10000
+#define MAX_WORD_SIZE  50
+#define LEFT_P '('
+#define RIGHT_P ')'
+
+struct Queue {
+    char** parentheses;
+    int head;
+    int rear;
+};
+typedef struct Queue Queue_t;
+
+void InitQueue(Queue_t* que)
+{
+    que->parentheses = (char**)calloc(MAX_QUEUE_SIZE, sizeof(char*));
+    for (int i = 0; i < MAX_QUEUE_SIZE; i++) {
+        que->parentheses[i] = (char*)calloc(MAX_WORD_SIZE, sizeof(char));
+    }
+    que->head = que->rear = 0;
+}
+
+void DeInitQueue(Queue_t* que)
+{
+    for (int i = 0; i < MAX_QUEUE_SIZE; i++) {
+        free(que->parentheses[i]);
+    }
+    free(que->parentheses);
+}
+
+bool IsEmpty(Queue_t* que)
+{
+    return que->head == que->rear;
+}
+
+void EnQueue(Queue_t* que, char* strParentheses)
+{
+    strcpy(que->parentheses[que->rear], strParentheses);
+    que->rear = (que->rear + 1) % MAX_QUEUE_SIZE;
+}
+
+void DeQueue(Queue_t* que, char** strParentheses)
+{
+    if (que->head >= que->rear) {
+        return;
+    }
+
+    // strcpy(strParentheses, que->parentheses[que->head]);
+    *strParentheses =  que->parentheses[que->head];
+    que->head = (que->head + 1) % MAX_QUEUE_SIZE;
+}
+
+int GetQueueSize(Queue_t* que)
+{
+    return que->rear - que->head;
+}
+
+bool IsStringValid(char* pString, int* delta)
+{
+    int leftCount = 0;
+    int rightCount = 0;
+    bool flag = true;
+    for (int i = 0; i < strlen(pString); i++) {
+        if (pString[i] == LEFT_P) {
+            leftCount++;
+        } else if (pString[i] == RIGHT_P) {
+            rightCount++;
+        }
+        if (leftCount < rightCount) {
+            flag = false;
+        }
+    }
+    *delta = leftCount - rightCount;
+    if (flag && *delta == 0) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+bool IsInQueue(char* pString, Queue_t* que)
+{
+    for (int i = que->head; i < que->rear; i++) {
+        if (strcmp(pString, que->parentheses[i]) == 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void RemoveChar(char* pString, int index)
+{
+    int len = strlen(pString);
+    if (index < 0 || index >= len) {
+        return;
+    }
+
+    for (int i = index; i < len - 1; i++) {
+        pString[i] = pString[i + 1];
+    }
+    pString[len - 1] = '\0';
+}
+
+void BFS(Queue_t* quePtr, char** rst, int* returnSize)
+{
+    char* tmpStr = NULL;
+    bool flag = false;
+    int delta = 0;
+
+    while (!IsEmpty(quePtr)) {
+        int curSize = GetQueueSize(quePtr);
+        for (int i = 0; i < curSize; i++) {
+            // termination is result ok
+            DeQueue(quePtr, &tmpStr);
+            // process
+            if (IsStringValid(tmpStr, &delta)) {
+                rst[*returnSize] = (char*)calloc(strlen(tmpStr) + 1, sizeof(char));
+                strcpy(rst[*returnSize], tmpStr);
+                *returnSize = *returnSize + 1;
+                flag = true;
+            }
+
+            // drill down and enqueue
+            if (!flag) { // if find result this round
+                for (int k = 0; k < strlen(tmpStr); k++) {
+                    if (tmpStr[k] != LEFT_P && tmpStr[k] != RIGHT_P) {
+                        continue;
+                    }
+
+                    if (tmpStr[k] == LEFT_P && delta < 0) {
+                        continue;
+                    }
+
+                    if (tmpStr[k] == RIGHT_P && delta > 0) {
+                        continue;
+                    }
+
+                    char* tmpStr2 = (char*)calloc(strlen(tmpStr) + 1, sizeof(char));
+                    strcpy(tmpStr2, tmpStr);
+                    RemoveChar(tmpStr2, k);
+                    if (!IsInQueue(tmpStr2, quePtr)) {
+                        EnQueue(quePtr, tmpStr2);
+                    } else {
+                        free(tmpStr2);
+                    }
+                }
+            }
+        }
+        if (flag) {
+            return;
+        }
+    }
+    return;
+}
+
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+char** removeInvalidParentheses(char* s, int* returnSize)
+{
+    Queue_t que;
+    InitQueue(&que);
+    EnQueue(&que, s);
+    char** rst = (char**)calloc(MAX_QUEUE_SIZE, sizeof(char*));
+    *returnSize = 0;
+
+    BFS(&que, rst, returnSize);
+    return rst;
+}
+
