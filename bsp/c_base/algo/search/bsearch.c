@@ -604,3 +604,97 @@ double findMedianSortedArrays(int* nums1, int nums1Size, int* nums2, int nums2Si
         }
         return result;
 }
+
+/*
+295. 数据流的中位数
+难度困难227
+中位数是有序列表中间的数。如果列表长度是偶数，中位数则是中间两个数的平均值。
+例如，
+[2,3,4] 的中位数是 3
+[2,3] 的中位数是 (2 + 3) / 2 = 2.5
+设计一个支持以下两种操作的数据结构：
+"	void addNum(int num) - 从数据流中添加一个整数到数据结构中。
+"	double findMedian() - 返回目前所有元素的中位数。
+示例：
+addNum(1)
+addNum(2)
+findMedian() -> 1.5
+addNum(3)
+findMedian() -> 2
+进阶:
+1.	如果数据流中所有整数都在 0 到 100 范围内，你将如何优化你的算法？
+2.	如果数据流中 99% 的整数都在 0 到 100 范围内，你将如何优化你的算法？
+通过次数19,813
+*/
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
+#include <math.h>
+#include <ctype.h>
+#include <malloc.h>
+#include <limits.h>
+
+
+int cmp_int(const void *a, const void *b)
+{
+	return *((int *)a) - *((int *)b);
+}
+
+typedef struct {
+	int size;
+	int array[1024 * 1024];
+} MedianFinder;
+
+MedianFinder* medianFinderCreate() {
+	return (MedianFinder*)calloc(1, sizeof(MedianFinder));
+}
+
+void medianFinderAddNum(MedianFinder* obj, int num) {
+	//insert sort
+	if (obj->size >= 3) {
+		int left = 0;
+		int right = obj->size - 1;
+
+		while(left + 1 < right) {
+			int mid = (left + right) / 2;
+			if (num > obj->array[mid]) {
+				left = mid;
+			} else {
+				right = mid;
+			}
+		}
+
+		int move;
+		if (num > obj->array[right]) {
+			move = right + 1;
+		} else if (num < obj->array[left]){
+			move = left;
+		} else {
+			move = right;
+		}
+
+		for (int i = obj->size; i > move; i--) {
+			obj->array[i] = obj->array[i - 1];
+		}
+
+		obj->array[move] = num;
+		obj->size++;
+	} else {
+		obj->array[obj->size++] = num;
+		qsort(obj->array, obj->size, sizeof(int), cmp_int);
+	}
+}
+
+double medianFinderFindMedian(MedianFinder* obj) {
+	if (obj->size % 2 == 0) {
+		return (obj->array[obj->size / 2] + obj->array[obj->size / 2 - 1]) * 0.5;
+	} else {
+		return obj->array[obj->size / 2];
+	}
+}
+
+void medianFinderFree(MedianFinder* obj) {
+	free(obj);
+	obj = NULL;
+}
