@@ -7,82 +7,67 @@ Interval Scheduling 区间调度问题
 
 */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
-
 /*
 1029. 两地调度
-我们这样来看这个问题，
-公司首先将这 2N 个人全都安排飞往 B 市，
-再选出 N 个人改变它们的行程，让他们飞往 A 市。
-如果选择改变一个人的行程，
-那么公司将会额外付出 price_A - price_B 的费用，
-这个费用可正可负。
+难度简单122
+公司计划面试 2N 人。第 i 人飞往 A 市的费用为 costs[i][0]，
+飞往 B 市的费用为 costs[i][1]。
+返回将每个人都飞到某座城市的最低费用，要求每个城市都
+有 N 人抵达。
+示例：
+输入：[[10,20],[30,200],[400,50],[30,20]]
+输出：110
+解释：
+第一个人去 A 市，费用为 10。
+第二个人去 A 市，费用为 30。
+第三个人去 B 市，费用为 50。
+第四个人去 B 市，费用为 20。
 
+最低总费用为 10 + 30 + 50 + 20 = 110，每个城市都有一半的人在面试。
 
-因此最优的方案是，选出 price_A - price_B 最小的 N 个人，
-让他们飞往 A 市，其余人飞往 B 市。
-算法按照 price_A - price_B 从小到大排序；
-将前 N 个人飞往 A 市，其余人飞往 B 市，
-并计算出总费用。
 */
+/*按照每个职员两个地方的费用差值排序*/
+int cmp_doublePoint(const void *a, const void *b)
+{
+	int ** aa =  (int **)a;
+	int ** bb = (int **)b;
 
-struct obj{
-    int a;
-    int b;
-    int diff;
-};
-
-
-int cmp_struct( const void *a , const void *b){
-	struct obj *c = (struct obj *)a;
-	struct obj *d = (struct obj *)b;
-
-	return c->diff - d->diff;
+	return (aa[0][0] - aa[0][1]) - (bb[0][0] - bb[0][1]);
 }
 
-int twoCitySchedCost(int** costs, int costsSize, int* costsColSize){
-        int i;
-        struct obj ob[costsSize];
-        int sum = 0;
+int twoCitySchedCost(int** costs, int costsSize, int* costsColSize)
+{
+	qsort(costs, costsSize, sizeof(costs[0]), cmp_doublePoint);
+	int sum = 0;
 
-        for(i = 0; i < costsSize; i++){
-                ob[i].a = costs[i][0];
-                ob[i].b = costs[i][1];
-                ob[i].diff = ob[i].a - ob[i].b;
-        }
+	for (int i = 0; i < costsSize / 2 ; i++) {
+		sum += costs[i][0];
+	}
 
-	qsort(ob, costsSize, sizeof(struct obj), cmp_struct);
-        for (i = 0;i<costsSize/2;i++){
-            sum += ob[i].a;
-        }
+	for (int i = costsSize / 2; i < costsSize; i++) {
+		sum += costs[i][1];
+	}
 
-        for (i = costsSize/2;i<costsSize;i++){
-            sum += ob[i].b;
-        }
-
-        return sum;
+	return sum;
 }
-
 
 /*
 121. 买卖股票的最佳时机
-给定一个数组，
-它的第 i 个元素是一支给定股票第 i 天的价格。
-
-如果你最多只允许完成一笔交易（即买入和卖出一支股票），
-设计一个算法来计算你所能获取的最大利润。
-
-注意你不能在买入股票前卖出股票。
+难度简单1126
+给定一个数组，它的第 i 个元素是一支给定股票第 i 天的价格。
+如果你最多只允许完成一笔交易（即买入和卖出一支股票一次），设计一个算法来计算你所能获取的最大利润。
+注意：你不能在买入股票前卖出股票。
+示例 1:
 输入: [7,1,5,3,6,4]
 输出: 5
-解释: 在第 2 天（股票价格 = 1）的时候买入，
-在第 5 天（股票价格 = 6）的时候卖出，最大利润 = 6-1 = 5 。
-     注意利润不能是 7-1 = 6, 因为卖出价格需要大于买入价格。
-
-
+解释: 在第 2 天（股票价格 = 1）的时候买入，在第 5 天（股票价格 = 6）的时候卖出，最大利润 = 6-1 = 5 。
+     注意利润不能是 7-1 = 6, 因为卖出价格需要大于买入价格；同时，你不能在买入前卖出股票。
+示例 2:
+输入: [7,6,4,3,1]
+输出: 0
+解释: 在这种情况下, 没有交易完成, 所以最大利润为 0。
+*/
+/*
 解题思路： 股票买卖策略：
 单独交易日：设今天价格 p1、明天价格 p2，则今天买入、
 明天卖出可赚取金额 p2-p1（负值代表亏损）。
@@ -98,41 +83,55 @@ pn-p1=(p2-p1)+(p3-p2)+(p4-p3)+....+(pn-P(n-1))。
 即 tmp = prices[i] - prices[i - 1] ； 当该天利润为正 tmp > 0，
 则将利润加入总利润 profit；当利润为 00 或为负，
 则直接跳过； 遍历完成后，返回总利润 profit。
-
 */
-int maxProfit(int* prices, int pricesSize){
-        int profit = 0;
-        for (int i = 1; i <pricesSize; i++) {
-            int tmp = prices[i] - prices[i - 1];
-            if (tmp > 0) profit += tmp;
-        }
-        return profit;
-}
+int maxProfit(int* prices, int pricesSize)
+{
+	int profit = 0;
+	for (int i = 1; i <pricesSize; i++) {
+		int tmp = prices[i] - prices[i - 1];
+		if (tmp > 0)
+			profit += tmp;
+	}
 
+	return profit;
+}
+int maxProfit(int* prices, int pricesSize)
+{
+	int minprice = INT_MAX;
+	int maxprofix = 0;
+
+	for (int i = 0; i < pricesSize; i++) {
+		maxprofix = fmax(maxprofix, prices[i] - minprice);
+		minprice = fmin(minprice, prices[i]);
+	}
+
+	return maxprofix;
+}
 
 /*
 1221. 分割平衡字符串
+难度简单60
 在一个「平衡字符串」中，'L' 和 'R' 字符的数量是相同的。
-
-给出一个平衡字符串 s，
-请你将它分割成尽可能多的平衡字符串。
-
+给出一个平衡字符串 s，请你将它分割成尽可能多的平衡字符串。
 返回可以通过分割得到的平衡字符串的最大数量。
-
-问题分析：分割平衡串，得到尽可能多的平衡串。
-这是一个适用贪心算法的问题，
-在适当的位置截断源串得到平衡子串，
-截断后前后子串的计数不互相影响（无后效性），
-且所有局部最优相加即为整体的最优解。
+示例 1：
+输入：s = "RLRRLLRLRL"
+输出：4
+解释：s 可以分割为 "RL", "RRLL", "RL", "RL", 每个子字符串中都包含相同数量的 'L' 和 'R'。
+示例 2：
+输入：s = "RLLLLRRRLR"
+输出：3
+解释：s 可以分割为 "RL", "LLLRRR", "LR", 每个子字符串中都包含相同数量的 'L' 和 'R
+*/
+/*
 解决思路：
-
 设置一个'L'与'R'的差值计数器diffCount，
 设置一个平衡子串计数器count；
 顺序遍历源串字符，遇L则diffCount+1，遇到R则diffCount-1；
 每遍历一个字符检查一次diffCount是否为0，若为0则count+1
 */
-
-int balancedStringSplit(char * s) {
+int balancedStringSplit(char * s)
+{
 	int diffCnt = 0;
 	int count = 0;
 
@@ -145,6 +144,11 @@ int balancedStringSplit(char * s) {
 		else
 			diffCnt--;
 
+/*
+RLRRLL diffCnt = 0
+RL diffCnt = 0
+RRLL diffCnt = 0
+*/
 		if (diffCnt == 0)
 			count++;
 	}
@@ -152,44 +156,35 @@ int balancedStringSplit(char * s) {
 	return count;
 }
 
-
 /*
-假设你是一位很棒的家长，想要给你的孩子们一些小饼干。
-但是，每个孩子最多只能给一块饼干。对每个孩子 i ，
-都有一个胃口值 gi ，这是能让孩子们满足胃口的饼干
-的最小尺寸；并且每块饼干 j ，都有一个尺寸 sj 。
-如果 sj >= gi ，
-我们可以将这个饼干 j 分配给孩子 i ，
-这个孩子会得到满足。
-你的目标是尽可能满足越多数量的孩子，
-并输出这个最大数值。
-
+455. 分发饼干
+难度简单187
+假设你是一位很棒的家长，想要给你的孩子们一些小饼干。但是，每个孩子最多只能给一块饼干。对每个孩子 i ，都有一个胃口值 gi ，这是能让孩子们满足胃口的饼干的最小尺寸；并且每块饼干 j ，都有一个尺寸 sj 。如果 sj >= gi ，我们可以将这个饼干 j 分配给孩子 i ，这个孩子会得到满足。你的目标是尽可能满足越多数量的孩子，并输出这个最大数值。
 注意：
-
 你可以假设胃口值为正。
 一个小朋友最多只能拥有一块饼干。
-
 示例 1:
-
 输入: [1,2,3], [1,1]
 
 输出: 1
 
 解释:
-你有三个孩子和两块小饼干，
-3个孩子的胃口值分别是：1,2,3。
-虽然你有两块小饼干，
-由于他们的尺寸都是1，你只能让胃口值是1的孩子满足。
+你有三个孩子和两块小饼干，3个孩子的胃口值分别是：1,2,3。
+虽然你有两块小饼干，由于他们的尺寸都是1，你只能让胃口值是1的孩子满足。
 所以你应该输出1。
 示例 2:
-
 输入: [1,2], [1,2,3]
 
 输出: 2
 
+解释:
+你有两个孩子和三块小饼干，2个孩子的胃口值分别是1,2。
+你拥有的饼干数量和尺寸都足以让所有孩子满足。
+所以你应该输出2.
+ '。
 */
-int findContentChildren(int* g, int gSize, int* s, int sSize){
-
+int findContentChildren(int* g, int gSize, int* s, int sSize)
+{
 	int ig = 0;
 	int is = 0;
 	int out = 0;
@@ -211,35 +206,19 @@ int findContentChildren(int* g, int gSize, int* s, int sSize){
 }
 
 /*
-给定一个整数数组 A，我们只能用以下方法修
-改该数组：我们选择某个个索引 i 并将 A[i] 替换为 -A[i]，
-然后总共重复这个过程 K 次。
-（我们可以多次选择同一个索引 i。）
-
+1005. K 次取反后最大化的数组和
+难度简单52
+给定一个整数数组 A，我们只能用以下方法修改该数组：我们选择某个索引 i 并将 A[i] 替换为 -A[i]，然后总共重复这个过程 K 次。（我们可以多次选择同一个索引 i。）
 以这种方式修改数组后，返回数组可能的最大和。
-
+示例 1：
+输入：A = [4,2,3], K = 1
+输出：5
+解释：选择索引 (1,) ，然后 A 变为 [4,-2,3]。
+示例 2：
+输入：A = [3,-1,0,2], K = 3
+输出：6
+解释：选择索引 (1, 2, 2) ，然后 A 变为 [3,1,0,2]。
 */
-
-/*第一种：每次取反前，将数组排序，
-取反最小值，速度最慢*/
-int largestSumAfterKNegations(int* A, int ASize, int K){
-	int sum = 0;
-	int tmp;
-
-	if (A == NULL || ASize <= 0)
-		return 0;
-
-	for (int i = 0; i < K; i++) {
-		qsort(A,ASize,sizeof(int),cmp_int);
-		A[0] = -A[0];
-	}
-
-	for (int i = 0; i < ASize; i++) {
-		sum += A[i];
-	}
-
-	return sum;
-}
 
 /*
 对K做分析，分3种情况：
@@ -249,13 +228,13 @@ int largestSumAfterKNegations(int* A, int ASize, int K){
 3，多出负数的部分是奇数：
 将非负数数字排序，把最小数字取反，返回和
 */
-
 #define m_sum()\
 	for (int i = 0; i < ASize; i++) {\
 		sum += A[i];\
 	}\
 
-int largestSumAfterKNegations(int* A, int ASize, int K){
+int largestSumAfterKNegations(int* A, int ASize, int K)
+{
 	int tmp;
 	int sum = 0;
 	int i = 0;
@@ -295,16 +274,10 @@ int largestSumAfterKNegations(int* A, int ASize, int K){
 870. 优势洗牌
 给定两个大小相等的数组 A 和 B，A 相对于
 B 的优势可以用满足 A[i] > B[i] 的索引 i 的数目来描述。
-
 返回 A 的任意排列，使其相对于 B 的优势最大化。
-
-
-
 示例 1：
-
 输入：A = [2,7,11,15], B = [1,10,4,11]
 输出：[2,11,7,15]
-
 */
 struct obj {
 	int data;
@@ -338,10 +311,10 @@ int* advantageCount(int* A, int ASize, int* B, int BSize, int* returnSize){
     	int j = BSize - 1;
 	for (int i = 0; i < ASize; i++) {
 		if (ao[i].data > bo[l].data) {
-			ret[bo[l].index] = ao[i].data;
+			ret[bo[l].index] = ao[i].data; // 如果A数组的值大于B数组的值则把A[i]的值赋给list数组中的B数组的索引。
             		l++;
 		} else {
-			ret[bo[r].index] = ao[i].data;
+			ret[bo[r].index] = ao[i].data;// 如果是小于等于则把A[i]的值放在list数组中B数组最大的索引位置。
             		r--;
 		}
 	}
@@ -352,25 +325,34 @@ int* advantageCount(int* A, int ASize, int* B, int BSize, int* returnSize){
 
 /*
 1282. 用户分组
-有 n 位用户参加活动，他们的 ID 从 0 到 n - 1，每位用户都 恰好 属于某一用户组。给你一个长度为 n 的数组 groupSizes，其中包含每位用户所处的用户组的大小，请你返回用户分组情况（存在的用户组以及每个组中用户的 ID）。
-
-你可以任何顺序返回解决方案，ID 的顺序也不受限制。此外，题目给出的数据保证至少存在一种解决方案。
-
-
-
+有 n 位用户参加活动，他们的 ID 从 0 到 n - 1，每位用户都 恰好
+属于某一用户组。给你一个长度为 n 的数组 groupSizes，其中包含
+每位用户所处的用户组的大小，请你返回用户分组情况（存在
+的用户组以及每个组中用户的 ID）。
+你可以任何顺序返回解决方案，ID 的顺序也不受限制。此外，
+题目给出的数据保证至少存在一种解决方案。
 示例 1：
-
 输入：groupSizes = [3,3,3,3,3,1,3]
 输出：[[5],[0,1,2],[3,4,6]]
 解释：
 其他可能的解决方案有 [[2,1,6],[5],[0,4,3]] 和 [[5],[0,6,2],[4,3,1]]。
-
-
+*/
+/*
 方法一：哈希映射
-对于两个用户 x 和 y，如果 groupSize[x] != groupSize[y]，它们用户组的大小不同，那么它们一定不在同一个用户组中。因此我们可以首先对所有的用户进行一次【粗分组】，用一个哈希映射（HashMap）来存储所有的用户。哈希映射中键值对为 (gsize, users)，其中 gsize 表示用户组的大小，users 表示满足用户组大小为 gsize，即 groupSize[x] == gsize 的所有用户。这样以来，我们就把所有用户组大小相同的用户都暂时放在了同一个组中。
+对于两个用户 x 和 y，如果 groupSize[x] != groupSize[y]，它们用户组的
+大小不同，那么它们一定不在同一个用户组中。因此我们可
+以首先对所有的用户进行一次【粗分组】，用一个哈希映射（
+HashMap）来存储所有的用户。哈希映射中键值对为 (gsize, users)，
+其中 gsize 表示用户组的大小，users 表示满足用户组大小为 gsize，
+即 groupSize[x] == gsize 的所有用户。这样以来，我们就把所有用户
+组大小相同的用户都暂时放在了同一个组中。
 
-在进行了【粗分组】后，我们可以将每个键值对 (gsize, users) 中的 users 进行【细分组】。由于题目保证了给出的数据至少存在一种方案，因此我们的【细分组】可以变得很简单：只要每次从 users 中取出 gsize 个用户，把它们放在一个组中就可以了。在进行完所有的【细分组】后，我们就得到了一种满足条件的分组方案。
-
+在进行了【粗分组】后，我们可以将每个键值对 (gsize, users) 中
+的 users 进行【细分组】。由于题目保证了给出的数据至少存
+在一种方案，因此我们的【细分组】可以变得很简单：只要
+每次从 users 中取出 gsize 个用户，把它们放在一个组中就可以了。
+在进行完所有的【细分组】后，我们就得到了一种满足条件
+的分组方案。
 */
 struct bigcase {
 	int cnt;
@@ -411,115 +393,25 @@ int** groupThePeople(int* groupSizes, int groupSizesSize,
 /*
 1094. 拼车
 难度中等22
-假设你是一位顺风车司机，车上最初有 capacity 个空座位可以用来载客。由于道路的限制，车 只能 向一个方向行驶（也就是说，不允许掉头或改变方向，你可以将其想象为一个向量）。
-这儿有一份行程计划表 trips[][]，其中 trips[i] = [num_passengers, start_location, end_location] 包含了你的第 i 次行程信息：
+假设你是一位顺风车司机，车上最初有 capacity 个空座位可以用
+来载客。由于道路的限制，车 只能 向一个方向行驶（也就是
+说，不允许掉头或改变方向，你可以将其想象为一个向量）。
+这儿有一份行程计划表 trips[][]，其中 trips[i] = [num_passengers, start_location,
+end_location] 包含了你的第 i 次行程信息：
 "	必须接送的乘客数量；
 "	乘客的上车地点；
 "	以及乘客的下车地点。
-这些给出的地点位置是从你的 初始 出发位置向前行驶到这些地点所需的距离（它们一定在你的行驶方向上）。
-请你根据给出的行程计划表和车子的座位数，来判断你的车是否可以顺利完成接送所用乘客的任务（当且仅当你可以在所有给定的行程中接送所有乘客时，返回 true，否则请返回 false）。
-
+这些给出的地点位置是从你的 初始 出发位置向前行驶到这些
+地点所需的距离（它们一定在你的行驶方向上）。
+请你根据给出的行程计划表和车子的座位数，来判断你的车
+是否可以顺利完成接送所用乘客的任务（当且仅当你可以在
+所有给定的行程中接送所有乘客时，返回 true，否则请返回 false）。
 示例 1：
 输入：trips = [[2,1,5],[3,3,7]], capacity = 4
 输出：false
 示例 2：
 输入：trips = [[2,1,5],[3,3,7]], capacity = 5
 输出：true
-
-*/
-
-/*
-离散特点
-本题意思清晰。 （详见NOIP2012D2T2 借教室）
-简单看成给一个全0数组， 每一次给3个参数a, b, ca,b,c. 即意味着在[b, c)[b,c)区间每个数都加上aa. 最后问最大值是否超过capacitycapacity.
-
-解法0: 暴力
-针对每一个需求， 在区间[b, c)[b,c)每一个值都加上aa， 最后扫描一遍数组则可以得到最大值， 与capacitycapacity比较即可. 鉴于这道题数据范围很小， 可以通过。
-时间复杂度: O(nm)O(nm)
-空间复杂度: O(m)O(m)
-其中nn为拼车需求数， mm为路的长度。
-
-解法1： 线段树
-典型区间加，区间最大值问题。 用线段树即可。
-
-时间复杂度: O(mlogm)O(mlogm)
-空间复杂度: O(mlogm)O(mlogm)
-
-解法2： 差分数组
-
-给出一个数组arrayarray， 则其差分数组diffdiff定义为
-
-diff=
-{
-array[i] & (i = 0)
-array[i] - array[i-1] & ( i > 0)
-}
-
-
-
-
-举个例子, a = [1,3,6,10,15]a=[1,3,6,10,15]时， 其差分数组为[1,2,3,4,5][1,2,3,4,5].
-
-那么针对这道题， 我们针对原数组连续一段加上a的时候， 若直接在原数组操作， 则需要c-bc?b次， 而在差分数组上则只需要2次。 这样即可减少修改次数以降低时间复杂度。
-举个例子， a = [0,0,0,0,0,0]a=[0,0,0,0,0,0], 若给出(a, b, c) = (3, 2, 5)(a,b,c)=(3,2,5), 则原数组变为[0,0,3,3,3,0][0,0,3,3,3,0], 差分数组变为[0,0,3,0,0,-3][0,0,3,0,0,?3]仅修改两个值。
-
-由差分数组得到原数组时， 只需要逆向变化即可。
-
-时间复杂度: O(m)O(m)
-空间复杂度: O(m)O(m)
-
-*/
-
-#define MAX_POSITION  1001
-bool carPooling(int** trips, int tripsSize, int* tripsColSize, int capacity)
-{
-    int route[MAX_POSITION] = {0};
-    int maxCap = 0;
-    // 遍历所有的旅途，将所有的路途信息写入到route中，route元素大小是乘客的数量
-    for (int i = 0; i < tripsSize; i++) {
-        // 终点不需要增加权重，因为终点是下车，但是起点需要增加权重
-        for (int j = trips[i][1]; j < trips[i][2]; j++) {
-            route[j] += trips[i][0];
-            if (maxCap < route[j]) {
-                maxCap = route[j];
-            }
-        }
-    }
-
-    return maxCap > capacity ? false : true;
-}
-
-/*
-由于终点都是先下后上的所以需要终点人就下车，起点和终点前一个点都在车上，在a[3]到a[6-1]都需要+2，全部行程加完后，然后判断数组有没有出现超过座位的数字就行，
-时间复杂度O(n)，是不是简单到爆又容易理解！！！
-
-*/
-bool carPooling(int** trips, int tripsSize, int* tripsColSize, int capacity){
-	int map[1024] = {{0}};
-
-	for (int i = 0; i < tripsSize; i++) {
-		for (int j = trips[i][1]; j < trips[i][2];j++) {
-			map[j] += trips[i][0];
-		}
-	}
-
-	for (int i = 0; i < 1024; i++) {
-		if(map[i] > capacity)
-			return false;
-	}
-
-	return true;
-}
-
-/*
-本题直接解答比较复杂，可以采用统计学的方法进行加加减减操作，可以很容易解答本题。
-因为 0 <= trips[i][1] < trips[i][2] <= 1000，可以开一个大小为 1001 的数组 cnt 来代表每个地点的人数。
-遍历 trips，在上车点加上对应人数，在下车点减去对应人数。
-最终数组 cnt 每个位置的前缀和就是对应地点上的乘客数量，判断是否满足条件就比较简单了。
-
-
-相对前一站的人数变化
-直接创建数组缓存每个车站的人数变动，检索时判断和值是否超限即可
 
 */
 bool carPooling(int** trips, int tripsSize, int* tripsColSize, int capacity){
@@ -548,7 +440,6 @@ bool carPooling(int** trips, int tripsSize, int* tripsColSize, int capacity){
 "	递减（Decrement）：将显示屏上的数字减 1 。
 最初，计算器显示数字 X。
 返回显示数字 Y 所需的最小操作数。
-
 示例 1：
 输入：X = 2, Y = 3
 输出：2
@@ -556,11 +447,9 @@ bool carPooling(int** trips, int tripsSize, int* tripsColSize, int capacity){
 
 */
 /*
-根据上述分析，我们可以写出该贪心算法的递归写法
-当Y = XY=X时，返回00
-当Y < XY<X时，返回 X-YX?Y
-当Y > XY>X 且 YY为奇数时，我们可以得到当前最优序列中倒数第二个数为Y+1Y+1，递归求解到Y+1Y+1的最小操作次数。
-当Y > XY>X 且 YY为偶数时, 我们可以得到当前最优序列中倒数第二个数为Y/2Y/2，递归求解到Y/2Y/2的最小操作次数
+灵感来自示例，首先由于计算器只能双倍或递减，XY又都为整数，因此，当X > Y时，只能递减X-Y次达到目的。当X = Y ，无需操作，可以和上一个条件一起判断。
+当Y > X时，如果Y是一个奇数，那么得到它的最后一步必然是递减。如果Y是一个偶数，如果得到它的最后一步是递减，那么倒数第二步也应该是递减，但Y是一个大于X的数，因此X变成Y时一定经过了双倍，那么与其双倍后进行递减，不如先递减再双倍，花费的步数应该会更少，至少能持平。
+那么问题就变成了递归问题。当Y > X时且Y是奇数时，将它加一变成偶数，并且总步数等于1 + brokenCalc(X,(Y+1))，当Y是偶数时，总步数等于1 + brokenCalc(X,Y/2)。
 
 */
 int brokenCalc(int X, int Y)
@@ -624,26 +513,29 @@ bool validateStackSequences(int* pushed, int pushedSize,
 示例 1:
 输入: [2,3,1,1,4]
 输出: true
-解释: 我们可以先跳 1 步，从位置 0 到达 位置 1, 然后再从位置 1 跳 3 步到达最后一个位置。
+解释: 我们可以先跳 1 步，从位置 0 到达 位置 1, 然后再从位置
+1 跳 3 步到达最后一个位置。
 示例 2:
 输入: [3,2,1,0,4]
 输出: false
-解释: 无论怎样，你总会到达索引为 3 的位置。但该位置的最大跳跃长度是 0 ， 所以你永远不可能到达最后一个位置。
-
+解释: 无论怎样，你总会到达索引为 3 的位置。但该位置的最
+大跳跃长度是 0 ， 所以你永远不可能到达最后一个位置。
 */
-bool canJump(int* nums, int numsSize){
-        int n = numsSize;
-        int rightmost = 0;
-        for (int i = 0; i < n; ++i) {
-            if (i <= rightmost) {
-                rightmost = fmax(rightmost, i + nums[i]);
-                if (rightmost >= n - 1) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
+bool canJump(int* nums, int numsSize)
+{
+	int rightmost = 0;
+
+	for (int i = 0; i < numsSize; ++i) {
+		if (i <= rightmost) {
+			rightmost = fmax(rightmost, i + nums[i]);
+			if (rightmost >= numsSize - 1) {
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
 
 /*
 45. 跳跃游戏 II
@@ -656,17 +548,23 @@ bool canJump(int* nums, int numsSize){
 输出: 2
 解释: 跳到最后一个位置的最小跳跃数是 2。
 */
-int jump(int* nums, int numsSize){
-        int position = numsSize - 1;
-        int steps = 0;
-        while (position > 0) {
-            for (int i = 0; i < position; i++) {
-                if (i + nums[i] >= position) {
-                    position = i;
-                    steps++;
-                    break;
-                }
-            }
-        }
-        return steps;
+
+/*
+我们的目标是到达数组的最后一个位置，因此我们可以考虑最后一步跳跃前所在的位置，该位置通过跳跃能够到达最后一个位置。如果有多个位置通过跳跃都能够到达最后一个位置，那么我们应该如何进行选择呢？直观上来看，我们可以「贪心」地选择距离最后一个位置最远的那个位置，也就是对应下标最小的那个位置。因此，我们可以从左到右遍历数组，选择第一个满足要求的位置。找到最后一步跳跃前所在的位置之后，我们继续贪心地寻找倒数第二步跳跃前所在的位置，以此类推，直到找到数组的开始位置。作者：LeetCode-Solution链接：https://leetcode-cn.com/problems/jump-game-ii/solution/tiao-yue-you-xi-ii-by-leetcode-solution/来源：力扣（LeetCode）著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+*/
+int jump(int* nums, int numsSize)
+{
+	int position = numsSize - 1;
+	int steps = 0;
+	while (position > 0) {
+		for (int i = 0; i < position; i++) {
+			if (i + nums[i] >= position) {
+				position = i;
+				steps++;
+				break;
+			}
+		}
+	}
+	return steps;
 }
+

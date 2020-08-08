@@ -626,21 +626,6 @@ findMedian() -> 2
 2.	如果数据流中 99% 的整数都在 0 到 100 范围内，你将如何优化你的算法？
 通过次数19,813
 */
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <string.h>
-#include <math.h>
-#include <ctype.h>
-#include <malloc.h>
-#include <limits.h>
-
-
-int cmp_int(const void *a, const void *b)
-{
-	return *((int *)a) - *((int *)b);
-}
-
 typedef struct {
 	int size;
 	int array[1024 * 1024];
