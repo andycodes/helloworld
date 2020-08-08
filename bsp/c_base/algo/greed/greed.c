@@ -568,3 +568,116 @@ int jump(int* nums, int numsSize)
 	return steps;
 }
 
+/*
+406. 根据身高重建队列
+难度中等424
+假设有打乱顺序的一群人站成一个队列。 每个人由一个整数对(h, k)表示，其中h是这个人的身高，k是排在这个人前面且身高大于或等于h的人数。 编写一个算法来重建这个队列。
+注意：
+总人数少于1100人。
+示例
+输入:
+[[7,0], [4,4], [7,1], [5,0], [6,1], [5,2]]
+
+输出:
+[[5,0], [7,0], [5,2], [6,1], [4,4], [7,1]]
+*/
+
+/**
+ * Return an array of arrays of size *returnSize.
+ * The sizes of the arrays are returned as *returnColumnSizes array.
+ * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ */
+int compare(const void *a,const void *b){
+    const int* pa = *(const int **)a;
+    const int* pb = *(const int **)b;
+    return pa[0] == pb[0]?pa[1] - pb[1]:pb[0] - pa[0];
+}
+
+int** reconstructQueue(int** people, int peopleSize, int* peopleColSize, int* returnSize, int** returnColumnSizes){
+    int **res = NULL;
+    res = (int **)malloc(sizeof(int *) * peopleSize);
+    int i;
+    int pos;
+    //for(i = 0;i < peopleSize;i++){
+        //res[i] = (int *)malloc(sizeof(int) * 2);
+   // }
+
+    qsort(people, peopleSize, sizeof(int *), compare);
+    //for(i = 0;i < peopleSize;i++)
+        //printf("%d\t%d\n",people[i][0],people[i][1]);
+    for(i = 0;i < peopleSize;i++){
+        pos = people[i][1];
+        //printf("people i1 is %d\n",people[i][1]);
+        memmove(&res[pos + 1], &res[pos], (i - pos) *sizeof(int *));
+        res[pos] = (int *)malloc(sizeof(int) * 2);
+        res[pos][0] = people[i][0];
+        res[pos][1] = people[i][1];
+    }
+
+    *returnSize = peopleSize;
+    *returnColumnSizes = peopleColSize;
+    return res;
+}
+
+/*
+135. 分发糖果
+难度困难239
+老师想给孩子们分发糖果，有 N 个孩子站成了一条直线，老师会根据每个孩子的表现，预先给他们评分。
+你需要按照以下要求，帮助老师给这些孩子分发糖果：
+"	每个孩子至少分配到 1 个糖果。
+"	相邻的孩子中，评分高的孩子必须获得更多的糖果。
+那么这样下来，老师至少需要准备多少颗糖果呢？
+示例 1:
+输入: [1,0,2]
+输出: 5
+解释: 你可以分别给这三个孩子分发 2、1、2 颗糖果。
+
+*/
+int candy(int* ratings, int ratingsSize)
+{
+        int sum = 0;
+        int left2right[ratingsSize];
+        int right2left[ratingsSize];
+	for (int i = 0; i < ratingsSize; i++) {
+		left2right[i] = right2left[i] = 1;
+	}
+
+        for (int i = 1; i < ratingsSize; i++) {
+            if (ratings[i] > ratings[i - 1]) {
+                left2right[i] = left2right[i - 1] + 1;
+            }
+        }
+        for (int i = ratingsSize - 2; i >= 0; i--) {
+            if (ratings[i] > ratings[i + 1]) {
+                right2left[i] = right2left[i + 1] + 1;
+            }
+        }
+        for (int i = 0; i < ratingsSize; i++) {
+            sum += fmax(left2right[i], right2left[i]);
+        }
+        return sum;
+}
+
+int candy(int* ratings, int ratingsSize)
+{
+        int candies[ratingsSize];
+	for (int i = 0; i < ratingsSize; i++) {
+		candies[i] = 1;
+	}
+
+        for (int i = 1; i < ratingsSize; i++) {
+            if (ratings[i] > ratings[i - 1]) {
+                candies[i] = candies[i - 1] + 1;
+            }
+        }
+        int sum = candies[ratingsSize - 1];
+        for (int i = ratingsSize - 2; i >= 0; i--) {
+            if (ratings[i] > ratings[i + 1]) {
+                candies[i] = fmax(candies[i], candies[i + 1] + 1);
+            }
+            sum += candies[i];
+        }
+        return sum;
+}
+
+
