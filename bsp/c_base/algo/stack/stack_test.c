@@ -708,7 +708,87 @@ int lengthOfLIS(int* nums, int numsSize)
 	return top;
 }
 
+/*
+84. 柱状图中最大的矩形
+难度困难836
+给定 n 个非负整数，用来表示柱状图中各个柱子的高度。每个柱子彼此相邻，且宽度为 1 。
+求在该柱状图中，能够勾勒出来的矩形的最大面积。
 
+
+以上是柱状图的示例，其中每个柱子的宽度为 1，给定的高度为 [2,1,5,6,2,3]。
+
+
+图中阴影部分为所能勾勒出的最大矩形面积，其面积为 10 个单位。
+
+示例:
+输入: [2,1,5,6,2,3]
+输出: 10
+
+*/
+
+int largestRectangleArea(int* heights, int heightsSize){
+        int ans = 0;
+        // 枚举左边界
+        for (int left = 0; left < heightsSize; ++left) {
+            int minHeight = INT_MAX;
+            // 枚举右边界
+            for (int right = left; right < heightsSize; ++right) {
+                // 确定高度
+                minHeight = fmin(minHeight, heights[right]);
+                // 计算面积
+                ans = fmax(ans, (right - left + 1) * minHeight);
+            }
+        }
+        return ans;
+}
+
+int largestRectangleArea(int* heights, int heightsSize)
+{
+        int n = heightsSize;
+        int ans = 0;
+        for (int mid = 0; mid < n; ++mid) {
+            // 枚举高
+            int height = heights[mid];
+            int left = mid, right = mid;
+            // 确定左右边界
+            while (left - 1 >= 0 && heights[left - 1] >= height) {
+                --left;
+            }
+            while (right + 1 < n && heights[right + 1] >= height) {
+                ++right;
+            }
+            // 计算面积
+            ans = fmax(ans, (right - left + 1) * height);
+        }
+        return ans;
+}
+
+int largestRectangleArea(int* heights, int heightsSize)
+{
+        // 这里为了代码简便，在柱体数组的头和尾加了两个高度为 0 的柱体。
+        int tmp[heightsSize + 2];
+	memset(tmp, 0, sizeof(tmp));
+	for (int i = 0; i < heightsSize; i++) {
+		tmp[i + 1] = heights[i];
+	}
+
+        //Deque<Integer> stack = new ArrayDeque<>();
+	int stack[heightsSize + 2];
+	int top = -1;
+        int area = 0;
+        for (int i = 0; i < heightsSize + 2; i++) {
+            // 对栈中柱体来说，栈中的下一个柱体就是其「左边第一个小于自身的柱体」；
+            // 若当前柱体 i 的高度小于栈顶柱体的高度，说明 i 是栈顶柱体的「右边第一个小于栈顶柱体的柱体」。
+            // 因此以栈顶柱体为高的矩形的左右宽度边界就确定了，可以计算面积??? ～
+            while (top > -1 && tmp[i] < tmp[stack[top]]) {
+                int h = tmp[stack[top--]];
+                area = fmax(area, (i - stack[top] - 1) * h);
+            }
+	     stack[++top] = i;
+        }
+
+        return area;
+}
 
 
 
