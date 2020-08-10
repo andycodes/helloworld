@@ -1117,3 +1117,365 @@ bool isOneBitCharacter(int* bits, int bitsSize)
         }
         return i == bitsSize - 1;
 }
+
+/*
+384. 打乱数组
+难度中等85
+打乱一个没有重复元素的数组。
+
+示例:
+// 以数字集合 1, 2 和 3 初始化数组。
+int[] nums = {1,2,3};
+Solution solution = new Solution(nums);
+
+// 打乱数组 [1,2,3] 并返回结果。任何 [1,2,3]的排列返回的概率应该相同。
+solution.shuffle();
+
+// 重设数组到它的初始状态[1,2,3]。
+solution.reset();
+
+// 随机返回数组[1,2,3]打乱后的结果。
+solution.shuffle();
+
+*/
+
+#include <time.h>
+
+typedef struct {
+    int *array;
+    int *origin;
+    int size;
+} Solution;
+
+void swap(int *a, int *b){
+    int temp = *a;
+    *a = *b;
+    *b = temp;
+    return;
+}
+
+int randomInt(int min, int max){
+    int ret = rand() % (max - min + 1) + min;
+    return ret;
+}
+
+Solution* solutionCreate(int* nums, int numsSize) {
+    Solution *new = malloc(sizeof(Solution));
+    new->size = numsSize;
+    new->array = malloc(sizeof(int) * numsSize);
+    new->origin = malloc(sizeof(int) * numsSize);
+    for(int i = 0; i <  numsSize; i++){
+        new->array[i] = nums[i];
+        new->origin[i] = nums[i];
+    }
+    return new;
+}
+
+/** Resets the array to its original configuration and return it. */
+int* solutionReset(Solution* obj, int* retSize) {
+    *retSize = obj->size;
+    for(int i = 0; i < *retSize; i++){
+        obj->array[i] = obj->origin[i];
+    }
+    return obj->array;
+}
+
+/** Returns a random shuffling of the array. */
+int* solutionShuffle(Solution* obj, int* retSize) {
+    *retSize = obj->size;
+    int swapIndex;
+    //srand(time(NULL));
+    for(int i = 0; i < *retSize; i++){
+        swapIndex = randomInt(i, *retSize - 1);
+        swap(&(obj->array[i]), &(obj->array[swapIndex]));
+    }
+    return obj->array;
+}
+
+void solutionFree(Solution* obj) {
+    free(obj->array);
+    free(obj->origin);
+    free(obj);
+    return;
+}
+/*
+1233. 删除子文件夹
+难度中等24
+你是一位系统管理员，手里有一份文件夹列表 folder，你的任务是要删除该列表中的所有 子文件夹，并以 任意顺序 返回剩下的文件夹。
+我们这样定义「子文件夹」：
+"	如果文件夹 folder[i] 位于另一个文件夹 folder[j] 下，那么 folder[i] 就是 folder[j] 的子文件夹。
+文件夹的「路径」是由一个或多个按以下格式串联形成的字符串：
+"	/ 后跟一个或者多个小写英文字母。
+例如，/leetcode 和 /leetcode/problems 都是有效的路径，而空字符串和 / 不是。
+
+示例 1：
+输入：folder = ["/a","/a/b","/c/d","/c/d/e","/c/f"]
+输出：["/a","/c/d","/c/f"]
+解释："/a/b/" 是 "/a" 的子文件夹，而 "/c/d/e" 是 "/c/d" 的子文件夹。
+
+*/
+int Comp2Str(const void *a, const void *b)
+{
+    return strcmp(*(char **)a, *(char **)b);
+}
+
+char **removeSubfolders(char **folder, int folderSize, int *returnSize)
+{
+    char **ret;
+    ret = malloc(sizeof(char *) * folderSize);
+    *returnSize = 0;
+    char *p;
+    int i;
+
+    qsort(folder, folderSize, sizeof(char *), Comp2Str);
+
+    ret[*returnSize] = folder[0];
+    *returnSize = 1;
+
+    for (i = 1; i < folderSize; i++) {
+        p = strstr(folder[i], ret[*returnSize - 1]);
+        if (p == NULL) {
+            ret[*returnSize] = folder[i];
+            *returnSize = *returnSize + 1;
+        } else if (p[strlen(ret[*returnSize - 1])] != '/') {
+            ret[*returnSize] = folder[i];
+            *returnSize = *returnSize + 1;
+        }
+    }
+
+    return ret;
+}
+
+/*
+54. 螺旋矩阵
+难度中等446
+给定一个包含 m x n 个元素的矩阵（m 行, n 列），请按照顺时针螺旋顺序，返回矩阵中的所有元素。
+示例 1:
+输入:
+[
+ [ 1, 2, 3 ],
+ [ 4, 5, 6 ],
+ [ 7, 8, 9 ]
+]
+输出: [1,2,3,6,9,8,7,4,5]
+
+*/
+
+int directions[4][2] = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
+int* spiralOrder(int** matrix, int matrixSize, int* matrixColSize, int* returnSize)
+{
+	if (matrix == NULL || matrixSize <= 0 || matrixColSize == NULL) {
+		*returnSize = 0;
+		return NULL;
+	}
+
+        int rows = matrixSize, columns = *matrixColSize;
+        int visited[rows][columns];
+	memset(visited, 0, sizeof(visited));
+        int total = rows * columns;
+        int *order = (int *)calloc(total, sizeof(int));
+
+        int row = 0, column = 0;
+        int directionIndex = 0;
+        for (int i = 0; i < total; i++) {
+            order[i] = matrix[row][column];
+            visited[row][column] = true;
+            int nextRow = row + directions[directionIndex][0];
+			int nextColumn = column + directions[directionIndex][1];
+            if (nextRow < 0 || nextRow >= rows || nextColumn < 0 || nextColumn >= columns || visited[nextRow][nextColumn]) {
+                directionIndex = (directionIndex + 1) % 4;
+            }
+            row += directions[directionIndex][0];
+            column += directions[directionIndex][1];
+        }
+        *returnSize = total;
+        return order;
+}
+
+int directions[4][2] = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
+int* spiralOrder(int** matrix, int matrixSize, int* matrixColSize, int* returnSize)
+{
+	if (matrix == NULL || matrixSize <= 0 || matrixColSize == NULL) {
+		*returnSize = 0;
+		return NULL;
+	}
+
+        int rows = matrixSize, columns = *matrixColSize;
+        int *order = (int *)calloc(rows * columns, sizeof(int));
+	int orderCnt = 0;
+        int left = 0, right = columns - 1, top = 0, bottom = rows - 1;
+        while (left <= right && top <= bottom) {
+            for (int column = left; column <= right; column++) {
+                order[orderCnt++] = matrix[top][column];
+            }
+            for (int row = top + 1; row <= bottom; row++) {
+                order[orderCnt++] = matrix[row][right];
+            }
+            if (left < right && top < bottom) {
+                for (int column = right - 1; column > left; column--) {
+                    order[orderCnt++] = matrix[bottom][column];
+                }
+                for (int row = bottom; row > top; row--) {
+                    order[orderCnt++] = matrix[row][left];
+                }
+            }
+            left++;
+            right--;
+            top++;
+            bottom--;
+        }
+		*returnSize = orderCnt;
+        return order;
+}
+
+int* spiralOrder(int** matrix, int matrixSize, int* matrixColSize, int* returnSize)
+{
+	if (matrix == NULL || matrixSize <= 0 || matrixColSize == NULL) {
+		return NULL;
+	}
+
+	int row = matrixSize;
+	int col = *matrixColSize;
+	int *ans = (int *)calloc(row * col, sizeof(int));
+	*returnSize = 0;
+
+        int u = 0; //赋值上下左右边界
+        int d = row - 1;
+        int l = 0;
+        int r = col - 1;
+        while(true)
+        {
+            for(int i = l; i <= r; ++i) {
+				ans[*returnSize] = matrix[u][i]; //向右移动直到最右
+				(*returnSize)++;
+			}
+		if(++ u > d) break; //重新设定上边界，若上边界大于下边界，则遍历遍历完成，下同
+            for(int i = u; i <= d; ++i) {
+				ans[*returnSize] = matrix[i][r]; //向下
+(*returnSize)++;
+			}
+	if(-- r < l) break; //重新设定有边界
+            for(int i = r; i >= l; --i) {ans[*returnSize] = matrix[d][i]; //向左
+(*returnSize)++;
+			}
+
+			if(-- d < u) break; //重新设定下边界
+            for(int i = d; i >= u; --i) {
+				ans[*returnSize] = matrix[i][l]; //向上
+				(*returnSize)++;
+			}
+            if(++ l > r) break; //重新设定左边界
+        }
+        return ans;
+    }
+
+
+
+int *spiralOrder(int **matrix, int matrixSize, int *matrixColSize, int *returnSize)
+{
+    if(matrixSize==0){
+        *returnSize = 0;
+        return NULL;
+    }
+    int top = 0, bottom = matrixSize - 1, left = 0, right = *matrixColSize - 1;
+    int totalElement = *matrixColSize * matrixSize;
+    *returnSize = totalElement;
+    int *res = (int *)malloc(sizeof(int) * totalElement);
+    int m=0, n=0;
+    int direction = 0;
+    // 0:right   1:down   2:left   3:up
+    for(int i=0; i<totalElement; i++){
+        switch (direction)
+        {
+            case 0:
+                res[i] = matrix[m][n];
+                if(n==right){
+                    top++;
+                    direction = 1;
+                    m++;
+                }
+                else{
+                    n++;
+                }
+                break;
+            case 1:
+                res[i] = matrix[m][n];
+                if(m==bottom){
+                    right--;
+                    direction=2;
+                    n--;
+                }
+                else{
+                    m++;
+                }
+                break;
+
+            case 2:
+                res[i] = matrix[m][n];
+                if(n==left){
+                    bottom--;
+                    direction = 3;
+                    m--;
+                }
+                else{
+                    n--;
+                }
+                break;
+
+            case 3:
+                res[i] = matrix[m][n];
+                if(m==top){
+                    left++;
+                    direction=0;
+                    n++;
+                }
+                else{
+                    m--;
+                }
+                break;
+
+            default:
+                break;
+        }
+    }
+    return res;
+}
+/*
+class Solution:
+    def spiralOrder(self, matrix: List[List[int]]) -> List[int]:
+        if not matrix:return []
+
+        x=y=0                                     # 矩阵元素位置初始化
+        res = []                                  # 初始化，存储遍历后的矩阵元素
+        dx = [ 0, 1, 0,-1]                        # 方向：右，下，左，上
+        dy = [ 1, 0,-1, 0]                        # 注：与通常平面坐标系 记号 不同
+        di = 0                                    # 初始化方向变量
+        visited = set()                           # 初始化集合，存储已走过的坐标
+        m,n = len(matrix),len(matrix[0])          # 矩阵的行列
+
+        for i in range(m*n):                                     #
+            res.append(matrix[x][y])                             # 存储遍历矩阵过的元素
+            visited.add((x,y))                                   # 存储遍历过的坐标
+            tx,ty = x+dx[di],y+dy[di]                            # 先记录下一步坐标，用于判断下一步怎么走
+            if 0<=tx<m and 0<=ty<n and (tx,ty) not in visited:   # 判断坐标是否需变向，且没有遍历过
+                x,y = tx,ty
+            else:
+                di = (di+1)%4                                    # 改变方向，右下左上为一圈，防止方向坐标越界
+                x,y = x + dx[di],y+dy[di]                        # 下一步坐标
+        return res
+*/
+
+//画地为牢+步步紧逼
+int* spiralOrder(int** matrix, int matrixSize, int* matrixColSize, int* returnSize){
+    if(!matrixSize) { *returnSize = 0; return NULL;}
+    *returnSize = matrixSize * matrixColSize[0];
+    int* nums = (int *)malloc(sizeof(int) * (*returnSize));
+    int cur = 0, l = 0, t = 0, r = matrixColSize[0] - 1, b = matrixSize - 1;
+    while(cur < *returnSize) {
+        for(int i = l; cur < *returnSize && i <= r; i++) nums[cur++] = matrix[t][i]; t++;
+        for(int i = t; cur < *returnSize && i <= b; i++) nums[cur++] = matrix[i][r]; r--;
+        for(int i = r; cur < *returnSize && i >= l; i--) nums[cur++] = matrix[b][i]; b--;
+        for(int i = b; cur < *returnSize && i >= t; i--) nums[cur++] = matrix[i][l]; l++;
+    }
+    return nums;
+}

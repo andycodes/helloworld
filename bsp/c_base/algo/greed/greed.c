@@ -727,3 +727,61 @@ int findMinArrowShots(int** points, int pointsSize, int* pointsColSize)
     return arrows;
   }
 
+/*
+56. 合并区间
+难度中等545
+给出一个区间的集合，请合并所有重叠的区间。
+示例 1:
+输入: [[1,3],[2,6],[8,10],[15,18]]
+输出: [[1,6],[8,10],[15,18]]
+解释: 区间 [1,3] 和 [2,6] 重叠, 将它们合并为 [1,6].
+示例 2:
+输入: [[1,4],[4,5]]
+输出: [[1,5]]
+解释: 区间 [1,4] 和 [4,5] 可被视为重叠区间。
+
+*/
+int cmp_doublePoint(const void *a, const void *b)
+{
+	int **aa = (int **)a;
+	int **bb = (int **)b;
+
+	if (aa[0][0] == bb[0][0]) {
+		return aa[0][1] - bb[0][1];
+	} else {
+		return aa[0][0] - bb[0][0];
+	}
+}
+//[[1,3],[2,6],[8,10],[15,18]]
+//[[1,4],[4,5]]
+int** merge(int** intervals, int intervalsSize, int* intervalsColSize,
+	int* returnSize, int** returnColumnSizes)
+{
+	if (intervals == NULL || intervalsSize <= 0 || intervalsColSize == NULL) {
+		*returnSize = 0;
+		return NULL;
+	}
+
+	qsort(intervals, intervalsSize, sizeof(intervals[0]), cmp_doublePoint);
+	int **res = (int **)calloc(intervalsSize, sizeof(int *));
+	*returnColumnSizes = (int *)calloc(intervalsSize, sizeof(int));
+	for (int i = 0; i < intervalsSize; i++) {
+		res[i] = (int *)calloc(2, sizeof(int));
+		(*returnColumnSizes)[i] = 2;
+	}
+
+	res[0][0] = intervals[0][0];
+	res[0][1] = intervals[0][1];
+	*returnSize = 1;
+	for (int i = 1; i < intervalsSize; i++) {
+		if (intervals[i][0] > res[*returnSize - 1][1]) {
+			res[*returnSize][0] = intervals[i][0];
+			res[*returnSize][1] = intervals[i][1];
+			(*returnSize)++;
+		} else {
+			res[*returnSize - 1][1] = fmax(res[*returnSize - 1][1] , intervals[i][1]);
+		}
+	}
+
+	return res;
+}
