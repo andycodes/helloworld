@@ -1479,3 +1479,110 @@ int* spiralOrder(int** matrix, int matrixSize, int* matrixColSize, int* returnSi
     }
     return nums;
 }
+
+/*
+59. 螺旋矩阵 II
+难度中等219
+给定一个正整数 n，生成一个包含 1 到 n2 所有元素，且元素按顺时针顺序螺旋排列的正方形矩阵。
+示例:
+输入: 3
+输出:
+[
+ [ 1, 2, 3 ],
+ [ 8, 9, 4 ],
+ [ 7, 6, 5 ]
+]
+
+*/
+int** generateMatrix(int n, int* returnSize, int** returnColumnSizes)
+{
+        int l = 0, r = n - 1, t = 0, b = n - 1;
+        int **mat = (int **)calloc(n, sizeof(int *));
+	*returnColumnSizes = (int *)calloc(n, sizeof(int));
+	for (int i = 0; i < n; i++) {
+		mat[i] = (int *)calloc(n, sizeof(int));
+		(*returnColumnSizes)[i] = n;
+	}
+        int num = 1, tar = n * n;
+        while(num <= tar){
+            for(int i = l; i <= r; i++) mat[t][i] = num++; // left to right.
+            t++;
+            for(int i = t; i <= b; i++) mat[i][r] = num++; // top to bottom.
+            r--;
+            for(int i = r; i >= l; i--) mat[b][i] = num++; // right to left.
+            b--;
+            for(int i = b; i >= t; i--) mat[i][l] = num++; // bottom to top.
+            l++;
+        }
+
+
+
+		*returnSize = n;
+        return mat;
+    }
+
+/*
+128. 最长连续序列
+难度困难487
+给定一个未排序的整数数组，找出最长连续序列的长度。
+要求算法的时间复杂度为 O(n)。
+示例:
+输入: [100, 4, 200, 1, 3, 2]
+输出: 4
+解释: 最长连续序列是 [1, 2, 3, 4]。它的长度为 4。
+
+*/
+int cmp_int(const void *a, const void *b)
+{
+	long int aa = *((int *)a);
+	long int bb = *((int *)b);
+	return (int)(aa -bb);
+}
+int longestConsecutive(int* nums, int numsSize)
+{
+    if (numsSize == 0) return 0;
+	qsort(nums, numsSize, sizeof(int), cmp_int);
+   // Arrays.sort(nums);
+
+    // max 最终结果, curr 当前长度, last 上个数字
+    int max = 1, curr = 1, last = nums[0];
+    for (int i = 1; i < numsSize; i++) {
+        if (nums[i] == last) continue;
+        if (nums[i] == last + 1) curr++; // 符合连续，长度 +1
+        else {
+            max = fmax(max, curr); // 连不上了，记录长度
+            curr = 1; // 重新开始
+        }
+        last = nums[i];
+    }
+    max = fmax(max, curr); // 别忘了最后一段的连续区间
+    return max;
+}
+
+int longestConsecutive(int* nums, int numsSize)
+{
+    if (numsSize == 0) return 0;
+
+    int n = numsSize, max = 1;
+struct HashTable dht;
+struct HashTable *ht = &dht;
+	HashInit(ht, numsSize, hashequal_int, hashcode_int);
+	for (int i = 0; i < numsSize; i++) {
+		hashPushKey(ht, nums[i]);
+	}
+
+    for (int i = 0; i < numsSize; i++) {
+        // 技巧：如果有比自己小一点的，那自己不查，让小的去查
+	struct DataEntry *find = hashFindKey(ht, nums[i] - 1);
+	if (find != NULL) {
+		continue;
+	}
+
+
+        int r = nums[i]; // r: right 表示「以 v 开头，能连续到多少」
+        while (hashFindKey(ht, r + 1)) r++; // 逐个查看
+        max = fmax(max, r - nums[i] + 1); // 记录区间 [v, r] 长度
+    }
+    return max;
+}
+

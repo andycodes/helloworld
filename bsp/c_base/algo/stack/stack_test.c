@@ -790,6 +790,175 @@ int largestRectangleArea(int* heights, int heightsSize)
         return area;
 }
 
+/*
+85. 最大矩形
+给定一个仅包含 0 和 1 的二维二进制矩阵，找出只包含 1 的最大矩形，并返回其面积。
+
+示例:
+
+输入:
+[
+  ["1","0","1","0","0"],
+  ["1","0","1","1","1"],
+  ["1","1","1","1","1"],
+  ["1","0","0","1","0"]
+]
+输出: 6
+*/
+int maximalRectangle(char** matrix, int matrixSize, int* matrixColSize)
+{
+    if (matrixSize == 0) {
+        return 0;
+    }
+    //保存以当前数字结尾的连续 1 的个数
+    int width[matrixSize][*matrixColSize];
+	memset(width, 0, sizeof(width));
+    int maxArea = 0;
+    //遍历每一行
+    for (int row = 0; row < matrixSize; row++) {
+        for (int col = 0; col < *matrixColSize; col++) {
+            //更新 width
+            if (matrix[row][col] == '1') {
+                if (col == 0) {
+                    width[row][col] = 1;
+                } else {
+                    width[row][col] = width[row][col - 1] + 1;
+                }
+            } else {
+                width[row][col] = 0;
+            }
+            //记录所有行中最小的数
+            int minWidth = width[row][col];
+            //向上扩展行
+            for (int up_row = row; up_row >= 0; up_row--) {
+                int height = row - up_row + 1;
+                //找最小的数作为矩阵的宽
+                minWidth = fmin(minWidth, width[up_row][col]);
+                //更新面积
+                maxArea = fmax(maxArea, height * minWidth);
+            }
+        }
+    }
+    return maxArea;
+}
+
+int largestRectangleArea(int* heights, int heightsSize)
+{
+        // 这里为了代码简便，在柱体数组的头和尾加了两个高度为 0 的柱体。
+        int tmp[heightsSize + 2];
+	memset(tmp, 0, sizeof(tmp));
+	for (int i = 0; i < heightsSize; i++) {
+		tmp[i + 1] = heights[i];
+	}
+
+        //Deque<Integer> stack = new ArrayDeque<>();
+	int stack[heightsSize + 2];
+	int top = -1;
+        int area = 0;
+        for (int i = 0; i < heightsSize + 2; i++) {
+            // 对栈中柱体来说，栈中的下一个柱体就是其「左边第一个小于自身的柱体」；
+            // 若当前柱体 i 的高度小于栈顶柱体的高度，说明 i 是栈顶柱体的「右边第一个小于栈顶柱体的柱体」。
+            // 因此以栈顶柱体为高的矩形的左右宽度边界就确定了，可以计算面积??? ～
+            while (top > -1 && tmp[i] < tmp[stack[top]]) {
+                int h = tmp[stack[top--]];
+                area = fmax(area, (i - stack[top] - 1) * h);
+            }
+	     stack[++top] = i;
+        }
+
+        return area;
+}
 
 
+int maximalRectangle(char** matrix, int matrixSize, int* matrixColSize)
+{
+    if (matrixSize == 0) {
+        return 0;
+    }
+    int heights[*matrixColSize];
+	memset(heights, 0, sizeof(heights));
+    int maxArea = 0;
+    for (int row = 0; row < matrixSize; row++) {
+        //遍历每一列，更新高度
+        for (int col = 0; col < *matrixColSize; col++) {
+            if (matrix[row][col] == '1') {
+                heights[col] += 1;
+            } else {
+                heights[col] = 0;
+            }
+        }
+        //调用上一题的解法，更新函数
+        maxArea = fmax(maxArea, largestRectangleArea(heights, *matrixColSize));
+    }
+    return maxArea;
+}
+
+int largestRectangleArea(int* heights, int heightsSize)
+{
+        // 这里为了代码简便，在柱体数组的头和尾加了两个高度为 0 的柱体。
+        int tmp[heightsSize + 2];
+	memset(tmp, 0, sizeof(tmp));
+	for (int i = 0; i < heightsSize; i++) {
+		tmp[i + 1] = heights[i];
+	}
+
+        //Deque<Integer> stack = new ArrayDeque<>();
+	int stack[heightsSize + 2];
+	int top = -1;
+        int area = 0;
+        for (int i = 0; i < heightsSize + 2; i++) {
+            // 对栈中柱体来说，栈中的下一个柱体就是其「左边第一个小于自身的柱体」；
+            // 若当前柱体 i 的高度小于栈顶柱体的高度，说明 i 是栈顶柱体的「右边第一个小于栈顶柱体的柱体」。
+            // 因此以栈顶柱体为高的矩形的左右宽度边界就确定了，可以计算面积??? ～
+            while (top > -1 && tmp[i] < tmp[stack[top]]) {
+                int h = tmp[stack[top--]];
+                area = fmax(area, (i - stack[top] - 1) * h);
+            }
+	     stack[++top] = i;
+        }
+
+        return area;
+}
+
+
+int maximalRectangle(char** matrix, int matrixSize, int* matrixColSize)
+{
+    if (matrixSize == 0) {
+        return 0;
+    }
+
+    int heights[*matrixColSize + 1];//小技巧后边讲
+	memset(heights, 0, sizeof(heights));
+	int maxArea = 0;
+    for (int row = 0; row < matrixSize; row++) {
+        int stack[*matrixColSize + 1];
+		int top = -1;
+        heights[*matrixColSize] = 0;
+        //每求一个高度就进行栈的操作
+        for (int col = 0; col <= *matrixColSize; col++) {
+            if (col < *matrixColSize) { //多申请了 1 个元素，所以要判断
+                if (matrix[row][col] == '1') {
+                    heights[col] += 1;
+                } else {
+                    heights[col] = 0;
+                }
+            }
+            if (top == -1 || heights[col] >= heights[stack[top]]) {
+                stack[++top] = col;
+            } else {
+                //每次要判断新的栈顶是否高于当前元素
+                while (top > -1 && heights[col] < heights[stack[top]]) {
+                    int height = heights[stack[top--]];
+                    int leftLessMin = top == -1 ? -1 : stack[top];
+                    int RightLessMin = col;
+                    int area = (RightLessMin - leftLessMin - 1) * height;
+                    maxArea = fmax(area, maxArea);
+                }
+                stack[++top] = col;
+            }
+        }
+
+    }
+    return maxArea;
+}
 
