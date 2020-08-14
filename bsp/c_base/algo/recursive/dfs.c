@@ -1572,3 +1572,67 @@ char ** restoreIpAddresses(char * s, int* returnSize){
     return res;
 
 }
+
+/*
+491. 递增子序列
+难度中等104
+给定一个整型数组, 你的任务是找到所有该数组的递增子序列，递增子序列的长度至少是2。
+示例:
+输入: [4, 6, 7, 7]
+输出: [[4, 6], [4, 7], [4, 6, 7], [4, 6, 7, 7], [6, 7], [6, 7, 7], [7,7], [4,7,7]]
+说明:
+1.	给定数组的长度不会超过15。
+2.	数组中的整数范围是 [-100,100]。
+3.	给定数组中可能包含重复数字，相等的数字应该被视为递增的一种情况。
+通过次数8,579
+提交次数17,508
+
+
+*/
+
+#define BIG_NUM 100000
+
+void FindSubUp(int* nums, int numsSize, int *map, int index, int len, int **ret, int *retCol, int *cnt)
+{
+    int i;
+    int duplicate[201] = {0};
+
+    if (len > 1) {
+        ret[*cnt] = malloc(sizeof(int) * len);
+        memcpy(ret[*cnt], map, sizeof(int) * len);
+        retCol[*cnt] = len;
+        (*cnt)++;
+    }
+
+    for (i = index; i < numsSize; i++) {
+        // 去重，本层不重复遍历相同的数字
+        if (duplicate[nums[i]+100] != 0) {
+            continue;
+        }
+        duplicate[nums[i]+100] = 1;
+        if (len > 0) {
+            if (nums[i] >= map[len-1]) {
+                map[len] = nums[i];
+                FindSubUp(nums, numsSize, map, i+1, len+1, ret, retCol, cnt);
+            }
+        } else {
+            map[len] = nums[i];
+            FindSubUp(nums, numsSize, map, i+1, len+1, ret, retCol, cnt);
+        }
+    }
+    return;
+}
+
+int** findSubsequences(int* nums, int numsSize, int* returnSize, int** returnColumnSizes){
+    int **ret = malloc(sizeof(int *) * BIG_NUM);
+    int *retCol = malloc(sizeof(int) * BIG_NUM);
+    int i;
+    int cnt = 0;
+    int map[15];
+
+    FindSubUp(nums, numsSize, map, 0, 0, ret, retCol, &cnt);
+
+    *returnSize = cnt;
+    *returnColumnSizes = retCol;
+    return ret;
+}

@@ -796,4 +796,48 @@ int closestValue(struct TreeNode* root, double target)
 	return closest;
 }
 
+/*
+109. 有序链表转换二叉搜索树
+难度中等277
+给定一个单链表，其中的元素按升序排序，将其转换为高度平衡的二叉搜索树。
+本题中，一个高度平衡二叉树是指一个二叉树每个节点 的左右两个子树的高度差的绝对值不超过 1。
+示例:
+给定的有序链表： [-10, -3, 0, 5, 9],
 
+一个可能的答案是：[0, -3, 9, -10, null, 5], 它可以表示下面这个高度平衡二叉搜索树：
+
+      0
+     / \
+   -3   9
+   /   /
+ -10  5
+
+*/
+
+struct ListNode* preMid(struct ListNode *head){       //找链表中间结点的前一个结点
+    struct ListNode* slow=head,*fast=head,*preslow=head;
+    while(fast!=NULL&&fast->next!=NULL)
+    {
+        preslow=slow;
+        slow=slow->next;
+        fast=fast->next->next;
+    }
+    return preslow;
+}
+struct TreeNode* newTreeNode(int x){
+    struct TreeNode* root=(struct TreeNode*)malloc(sizeof(struct TreeNode));
+    root->val=x;
+    root->left=root->right=NULL;
+    return root;
+}
+struct TreeNode* sortedListToBST(struct ListNode* head){
+    if(head==NULL) return NULL;                             //递归的终止条件:链表中只有0或1个元素
+    if(head->next==NULL) return newTreeNode(head->val);
+    struct ListNode* premid=preMid(head);
+    struct ListNode* mid=premid->next;
+    premid->next=NULL;              //断开链表 分为前后两部分
+    struct TreeNode* root=newTreeNode(mid->val);
+    root->left=sortedListToBST(head);
+    root->right=sortedListToBST(mid->next);
+    return root;
+}

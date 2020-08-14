@@ -1143,3 +1143,160 @@ int numSubarrayProductLessThanK(int* nums, int numsSize, int k)
         }
         return ans;
 }
+
+/*
+76. 最小覆盖子串
+难度困难695
+给你一个字符串 S、一个字符串 T 。请你设计一种算法，可以在 O(n) 的时间复杂度内，从字符串 S 里面找出：包含 T 所有字符的最小子串。
+
+示例：
+输入：S = "ADOBECODEBANC", T = "ABC"
+输出："BANC"
+
+*/
+char * minWindow(char * s, char * t){
+    if (s == NULL || t == NULL) {
+        return NULL;
+    }
+
+    int len = (int)strlen(s);
+    int lent = (int)strlen(t);
+
+    char *out = (char *)malloc(len + 1);
+    if (out == NULL) {
+        return NULL;
+    }
+
+    int outLen = 0;
+    memset(out, 0, len + 1);
+    if (len < lent || lent == 0) {
+        return out;
+    }
+
+    int map[128] = {0};
+    int mapt[128] = {0};
+    int cnt = 0;
+    /* 1. 初始窗口是短串长度， 先遍历一遍 得到长串中能匹配到短串的字符个数 */
+    for (int i = 0; i < lent; i++) {
+        mapt[t[i]]++;
+        map[s[i]]++;
+    }
+    for (int i = 0; i < 128; i++) {
+        if (mapt[i] > 0) {
+            /* 临界点，只要 <= 短串 就是有效计数, 再大就是多余的了 */
+            cnt += (map[i] >= mapt[i]? mapt[i] : map[i]);
+        }
+    }
+
+    /* 2. 当计数等于短串长度就是满足条件了 */
+    if (cnt == lent) {
+        outLen = lent;
+        memcpy(out, s, outLen);
+        return out;
+    }
+
+    /* 3. 滑动窗口 */
+    int l = 0;
+    int r = lent;
+    for (; r < len; r++) {
+        if (mapt[s[r]] == 0) {
+            continue;
+        }
+
+        map[s[r]]++;
+        if (map[s[r]] <= mapt[s[r]]) {
+            /* 临界点，只要 <= 短串 就是有效计数, 再大就是多余的了 */
+            cnt++;
+        }
+
+        if (cnt == lent) {
+            /* 从左侧开始校验 找到临界点（map[s[l]] == mapt[s[l]]）删除多余数据 */
+            while (mapt[s[l]] == 0 || map[s[l]] > mapt[s[l]]) {
+                map[s[l++]]--;
+            }
+
+            int cpLen = r - l + 1;
+            if (outLen == 0 ||  cpLen < outLen) {
+                memset(out, 0, len + 1);
+                memcpy(out, s + l, cpLen);
+                outLen = cpLen;
+            }
+
+            /* 临界点 */
+            cnt--;
+            map[s[l++]]--;
+        }
+    }
+
+    return out;
+}
+
+#define MAX_HASH_LEN 128
+char * minWindow(char * s, char * t){
+    int slen = strlen(s);
+    int tlen = strlen(t);
+    if (slen == 0 || tlen == 0 || slen < tlen) {
+        return "";
+    }
+    int shash[MAX_HASH_LEN] = {0};
+    int thash[MAX_HASH_LEN] = {0};
+    int i;
+    int left = 0, right = 0;
+    int matchCnt = 0;
+    int minLen = slen + 1; // 小细节 保证s和t有一个字符也能处理
+    int minLeft = 0;
+    int minRight = 0;
+    int index = 0;
+    char *res = (char*)malloc(sizeof(char) * (slen + 1));
+    memset(res, 0, (slen + 1));
+
+    for (i = 0; i < tlen; i++) {
+        thash[t[i]]++;
+    }
+
+    while (right < slen) {
+        char c = s[right];
+        right++;
+        // 更新数据 t匹配不到，right往右+1
+        if (thash[c] == 0) {
+            continue;
+        }
+
+        // 匹配到了，s匹配项比t小 matchCnt++
+        // s匹配项比t大，说明此item重复，不需要再算进来
+        // 代码块1
+        if (shash[c] < thash[c]) {
+            matchCnt++;
+        }
+        shash[c]++;
+
+        while (matchCnt == tlen) {
+            if (right - left < minLen) {
+                // 更新记录
+                minLeft = left;
+                minRight = right;
+                minLen = right - left;
+            }
+
+            char d = s[left];
+            left++;
+            // 更新数据
+            // thash[d] == 0 标识left所指元素非关键
+            if (thash[d] == 0) {
+                continue;
+            }
+
+            // shash肯定是有值的，需要减1
+            shash[d]--;
+            // 与代码块1 对称着写就行
+            // 若果深究原理，如果s和t是匹配的，s匹配项不多于t，那么随着left的向右，matchCnt需要减1
+            if (shash[d] < thash[d]) {
+                matchCnt--;
+            }
+
+        }
+    }
+
+    s[minRight] = '\0';
+    return &s[minLeft];
+}

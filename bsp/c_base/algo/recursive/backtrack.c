@@ -7,7 +7,8 @@ DFS 搜索解空间，并在搜索过程中用剪枝函数避免无效搜索。
 那么就开始回溯到上一层或者上一个节点。
 
 回溯法的代码套路是使用两个变量： res 和 path，
-res 表示最终的结果，path 保存已经走过的路径。
+res 表示最终的结果，
+path 保存已经走过的路径。
 如果搜到一个状态满足题目要求，
 就把 path 放到 res 中
 
@@ -18,7 +19,7 @@ def backtrack(路径, 选择列表):
         result.add(「路径」)
         return
 
-    for 选择 in 「选择列表」:  (类似N叉树)
+    for 选择 in 「选择列表」:  (类似N叉树)  当前层次
         #做选择
 	 将该选择从选择列表移除
 	 「路径」.add(选择)
@@ -35,9 +36,7 @@ def backtrack(路径, 选择列表):
 这座金矿中的资源分布，并用大小为 m * n 的网格
 grid 进行了标注。每个单元格中的整数就表示这一
 单元格中的黄金数量；如果该单元格是空的，那么就是 0。
-
 为了使收益最大化，矿工需要按以下规则来开采黄金：
-
 每当矿工进入一个单元，就会收集该单元格中的所有黄金。
 矿工每次可以从当前位置向上下左右四个方向走。
 每个单元格只能被开采（进入）一次。
@@ -586,5 +585,123 @@ int shoppingOffers(int* price, int priceSize,
 	g_res = totalNeedOrinPrice;
 	backtrack(special, specialSize, specialColSize, needs, needsSize, specialOrinPrice, totalNeedOrinPrice);
 	return g_res;
+}
+
+/*
+97. 交错字符串
+难度困难319
+给定三个字符串 s1, s2, s3, 验证 s3 是否是由 s1 和 s2 交错组成的。
+
+示例 1：
+输入：s1 = "aabcc", s2 = "dbbca", s3 = "aadbbcbcac"
+输出：true
+示例 2：
+输入：s1 = "aabcc", s2 = "dbbca", s3 = "aadbbbaccc"
+输出：false
+*/
+/*
+动态规划
+状态定义
+令dp[i][j]为字符子串s1[0, i),s2[0, j)能否组成s3[0, i+j)。
+ps: s1[0, i) = s1.substring(0, i),不包含i。
+
+对于字符串的状态dp[i]来说，通常要考虑所有子串的长度[0, n]，因此定义dp[n+1],n是字符串s的长度，同理二维也一样。
+
+状态转移
+对于dp[i][j]该状态来说，要想组成s3[0,i+j)，其s3[0, i+j)最后一个字符s3[i+j-1]要么来自s1[i-1], 要么来自s2[j-1],因此，状态转移：
+
+若s1[i-1]==s3[i+j-1]：
+dp[i][j] = dp[i-1][j],i > 0
+dp[i][j]=dp[i?1][j],i>0
+
+若s2[j-1]==s3[i+j-1]：
+dp[i][j] = dp[i][j-1],j >0
+dp[i][j]=dp[i][j?1],j>0
+
+状态初始化：dp[0][0] = true，表示两个空字符串能够组成一个空字符串。
+
+*/
+bool isInterleave(char* s1, char* s2, char* s3) {
+    int n = strlen(s1), m = strlen(s2), t = strlen(s3);
+
+    int f[n + 1][m + 1];
+    memset(f, 0, sizeof(f));
+
+    if (n + m != t) {
+        return false;
+    }
+
+    f[0][0] = true;
+    for (int i = 0; i <= n; ++i) {
+        for (int j = 0; j <= m; ++j) {
+            int p = i + j - 1;
+            if (i > 0) {
+                f[i][j] |= (f[i - 1][j] && s1[i - 1] == s3[p]);
+            }
+            if (j > 0) {
+                f[i][j] |= (f[i][j - 1] && s2[j - 1] == s3[p]);
+            }
+        }
+    }
+
+    return f[n][m];
+}
+
+/*
+带记忆化的回溯从暴力回溯可知，当i、j、k一定的情况下，返回值一定，由此我们可以将i、j、k、返回值用meom[i][j][k]记录起来，当回溯再次遇到此i、j、k时，直接返回。显然当i、j一定时，k一定，因为k = i + j，因此，可以将状态缩减成两维，即meom[i][j]。我们对上述暴力回溯进行改造，在回溯返回false的地方用meom[i][j]记录下来，在返回true的地方不用记录，因为一旦返回true，回溯就会一直返回，直到回溯入口。作者：antione链接：https://leetcode-cn.com/problems/interleaving-string/solution/you-bao-li-hui-su-dao-ji-yi-hua-fen-xiang-wo-de-do/来源：力扣（LeetCode）著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+*/
+bool helper(char *s1, char * s2, char * s3, int i, int j, int k, int size1, int size2, int dp[size1][size2])
+{
+	if (dp[i][j] != 13) {
+		return dp[i][j];
+	}
+
+		// 若回溯用完了s1,s2,s3，说明能够s3能够被交替组成
+        if(i == strlen(s1) && j == strlen(s2) && k == strlen(s3))
+            return true;
+
+        if(k >= strlen(s3)) {
+			dp[i][j] = false;
+			return false;
+        }
+
+        if(i < strlen(s1)){
+            // 若当前s1的i位置的字符与s3的k位置字符相等，则消耗一个字符，
+            // 并向下回溯，若回溯返回true则返回的这个true最开始一定
+            // 是由该函数内第二行代码返回的，即表示s3能够被交替组成，直接返回true
+            if(s1[i] == s3[k] &&
+            helper(s1, s2, s3, i+1, j, k+1, size1, size2, dp))
+                return true;
+        }
+
+        if(j < strlen(s2)){
+            if(s2[j] == s3[k] &&
+            helper(s1, s2, s3, i, j+1, k+1,  size1, size2, dp))
+                return true;
+        }
+
+
+		dp[i][j] = false;
+        // 在此i、j、k下，无论如何都不能组成s3.substring(0, k+1),返回false
+        return false;
+    }
+
+
+bool isInterleave(char* s1, char* s2, char* s3) {
+        // 题目没有明确说明s123是否为NULL，需要判NULL，这里直接令其等于空字符
+        // 若s1为空，即不会参数空指针异常也不会参与到计算当中
+        if(s1 == NULL) s1 = "";
+        if(s2 == NULL) s2 = "";
+        if(s3 == NULL) s3 = "";
+
+	 int len1 = strlen(s1) + 1;
+	 int len2 = strlen(s2) + 1;
+	 int dp[len1][len2];
+	 for (int i = 0; i < len1; i++) {
+		for (int j = 0; j < len2; j++) {
+			dp[i][j] = 13;
+		}
+	 }
+        return helper(s1, s2, s3, 0, 0, 0, len1, len2, dp);
 }
 

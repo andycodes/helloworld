@@ -962,3 +962,36 @@ int maximalRectangle(char** matrix, int matrixSize, int* matrixColSize)
     return maxArea;
 }
 
+/*
+32. 最长有效括号
+难度困难897
+给定一个只包含 '(' 和 ')' 的字符串，找出最长的包含有效括号的子串的长度。
+示例 1:
+输入: "(()"
+输出: 2
+解释: 最长有效括号子串为 "()"
+示例 2:
+输入: ")()())"
+输出: 4
+解释: 最长有效括号子串为 "()()"
+
+*/
+
+int longestValidParentheses(char* s) {
+    int maxans = 0, n = strlen(s);
+    int stk[n + 1], top = -1;
+    stk[++top] = -1;
+    for (int i = 0; i < n; i++) {
+        if (s[i] == '(') {
+            stk[++top] = i;
+        } else {
+            --top;
+            if (top == -1) {
+                stk[++top] = i;
+            } else {
+                maxans = fmax(maxans, i - stk[top]);
+            }
+        }
+    }
+    return maxans;
+}

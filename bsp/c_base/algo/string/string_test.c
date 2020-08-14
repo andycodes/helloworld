@@ -509,3 +509,372 @@ bool* camelMatch(char ** queries, int queriesSize, char * pattern, int* returnSi
     *returnSize = queriesSize;
     return matches;
 }
+
+/*
+67. 二进制求和
+难度简单453
+给你两个二进制字符串，返回它们的和（用二进制表示）。
+输入为 非空 字符串且只包含数字 1 和 0。
+
+示例 1:
+输入: a = "11", b = "1"
+输出: "100"
+示例 2:
+输入: a = "1010", b = "1011"
+输
+
+*/
+char * addBinary(char * a, char * b)
+{
+	int alen = strlen(a);
+	int blen = strlen(b);
+	int rlen = fmax(alen, blen) + 2;
+
+	char *res = (char *)calloc(rlen, sizeof(char));
+	char *aptr = a + alen - 1;
+	char *bptr = b + blen - 1;
+	char *rptr = res + rlen - 2;
+	char high = 0;
+	while (aptr >= a && bptr >= b) {
+		char ia = *aptr - '0';
+		char ib = *bptr - '0';
+		char sum = ia + ib + high;
+		*rptr = sum % 2 + '0';
+		high = sum / 2;
+		aptr--;
+		bptr--;
+		rptr--;
+	}
+
+	if (aptr < a) {
+		while(bptr >= b) {
+			char ib = *bptr - '0';
+			char sum = ib + high;
+			*rptr = sum % 2 + '0';
+			high = sum / 2;
+			bptr--;
+			rptr--;
+		}
+	} else if (bptr < b) {
+		while(aptr >= a) {
+			char ia = *aptr - '0';
+			char sum = ia + high;
+			*rptr = sum % 2 + '0';
+			high = sum / 2;
+			aptr--;
+			rptr--;
+		}
+	}
+
+	if (high) {
+		*rptr = high + '0';
+	}
+
+	while(*res == 0) {
+		res++;
+	}
+
+	return res;
+}
+
+char * addBinary(char * a, char * b)
+{
+	int alen = strlen(a);
+	int blen = strlen(b);
+	int rlen = fmax(alen, blen) + 2;
+
+	char *res = (char *)calloc(rlen, sizeof(char));
+	char *aptr = a + alen - 1;
+	char *bptr = b + blen - 1;
+	char *rptr = res + rlen - 2;
+	char high = 0;
+
+	while (rptr > res) {
+		char ia = aptr >= a ? *aptr - '0' : 0;
+		char ib = bptr >= b ? *bptr - '0' : 0;
+		char sum = ia + ib + high;
+		*rptr = sum % 2 + '0';
+		high = sum / 2;
+		aptr--;
+		bptr--;
+		rptr--;
+	}
+
+	if (high) {
+		*rptr = '1';
+	}
+
+	while(*res == 0) {
+		res++;
+	}
+
+	return res;
+}
+
+void reserve(char* s) {
+    int len = strlen(s);
+    for (int i = 0; i < len / 2; i++) {
+        char t = s[i];
+        s[i] = s[len - i - 1], s[len - i - 1] = t;
+    }
+}
+
+char* addBinary(char* a, char* b) {
+    reserve(a);
+    reserve(b);
+
+    int len_a = strlen(a), len_b = strlen(b);
+    int n = fmax(len_a, len_b), carry = 0, len = 0;
+    char* ans = (char*)malloc(sizeof(char) * (n + 2));
+    for (int i = 0; i < n; ++i) {
+        carry += i < len_a ? (a[i] == '1') : 0;
+        carry += i < len_b ? (b[i] == '1') : 0;
+        ans[len++] = carry % 2 + '0';
+        carry /= 2;
+    }
+
+    if (carry) {
+        ans[len++] = '1';
+    }
+    ans[len] = '\0';
+    reserve(ans);
+
+    return ans;
+}
+
+/*
+415. 字符串相加
+难度简单248
+给定两个字符串形式的非负整数 num1 和num2 ，计算它们的和。
+
+提示：
+1.	num1 和num2 的长度都小于 5100
+2.	num1 和num2 都只包含数字 0-9
+3.	num1 和num2 都不包含任何前导零
+4.	你不能使用任何內建 BigInteger 库， 也不能直接将输入的字符串转换为整数形式
+出: "10101"
+
+
+*/
+
+#define swap(a,b) ((a) ^= (b), (b) ^= (a) ,(a) ^= (b))
+void strrevSelf_pos(char *s, int begin, int end)
+{
+	char* left = s + begin;
+	char* right = s + end;
+
+	if (begin == end)
+		return;
+
+	while(left < right) {
+		swap(*left, *right);
+		left++;
+		right--;
+	}
+}
+
+void strrevSelf(char *s)
+{
+	strrevSelf_pos(s, 0, strlen(s) - 1);
+}
+
+char * addStrings(char * num1, char * num2)
+{
+	int len1 = strlen(num1);
+	int len2 = strlen(num2);
+	int lenr = fmax(len1, len2);
+	char *res = (char *)calloc(lenr + 2, sizeof(char));
+
+	strrevSelf(num1);
+	strrevSelf(num2);
+	int pos = 0;
+	int i = 0;
+	for (; i < lenr; i++) {
+		int sum = 0;
+		sum += pos;
+		sum += i >= len1 ? 0 : num1[i] - '0';
+		sum += i >= len2 ? 0 : num2[i] - '0';
+
+		res[i] = sum % 10 + '0';
+		pos = sum / 10;
+	}
+
+	 if (pos != 0) {
+		res[i] = pos + '0';
+		pos = 0;
+	 }
+
+	strrevSelf(res);
+	return res;
+}
+
+char* addStrings(char* num1, char* num2) {
+    int i = strlen(num1) - 1, j = strlen(num2) - 1, add = 0;
+    char* ans = (char*)malloc(sizeof(char) * (fmax(i, j) + 3));
+    int len = 0;
+    while (i >= 0 || j >= 0 || add != 0) {
+        int x = i >= 0 ? num1[i] - '0' : 0;
+        int y = j >= 0 ? num2[j] - '0' : 0;
+        int result = x + y + add;
+        ans[len++] = '0' + result % 10;
+        add = result / 10;
+        i--, j--;
+    }
+    // 计算完以后的答案需要翻转过来
+    for (int i = 0; 2 * i < len; i++) {
+        int t = ans[i];
+        ans[i] = ans[len - i - 1], ans[len - i - 1] = t;
+    }
+    ans[len++] = 0;
+    return ans;
+}
+
+/*
+214. 最短回文串
+难度困难176
+给定一个字符串 s，你可以通过在字符串前面添加字符将其转换为回文串。找到并返回可以用这种方式转换的最短回文串。
+示例 1:
+输入: "aacecaaa"
+输出: "aaacecaaa"
+示例 2:
+输入: "abcd"
+输出: "dcbabcd"
+
+
+*/
+//判断是否是回文串, 传入字符串的范围
+bool isPalindromic(char *s, int start, int end) {
+    while (start < end) {
+        if (s[start] != s[end]) {
+            return false;
+        }
+        start++;
+        end--;
+    }
+    return true;
+}
+
+char * shortestPalindrome(char * s)
+{
+	int slen = strlen(s);
+	int end = slen - 1;
+    //找到回文串的结尾, 用 end 标记
+    for (; end > 0; end--) {
+        if (isPalindromic(s, 0, end)) {
+            break;
+        }
+    }
+
+
+    //将末尾的几个倒置然后加到原字符串开头
+	char *res = (char *)calloc(2 * slen + 1, sizeof(char));
+	int j = 0;
+	for (int i = slen - 1; i > end; i--) {
+		res[j++] = s[i];
+	}
+
+	strcat(res, s);
+	return res;
+}
+
+/*
+564. 寻找最近的回文数
+难度困难70
+给定一个整数 n ，你需要找到与它最近的回文数（不包括自身）。
+"最近的"定义为两个整数差的绝对值最小。
+示例 1:
+输入: "123"
+输出: "121"
+注意:
+1.	n 是由字符串表示的正整数，其长度不超过18。
+2.	如果有多个结果，返回最小的那个。
+通过次数2,444
+提交次数15,226
+*/
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX_SIZE    18
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
+#define ABS(a)  ((a) >= 0 ? (a) : -(a))
+typedef long long int64;
+
+static int64 CalcHighHalfVal(char *n)
+{
+    char high_half[MAX_SIZE / 2 + 2];
+    int  inputlen, halflen;
+
+    inputlen = strlen(n);
+    halflen = (inputlen + 1) / 2;
+    strncpy(high_half, n, halflen);
+    high_half[halflen] = '\0';
+
+    return atoll(high_half);
+}
+
+/* 根据输入数字的高半部分hhalf，计算高半部分的回文数字。lowhalflen表示需要补齐的低半部分长度 */
+static int64 PalindByHighHalf(int64 hhalfval, int lowhalflen)
+{
+    int halflen, i;
+    char buff[MAX_SIZE + 2];
+
+    if (hhalfval == 0) {
+        /* 10~19之间的数字，减1后的回文数字固定为9 */
+        return 9;
+    }
+
+    snprintf(buff, sizeof(buff), "%lld", hhalfval);
+    halflen = strlen(buff);
+
+    if (lowhalflen <= halflen) {
+        for (i = 0; i < lowhalflen; i++) {
+            buff[halflen + lowhalflen - 1 - i] = buff[i];
+        }
+    } else {
+        /* 例如输入数为1000，前半部分为10，当计算减1时变成9，此时lowhalflen为2，halflen为1，出现低半部分长度大于高半部分的情况
+            此时就需要对低半部分全部填充9 */
+        for (i = 0; i < lowhalflen; i++) {
+            buff[halflen + i] = '9';
+        }
+    }
+    buff[halflen + lowhalflen] = '\0';
+
+    return atoll(buff);
+}
+
+
+static char strbuff[MAX_SIZE + 2];
+char *nearestPalindromic(char *n)
+{
+    int64 inputval, outval, outval0, outval1;
+    int64 halfval;
+    int  inputlen, halflen;
+
+    inputval = atoll(n);
+    if (inputval <= 10) {
+        outval = inputval - 1;
+        snprintf(strbuff, sizeof(strbuff), "%lld", outval);
+        return strbuff;
+    }
+
+    inputlen = strlen(n);
+    halflen = (inputlen + 1) / 2;
+    halfval = CalcHighHalfVal(n);
+
+    outval1 = PalindByHighHalf(halfval, inputlen - halflen);
+    if (outval1 > inputval) {
+        outval0 = PalindByHighHalf(halfval - 1, inputlen - halflen);
+    } else if (outval1 < inputval){
+        outval0 = PalindByHighHalf(halfval + 1, inputlen - halflen);
+    } else {
+        outval0 = PalindByHighHalf(halfval - 1, inputlen - halflen);
+        outval1 = PalindByHighHalf(halfval + 1, inputlen - halflen);
+    }
+
+    outval = ABS(inputval - outval0) < ABS(inputval - outval1) ? outval0 : outval1;
+    outval = ABS(inputval - outval0) == ABS(inputval - outval1) ? MIN(outval0, outval1) : outval;
+
+    snprintf(strbuff, sizeof(strbuff), "%lld", outval);
+    return strbuff;
+}
