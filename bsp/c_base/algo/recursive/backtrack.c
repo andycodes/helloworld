@@ -224,117 +224,103 @@ int** permuteUnique(int* nums, int numsSize, int* returnSize, int** returnColumn
 输入：s = "abc"
 输出：["abc","acb","bac","bca","cab","cba"]
 */
-/**
- * Note: The returned array must be malloced, assume caller calls free().
- */
-int count = 0;                              //存储数量count
-//char **arr = NULL;
-void swap(char* s, int i, int j){           //定义一个交换函数
-    char tmp = s[j];
-    s[j] = s[i];
-    s[i] = tmp;
+int cmp_char(const void *a, const void *b)
+{
+	return  *((char *)a) - *((char *)b);
 }
 
-bool judge(char* s, int start, int end){    //当字母为abb时，全排序可能出现重复，因此需要去重
-    int i;
-    for (i = start; i < end; i++){      //当前的数字分别与不等于它的数字交换，1不和1换，2不和2换
-        if (s[i] == s[end]){
-            return true;
-        }
-    }
-    return false;
+void backtrack(char* s, int slen, int* returnSize,
+	char **res, char *path, int pathSize, bool *visited)
+{
+	if (pathSize == slen) {
+		res[*returnSize] = strdup(path);
+		(*returnSize)++;
+		return;
+	}
+
+	for (int i = 0; i < slen; i++) {
+		if (visited[i] == true) {
+			continue;
+		}
+
+		if (i > 0 && visited[i - 1] == true && s[i - 1] == s[i]) {
+			continue;
+		}
+
+		path[pathSize++] = s[i];
+		visited[i] = true;
+
+		backtrack(s, slen, returnSize, res, path, pathSize, visited);
+
+		pathSize--;
+		visited[i] = false;
+	}
 }
 
-void perm(char* s, int p, char** arr, int len){     //进行全排列
-    if (p == len){                                  //设置停止条件，当p指向字符串的末尾时截止
-        s[len] = '\0';                              //给当前s添加截止符'\0'
-        memcpy(arr[count], s, len);                 //将s赋值给二维数组arr
-        count++;                                    //排列数量加1
-        return;
-    }
-    int i;
-    for (i = p; i < len; i++){                      //依次将每个数置于第一位
-        if (judge(s, p, i)){                        //判断是否重复
-            continue;
-        }
-        swap(s, p, i);                              //把本轮指向的数放到第一位
-        perm(s, p + 1, arr, len);                   //对剩下的数进行全排列
-        swap(s, p, i);                              //再把原本的第一位数换回来
-    }
+char** permutation(char* s, int* returnSize)
+{
+	int slen = strlen(s);
+	qsort(s, slen, sizeof(s[0]), cmp_char);
+	int kind = 1;
+	for (int i = 2; i <= slen; i++) {
+		kind *= i;
+	}
+	char **res = (char **)calloc(kind, sizeof(char *));
+	char path[slen + 1];
+	memset(path, 0, sizeof(path));
+	bool visited[slen];
+	memset(visited, false, sizeof(visited));
+	*returnSize = 0;
+	backtrack(s, slen, returnSize, res, path, 0, visited);
+	return res;
 }
 
-char** permutation(char* s, int* returnSize){
-    int total = 1;                                  //total存储N个数的全排列情况为N!
-    int len = strlen(s);
-    int i;
-    count = 0;
-    for (i = 2; i <= len; i++){
-        total *= i;
-    }
-    char** arr = (char**)malloc(sizeof(char*) * total);     //申请一个能够存储N!个的内存
-    for (i = 0; i < total; i++){
-        arr[i] = (char*)calloc(len + 1, sizeof(char));      //申请每一行存储的内存数
-    }
-    perm(s, 0, arr, len);                           //进行全排列
-    * returnSize = count;
-    return arr;
-}
 
 /*
 401. 二进制手表
 二进制手表顶部有 4 个 LED 代表小时（0-11），
 底部的 6 个 LED 代表分钟（0-59）。
 每个 LED 代表一个 0 或 1，最低位在右侧。
-
 例如，上面的二进制手表读取 "3:25"。
-
 给定一个非负整数 n 代表当前 LED 亮着的数量，
 返回所有可能的时间。
-
 案例:
-
 输入: n = 1
 返回: ["1:00", "2:00", "4:00", "8:00", "0:01", "0:02", "0:04", "0:08", "0:16", "0:32"]
 */
-
 void backtrack(int num, char ** res, int* returnSize,
-int curH, int curM, int pos)
+int hour, int minute, int it)
 {
 	if (num == 0) {
 		res[*returnSize] = (char *)calloc(10, sizeof(char *));
-		sprintf(res[*returnSize] , "%d:%02d", curH, curM);
+		sprintf(res[*returnSize] , "%d:%02d", hour, minute);
 		(*returnSize)++;
 		return;
 	}
 /*
-其实这个题目可以归于有多少 n个1的二进制组合。
-转换为字符串即可。
-这里将 0 - 9，划分一下
-0 - 5 是 分钟
-6 - 9 是小时计算。
+0 - 5 是 分钟 6 - 9 是小时。
 */
-	for (int i = pos; i < 10; i++) {
+	for (int i = it; i < 10; i++) {
 		if (i <= 5) {
-			curM += (1 << i);
-			if (curM > 59) {
-				curM -= (1 << i);
+			minute += (1 << i);
+			if (minute > 59) {
+				minute -= (1 << i);
 				continue;
 			}
 		} else {
-			curH += (1 << i - 6);
-			if (curH > 11)
+			hour += (1 << i - 6);//减法优先级高于<<
+			if (hour > 11)
 				return;
 		}
 
-		backtrack(num -1, res,  returnSize, curH,  curM, i + 1);
+		backtrack(num -1, res,  returnSize, hour,  minute, i + 1);
 
 		if (i <= 5)
-			curM -= (1 << i);
+			minute -= (1 << i);
 		else
-			curH -= (1 << i - 6);
+			hour -= (1 << i - 6);
 	}
 }
-
 
 char ** readBinaryWatch(int num, int* returnSize)
 {
@@ -346,13 +332,17 @@ char ** readBinaryWatch(int num, int* returnSize)
 	return res;
 }
 
+
 /*
 面试题 08.02. 迷路的机器人
 难度中等13
-设想有个机器人坐在一个网格的左上角，网格 r 行 c 列。机器人只能向下或向右移动，但不能走到一些被禁止的网格（有障碍物）。设计一种算法，寻找机器人从左上角移动到右下角的路径。
-
+设想有个机器人坐在一个网格的左上角，网格 r 行 c 列。
+机器人只能向下或向右移动，但不能走到一些被禁止的网格（
+有障碍物）。设计一种算法，寻找机器人从左上角移动到右
+下角的路径。
 网格中的障碍物和空位置分别用 1 和 0 来表示。
-返回一条可行的路径，路径由经过的网格的行号和列号组成。左上角为 0 行 0 列。
+返回一条可行的路径，路径由经过的网格的行号和列号组成。
+左上角为 0 行 0 列。
 示例 1:
 输入:
 [
@@ -364,34 +354,32 @@ char ** readBinaryWatch(int num, int* returnSize)
 解释:
 输入中标粗的位置即为输出表示的路径，即
 0行
-
 */
-
-bool backtrack(int** obstacleGrid, int obstacleGridSize, int* obstacleGridColSize, int row, int col,
-int **ret, int *returnSize,  bool visited[][100], int** returnColumnSizes)
+bool backtrack(int** obstacleGrid, int row, int col, int itx, int ity,
+int **res, int *returnSize,  bool visited[][100], int** returnColumnSizes)
 {
-	if(row >= obstacleGridSize || col >= obstacleGridColSize[row] || obstacleGrid[row][col] == 1 || visited[row][col])
+	if(itx >= row || ity >= col || obstacleGrid[itx][ity] == 1 || visited[itx][ity])
 		return false;
 
-	visited[row][col] = 1;
-	ret[*returnSize] = (int *)calloc(2, sizeof(int));
-	ret[*returnSize][0] = row;
-	ret[*returnSize][1] = col;
+	visited[itx][ity] = 1;
+	res[*returnSize] = (int *)calloc(2, sizeof(int));
+	res[*returnSize][0] = itx;
+	res[*returnSize][1] = ity;
 	(*returnColumnSizes)[*returnSize] = 2;
 	(*returnSize)++;
 
-	if(row == (obstacleGridSize - 1) && col == (obstacleGridColSize[row] - 1)) {
+	if(itx == (row - 1) && ity == (col - 1)) {
 		return true;
 	}
 
-	if (backtrack(obstacleGrid, obstacleGridSize, obstacleGridColSize, row, col + 1, ret, returnSize, visited, returnColumnSizes) ||
-		backtrack(obstacleGrid, obstacleGridSize, obstacleGridColSize, row + 1, col, ret, returnSize, visited, returnColumnSizes)) {
+	if (backtrack(obstacleGrid, row, col, itx, ity + 1, res, returnSize, visited, returnColumnSizes) ||
+		backtrack(obstacleGrid, row, col, itx + 1, ity, res, returnSize, visited, returnColumnSizes)) {
 		return true;
 	}
 
-	if (ret[*returnSize] != NULL) {
-		free(ret[*returnSize]);
-		ret[*returnSize] = NULL;
+	if (res[*returnSize] != NULL) {
+		free(res[*returnSize]);
+		res[*returnSize] = NULL;
 
 	}
 
@@ -400,26 +388,24 @@ int **ret, int *returnSize,  bool visited[][100], int** returnColumnSizes)
 	return false;
 }
 
-/**
- * Return an array of arrays of size *returnSize.
- * The sizes of the arrays are returned as *returnColumnSizes array.
- * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
- */
 int** pathWithObstacles(int** obstacleGrid, int obstacleGridSize,
-int* obstacleGridColSize, int* returnSize, int** returnColumnSizes){
+int* obstacleGridColSize, int* returnSize, int** returnColumnSizes)
+{
 	*returnSize = 0;
-	int **ret = calloc(200, sizeof(int *));
+	int **res = (int **)calloc(200, sizeof(int *));
 	bool visited[100][100];
 	memset(visited, 0, sizeof(visited));
-	*returnColumnSizes = calloc(200, sizeof(int));
-	bool  arrived = backtrack(obstacleGrid, obstacleGridSize, obstacleGridColSize,
-	0, 0, ret, returnSize, visited, returnColumnSizes);
+	*returnColumnSizes = (int *)calloc(200, sizeof(int));
+    	int row = obstacleGridSize;
+	int col = *obstacleGridColSize;
+	bool  arrived = backtrack(obstacleGrid, row, col, 0, 0, res, returnSize, visited, returnColumnSizes);
 	if(arrived == false) {
 		*returnSize = 0;
 	}
 
-	return ret;
+	return res;
 }
+
 
 /*
 332. 重新安排行程
