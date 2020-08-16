@@ -67,13 +67,6 @@ int main()
 }
 
 
-
-int cmp_char(const void *a, const void *b)
-{
-	return  *((char *)a) - *((char *)b);
-}
-
-
 struct HashCallBack {
 	char ***res;
 	int* returnSize;

@@ -54,85 +54,104 @@ grid 进行了标注。每个单元格中的整数就表示这一
  [0,9,0]]
 一种收集最多黄金的路线是：9 -> 8 -> 7。
 */
-
-int backtrack(int ** grid, int gridSize, int* gridColSize,int i, int j)
+int d[4][2] = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+int backtrack(int** grid, int row, int col, int x, int y)
 {
-	if (i < 0 || i >= gridSize || j < 0 || j >= gridColSize[0] || grid[i][j] == 0)
-		return 0;
+	int curVal = grid[x][y];
+	grid[x][y] = 0;
+	int sum = 0;
+	for (int i = 0; i < 4; i++) {
+		int nx = x + d[i][0];
+		int ny = y + d[i][1];
 
-	int curVal = grid[i][j];
-	grid[i][j] = 0;
-	int ret = 0;
+		if (nx < 0 || nx >= row || ny < 0 || ny >= col || grid[nx][ny] == 0) {
+			continue;
+		}
 
-	int d[4][2] = {{0,1}, {1,0}, {0,-1}, {-1,0}};
-	for(int k = 0; k < 4; k++) {
-		int nX = i + d[k][0];
-		int nY = j + d[k][1];
-		ret = fmax(ret, curVal + backtrack(grid,gridSize,gridColSize,nX,nY));
+		sum = fmax(sum, backtrack(grid, row, col, nx, ny));
 	}
 
-	grid[i][j] = curVal;
-
-	return ret;
+	grid[x][y] = curVal;
+	return sum + curVal;
 }
 
+int getMaximumGold(int** grid, int gridSize, int* gridColSize){
+    if(grid == NULL || gridSize <= 0 || gridColSize == NULL) {
+        return 0;
+    }
 
-int getMaximumGold(int** grid, int gridSize, int* gridColSize)
-{
-	if (grid == NULL || gridSize < 0 || gridColSize == NULL)
-		return 0;
+    int row = gridSize;
+    int col = *gridColSize;
+    int res = 0;
+    for (int i = 0; i < gridSize; i++) {
+        for (int j = 0; j < gridColSize[i];j++) {
+            if (grid[i][j] != 0) {
+                res = fmax(res, backtrack(grid, row, col, i, j));
+            }
+        }
+    }
 
-	int sumMax = 0;
-	for (int i = 0; i < gridSize; i++) {
-		for (int j = 0; j < gridColSize[i]; j++) {
-			sumMax = fmax(sumMax, backtrack(grid, gridSize, gridColSize, i, j));
-		}
-	}
-
-	return sumMax;
+    return res;
 }
 
-/*全排列*/
-void backtrack(int source[], int start, int end, int *resSize, int **res)
+/*
+46. 全排列
+难度中等838
+给定一个 没有重复 数字的序列，返回其所有可能的全排列。
+示例:
+输入: [1,2,3]
+输出:
+[
+  [1,2,3],
+  [1,3,2],
+  [2,1,3],
+  [2,3,1],
+  [3,1,2],
+  [3,2,1]
+]
+
+*/
+void backtrack(int* nums, int numsSize, int* returnSize, int** returnColumnSizes,
+                int** res, bool* visited, int* path, int pathSize)
 {
-	// 找到一个排列
-	if (start == end) {
-		res[*resSize] = (int *)calloc(end, sizeof(int));
-		memcpy(res[*resSize], source, sizeof(int) * end);
-		(*resSize)++;
-	} else {
-		// 没有找完一个排列，则继续往下找下一个元素
-		for (int i = start; i < end; i++) {
-			if (start != i) {// 两两交换
-				swap(source[start], source[i]);
-			}
-
-			// 递归排列剩余的从start+1到end的元素
-			backtrack(source, start + 1, end, resSize, res);
-
-			if (start != i) {// 回溯时还原
-				swap(source[start], source[i]);
-			}
-		}
+	if (numsSize == pathSize) {
+		res[*returnSize] = (int*)malloc(numsSize * sizeof(int));
+		memcpy(res[*returnSize], path, numsSize * sizeof(int));
+		(*returnColumnSizes)[*returnSize] = numsSize;
+		(*returnSize)++;
+		return;
 	}
+
+        for (int index = 0; index < numsSize; index++) {
+		if (visited[index] == true) {
+			continue;
+		}
+
+                visited[index] = true;
+                path[pathSize] = nums[index];
+                pathSize++;
+
+                backtrack(nums, numsSize, returnSize, returnColumnSizes, res, visited, path, pathSize);
+
+                pathSize--; // 回溯
+                visited[index] = false;
+        }
 }
 
 int** permute(int* nums, int numsSize, int* returnSize,
 			     int** returnColumnSizes)
 {
 	int **res = (int **)calloc (17000,  sizeof(int *));
-	int resSize = 0;
-
-	backtrack(nums, 0, numsSize, &resSize, res);
-
-	*returnSize = resSize;
 	*returnColumnSizes = (int *)calloc(17000, sizeof(int));
-	for (int i = 0; i < resSize; i++) {
-		(*returnColumnSizes)[i] = numsSize;
-	}
-
+	int path[numsSize];
+	memset(path, 0, sizeof(path));
+	bool visited[numsSize];
+	memset(visited, false, sizeof(visited));
+	*returnSize = 0;
+	backtrack(nums, numsSize, returnSize, returnColumnSizes, res, visited, path, 0);
 	return res;
 }
+
 /*
 47. 全排列 II
 难度中等320
@@ -145,136 +164,121 @@ int** permute(int* nums, int numsSize, int* returnSize,
   [1,2,1],
   [2,1,1]
 ]
-通过次数65,930
-提交次数111,408
-
 */
-/**
- * Return an array of arrays of size *returnSize.
- * The sizes of the arrays are returned as *returnColumnSizes array.
- * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
- */
- //还是用老方法吧，用swap虽然节省了一些参数。但是这一题就解决不了，有重复元素的要排序剪枝，但swap会打乱顺序
 #define MAX_SIZE 5000
-
-static int compare(const void* a, const void* b)
+void backtrack(int* nums, int numsSize, int* returnSize, int** returnColumnSizes,
+                int** res, bool* visited, int* path, int pathSize)
 {
-    return *(int*)a - *(int*)b;
-}
+	if (numsSize == pathSize) {
+		res[*returnSize] = (int*)malloc(numsSize * sizeof(int));
+		memcpy(res[*returnSize], path, numsSize * sizeof(int));
+		(*returnColumnSizes)[*returnSize] = numsSize;
+		(*returnSize)++;
+		return;
+	}
 
-static void backtrack(int* nums, int numsSize, int* returnSize, int** returnColumnSizes,
-                int** ppRes, bool* pbUsed, int* pBuffer)
-{
-    static int length = 0;
-    int index = 0;
+        for (int index = 0; index < numsSize; index++) {
+		if (visited[index] == true) {
+			continue;
+		}
 
-    if (numsSize == length)
-    {
-        ppRes[*returnSize] = (int*)malloc(numsSize * sizeof(int));
-        memcpy(ppRes[*returnSize], pBuffer, numsSize * sizeof(int));
-        (*returnColumnSizes)[*returnSize] = numsSize;
-        (*returnSize)++;
-    }
-    else
-    {
-        for (index = 0; index <= numsSize - 1; index++)
-        {
-            if (false == pbUsed[index])
-            {
-                if (index > 0 && nums[index - 1] == nums[index] && true == pbUsed[index - 1])
-                {
-                    continue; // 这里条件换成false == pbUsed[index - 1]也成立，本质是定一个规则这次找还是下次找
-                }
+		if (index > 0 &&  visited[index - 1] == true &&  nums[index - 1] == nums[index]) {
+			continue;
+		}
 
-                pbUsed[index] = true;
-                pBuffer[length] = nums[index];
-                length++;
+                visited[index] = true;
+                path[pathSize] = nums[index];
+                pathSize++;
 
-                backtrack(nums, numsSize, returnSize, returnColumnSizes, ppRes, pbUsed, pBuffer);
+                backtrack(nums, numsSize, returnSize, returnColumnSizes, res, visited, path, pathSize);
 
-                length--; // 回溯
-                pbUsed[index] = false;
-            }
+                pathSize--; // 回溯
+                visited[index] = false;
         }
-    }
 }
 
-int** permuteUnique(int* nums, int numsSize, int* returnSize, int** returnColumnSizes){
-    qsort(nums, numsSize, sizeof(int), compare);
+int** permuteUnique(int* nums, int numsSize, int* returnSize, int** returnColumnSizes)
+{
+    qsort(nums, numsSize, sizeof(nums[0]), cmp_int);
 
-    int** ppRes = (int**)malloc(MAX_SIZE * sizeof(int*));
-    bool* pbUsed = (bool*)malloc(numsSize * sizeof(bool));
-    memset(pbUsed, false, numsSize);
-    int* pBuffer = (int*)malloc(numsSize * sizeof(int));
+    int** res = (int**)malloc(MAX_SIZE * sizeof(int*));
+    bool* visited = (bool*)malloc(numsSize * sizeof(bool));
+    memset(visited, false, numsSize);
+    int* path = (int*)malloc(numsSize * sizeof(int));
 
     *returnSize = 0;
     *returnColumnSizes = (int*)malloc(MAX_SIZE * sizeof(int));
 
-    backtrack(nums, numsSize, returnSize, returnColumnSizes, ppRes, pbUsed, pBuffer);
+    backtrack(nums, numsSize, returnSize, returnColumnSizes, res, visited, path, 0);
 
-    return ppRes;
+    return res;
 }
-
-
-
 
 /*
 剑指 Offer 38. 字符串的排列
 难度中等49
 输入一个字符串，打印出该字符串中字符的所有排列。
-
 你可以以任意顺序返回这个字符串数组，
 但里面不能有重复元素。
-
 示例:
 输入：s = "abc"
 输出：["abc","acb","bac","bca","cab","cba"]
-
 */
-void backTrace(char* S, int* returnSize, int len, int depth, char **ret, char *path, char *visited)
-{
-  if(depth == len)
-  {
-    int retIndex = (*returnSize)++;
-    ret[retIndex] = malloc(len + 1);
-    strcpy(ret[retIndex], path);
-    return;
-  }
-
-  char duplicateMap[128] = {0};
-
-  for(int i = 0; i < len; i++)
-  {
-    if(visited[i])          continue;
-    if(duplicateMap[S[i]])  continue;   // the letter has shown up at this position
-
-    duplicateMap[S[i]] = 1;
-    visited[i] = 1;
-    path[depth] = S[i];
-    backTrace(S, returnSize, len, depth + 1, ret, path, visited);
-    visited[i] = 0;
-  }
-}
-
-#define MAX_LEN 1000
-
 /**
  * Note: The returned array must be malloced, assume caller calls free().
  */
-char** permutation(char* S, int* returnSize){
-
-  char **ret = calloc(MAX_LEN, sizeof(char *));
-  int len = strlen(S);
-
-  char path[10] = {0};
-  char visited[10] = {0};
-
-  *returnSize = 0;
-  backTrace(S, returnSize, len, 0, ret, path, visited);
-
-  return ret;
+int count = 0;                              //存储数量count
+//char **arr = NULL;
+void swap(char* s, int i, int j){           //定义一个交换函数
+    char tmp = s[j];
+    s[j] = s[i];
+    s[i] = tmp;
 }
 
+bool judge(char* s, int start, int end){    //当字母为abb时，全排序可能出现重复，因此需要去重
+    int i;
+    for (i = start; i < end; i++){      //当前的数字分别与不等于它的数字交换，1不和1换，2不和2换
+        if (s[i] == s[end]){
+            return true;
+        }
+    }
+    return false;
+}
+
+void perm(char* s, int p, char** arr, int len){     //进行全排列
+    if (p == len){                                  //设置停止条件，当p指向字符串的末尾时截止
+        s[len] = '\0';                              //给当前s添加截止符'\0'
+        memcpy(arr[count], s, len);                 //将s赋值给二维数组arr
+        count++;                                    //排列数量加1
+        return;
+    }
+    int i;
+    for (i = p; i < len; i++){                      //依次将每个数置于第一位
+        if (judge(s, p, i)){                        //判断是否重复
+            continue;
+        }
+        swap(s, p, i);                              //把本轮指向的数放到第一位
+        perm(s, p + 1, arr, len);                   //对剩下的数进行全排列
+        swap(s, p, i);                              //再把原本的第一位数换回来
+    }
+}
+
+char** permutation(char* s, int* returnSize){
+    int total = 1;                                  //total存储N个数的全排列情况为N!
+    int len = strlen(s);
+    int i;
+    count = 0;
+    for (i = 2; i <= len; i++){
+        total *= i;
+    }
+    char** arr = (char**)malloc(sizeof(char*) * total);     //申请一个能够存储N!个的内存
+    for (i = 0; i < total; i++){
+        arr[i] = (char*)calloc(len + 1, sizeof(char));      //申请每一行存储的内存数
+    }
+    perm(s, 0, arr, len);                           //进行全排列
+    * returnSize = count;
+    return arr;
+}
 
 /*
 401. 二进制手表
@@ -705,3 +709,251 @@ bool isInterleave(char* s1, char* s2, char* s3) {
         return helper(s1, s2, s3, 0, 0, 0, len1, len2, dp);
 }
 
+/*
+679. 24 点游戏
+你有 4 张写有 1 到 9 数字的牌。你需要判断是否能通过 *，/，+，-，(，) 的运算得到 24。
+
+示例 1:
+
+输入: [4, 1, 8, 7]
+输出: True
+解释: (8-4) * (7-1) = 24
+示例 2:
+
+输入: [1, 2, 1, 2]
+输出: False
+注意:
+
+除法运算符 / 表示实数除法，而不是整数除法。例如 4 / (1 - 2/3) = 12 。
+每个运算符对两个数进行运算。特别是我们不能用 - 作为一元运算符。例如，[1, 1, 1, 1] 作为输入时，表达式 -1 - 1 - 1 - 1 是不允许的。
+你不能将数字连接在一起。例如，输入为 [1, 2, 1, 2] 时，不能写成 12 + 12 。
+*/
+
+typedef double (*ClacFunc) (double a, double b);
+#define DEBUG_PRINTF // printf
+
+void debugPrintf(double* nums, int size)
+{
+    DEBUG_PRINTF("calc[%d]:", size);
+    for (int k = 0; k < size; k++) {
+        DEBUG_PRINTF("%lf ", nums[k]);
+    }
+
+    DEBUG_PRINTF("\n");
+}
+
+double Add(double a, double b) { DEBUG_PRINTF("%lf+%lf=%lf\n", a, b, a + b); return a + b; };
+double Sub(double a, double b) { DEBUG_PRINTF("%lf-%lf=%lf\n", a, b, a - b);  return a - b; };
+double Mul(double a, double b) { DEBUG_PRINTF("%lf*%lf=%lf\n", a, b, a * b);  return a * b; };
+double Div(double a, double b) { DEBUG_PRINTF("%lf/%lf=%lf\n", a, b, a / b);  return a / b; };
+
+typedef struct {
+    bool isSwap;    // 是否交换
+    ClacFunc func;  // 函数
+}CLAC;
+
+#define CLAC_TYPE 4
+#define NUM_SIZE 4
+static CLAC g_clacFunc[CLAC_TYPE] = {
+    {0, Add},
+    {1, Sub},
+    {0, Mul},
+    {1, Div}
+};
+
+bool calc(double* nums, int size){
+    debugPrintf(nums, size);
+    if (size == 1) {
+        return (fabs((nums[0] - 24)) <= 1e-6);
+    }
+
+    for (int i = 0; i < size - 1; i++) {
+        for (int j = i + 1; j < size; j++) {
+            double result[3] = {0};
+            int cnt = 0;
+
+            for (int k = 0; k < size; k++) {
+                if (k != i && k != j) {
+                    result[cnt++] = nums[k];
+                }
+            }
+
+            for (int k = 0; k < CLAC_TYPE; k++) {
+                int calcCnt = cnt + 1;
+                bool isOK = false;
+                if (g_clacFunc[k].isSwap) {
+                    result[cnt] = g_clacFunc[k].func(nums[j], nums[i]);
+                    isOK = calc(result, calcCnt);
+                    if (isOK) {
+                        return true;
+                    }
+                }
+
+                result[cnt] = g_clacFunc[k].func(nums[i], nums[j]);
+                isOK = calc(result, calcCnt);
+                if (isOK) {
+                    return true;
+                }
+            }
+        }
+    }
+
+    return false;
+}
+bool judgePoint24(int* nums, int numsSize)
+{
+    double tmpNums[NUM_SIZE] = {0};
+
+    for (int i = 0; i < numsSize; i++) {
+        tmpNums[i] = nums[i];
+    }
+
+    return calc(tmpNums, numsSize);
+}
+
+typedef double (*ClacFunc) (double a, double b);
+#define DEBUG_PRINTF  // printf
+
+void debugPrintf(double* nums, int size)
+{
+    DEBUG_PRINTF("calc[%d]:", size);
+    for (int k = 0; k < size; k++) {
+        DEBUG_PRINTF("%lf ", nums[k]);
+    }
+
+    DEBUG_PRINTF("\n");
+}
+
+double Add(double a, double b) { DEBUG_PRINTF("%lf+%lf=%lf\n", a, b, a + b); return a + b; };
+double Sub(double a, double b) { DEBUG_PRINTF("%lf-%lf=%lf\n", a, b, a - b);  return a - b; };
+double Mul(double a, double b) { DEBUG_PRINTF("%lf*%lf=%lf\n", a, b, a * b);  return a * b; };
+double Div(double a, double b) { DEBUG_PRINTF("%lf/%lf=%lf\n", a, b, a / b);  return a / b; };
+
+typedef struct {
+    bool isSwap;    // 是否交换
+    ClacFunc func;  // 函数
+}CLAC;
+
+#define CLAC_TYPE 4
+#define NUM_SIZE 4
+static CLAC g_clacFunc[CLAC_TYPE] = {
+    {0, Add},
+    {1, Sub},
+    {0, Mul},
+    {1, Div}
+};
+
+bool calc(double* nums, int size){
+    debugPrintf(nums, size);
+    if (size == 1) {
+       return (fabs((nums[0] - 24)) <= 1e-6);
+    }
+    //当四个的时候，第一次选两个数时有4*3种，之后选运算符为12*4=48，
+    //然后3个选两个为3*2种，之后选运算符：6*4 = 24；
+    //最后2个选运算符：2*4种（有先后顺序之分）
+    //不过+和*满足交换律
+    //任选两个数
+    for (int i = 0; i < size - 1; i++) {
+        for (int j = i + 1; j < size; j++) {
+            double result[3] = {0};
+            int cnt = 0;
+            //不能添加i，j  因为i和j所在位置的数接下里要进行计算
+            for (int k = 0; k < size; k++) {
+                if (k != i && k != j) {
+                    result[cnt++] = nums[k]; // 存剩下的待做计算的几位数
+                }
+            }
+            //任意进行4种运算
+            for (int k = 0; k < CLAC_TYPE; k++) {
+                int calcCnt = cnt + 1;
+                bool isOK = false;
+                //#1不满足交换律 - / 所以 #2计算完 a - b 之后还得这里得重新计算 b - a
+                if (g_clacFunc[k].isSwap) {
+                    result[cnt] = g_clacFunc[k].func(nums[j], nums[i]);
+                    isOK = calc(result, calcCnt); // 递归时的参数，是新数组 result，里面存着未剩下的数和新得到的结果
+                    if (isOK) {
+                        return true;
+                    }
+                }
+                //#2 全部计算一遍
+                result[cnt] = g_clacFunc[k].func(nums[i], nums[j]);
+                isOK = calc(result, calcCnt);
+                if (isOK) {
+                    return true;
+                }
+            }
+        }
+    }
+
+    return false;
+}
+bool judgePoint24(int* nums, int numsSize)
+{
+    double tmpNums[NUM_SIZE] = {0};
+
+    for (int i = 0; i < numsSize; i++) {
+        tmpNums[i] = nums[i];
+    }
+
+    return calc(tmpNums, numsSize);
+}
+
+/*
+488. 祖玛游戏
+难度困难54
+回忆一下祖玛游戏。现在桌上有一串球，颜色有红色(R)，黄色(Y)，蓝色(B)，绿色(G)，还有白色(W)。 现在你手里也有几个球。
+每一次，你可以从手里的球选一个，然后把这个球插入到一串球中的某个位置上（包括最左端，最右端）。接着，如果有出现三个或者三个以上颜色相同的球相连的话，就把它们移除掉。重复这一步骤直到桌上所有的球都被移除。
+找到插入并可以移除掉桌上所有球所需的最少的球数。如果不能移除桌上所有的球，输出 -1 。
+示例:
+输入: "WRRBBW", "RB"
+输出: -1
+解释: WRRBBW -> WRR[R]BBW -> WBBW -> WBB[B]W -> WW （翻译者标注：手上球已经用完，桌上还剩两个球无法消除，返回-1）
+
+输入: "WWRRBBWW", "WRBRW"
+输出: 2
+解释: WWRRBBWW -> WWRR[R]BBWW -> WWBBWW -> WWBB[B]WW -> WWWW -> empty
+
+
+*/
+
+int dfs(char * board, int *map)
+{
+	int blen = strlen(board);
+	if (board == NULL || board[0] == '\0' ||blen <= 0) {
+		return 0;
+	}
+
+	int i = 0;
+	int ans = INT_MAX;
+	while(i < blen) {
+		int j = i;
+		while( j < blen && (board[i] == board[j])) j++;
+		int cnt = fmax(0, 3 - (j - i));
+		if (map[board[i] - 'A'] >= cnt) {
+			char newBoard[blen];
+			memset(newBoard, 0, sizeof(newBoard));
+			strncpy(newBoard, board, i);
+			strcat(newBoard, board + j);
+			map[board[i] - 'A'] -= cnt;
+			int res = dfs(newBoard, map);
+			if (res >= 0) ans = fmin(ans, res + cnt);
+			map[board[i] - 'A'] += cnt;
+		}
+		i++;
+	}
+
+	return ans == INT_MAX ? -1 :ans;
+}
+
+int findMinStep(char * board, char * hand)
+{
+	int map[26] = {0};
+	int i = 0;
+
+	while(hand[i] != '\0') {
+		map[hand[i] - 'A']++;
+		i++;
+	}
+
+	return dfs(board, map);
+}

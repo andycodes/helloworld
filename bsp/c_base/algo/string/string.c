@@ -1,3 +1,15 @@
+
+/*
+memset的头文件是<string.h>  why ?
+int array[10];
+memset(array,1,10);//或者memset(array,1,sizeof(array))，都是不对的！
+
+memset函数使用说明中提到的是按照byte来填充。
+char arr[10]; memset(arr,'a',10);
+由于char只占一个字节(byte)，因此函数的结果是将连续的10个字节都填充为'a'。这是我们所期待的结果！
+*/
+void * memset(void *s, int c, size_t n);
+
 /*
 (1) 如果格式化后的字符串长度 < size，
 则将此字符串全部复制到str中，

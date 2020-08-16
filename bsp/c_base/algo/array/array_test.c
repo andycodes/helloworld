@@ -1532,12 +1532,7 @@ int** generateMatrix(int n, int* returnSize, int** returnColumnSizes)
 解释: 最长连续序列是 [1, 2, 3, 4]。它的长度为 4。
 
 */
-int cmp_int(const void *a, const void *b)
-{
-	long int aa = *((int *)a);
-	long int bb = *((int *)b);
-	return (int)(aa -bb);
-}
+
 int longestConsecutive(int* nums, int numsSize)
 {
     if (numsSize == 0) return 0;

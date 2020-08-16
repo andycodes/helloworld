@@ -657,7 +657,6 @@ char* addBinary(char* a, char* b) {
 
 */
 
-#define swap(a,b) ((a) ^= (b), (b) ^= (a) ,(a) ^= (b))
 void strrevSelf_pos(char *s, int begin, int end)
 {
 	char* left = s + begin;
