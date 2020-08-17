@@ -703,3 +703,176 @@ int* findSubstring(char * s, char ** words, int wordsSize, int* returnSize){
     }
     return out;
 }
+
+/*
+447. 回旋镖的数量
+给定平面上 n 对不同的点，“回旋镖” 是由点表示的元组 (i, j, k) ，其中 i 和 j 之间的距离和 i 和 k 之间的距离相等（需要考虑元组的顺序）。
+
+找到所有回旋镖的数量。你可以假设 n 最大为 500，所有点的坐标在闭区间 [-10000, 10000] 中。
+
+示例:
+
+输入:
+[[0,0],[1,0],[2,0]]
+
+输出:
+2
+
+解释:
+两个回旋镖为 [[1,0],[0,0],[2,0]] 和 [[1,0],[2,0],[0,0]]
+*/
+#include <stdlib.h>
+#define MAX_N 500
+
+int compare(const void* a, const void* b)
+{
+	return *(int*)a > *(int*)b;
+}
+
+int numberOfBoomerangs(int** points, int pointsSize, int* pointsColSize)
+{
+    if (points == NULL || pointsSize < 3 || pointsSize > 500) {
+        return 0;
+    }
+
+    int distance[MAX_N] = {0};  // 距离数组
+    int sum = 0;
+    int i;	// 指针，选择锚点
+    int j;	// 指针，计算距离
+
+    for (i = 0; i < pointsSize; i++) {
+    	// 计算每一点到点i的距离
+    	for (j = 0; j < pointsSize; j++) {
+    		distance[j] = (points[i][0] - points[j][0]) * (points[i][0] - points[j][0]) +
+    					  (points[i][1] - points[j][1]) * (points[i][1] - points[j][1]);
+    	}
+
+    	// 对距离按升序排序
+    	qsort(distance, pointsSize, sizeof(int), compare);
+
+    	int currCount = 1;  // 当前计数
+
+    	// 遍历排序后的距离，统计个数
+    	for (j = 1; j < pointsSize; j++) {
+    		if (distance[j] != distance[j - 1]) {
+    			sum += currCount * (currCount - 1);
+    			currCount = 1;
+    		} else {
+    			currCount++;
+    		}
+    	}
+
+    	// 记得统计最后一个单词
+    	sum += currCount * (currCount - 1);
+    }
+
+    return sum;
+}
+
+int cmp(const void* a, const void* b){
+    if(*(int*) a > *(int*)b){
+        return 1;
+    }else{
+        return -1;
+    }
+}
+int numberOfBoomerangs(int** points, int pointsSize, int* pointsColSize){
+    int cmp(const void* a, const void* b);
+    int* Distances = (int*)malloc(sizeof(int) * pointsSize);
+    int Num_Boo = 0;
+    for(int i = 0; i < pointsSize; i++){
+        for(int j = 0; j < pointsSize; j++){
+            Distances[j] = pow(points[i][0] - points[j][0], 2) + pow(points[i][1] - points[j][1], 2);
+        }
+        qsort(Distances, pointsSize, sizeof(int), cmp);
+        int Count = 1;
+        for(int j = 1; j < pointsSize; j++){
+            if(Distances[j] == Distances[j - 1]){
+                Count++;
+            }else if(Count > 1){
+                Num_Boo += Count * (Count - 1);
+                Count = 1;
+            }else{
+                continue;
+            }
+        }
+        Num_Boo += Count * (Count - 1);
+    }
+    free(Distances);
+    return Num_Boo;
+}
+
+/*
+500. 键盘行
+给定一个单词列表，只返回可以使用在键盘同一行的字母打印出来的单词。键盘如下图所示。
+
+
+
+American keyboard
+
+
+
+示例：
+
+输入: ["Hello", "Alaska", "Dad", "Peace"]
+输出: ["Alaska", "Dad"]
+*/
+char ** findWords(char ** words, int wordsSize, int* returnSize){
+    *returnSize = 0;
+    if(words == NULL || wordsSize == 0){
+        return NULL;
+    }
+    // 26个大写字母对应的行号，如Q在第1行
+    //             A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z
+    int hash[26]= {2, 3, 3, 2, 1, 2, 2, 2, 1, 2, 2, 2, 3, 3, 1, 1, 1, 1, 2, 1, 1, 3, 1, 3, 1, 3};
+    char **result = (char **)calloc(wordsSize, sizeof(char *));
+    int i, j, len;
+    int num = 0;//字符所在行号
+
+    for(i = 0; i < wordsSize; i++){
+        len = strlen(words[i]);
+        if(len == 0) continue;
+        num = hash[toupper(words[i][0]) - 'A']; //第一个字符的行号
+        for(j = 1; j < len; j++){
+            if(num != hash[toupper(words[i][j]) - 'A']){
+                break;
+            }
+        }
+        if(j == len){//单词所有字符在一行
+            result[(*returnSize)++] = words[i];
+        }
+    }
+    return result;
+}
+
+int cmp (char* s) {
+    char* s1 = "qwertyuiopQWERTYUIOP";
+    char* s2 = "asdfghjklASDFGHJKL";
+    char* s3 = "zxcvbnmZXCVBNM";
+
+    if (strchr(s1, s) != NULL) {
+        return 1;
+    } else if (strchr(s2, s) != NULL) {
+        return 2;
+    }
+    return 3;
+}
+char ** findWords(char ** words, int wordsSize, int* returnSize){
+    char** ret = (char **)malloc(wordsSize * sizeof(char *));
+    * returnSize = 0;
+    for (int i = 0; i < wordsSize; i++) {
+        int len = strlen(words[i]);
+        int flag = cmp(words[i][0]);
+        for (int j = 1; j < len; j++) {
+            if (cmp(words[i][j]) != flag) {
+                flag = -1;
+            }
+        }
+        if (flag != -1) {
+            ret[*returnSize] = (char *)malloc((len + 1) * sizeof(char));
+            memcpy(ret[*returnSize], words[i], len + 1);
+            (*returnSize)++;
+        }
+    }
+    return ret;
+}

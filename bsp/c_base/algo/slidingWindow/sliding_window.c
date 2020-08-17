@@ -1300,3 +1300,98 @@ char * minWindow(char * s, char * t){
     s[minRight] = '\0';
     return &s[minLeft];
 }
+
+/*
+632. 最小区间
+难度困难230
+你有 k 个升序排列的整数列表。找到一个最小区间，使得 k 个列表中的每个列表至少有一个数包含在其中。
+我们定义如果 b-a < d-c 或者在 b-a == d-c 时 a < c，则区间 [a,b] 比 [c,d] 小。
+
+示例：
+输入：[[4,10,15,24,26], [0,9,12,20], [5,18,22,30]]
+输出：[20,24]
+解释：
+列表 1：[4, 10, 15, 24, 26]，24 在区间 [20,24] 中。
+列表 2：[0, 9, 12, 20]，20 在区间 [20,24] 中。
+列表 3：[5, 18, 22, 30]，22 在区间 [20,24] 中。
+*/
+
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+ #define RETURN_SIZE 2
+ #define MAX_NUM 3500
+typedef struct tagInfo {
+    int value;
+    int index;
+} Info;
+int cmpFun(const void *a, const void *b)
+{
+    Info *temp1 = (Info *)a;
+    Info *temp2 = (Info *)b;
+    if (temp1->value > temp2->value) {
+        return 1;
+    } else if (temp1->value < temp2->value) {
+        return -1;
+    } else {
+        return 0;
+    }
+}
+int isCover(int *kCount, int k)
+{
+    for (int i = 0; i < k; i++) {
+        if (kCount[i] == 0) {
+            return 0;
+        }
+    }
+    return 1;
+}
+void updateIndex(int begin, int end, int *resBegin, int *resEnd, Info *allNum)
+{
+    if ((*resBegin == -1) ||
+        (allNum[end].value - allNum[begin].value < allNum[*resEnd].value - allNum[*resBegin].value) ||
+        (allNum[end].value - allNum[begin].value == allNum[*resEnd].value - allNum[*resBegin].value &&
+         begin < *resBegin)) {
+        *resBegin = begin;
+        *resEnd = end;
+        return;
+    }
+}
+int* smallestRange(int** nums, int numsSize, int* numsColSize, int* returnSize){
+    int numall = 0;
+    for (int i = 0; i < numsSize; i++) {
+        numall += numsColSize[i];
+    }
+    Info *allNum = NULL;
+    allNum = (Info *) malloc(sizeof(Info) * numall);
+    if (allNum == NULL) {
+        return NULL;
+    }
+    int index = 0;
+    for (int i = 0; i < numsSize; i++) {
+        for (int j = 0; j < numsColSize[i]; j++) {
+            allNum[index].value = nums[i][j];
+            allNum[index].index = i;
+            index++;
+        }
+    }
+    int kCount[MAX_NUM] = { 0 };
+    qsort(allNum, numall, sizeof(Info), cmpFun);
+    int begin = 0;
+    int end = 0;
+    int resBegin = -1;
+    int resEnd = -1;
+    while (end < numall) {
+        kCount[allNum[end++].index]++;
+        while (isCover(kCount, numsSize)) {
+            updateIndex(begin, (end - 1), &resBegin, &resEnd, allNum);
+            kCount[allNum[begin++].index]--;
+        }
+    }
+    int *res = (int *)malloc(sizeof(int) * RETURN_SIZE);
+    res[0] = allNum[resBegin].value;
+    res[1] = allNum[resEnd].value;
+    free(allNum);
+    *returnSize = RETURN_SIZE;
+    return res;
+}
