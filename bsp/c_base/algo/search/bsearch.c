@@ -1,15 +1,32 @@
 /*
 
-while (ub - lb > 1) {
-    int mid = (lb + ub) / 2;
-    if (Check mid) { // 根据nums[mid]来判断搜索左半部分还是右半部分
-        lb = mid;
-    } else {
-        ub = mid;
-    }
+/*
+搜索区间[first, last)左闭右开！
+返回[left, right) 内第一个不小于target 的值的位置
+*/
+int lower_bound(int *nums, int left, int right, int target)
+{
+	 int left = 0;
+	 int right = len - 1;//思考
+	while(left < right) {//搜索区间[left, right)不为空，退出的时候left = right
+		int mid = left + (right - left) >> 1;
+/*
+		if (nums[mid] == target) {
+			不存在重复元素
+			return mid;//存在重复项时，得到的mid 是随机不一定是最小
+		}
+*/
+		if (nums[mid] < target) {//严格不是目标target，则排除
+			left = mid + 1;//[mid + 1, right]
+		} else {
+			right = mid;
+		}
+	}
+
+	return left;//right 也行 因为[left, right)为空的时候他们重合
 }
-// 视情况处理最后的lb或者ub，此时ub == lb + 1
-return nums[lb] >= target ? lb : ub;
+*/
+/*
 
 二维
 

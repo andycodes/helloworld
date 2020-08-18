@@ -943,3 +943,77 @@ int findMinStep(char * board, char * hand)
 
 	return dfs(board, map);
 }
+
+/*
+37. 解数独
+难度困难497
+编写一个程序，通过已填充的空格来解决数独问题。
+一个数独的解法需遵循如下规则：
+1.	数字 1-9 在每一行只能出现一次。
+2.	数字 1-9 在每一列只能出现一次。
+3.	数字 1-9 在每一个以粗实线分隔的 3x3 宫内只能出现一次。
+空白格用 '.' 表示。
+
+*/
+bool recusiveSolveSudoku(char** board, bool rowUsed[9][10],
+    bool colUsed[9][10], bool boxUsed[3][3][10], int row, int col, int boardSize, int* boardColSize)
+  {
+        // 边界校验, 如果已经填充完成, 返回true, 表示一切结束
+        if(col == *boardColSize){
+            col = 0;
+            row++;
+            if(row == boardSize){
+                return true;
+            }
+        }
+        // 是空则尝试填充, 否则跳过继续尝试填充下一个位置
+        if(board[row][col] == '.') {
+            // 尝试填充1~9
+            for(int num = 1; num <= 9; num++){
+                bool canUsed = !(rowUsed[row][num] || colUsed[col][num] || boxUsed[row/3][col/3][num]);
+                if(canUsed){
+                    rowUsed[row][num] = true;
+                    colUsed[col][num] = true;
+                    boxUsed[row/3][col/3][num] = true;
+
+                    board[row][col] = (char)('0' + num);
+                    if(recusiveSolveSudoku(board, rowUsed, colUsed, boxUsed, row, col + 1, boardSize, boardColSize)){
+                        return true;
+                    }
+                    board[row][col] = '.';
+
+                    rowUsed[row][num] = false;
+                    colUsed[col][num] = false;
+                    boxUsed[row/3][col/3][num] = false;
+                }
+            }
+        } else {
+            return recusiveSolveSudoku(board, rowUsed, colUsed, boxUsed, row, col + 1, boardSize, boardColSize);
+        }
+        return false;
+    }
+
+void solveSudoku(char** board, int boardSize, int* boardColSize)
+{
+        // 三个布尔数组 表明 行, 列, 还有 3*3 的方格的数字是否被使用过
+        bool rowUsed[9][10];
+        bool colUsed[9][10];
+        bool boxUsed[3][3][10];
+	memset(rowUsed, 0, sizeof(rowUsed));
+	memset(colUsed, 0, sizeof(colUsed));
+	memset(boxUsed, 0, sizeof(boxUsed));
+
+        // 初始化
+        for(int row = 0; row < boardSize; row++){
+            for(int col = 0; col < *boardColSize; col++) {
+                int num = board[row][col] - '0';
+                if(1 <= num && num <= 9){
+                    rowUsed[row][num] = true;
+                    colUsed[col][num] = true;
+                    boxUsed[row/3][col/3][num] = true;
+                }
+            }
+        }
+        // 递归尝试填充数组
+        recusiveSolveSudoku(board, rowUsed, colUsed, boxUsed, 0, 0, boardSize, boardColSize);
+    }
