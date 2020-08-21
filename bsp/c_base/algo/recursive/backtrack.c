@@ -430,34 +430,29 @@ int* obstacleGridColSize, int* returnSize, int** returnColumnSizes)
 自然排序更大更靠后。
 
 */
-
-#define STR_LEN 4
-int g_flag[300];
- void backtrack(char *** tickets, int ticketsSize, char *** res, char *start, int *count)
+ void backtrack(char *** tickets, int ticketsSize,
+ 	char ** res, char *start, int *count, int *visited)
  {  //遍历飞机票
-    for (int i = 0; i < ticketsSize; i++) {
-        if (g_flag[i] == 0 && strcmp(start, tickets[i][0]) == 0) {//找到目的地
-            (*count)++;
-            //printf("#####%d %s\n", *count, start);
-            g_flag[i] = *count;
-            char *newStart = tickets[i][1];
+	for (int i = 0; i < ticketsSize; i++) {
+		if (visited[i] == 0 && strcmp(start, tickets[i][0]) == 0) {//找到目的地
+			(*count)++;
+			visited[i] = 1;
+			char *newStart = tickets[i][1];
 
-            (*res)[(*count)] = (char*)calloc(STR_LEN, sizeof(char));
-            //将目的地加到结果数组中
-            strncpy((*res)[(*count)], newStart, STR_LEN);
-            //遍历下个目的地
-            backtrack(tickets, ticketsSize, res, newStart, count);
-            //当结果数组满了，则返回。
-            if (*count  == ticketsSize ) {
-                return;
-            }
-            //不符合则回溯
-            (*count)--;
-            g_flag[i] = 0;
-        }
-    }
+			//将目的地加到结果数组中
+			res[*count] = strdup(newStart);
+			//遍历下个目的地
+			backtrack(tickets, ticketsSize, res, newStart, count, visited);
+			//当结果数组满了，则返回。
+			if (*count  == ticketsSize ) {
+				return;
+			}
+			//不符合则回溯
+			(*count)--;
+			visited[i] = 0;
+		}
+	}
  }
-
 
 int cmp(const void *str1, const void *str2)
 {
@@ -471,23 +466,21 @@ int cmp(const void *str1, const void *str2)
     return ret;
 }
 
-char ** findItinerary(char *** tickets, int ticketsSize, int* ticketsColSize, int* returnSize){
-    *returnSize = ticketsSize + 1; //
-    char **res = (char**)calloc(*returnSize, sizeof(char*));
-    memset(g_flag, 0, sizeof(g_flag));
-    //排序 自然序
-    qsort(tickets, ticketsSize, sizeof(tickets[0]), cmp);
+char ** findItinerary(char *** tickets, int ticketsSize, int* ticketsColSize, int* returnSize)
+{
+	*returnSize = ticketsSize + 1;
+	char **res = (char**)calloc(*returnSize, sizeof(char*));
+	qsort(tickets, ticketsSize, sizeof(tickets[0]), cmp);
 
-    char *start= "JFK";
-    int count = 0;
+	res[0] = strdup("JFK");
+	int count = 0;
+	int visited[ticketsSize];
+	memset(visited, 0, sizeof(visited));
+	backtrack(tickets, ticketsSize, res, res[0], &count, visited);
 
-    backtrack(tickets, ticketsSize, &res, start, &count);
-
-    res[0] = (char*)calloc(STR_LEN, sizeof(char));
-    strncpy(res[0], start, STR_LEN);
-
-    return res;
+	return res;
 }
+
 
 /*
 638. 大礼包
@@ -508,7 +501,8 @@ char ** findItinerary(char *** tickets, int ticketsSize, int* ticketsColSize, in
 有A和B两种物品，价格分别为?2和?5。
 大礼包1，你可以以?5的价格购买3A和0B。
 大礼包2， 你可以以?10的价格购买1A和2B。
-你需要购买3个A和2个B， 所以你付了?10购买了1A和2B（大礼包2），以及?4购买2A。
+你需要购买3个A和2个B， 所以你付了?10购买了1A和2B（
+大礼包2），以及?4购买2A。
 示例 2:
 输入: [2,3,4], [[1,1,0,4],[2,2,1,9]], [1,2,1]
 输出: 11
@@ -527,7 +521,6 @@ A，B，C的价格分别为?2，?3，?4.
 用礼包替价格去替换原价，算出替换后的总价，
 更新最小总价
 */
-
 int g_res;
 void backtrack(int** special, int specialSize, int* specialColSize, int* needs,
 	int needsSize, int *specialOrinPrice, int totalNeedOrinPrice)
@@ -546,8 +539,11 @@ void backtrack(int** special, int specialSize, int* specialColSize, int* needs,
 		}
 
 		backtrack(special, specialSize, specialColSize, needs, needsSize,
-		specialOrinPrice, totalNeedOrinPrice - specialOrinPrice[i] +
-		special[i][specialColSize[i] - 1]);
+		specialOrinPrice,
+		/*总价- (一个礼包原价 -  一个礼包优惠价格)
+			总价-(优惠差价) = 优惠价格
+		*/
+		totalNeedOrinPrice - (specialOrinPrice[i] - special[i][specialColSize[i] - 1]));
 
 		for (int j = 0; j < specialColSize[i] - 1; j++) {
 			needs[j] += special[i][j];
@@ -579,9 +575,11 @@ int shoppingOffers(int* price, int priceSize,
 	}
 
 	g_res = totalNeedOrinPrice;
-	backtrack(special, specialSize, specialColSize, needs, needsSize, specialOrinPrice, totalNeedOrinPrice);
+	backtrack(special, specialSize, specialColSize, needs, needsSize,
+		specialOrinPrice, totalNeedOrinPrice);
 	return g_res;
 }
+
 
 /*
 97. 交错字符串
@@ -595,6 +593,71 @@ int shoppingOffers(int* price, int priceSize,
 输入：s1 = "aabcc", s2 = "dbbca", s3 = "aadbbbaccc"
 输出：false
 */
+
+/*
+带记忆化的回溯从暴力回溯可知，当i、j、k一定的情况下，
+返回值一定，由此我们可以将i、j、k、返回值用meom[i][j][k]记录
+起来，当回溯再次遇到此i、j、k时，直接返回。显然当i、j一
+定时，k一定，因为k = i + j，因此，可以将状态缩减成两维，
+即meom[i][j]。我们对上述暴力回溯进行改造，在回溯返回false的
+地方用meom[i][j]记录下来，在返回true的地方不用记录，因为一
+旦返回true，回溯就会一直返回，直到回溯入口。
+*/
+bool backtrack(char *s1, char * s2, char * s3, int i, int j, int k,
+int size1, int size2, int dp[size1][size2])
+{
+	if (dp[i][j] != 13) {
+		return dp[i][j];
+	}
+
+	// 若回溯用完了s1,s2,s3，说明能够s3能够被交替组成
+	if(i == strlen(s1) && j == strlen(s2) && k == strlen(s3))
+		return true;
+
+	if(k >= strlen(s3)) {
+		dp[i][j] = false;
+		return false;
+	}
+
+	if(i < strlen(s1)) {
+/*
+若当前s1的i位置的字符与s3的k位置字符相等，则消耗一个字符，
+并向下回溯，若回溯返回true则返回的这个true最开始一定
+是由该函数内第二行代码返回的，
+即表示s3能够被交替组成，直接返回true
+*/
+		if(s1[i] == s3[k] && backtrack(s1, s2, s3, i+1, j, k+1, size1, size2, dp))
+			return true;
+	}
+
+	if(j < strlen(s2)){
+		if(s2[j] == s3[k] && backtrack(s1, s2, s3, i, j+1, k+1,  size1, size2, dp))
+			return true;
+	}
+
+	dp[i][j] = false;
+	// 在此i、j、k下，无论如何都不能组成s3.substring(0, k+1),返回false
+	return false;
+}
+
+bool isInterleave(char* s1, char* s2, char* s3)
+{
+	if(s1 == NULL) s1 = "";
+	if(s2 == NULL) s2 = "";
+	if(s3 == NULL) s3 = "";
+
+	int len1 = strlen(s1) + 1;
+	int len2 = strlen(s2) + 1;
+	int dp[len1][len2];
+	for (int i = 0; i < len1; i++) {
+		for (int j = 0; j < len2; j++) {
+			dp[i][j] = 13;
+		}
+	}
+
+	return backtrack(s1, s2, s3, 0, 0, 0, len1, len2, dp);
+}
+
 /*
 动态规划
 状态定义
@@ -643,63 +706,6 @@ bool isInterleave(char* s1, char* s2, char* s3) {
     return f[n][m];
 }
 
-/*
-带记忆化的回溯从暴力回溯可知，当i、j、k一定的情况下，返回值一定，由此我们可以将i、j、k、返回值用meom[i][j][k]记录起来，当回溯再次遇到此i、j、k时，直接返回。显然当i、j一定时，k一定，因为k = i + j，因此，可以将状态缩减成两维，即meom[i][j]。我们对上述暴力回溯进行改造，在回溯返回false的地方用meom[i][j]记录下来，在返回true的地方不用记录，因为一旦返回true，回溯就会一直返回，直到回溯入口。作者：antione链接：https://leetcode-cn.com/problems/interleaving-string/solution/you-bao-li-hui-su-dao-ji-yi-hua-fen-xiang-wo-de-do/来源：力扣（LeetCode）著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
-*/
-bool helper(char *s1, char * s2, char * s3, int i, int j, int k, int size1, int size2, int dp[size1][size2])
-{
-	if (dp[i][j] != 13) {
-		return dp[i][j];
-	}
-
-		// 若回溯用完了s1,s2,s3，说明能够s3能够被交替组成
-        if(i == strlen(s1) && j == strlen(s2) && k == strlen(s3))
-            return true;
-
-        if(k >= strlen(s3)) {
-			dp[i][j] = false;
-			return false;
-        }
-
-        if(i < strlen(s1)){
-            // 若当前s1的i位置的字符与s3的k位置字符相等，则消耗一个字符，
-            // 并向下回溯，若回溯返回true则返回的这个true最开始一定
-            // 是由该函数内第二行代码返回的，即表示s3能够被交替组成，直接返回true
-            if(s1[i] == s3[k] &&
-            helper(s1, s2, s3, i+1, j, k+1, size1, size2, dp))
-                return true;
-        }
-
-        if(j < strlen(s2)){
-            if(s2[j] == s3[k] &&
-            helper(s1, s2, s3, i, j+1, k+1,  size1, size2, dp))
-                return true;
-        }
-
-
-		dp[i][j] = false;
-        // 在此i、j、k下，无论如何都不能组成s3.substring(0, k+1),返回false
-        return false;
-    }
-
-
-bool isInterleave(char* s1, char* s2, char* s3) {
-        // 题目没有明确说明s123是否为NULL，需要判NULL，这里直接令其等于空字符
-        // 若s1为空，即不会参数空指针异常也不会参与到计算当中
-        if(s1 == NULL) s1 = "";
-        if(s2 == NULL) s2 = "";
-        if(s3 == NULL) s3 = "";
-
-	 int len1 = strlen(s1) + 1;
-	 int len2 = strlen(s2) + 1;
-	 int dp[len1][len2];
-	 for (int i = 0; i < len1; i++) {
-		for (int j = 0; j < len2; j++) {
-			dp[i][j] = 13;
-		}
-	 }
-        return helper(s1, s2, s3, 0, 0, 0, len1, len2, dp);
-}
 
 /*
 679. 24 点游戏

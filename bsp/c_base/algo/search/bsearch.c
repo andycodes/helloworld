@@ -749,3 +749,130 @@ int* twoSum(int* numbers, int numbersSize, int target, int* returnSize) {
     ret[0] = -1, ret[1] = -1;
     return ret;
 }
+
+/*
+315. 计算右侧小于当前元素的个数
+难度困难409
+给定一个整数数组 nums，按要求返回一个新数组 counts。数组 counts 有该性质： counts[i] 的值是  nums[i] 右侧小于 nums[i] 的元素的数量。
+
+示例：
+输入：nums = [5,2,6,1]
+输出：[2,1,1,0]
+解释：
+5 的右侧有 2 个更小的元素 (2 和 1)
+2 的右侧仅有 1 个更小的元素 (1)
+6 的右侧有 1 个更小的元素 (1)
+
+*/
+
+int* countSmaller(int* nums, int numsSize, int* returnSize){
+	int *res = (int *)calloc(numsSize, sizeof(int));
+	*returnSize = numsSize;
+
+	for (int i = 0; i < numsSize - 1; i++) {
+		int cnt = 0;
+		for (int j = i + 1; j < numsSize; j++) {
+			cnt += nums[j] < nums[i] ? 1 : 0;
+		}
+
+		res[i] = cnt;
+	}
+
+	return res;
+}
+
+int* countSmaller(int* nums, int numsSize, int* returnSize)
+{
+	if (nums == NULL || numsSize <= 0) {
+		*returnSize = 0;
+		return NULL;
+	}
+
+        int n = numsSize;
+	int *res = (int *)calloc(numsSize, sizeof(int));
+	*returnSize = numsSize;
+
+	int ordered_arr[numsSize];
+	int sortSize = 0;
+	memset(ordered_arr, 0, sizeof(ordered_arr));
+
+        for(int i = n - 1; i >= 0; i--)
+        {
+            int l = 0, r = sortSize;
+            while(l < r)
+            {
+                int mid = l + ((r - l) >> 1);
+                if(nums[i] > ordered_arr[mid])
+                    l = mid + 1;
+                else
+                    r = mid;
+            }
+            // r即插入ordered_arr的位置，也是在其右侧比其小的元素个数
+            res[i] = r;
+            // 倒序逐个插入元素
+            //ordered_arr.insert(ordered_arr.begin() + r, nums[i]);
+			//ordered_arr[sortSize++] = nums[i];
+			for (int i = sortSize; i > r; i--) {
+				ordered_arr[i] = ordered_arr[i - 1];
+			}
+			ordered_arr[r] = nums[i];
+			sortSize++;
+
+			//qsort(ordered_arr, sortSize, sizeof(ordered_arr[0]), cmp_int);
+        }
+        return res;
+    }
+
+#include <stdio.h>
+
+struct BstNode {
+    int val;
+    int smallCnt;
+    struct BstNode *left;
+    struct BstNode *right;
+};
+
+static struct BstNode g_root;
+
+static int g_smallCnt;
+static struct BstNode *AddNode(struct BstNode *root, int val)
+{
+    if (root == NULL) {
+        root = (struct BstNode *)calloc(1, sizeof(struct BstNode));
+        root->val = val;
+        return root;
+    }
+    /* 如果val小于等于root->val，说明val不会大于已有的值，所以g_smallCnt不更新，只需要更新小于该节点val的节点个数 */
+    if (root->val >= val) {
+        root->smallCnt++;
+        root->left = AddNode(root->left, val);
+    /* 如果val大于root->val，说明root节点以及root的左子树节点都是小于val的，+1是表示root节点本身 */
+    } else {
+        g_smallCnt += root->smallCnt + 1;
+        root->right = AddNode(root->right, val);
+    }
+
+    return root;
+}
+
+int* countSmaller(int* nums, int numsSize, int* returnSize){
+    int i;
+    int *ans = (int *)calloc(1, sizeof(int) * numsSize);
+
+    if (numsSize <= 0) {
+        *returnSize = 0;
+        return NULL;
+    }
+
+    memset(&g_root, 0, sizeof(g_root));
+    g_root.val = nums[numsSize - 1];
+
+    for (i = numsSize - 2; i >= 0; i--) {
+        g_smallCnt = 0;
+        AddNode(&g_root, nums[i]);
+        ans[i] = g_smallCnt;
+    }
+
+    *returnSize = numsSize;
+    return ans;
+}
