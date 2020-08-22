@@ -728,22 +728,10 @@ bool isInterleave(char* s1, char* s2, char* s3) {
 */
 
 typedef double (*ClacFunc) (double a, double b);
-#define DEBUG_PRINTF // printf
-
-void debugPrintf(double* nums, int size)
-{
-    DEBUG_PRINTF("calc[%d]:", size);
-    for (int k = 0; k < size; k++) {
-        DEBUG_PRINTF("%lf ", nums[k]);
-    }
-
-    DEBUG_PRINTF("\n");
-}
-
-double Add(double a, double b) { DEBUG_PRINTF("%lf+%lf=%lf\n", a, b, a + b); return a + b; };
-double Sub(double a, double b) { DEBUG_PRINTF("%lf-%lf=%lf\n", a, b, a - b);  return a - b; };
-double Mul(double a, double b) { DEBUG_PRINTF("%lf*%lf=%lf\n", a, b, a * b);  return a * b; };
-double Div(double a, double b) { DEBUG_PRINTF("%lf/%lf=%lf\n", a, b, a / b);  return a / b; };
+double Add(double a, double b) { return a + b; };
+double Sub(double a, double b) { return a - b; };
+double Mul(double a, double b) { return a * b; };
+double Div(double a, double b) { return a / b; };
 
 typedef struct {
     bool isSwap;    // 是否交换
@@ -751,170 +739,91 @@ typedef struct {
 }CLAC;
 
 #define CLAC_TYPE 4
-#define NUM_SIZE 4
 static CLAC g_clacFunc[CLAC_TYPE] = {
-    {0, Add},
-    {1, Sub},
+    {0, Add},//交换一样
+    {1, Sub},//交换不一样
     {0, Mul},
     {1, Div}
 };
 
-bool calc(double* nums, int size){
-    debugPrintf(nums, size);
-    if (size == 1) {
-        return (fabs((nums[0] - 24)) <= 1e-6);
-    }
+bool backtrack(double* nums, int size)
+{
+	if (size == 1) {
+		return (fabs(nums[0] - 24) <= 1e-6);
+	}
 
-    for (int i = 0; i < size - 1; i++) {
-        for (int j = i + 1; j < size; j++) {
-            double result[3] = {0};
-            int cnt = 0;
+	for (int i = 0; i < size - 1; i++) {
+		for (int j = i + 1; j < size; j++) {//两两取数
+			double newNums[3] = {0};
+			int newSize = 0;
 
-            for (int k = 0; k < size; k++) {
-                if (k != i && k != j) {
-                    result[cnt++] = nums[k];
-                }
-            }
+			for (int k = 0; k < size; k++) {//init
+				if (k != i && k != j) {
+					newNums[newSize++] = nums[k];
+				}
+			}
 
-            for (int k = 0; k < CLAC_TYPE; k++) {
-                int calcCnt = cnt + 1;
-                bool isOK = false;
-                if (g_clacFunc[k].isSwap) {
-                    result[cnt] = g_clacFunc[k].func(nums[j], nums[i]);
-                    isOK = calc(result, calcCnt);
-                    if (isOK) {
-                        return true;
-                    }
-                }
+			for (int k = 0; k < CLAC_TYPE; k++) {
+					bool isOK = false;
+					if (g_clacFunc[k].isSwap) {
+						newNums[newSize] = g_clacFunc[k].func(nums[j], nums[i]);
+						isOK = backtrack(newNums, newSize + 1);
+						if (isOK) {
+							return true;
+						}
+					}
 
-                result[cnt] = g_clacFunc[k].func(nums[i], nums[j]);
-                isOK = calc(result, calcCnt);
-                if (isOK) {
-                    return true;
-                }
-            }
-        }
-    }
+					newNums[newSize] = g_clacFunc[k].func(nums[i], nums[j]);
+					isOK = backtrack(newNums, newSize + 1);
+					if (isOK) {
+						return true;
+					}
+			}
+		}
+	}
 
-    return false;
+	return false;
 }
+
+
 bool judgePoint24(int* nums, int numsSize)
 {
-    double tmpNums[NUM_SIZE] = {0};
+	if (nums == NULL || numsSize != 4) {
+		return false;
+	}
 
-    for (int i = 0; i < numsSize; i++) {
-        tmpNums[i] = nums[i];
-    }
+	double dnums[numsSize];
+	for (int i = 0; i < numsSize; i++) {
+		dnums[i] = nums[i];
+	}
 
-    return calc(tmpNums, numsSize);
-}
-
-typedef double (*ClacFunc) (double a, double b);
-#define DEBUG_PRINTF  // printf
-
-void debugPrintf(double* nums, int size)
-{
-    DEBUG_PRINTF("calc[%d]:", size);
-    for (int k = 0; k < size; k++) {
-        DEBUG_PRINTF("%lf ", nums[k]);
-    }
-
-    DEBUG_PRINTF("\n");
-}
-
-double Add(double a, double b) { DEBUG_PRINTF("%lf+%lf=%lf\n", a, b, a + b); return a + b; };
-double Sub(double a, double b) { DEBUG_PRINTF("%lf-%lf=%lf\n", a, b, a - b);  return a - b; };
-double Mul(double a, double b) { DEBUG_PRINTF("%lf*%lf=%lf\n", a, b, a * b);  return a * b; };
-double Div(double a, double b) { DEBUG_PRINTF("%lf/%lf=%lf\n", a, b, a / b);  return a / b; };
-
-typedef struct {
-    bool isSwap;    // 是否交换
-    ClacFunc func;  // 函数
-}CLAC;
-
-#define CLAC_TYPE 4
-#define NUM_SIZE 4
-static CLAC g_clacFunc[CLAC_TYPE] = {
-    {0, Add},
-    {1, Sub},
-    {0, Mul},
-    {1, Div}
-};
-
-bool calc(double* nums, int size){
-    debugPrintf(nums, size);
-    if (size == 1) {
-       return (fabs((nums[0] - 24)) <= 1e-6);
-    }
-    //当四个的时候，第一次选两个数时有4*3种，之后选运算符为12*4=48，
-    //然后3个选两个为3*2种，之后选运算符：6*4 = 24；
-    //最后2个选运算符：2*4种（有先后顺序之分）
-    //不过+和*满足交换律
-    //任选两个数
-    for (int i = 0; i < size - 1; i++) {
-        for (int j = i + 1; j < size; j++) {
-            double result[3] = {0};
-            int cnt = 0;
-            //不能添加i，j  因为i和j所在位置的数接下里要进行计算
-            for (int k = 0; k < size; k++) {
-                if (k != i && k != j) {
-                    result[cnt++] = nums[k]; // 存剩下的待做计算的几位数
-                }
-            }
-            //任意进行4种运算
-            for (int k = 0; k < CLAC_TYPE; k++) {
-                int calcCnt = cnt + 1;
-                bool isOK = false;
-                //#1不满足交换律 - / 所以 #2计算完 a - b 之后还得这里得重新计算 b - a
-                if (g_clacFunc[k].isSwap) {
-                    result[cnt] = g_clacFunc[k].func(nums[j], nums[i]);
-                    isOK = calc(result, calcCnt); // 递归时的参数，是新数组 result，里面存着未剩下的数和新得到的结果
-                    if (isOK) {
-                        return true;
-                    }
-                }
-                //#2 全部计算一遍
-                result[cnt] = g_clacFunc[k].func(nums[i], nums[j]);
-                isOK = calc(result, calcCnt);
-                if (isOK) {
-                    return true;
-                }
-            }
-        }
-    }
-
-    return false;
-}
-bool judgePoint24(int* nums, int numsSize)
-{
-    double tmpNums[NUM_SIZE] = {0};
-
-    for (int i = 0; i < numsSize; i++) {
-        tmpNums[i] = nums[i];
-    }
-
-    return calc(tmpNums, numsSize);
+	return backtrack(dnums, numsSize);
 }
 
 /*
 488. 祖玛游戏
 难度困难54
-回忆一下祖玛游戏。现在桌上有一串球，颜色有红色(R)，黄色(Y)，蓝色(B)，绿色(G)，还有白色(W)。 现在你手里也有几个球。
-每一次，你可以从手里的球选一个，然后把这个球插入到一串球中的某个位置上（包括最左端，最右端）。接着，如果有出现三个或者三个以上颜色相同的球相连的话，就把它们移除掉。重复这一步骤直到桌上所有的球都被移除。
-找到插入并可以移除掉桌上所有球所需的最少的球数。如果不能移除桌上所有的球，输出 -1 。
+回忆一下祖玛游戏。现在桌上有一串球，颜色有红色(R)，
+黄色(Y)，蓝色(B)，绿色(G)，还有白色(W)。 现在你手里也有几
+个球。
+每一次，你可以从手里的球选一个，然后把这个球插入到一
+串球中的某个位置上（包括最左端，最右端）。接着，如果
+有出现三个或者三个以上颜色相同的球相连的话，就把它们
+移除掉。重复这一步骤直到桌上所有的球都被移除。
+找到插入并可以移除掉桌上所有球所需的最少的球数。如果
+不能移除桌上所有的球，输出 -1 。
 示例:
 输入: "WRRBBW", "RB"
 输出: -1
-解释: WRRBBW -> WRR[R]BBW -> WBBW -> WBB[B]W -> WW （翻译者标注：手上球已经用完，桌上还剩两个球无法消除，返回-1）
+解释: WRRBBW -> WRR[R]BBW -> WBBW -> WBB[B]W -> WW （翻译者标注：
+手上球已经用完，桌上还剩两个球无法消除，返回-1）
 
 输入: "WWRRBBWW", "WRBRW"
 输出: 2
 解释: WWRRBBWW -> WWRR[R]BBWW -> WWBBWW -> WWBB[B]WW -> WWWW -> empty
-
-
 */
 
-int dfs(char * board, int *map)
+int backtrack(char * board, int *map)
 {
 	int blen = strlen(board);
 	if (board == NULL || board[0] == '\0' ||blen <= 0) {
@@ -923,9 +832,12 @@ int dfs(char * board, int *map)
 
 	int i = 0;
 	int ans = INT_MAX;
+
 	while(i < blen) {
 		int j = i;
-		while( j < blen && (board[i] == board[j])) j++;
+		while( j < blen && (board[i] == board[j]))
+			j++;
+
 		int cnt = fmax(0, 3 - (j - i));
 		if (map[board[i] - 'A'] >= cnt) {
 			char newBoard[blen];
@@ -933,8 +845,9 @@ int dfs(char * board, int *map)
 			strncpy(newBoard, board, i);
 			strcat(newBoard, board + j);
 			map[board[i] - 'A'] -= cnt;
-			int res = dfs(newBoard, map);
-			if (res >= 0) ans = fmin(ans, res + cnt);
+			int res = backtrack(newBoard, map);
+			if (res >= 0)
+				ans = fmin(ans, res + cnt);
 			map[board[i] - 'A'] += cnt;
 		}
 		i++;
@@ -953,8 +866,9 @@ int findMinStep(char * board, char * hand)
 		i++;
 	}
 
-	return dfs(board, map);
+	return backtrack(board, map);
 }
+
 
 /*
 37. 解数独
@@ -967,65 +881,69 @@ int findMinStep(char * board, char * hand)
 空白格用 '.' 表示。
 
 */
-bool recusiveSolveSudoku(char** board, bool rowUsed[9][10],
-    bool colUsed[9][10], bool boxUsed[3][3][10], int row, int col, int boardSize, int* boardColSize)
-  {
-        // 边界校验, 如果已经填充完成, 返回true, 表示一切结束
-        if(col == *boardColSize){
-            col = 0;
-            row++;
-            if(row == boardSize){
-                return true;
-            }
-        }
-        // 是空则尝试填充, 否则跳过继续尝试填充下一个位置
-        if(board[row][col] == '.') {
-            // 尝试填充1~9
-            for(int num = 1; num <= 9; num++){
-                bool canUsed = !(rowUsed[row][num] || colUsed[col][num] || boxUsed[row/3][col/3][num]);
-                if(canUsed){
-                    rowUsed[row][num] = true;
-                    colUsed[col][num] = true;
-                    boxUsed[row/3][col/3][num] = true;
 
-                    board[row][col] = (char)('0' + num);
-                    if(recusiveSolveSudoku(board, rowUsed, colUsed, boxUsed, row, col + 1, boardSize, boardColSize)){
-                        return true;
-                    }
-                    board[row][col] = '.';
+bool backtrack(char** board, bool rowVisited[9][10],
+    bool colVisited[9][10], bool boxVisited[3][3][10], int idx, int idy, int boardSize, int* boardColSize)
+{
+	// 边界校验, 如果已经填充完成, 返回true, 表示一切结束
+	if(idy == *boardColSize) {
+		idy = 0;
+		idx++;
+		if(idx == boardSize){
+			return true;
+		}
+	}
 
-                    rowUsed[row][num] = false;
-                    colUsed[col][num] = false;
-                    boxUsed[row/3][col/3][num] = false;
-                }
-            }
-        } else {
-            return recusiveSolveSudoku(board, rowUsed, colUsed, boxUsed, row, col + 1, boardSize, boardColSize);
-        }
-        return false;
-    }
+	// 是空则尝试填充, 否则跳过继续尝试填充下一个位置
+	if(board[idx][idy] == '.') {
+		// 尝试填充1~9
+		for(int num = 1; num <= 9; num++){
+			bool canUsed = !(rowVisited[idx][num] || colVisited[idy][num] || boxVisited[idx/3][idy/3][num]);
+			if(canUsed){
+				rowVisited[idx][num] = true;
+				colVisited[idy][num] = true;
+				boxVisited[idx/3][idy/3][num] = true;
+
+				board[idx][idy] = (char)('0' + num);
+				if(backtrack(board, rowVisited, colVisited, boxVisited, idx, idy + 1, boardSize, boardColSize)){
+					return true;
+				}
+
+				board[idx][idy] = '.';
+
+				rowVisited[idx][num] = false;
+				colVisited[idy][num] = false;
+				boxVisited[idx/3][idy/3][num] = false;
+			}
+		}
+	} else {
+		return backtrack(board, rowVisited, colVisited, boxVisited, idx, idy + 1, boardSize, boardColSize);
+	}
+
+	return false;
+}
 
 void solveSudoku(char** board, int boardSize, int* boardColSize)
 {
-        // 三个布尔数组 表明 行, 列, 还有 3*3 的方格的数字是否被使用过
-        bool rowUsed[9][10];
-        bool colUsed[9][10];
-        bool boxUsed[3][3][10];
-	memset(rowUsed, 0, sizeof(rowUsed));
-	memset(colUsed, 0, sizeof(colUsed));
-	memset(boxUsed, 0, sizeof(boxUsed));
+	bool rowVisited[9][10];//0~9使用1~9
+	bool colVisited[9][10];
+	bool boxVisited[3][3][10];
+	memset(rowVisited, 0, sizeof(rowVisited));
+	memset(colVisited, 0, sizeof(colVisited));
+	memset(boxVisited, 0, sizeof(boxVisited));
 
-        // 初始化
-        for(int row = 0; row < boardSize; row++){
-            for(int col = 0; col < *boardColSize; col++) {
-                int num = board[row][col] - '0';
-                if(1 <= num && num <= 9){
-                    rowUsed[row][num] = true;
-                    colUsed[col][num] = true;
-                    boxUsed[row/3][col/3][num] = true;
-                }
-            }
-        }
-        // 递归尝试填充数组
-        recusiveSolveSudoku(board, rowUsed, colUsed, boxUsed, 0, 0, boardSize, boardColSize);
-    }
+	// 初始化
+	for(int idx = 0; idx < boardSize; idx++){
+		for(int idy = 0; idy < *boardColSize; idy++) {
+			int num = board[idx][idy] - '0';
+			if(1 <= num && num <= 9) {
+				rowVisited[idx][num] = true;
+				colVisited[idy][num] = true;
+				boxVisited[idx / 3][idy / 3][num] = true;
+			}
+		}
+	}
+
+	backtrack(board, rowVisited, colVisited, boxVisited, 0, 0, boardSize, boardColSize);
+}
+
