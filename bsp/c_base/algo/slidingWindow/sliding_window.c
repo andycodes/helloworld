@@ -1,95 +1,23 @@
 /*
 滑动窗口
 一个左指针left，一个右指针right，
-窗口扩张：left不变，right++
-窗口滑动：left++, right++
+两种窗口滑动方式：
+
 
 子串，子数组问题
+
+right
+sum += nums[right++];
+right 指向未处理的单元
 */
 
-
-
-/*
-面试题59 - II. 队列的最大值
-请定义一个队列并实现函数 max_value 得到队列里的最大值，
-要求函数max_value、push_back 和 pop_front 的时间复杂度都是O(1)。
-
-若队列为空，pop_front 和 max_value 需要返回 -1
-
-示例 1：
-
-输入:
-["MaxQueue","push_back","push_back","max_value","pop_front","max_value"]
-[[],[1],[2],[],[],[]]
-输出: [null,null,null,2,1,2]
-示例 2：
-
-输入:
-["MaxQueue","pop_front","max_value"]
-[[],[],[]]
-输出: [null,-1,-1]
-
-*/
-
-/*
-我们维护一个正常的队列queue，这样push_back, pop_front 直接操作正常队列即可。
-
-问题在于如何在O(1)O(1) 时间 实现max_value? 我们的想法是维护一个递减的双端队列deque。
-
-每次queue入队列的时候，我们deque也入队列，入队列之前我们清除队尾的比入队的元素小的元素。 一句话来说，我们的目的就是维持 deque保持递减性质不变
-每次queue pop的时候，我们的deque不一定也要出队列。当且仅当deque的队首元素和queue队首元素一致时候，我们才需要执行deque的出队列的操作
-这样max_value我们只需要返回deque的队首元素即可，至此我们终于实现了$O(1)$ 时间 实现max_value
-
-*/
-typedef struct {
-	struct ListNode *head;
-	struct ListNode *mhead;
-} MaxQueue;
-
-MaxQueue* maxQueueCreate() {
-	MaxQueue * queue = (MaxQueue *)malloc(sizeof(MaxQueue));
-	queue->head = slink_init();
-	queue->mhead = slink_init();
-	return queue;
-}
-
-int maxQueueMax_value(MaxQueue* obj) {
-	if(slink_empty(obj->mhead))
-		return -1;
-
-	return slink_get_first(obj->mhead);
-}
-
-void maxQueuePush_back(MaxQueue* obj, int value) {
-	slink_push_last(obj->head, value);
-	while(!slink_empty(obj->mhead) && value > slink_get_last(obj->mhead)) {
-		slink_pop_last(obj->mhead);
-	}
-
-	slink_push_last(obj->mhead, value);
-}
-
-int maxQueuePop_front(MaxQueue* obj) {
-	if (slink_empty(obj->head))
-		return -1;
-	int ret = slink_pop_first(obj->head);
-	if (ret == slink_get_first(obj->mhead)) {
-		slink_pop_first(obj->mhead);
-	}
-
-	return ret;
-}
-
-void maxQueueFree(MaxQueue* obj) {
-	free(obj->head);
-	free(obj->mhead);
-	free(obj);
-}
 
 /*
 209. 长度最小的子数组
 难度中等261
-给定一个含有 n 个正整数的数组和一个正整数 s ，找出该数组中满足其和 ≥ s 的长度最小的连续子数组，并返回其长度。如果不存在符合条件的连续子数组，返回 0。
+给定一个含有 n 个正整数的数组和一个正整数 s ，找出该数组
+中满足其和 ≥ s 的长度最小的连续子数组，并返回其长度。
+如果不存在符合条件的连续子数组，返回 0。
 示例:
 输入: s = 7, nums = [2,3,1,2,4,3]
 输出: 2
@@ -98,38 +26,37 @@ void maxQueueFree(MaxQueue* obj) {
 */
 int minSubArrayLen(int s, int* nums, int numsSize)
 {
-	int leftidx = 0;
-	int rightidx = 0;
+	int left = 0;
+	int right = 0;
 	int sum = 0;
-	int minlen = 0;
-	int minret = INT_MAX;
+	int res = INT_MAX;
 
-	if (nums == NULL || numsSize <= 0)
-		return 0;
-
-	while(rightidx < numsSize) {
-		while(rightidx < numsSize && sum + nums[rightidx] < s) {
-			sum += nums[rightidx++];
-			minlen++;
-		}
-
-		if (rightidx < numsSize) {
-			sum += nums[rightidx++];
-			minlen++;
-		}
-
-
-		while(sum - nums[leftidx] >= s) {
-			sum -= nums[leftidx++];
-			minlen--;
-		}
-
-		if (sum >= s)
-			minret = fmin(minret, minlen);
+	for (int i = 0; i < numsSize; i++) {
+		sum += nums[i];
 	}
 
-	return minret == INT_MAX ? 0 : minret;
+	if (sum < s) {
+		return 0;
+	}
+
+	sum = 0;
+	while(right < numsSize) {
+		sum += nums[right++];
+		if (sum < s) {
+			continue;
+		}
+
+		while(sum - nums[left] >= s) {
+			sum -= nums[left++];
+		}
+
+		res = fmin(res, right - left);
+	}
+
+	return res;
 }
+
+
 int minSubArrayLen(int s, int* nums, int numsSize)
 {
 	int leftidx = 0;
@@ -149,9 +76,10 @@ int minSubArrayLen(int s, int* nums, int numsSize)
 
 
 /*
-面试题48. 最长不含重复字符的子字符串
+3. 无重复字符的最长子串
 难度中等6
-请从字符串中找出一个最长的不包含重复字符的子字符串，计算该最长子字符串的长度。
+请从字符串中找出一个最长的不包含重复字符的子字符串，
+计算该最长子字符串的长度。
 
 示例 1:
 输入: "abcabcbb"
@@ -165,53 +93,76 @@ int minSubArrayLen(int s, int* nums, int numsSize)
 输入: "pwwkew"
 输出: 3
 解释: 因为无重复字符的最长子串是 "wke"，所以其长度为 3。
-     请注意，你的答案必须是 子串 的长度，"pwke" 是一个子序列，不是子串。
+     请注意，你的答案必须是 子串 的长度，
+"pwke" 是一个子序列，不是子串。
 
 */
-
-int lengthOfLongestSubstring(char * s)
+int lengthOfLongestSubstring(char* s)
 {
 	int left = 0;
 	int right = 0;
-	int max = 0;
+	int slen = strlen(s);
 
-	struct List list;
-	queue_init(&list);
-	while(s[right] != '\0') {
-		while(1) {
-			struct DataEntry *entry = ListFindKey(&list, s[right]);
-			if (entry != NULL) {
-				queue_pop_entry(&list);
-				left++;
-			} else {
-				break;
-			}
-		}
-
-		queue_push_key(&list, s[right]);
-		right++;
-		max = fmax(max, right - left);
+	if (s == NULL) {
+		return 0;
 	}
 
-	return max;
+	int map[128] = {0};
+	int ret = 0;
+	while(right < slen) {
+		if (map[s[right]] == 0) {
+			map[s[right++]] = 1;
+			ret = fmax(ret, right - left);
+			continue;
+		}
+
+		map[s[left++]]--;
+	}
+
+	return ret;
 }
 
 
 /*
 1004. 最大连续1的个数 III
 难度中等41
-给定一个由若干 0 和 1 组成的数组 A，我们最多可以将 K 个值从 0 变成 1 。
+给定一个由若干 0 和 1 组成的数组 A，我们最多可以将 K 个值从
+0 变成 1 。
 返回仅包含 1 的最长（连续）子数组的长度。
-
 示例 1：
 输入：A = [1,1,1,0,0,0,1,1,1,1,0], K = 2
 输出：6
 解释：
 [1,1,1,0,0,1,1,1,1,1,1]
 粗体数字从 0 翻转到 1，最长的子数组长度为 6。
-
-
 */
+int longestOnes(int* A, int ASize, int K)
+{
+	int left = 0;
+	int right = 0;
+	int res = 0;
+
+	while(right < ASize) {
+		if (A[right] == 1) {
+			right++;
+			res = fmax(res, right - left);
+			continue;
+		}
+
+		if (A[right] == 0 && K > 0) {
+			right++;
+			K--;
+			res = fmax(res, right - left);
+			continue;
+		}
+
+		if(A[left++] == 0) {
+			K++;
+		}
+	}
+
+	return res;
+}
 
 int longestOnes(int* A, int ASize, int K)
 {
@@ -234,7 +185,9 @@ int longestOnes(int* A, int ASize, int K)
 /*
 424. 替换后的最长重复字符
 难度中等73
-给你一个仅由大写英文字母组成的字符串，你可以将任意位置上的字符替换成另外的字符，总共可最多替换 k 次。在执行上述操作后，找到包含重复字母的最长子串的长度。
+给你一个仅由大写英文字母组成的字符串，你可以将任意位
+置上的字符替换成另外的字符，总共可最多替换 k 次。在执行
+上述操作后，找到包含重复字母的最长子串的长度。
 注意:
 字符串长度 和 k 不会超过 104。
 示例 1:
@@ -249,56 +202,50 @@ s = "ABAB", k = 2
 
 */
 /*
-建立26个大写字母的映射，用于记录窗口中字符出现的次数，将A存到数组的0号下标的位置
-初始窗口指针left，right都为0，移动right，增大窗口，同时更新当前最长重复字符的长度。直到窗口长度过长，即不能通过替换k次形成重复字符时，收缩窗口(此时可以通过k+1次替换满足)，left++。但是这里可以不必更新max_count，因为当我们找到max_count之后，就一定能找到一个长度为d的区间使得max_count + k = d。我们只需要算出这个满足条件的d即可(这里通过right-left+1计算)。
-一直更新当前最长重复字符的长度，直到right指针遍历完字符串s
-
-# 用字典保存字母出现的次数，需要替换的字符数目＝窗口字符数目－数量最多的字符数目
-
-用数组记录下当前窗口各个字母的总数和当前窗口中出现次数最多的字母的数量
-当：窗口大小 > (最大字母数-k)时扩张移动窗口，否则扩张窗口
-当窗口移动到字符串末端后结束，答案为最后窗口的大小
-
-（1）滑动窗口思路，一般大家都能想到；
-（2）窗口内所有字符的个数减去最多字符的个数如果小于等于k，即替换后肯定满足条件，我们可以再将滑动窗口的右边界往右移动一下，这是本问题的关键；
-
-
-假设我们用来替换别的字符的那个字符是c，那么题目可以转变成这样一个问题，在一个window里面，最多有k个不为c的字符，这样才是满足条件的
-
-那么这样的字符c有哪些呢？毫无疑问是set(s)里面的这些字符。
-
-然后我们维护一个window，不断计算不为c的字符的个数counter，如果counter大于n了说明我们怎么替换也不行了，我们就要将start往前挪一格，否则一直挪end。
+然后我们维护一个window，不断计算不为c的字符的个数counter，
+如果counter大于n了说明我们怎么替换也不行了，我们就要将start
+往前挪一格，否则一直挪end。
 每次挪完end之后都要记得更新这一轮的最大长度
-
 每个字符c循环后都要更新最终res。
-
 */
-int characterReplacement(char * s, int k){
+int characterReplacement(char * s, int k)
+{
 	int left = 0;
 	int right = 0;
-	int max = 0;
+	int maxCnt = 0;
 	int ans = 0;
-	int le[26] = {{0}};
+	int map[26] = {0};
 
 	while(right < strlen(s)) {
-		int idx = s[right] - 'A';
-		le[idx]++;
-		max = fmax(max, le[idx]);//当前窗口内的最多字符的个数
-		if (right - left + 1 -max > k) {//需要替换的字符个数就是当前窗口的大小减去窗口中数量最多的字符的数量
-			le[s[left] - 'A']--;//缩小窗口
+		map[s[right] - 'A']++;
+		maxCnt = fmax(maxCnt, map[s[right] - 'A']);//当前窗口内的最多字符的个数
+/*
+需要替换的字符个数就是当前窗口的大小减去窗口中数量最
+多的字符的数量
+*/
+		if (right - left + 1 -maxCnt > k) {
+			map[s[left] - 'A']--;//缩小窗口
 			left++;
 		}
-		ans = fmax(ans, right-left+1);//当窗口内可替换的字符数小于等于k时，我们需要根据该窗口长度来确定是否更新result
+/*
+当窗口内可替换的字符数小于等于k时，我们需要根据该窗口
+长度来确定是否更新result
+*/
+		ans = fmax(ans, right-left+1);
 		right++;
 	}
 
 	return ans;
 }
+
 /*
 面试题 17.18. 最短超串
 难度中等5
-假设你有两个数组，一个长一个短，短的元素均不相同。找到长数组中包含短数组所有的元素的最短子数组，其出现顺序无关紧要。
-返回最短子数组的左端点和右端点，如有多个满足条件的子数组，返回左端点最小的一个。若不存在，返回空数组。
+假设你有两个数组，一个长一个短，短的元素均不相同。找
+到长数组中包含短数组所有的元素的最短子数组，其出现顺
+序无关紧要。
+返回最短子数组的左端点和右端点，如有多个满足条件的子
+数组，返回左端点最小的一个。若不存在，返回空数组。
 示例 1:
 输入:
 big = [7,5,9,0,2,1,3,5,7,9,1,1,5,8,8,9,7]
@@ -309,7 +256,6 @@ small = [1,5,9]
 big = [1,2,3]
 small = [4]
 输出: []
-
 */
 int* shortestSeq(int* big, int bigSize, int* small, int smallSize, int* returnSize)
 {
@@ -325,7 +271,7 @@ int* shortestSeq(int* big, int bigSize, int* small, int smallSize, int* returnSi
 		hashPushKey(&ht, small[i]);
 	}
 
-	int left = 0, right = 0, count = 0, minLen= INT_MAX;
+	int left = 0, right = 0, winCnt = 0, minLen= INT_MAX;
 	int *res = (int *)calloc(2, sizeof(int));
 	*returnSize = 2;
 
@@ -333,20 +279,19 @@ int* shortestSeq(int* big, int bigSize, int* small, int smallSize, int* returnSi
 		struct DataEntry *curEntry = hashFindKey(&ht, big[right]);
 		if(curEntry != NULL) {
 			if (curEntry->value == 0) {
-				count++;
+				winCnt++;
 			}
 
 			curEntry->value++;
 		}
 
-		while(count == smallSize) {
-			struct DataEntry *entry;
-			entry = hashFindKey(&ht, big[left]);
+		while(winCnt == smallSize) {
+			struct DataEntry *entry = hashFindKey(&ht, big[left]);
 			if (entry == NULL) {
 				left++;
 			} else if (entry->value > 1) {
-				left++;
 				entry->value--;
+				left++;
 			} else {//value == 1
 				if (minLen > right-left + 1) {
 					minLen = right-left + 1;
@@ -356,7 +301,7 @@ int* shortestSeq(int* big, int bigSize, int* small, int smallSize, int* returnSi
 
 				entry->value--;
 				left++;
-				count--;
+				winCnt--;
 			}
 		}
 
