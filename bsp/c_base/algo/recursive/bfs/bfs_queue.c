@@ -1786,3 +1786,148 @@ char** removeInvalidParentheses(char* s, int* returnSize)
     return rst;
 }
 
+
+/*
+127. 单词接龙
+给定两个单词（beginWord 和 endWord）和一个字典，找到从 beginWord 到 endWord 的最短转换序列的长度。转换需遵循如下规则：
+
+每次转换只能改变一个字母。
+转换过程中的中间单词必须是字典中的单词。
+说明:
+
+如果不存在这样的转换序列，返回 0。
+所有单词具有相同的长度。
+所有单词只由小写字母组成。
+字典中不存在重复的单词。
+你可以假设 beginWord 和 endWord 是非空的，且二者不相同。
+示例 1:
+
+输入:
+beginWord = "hit",
+endWord = "cog",
+wordList = ["hot","dot","dog","lot","log","cog"]
+
+输出: 5
+
+解释: 一个最短转换序列是 "hit" -> "hot" -> "dot" -> "dog" -> "cog",
+     返回它的长度 5。
+*/
+
+#define MAX_QUEUE_SIZE 10000
+
+int isValidString(char *popString, char *dicString);
+
+int ladderLength(char * beginWord, char * endWord, char ** wordList, int wordListSize){
+    if ((beginWord == NULL) || (strlen(beginWord) <= 0) || (endWord == NULL) || (strlen(endWord) <= 0) || (wordList == NULL) || (wordListSize <= 0)) {
+        return 0;
+    }
+
+    char *queue[MAX_QUEUE_SIZE];
+    int front = 0;
+    int rear = 0;
+    int *pVisit = (int *)malloc(sizeof(int) * wordListSize);
+    memset(pVisit, 0, sizeof(int) * wordListSize);
+
+    queue[rear] = beginWord;
+    rear++;
+    int step = 0;
+
+    while (front != rear) {
+        step++;
+        int gap = rear - front;
+        if (gap < 0) {
+            gap = front - rear + 1;
+        }
+
+        for (int k = 0; k < gap; k++) {
+            char *pop = queue[front];
+            front = (front + 1) % MAX_QUEUE_SIZE;
+
+            if (strcmp(pop, endWord) == 0) {
+                free(pVisit);
+                return step;
+            }
+
+            for (int i = 0; i < wordListSize; i++) {
+                if ((pVisit[i] == 0) && (isValidString(pop, wordList[i]))) {
+                    queue[rear] = wordList[i];
+                    rear = (rear + 1) % MAX_QUEUE_SIZE;
+                    pVisit[i] = 1;
+                }
+            }
+        }
+    }
+    free(pVisit);
+    return 0;
+}
+
+int isValidString(char *popString, char *dicString)
+{
+    int diffNum = 0;
+    int len = strlen(popString);
+    for (int i = 0; i < len; i++) {
+        if (popString[i] != dicString[i]) {
+            diffNum++;
+        }
+
+        if (diffNum > 1) {
+            return 0;;
+        }
+    }
+    return 1;
+}
+
+#define MAX_QUEUE_LEN 100000
+
+int isSequ(char* a, char* b){
+    int len = strlen(a);
+    int count = 0;
+    for(int i = 0; i < len; i++){
+        if(a[i] != b[i])
+            count++;
+    }
+    if(count == 1)
+        return true;
+    else
+        return false;
+
+}
+
+int ladderLength(char *beginWord, char *endWord, char **wordList, int wordListSize)
+{
+    char* queueList[MAX_QUEUE_LEN] = {0};       //定义一个很大的数组，用来当做队列
+    int head = 0;                               //需要首尾指针标记
+    int tail = 0;
+
+    for(int i = 0; i < wordListSize; i++){
+        if(strcmp(endWord, wordList[i]) == 0){  //字符串中有可以匹配的
+            break;
+        }
+        if(i == wordListSize-1) return 0;       //字符串数组中没有匹配的，return 0
+    }
+    int* mark = (int*)malloc(wordListSize*sizeof(int)); //需要标识这个字符串是否已经遍历过了，避免死循环
+    memset(mark, 0, wordListSize * sizeof(int));
+
+    queueList[tail++] = beginWord;              //初始，起始字符串入队列，尾指针+1
+    int step = 1;
+    while(head != tail){                        //队列不为空，遍历未结束
+        int scop = tail-head;                   //广度搜索，当前这一层有多少个
+        for(int i = 0; i < scop; i++){
+            char *temp = queueList[head++];
+            if(strcmp(temp, endWord) == 0){     //相当于出队列，判断是否符合。首指针++
+                free(mark);
+                return step;
+            }
+            for(int j = 0; j < wordListSize; j++){  //相当于搜索下一层，查是否存在可以变化的
+                if(mark[j] == 0 && isSequ(temp, wordList[j])){
+                    mark[j] = 1;
+                    queueList[tail++] = wordList[j];
+                }
+            }
+        }
+        step++;
+    }
+    free(mark);
+    return 0;
+}
+
