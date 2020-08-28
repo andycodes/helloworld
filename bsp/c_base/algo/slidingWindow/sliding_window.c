@@ -1,14 +1,31 @@
 /*
-滑动窗口
-一个左指针left，一个右指针right，
-两种窗口滑动方式：
-
-
 子串，子数组问题
 
-right
-sum += nums[right++];
-right 指向未处理的单元
+1) 处理
+	right
+	sum += nums[right++];
+2)right++
+	指向未处理的单元
+
+
+滑动窗口一个左指针left，一个右指针right，
+两种窗口滑动方式：
+while(right < slen) {
+	do---
+	right++ or continue;
+
+	满足条件，选最优
+	left++;
+}
+
+
+for (int right = 0; right < slen; right++) {
+		do--
+		满足条件选最优
+		left++;
+}
+
+
 */
 
 
@@ -658,6 +675,52 @@ int countSubstrings(char * s)
 }
 
 /*
+5. 最长回文子串
+给定一个字符串 s，找到 s 中最长的回文子串。
+你可以假设 s 的最大长度为 1000。
+
+示例 1：
+
+输入: "babad"
+输出: "bab"
+注意: "aba" 也是一个有效答案。
+示例 2：
+
+输入: "cbbd"
+输出: "bb"
+*/
+char * longestPalindrome(char * s)
+{
+	int slen = strlen(s);
+	if (s == NULL || slen <= 1) {
+		return s;
+	}
+
+	int max = 1;
+	int save[2] = {0};
+	for (int centor = 0; centor < 2 * slen - 1; centor++) {
+		int left = centor / 2;
+		int right = left + centor % 2;
+
+		while(left >= 0 && right < slen && s[left] == s[right]) {
+			if (right - left + 1 > max) {
+				save[0] = left;
+				save[1] = right;
+				max = right - left + 1 ;
+			}
+
+			left--;
+			right++;
+		}
+	}
+
+	s[save[1]  + 1] = '\0';
+	return s + save[0];
+}
+
+
+
+/*
 1456. 定长子串中元音的最大数目
 给你字符串 s 和整数 k 。
 
@@ -707,52 +770,47 @@ int maxVowels(char * s, int k)
 	return res;
 }
 
-/*
-5. 最长回文子串
-给定一个字符串 s，找到 s 中最长的回文子串。
-你可以假设 s 的最大长度为 1000。
-
-示例 1：
-
-输入: "babad"
-输出: "bab"
-注意: "aba" 也是一个有效答案。
-示例 2：
-
-输入: "cbbd"
-输出: "bb"
-*/
-/*中心扩散法。*/
-char * longestPalindrome(char * s)
+//a, e, i, o, u
+bool isYuan(char c)
 {
-	if(strlen(s)==0||strlen(s)==1)
-		return s;
-
-	int i,start,left,right,count,len;
-	start = len =0;
-
-	for(i = 0; s[i] != '\0'; i += count) {
-		count = 1;
-		left= i - 1;
-		right = i + 1;
-		while(s[right] != '\0' && s[i] == s[right]) { //处理重复字符串
-			right++;
-			count++;
-		}
-
-		while(left >= 0 && s[right] != '\0' && s[left] == s[right]) {
-			left--;
-			right++;
-		}
-
-		if(right-left-1>len) {
-			start = left+1;
-			len = right-left-1;
+	int d[] = {'a', 'e', 'i', 'o', 'u'};
+	for (int i = 0; i < 5; i++) {
+		if (c == d[i]) {
+			return true;
 		}
 	}
 
-	s[start + len] = '\0';      // 原地修改返回
-	return s + start;
+	return false;
+}
+
+int maxVowels(char * s, int k)
+{
+	int left = 0;
+	int right = 0;
+	int slen = strlen(s);
+	int winCnt = 0;
+	int max = 0;
+
+	while(right < slen) {
+		if (isYuan(s[right])) {
+			winCnt++;
+		}
+
+		if (right - left + 1 < k) {
+			right++;
+			continue;
+		}
+
+		max = fmax(max, winCnt);
+
+		if (isYuan(s[left])) {
+			winCnt--;
+		}
+		left++;
+		right++;
+	}
+
+	return max;
 }
 
 /*
@@ -771,38 +829,35 @@ char * longestPalindrome(char * s)
 /*
 首先首先我们需要一个 visited 数组，来记录访问过的数字然后我们遍历原数组，如果当前数字已经访问过了，直接跳过，否则就以当前位置坐标为起始点开始查找，进行 while 循环，计算下一个位置（计算方法是当前位置坐标加上对应的数字，由于是循环数组，所以结果可能会超出数组的长度，所以我们要对数组长度取余。当然上面的数字也可能是负数，加完以后可能也是负数，所以在取余之前还得再补上一个n，使其变为正数，但是 若这个负数远大于n的话，取余之前只加上一个n，可能是不够的，所以正确的方法是应该先对n取余，再加上n。为了同时把正数的情况也包含进来，最终我们的处理方法是先对n取余，再加上n，再对n取余，这样不管正数还是负数，大小如何，都可以成功的旋转跳跃了。）此时我们判断，如果 fast 和 slow 相等，说明此时是一个数字的循环，不符合题意，再有就是检查二者的方向，数字是正数表示 forward，若是负数表示 backward，在一个 loop 中必须同正或同负，我们只要让二者相乘，如果结果是负数的话，说明方向不同，直接 break 掉。此时如果 fast 已经有映射了，说明我们找到了合法的 loop，返回 true，否则建立一个这样的映射，将 fast 位置在 visited 数组中标记 true，继续循环。
 */
-
-    bool circularArrayLoop(int* nums, int numsSize) {
+bool circularArrayLoop(int* nums, int numsSize)
+{
 	if (nums == NULL || numsSize <= 1)
 		return false;
 
-	int n=numsSize;
-        bool visited[n];
+	bool visited[numsSize];
 	memset(visited, 0, sizeof(visited));
-        for(int slow=0;slow<n;slow++)
-        {
-            if(visited[slow])
-				continue;
+	for(int slow = 0; slow < numsSize; slow++) {
+		if(visited[slow])
+			continue;
 
-            visited[slow]=true;
-			int map[5000 *2];
-			memset(map, 0, sizeof(map));
-            while(true)
-            {
-                int fast=((slow+nums[slow])%n+n)%n;
-                if(fast==slow||nums[fast]*nums[slow]<0)
-                	break;
-		   if (map[fast] != 0)
-					return true;
-		map[slow] = 1;
-		visited[fast]=true;
+		visited[slow] = true;
+		int map[5001];
+		memset(map, 0, sizeof(map));
+		while(true) {
+			int fast = ((slow+nums[slow])%numsSize+numsSize)%numsSize;
+			if(fast == slow||nums[fast]*nums[slow] < 0)
+				break;
+			if (map[fast] != 0)
+				return true;
+			map[slow] = 1;
+			visited[fast] = true;
+			slow = fast;
+		}
+	}
 
-		slow=fast;
-            }
-        }
+	return false;
+}
 
-        return false;
-    	}
 
 /*
 567. 字符串的排列
@@ -837,6 +892,55 @@ bool checkInclusion(char * s1, char * s2){
         return false;
 }
 
+bool checkMap(int *map1, int *map2)
+{
+	for (int i = 0; i < 26; i++) {
+		if (map1[i] != map2[i]) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
+bool checkInclusion(char * s1, char * s2)
+{
+	int map[26] = {0};
+	int i = 0;
+	int s1len = strlen(s1);
+
+	while(i < s1len) {
+		map[s1[i++] - 'a']++;
+	}
+
+	int map2[26] = {0};
+	int left = 0;
+	int right = 0;
+	int s2len = strlen(s2);
+
+	while(right < s2len) {
+
+        map2[s2[right] - 'a']++;
+
+		if (right - left + 1 < s1len) {
+			right++;
+			continue;
+		}
+
+		bool check = checkMap(map, map2);
+		if (check == true) {
+			return true;
+		}
+
+		map2[s2[left] - 'a']--;
+		left++;
+		right++;
+	}
+
+	return false;
+}
+
+
 /*
 713. 乘积小于K的子数组
 难度中等135
@@ -845,7 +949,8 @@ bool checkInclusion(char * s1, char * s2){
 示例 1:
 输入: nums = [10,5,2,6], k = 100
 输出: 8
-解释: 8个乘积小于100的子数组分别为: [10], [5], [2], [6], [10,5], [5,2], [2,6], [5,2,6]。
+解释: 8个乘积小于100的子数组分别为:
+[10], [5], [2], [6], [10,5], [5,2], [2,6], [5,2,6]。
 需要注意的是 [10,5,2] 并不是乘积小于100的子数组。
 说明:
 "	0 < nums.length <= 50000
@@ -855,11 +960,17 @@ bool checkInclusion(char * s1, char * s2){
 */
 int numSubarrayProductLessThanK(int* nums, int numsSize, int k)
 {
-        if (k <= 1) return 0;
+        if (k <= 1)
+			return 0;
+
         int prod = 1, ans = 0, left = 0;
         for (int right = 0; right < numsSize; right++) {
             prod *= nums[right];
-            while (prod >= k) prod /= nums[left++];
+            while (prod >= k) {
+				prod /= nums[left++];
+            }
+/*右指针每增加一位，以右指针为首增加子数组，
+[5,2]加6，增加[6]、[2,6]、[5,2,6]，个数即为R - L+ 1*/
             ans += right - left + 1;
         }
         return ans;
@@ -868,164 +979,85 @@ int numSubarrayProductLessThanK(int* nums, int numsSize, int k)
 /*
 76. 最小覆盖子串
 难度困难695
-给你一个字符串 S、一个字符串 T 。请你设计一种算法，可以在 O(n) 的时间复杂度内，从字符串 S 里面找出：包含 T 所有字符的最小子串。
+给你一个字符串 S、一个字符串 T 。请你设计一种算法，可以
+在 O(n) 的时间复杂度内，从字符串 S 里面找出：包含 T 所有字
+符的最小子串。
 
 示例：
 输入：S = "ADOBECODEBANC", T = "ABC"
 输出："BANC"
 
 */
-char * minWindow(char * s, char * t){
-    if (s == NULL || t == NULL) {
-        return NULL;
-    }
-
-    int len = (int)strlen(s);
-    int lent = (int)strlen(t);
-
-    char *out = (char *)malloc(len + 1);
-    if (out == NULL) {
-        return NULL;
-    }
-
-    int outLen = 0;
-    memset(out, 0, len + 1);
-    if (len < lent || lent == 0) {
-        return out;
-    }
-
-    int map[128] = {0};
-    int mapt[128] = {0};
-    int cnt = 0;
-    /* 1. 初始窗口是短串长度， 先遍历一遍 得到长串中能匹配到短串的字符个数 */
-    for (int i = 0; i < lent; i++) {
-        mapt[t[i]]++;
-        map[s[i]]++;
-    }
-    for (int i = 0; i < 128; i++) {
-        if (mapt[i] > 0) {
-            /* 临界点，只要 <= 短串 就是有效计数, 再大就是多余的了 */
-            cnt += (map[i] >= mapt[i]? mapt[i] : map[i]);
-        }
-    }
-
-    /* 2. 当计数等于短串长度就是满足条件了 */
-    if (cnt == lent) {
-        outLen = lent;
-        memcpy(out, s, outLen);
-        return out;
-    }
-
-    /* 3. 滑动窗口 */
-    int l = 0;
-    int r = lent;
-    for (; r < len; r++) {
-        if (mapt[s[r]] == 0) {
-            continue;
-        }
-
-        map[s[r]]++;
-        if (map[s[r]] <= mapt[s[r]]) {
-            /* 临界点，只要 <= 短串 就是有效计数, 再大就是多余的了 */
-            cnt++;
-        }
-
-        if (cnt == lent) {
-            /* 从左侧开始校验 找到临界点（map[s[l]] == mapt[s[l]]）删除多余数据 */
-            while (mapt[s[l]] == 0 || map[s[l]] > mapt[s[l]]) {
-                map[s[l++]]--;
-            }
-
-            int cpLen = r - l + 1;
-            if (outLen == 0 ||  cpLen < outLen) {
-                memset(out, 0, len + 1);
-                memcpy(out, s + l, cpLen);
-                outLen = cpLen;
-            }
-
-            /* 临界点 */
-            cnt--;
-            map[s[l++]]--;
-        }
-    }
-
-    return out;
-}
-
 #define MAX_HASH_LEN 128
-char * minWindow(char * s, char * t){
-    int slen = strlen(s);
-    int tlen = strlen(t);
-    if (slen == 0 || tlen == 0 || slen < tlen) {
-        return "";
-    }
-    int shash[MAX_HASH_LEN] = {0};
-    int thash[MAX_HASH_LEN] = {0};
-    int i;
-    int left = 0, right = 0;
-    int matchCnt = 0;
-    int minLen = slen + 1; // 小细节 保证s和t有一个字符也能处理
-    int minLeft = 0;
-    int minRight = 0;
-    int index = 0;
-    char *res = (char*)malloc(sizeof(char) * (slen + 1));
-    memset(res, 0, (slen + 1));
+char * minWindow(char * s, char * t)
+{
+	int slen = strlen(s);
+	int tlen = strlen(t);
+	if (slen == 0 || tlen == 0 || slen < tlen) {
+		return "";
+	}
 
-    for (i = 0; i < tlen; i++) {
-        thash[t[i]]++;
-    }
+	int maps[MAX_HASH_LEN] = {0};
+	int mapt[MAX_HASH_LEN] = {0};
+	int i;
+	int left = 0, right = 0;
+	int matchSize = 0;
+	int minLen = slen + 1; // 小细节 保证s和t有一个字符也能处理
+	int minLeft = 0;
+	int minRight = 0;
+	int index = 0;
 
-    while (right < slen) {
-        char c = s[right];
-        right++;
-        // 更新数据 t匹配不到，right往右+1
-        if (thash[c] == 0) {
-            continue;
-        }
+	for (i = 0; i < tlen; i++) {
+		mapt[t[i]]++;
+	}
 
-        // 匹配到了，s匹配项比t小 matchCnt++
-        // s匹配项比t大，说明此item重复，不需要再算进来
-        // 代码块1
-        if (shash[c] < thash[c]) {
-            matchCnt++;
-        }
-        shash[c]++;
+	while (right < slen) {
+		char c = s[right];
+		right++;
+		// 更新数据 t匹配不到，right往右+1
+		if (mapt[c] == 0) {
+			continue;
+		}
 
-        while (matchCnt == tlen) {
-            if (right - left < minLen) {
-                // 更新记录
-                minLeft = left;
-                minRight = right;
-                minLen = right - left;
-            }
+		if (maps[c] < mapt[c]) {
+			matchSize++;  /*计数小于t字符串内累计数才有效*/
+		}
 
-            char d = s[left];
-            left++;
-            // 更新数据
-            // thash[d] == 0 标识left所指元素非关键
-            if (thash[d] == 0) {
-                continue;
-            }
+		maps[c]++;
 
-            // shash肯定是有值的，需要减1
-            shash[d]--;
-            // 与代码块1 对称着写就行
-            // 若果深究原理，如果s和t是匹配的，s匹配项不多于t，那么随着left的向右，matchCnt需要减1
-            if (shash[d] < thash[d]) {
-                matchCnt--;
-            }
+		while (matchSize == tlen) {/*包含 T 所有字符 开始算最小*/
+			if (right - left < minLen) {
+				// 更新记录
+				minLeft = left;
+				minRight = right;
+				minLen = right - left;
+			}
 
-        }
-    }
+			char d = s[left];
+			left++;
+			// 更新数据
+			// mapt[d] == 0 标识left所指元素非关键
+			if (mapt[d] == 0) {
+				continue;
+			}
 
-    s[minRight] = '\0';
-    return &s[minLeft];
+			maps[d]--;
+			if (maps[d] < mapt[d]) {
+				matchSize--;
+			}
+		}
+	}
+
+	s[minRight] = '\0';
+	return &s[minLeft];
 }
+
 
 /*
 632. 最小区间
 难度困难230
-你有 k 个升序排列的整数列表。找到一个最小区间，使得 k 个列表中的每个列表至少有一个数包含在其中。
+你有 k 个升序排列的整数列表。找到一个最小区间，使得 k 个
+列表中的每个列表至少有一个数包含在其中。
 我们定义如果 b-a < d-c 或者在 b-a == d-c 时 a < c，则区间 [a,b] 比 [c,d] 小。
 
 示例：
@@ -1036,109 +1068,113 @@ char * minWindow(char * s, char * t){
 列表 2：[0, 9, 12, 20]，20 在区间 [20,24] 中。
 列表 3：[5, 18, 22, 30]，22 在区间 [20,24] 中。
 */
-
-/**
- * Note: The returned array must be malloced, assume caller calls free().
- */
- #define RETURN_SIZE 2
- #define MAX_NUM 3500
+#define RETURN_SIZE 2
+#define MAX_NUM 3500
 typedef struct tagInfo {
-    int value;
-    int index;
+	int value;
+	int group;
 } Info;
+
 int cmpFun(const void *a, const void *b)
 {
-    Info *temp1 = (Info *)a;
-    Info *temp2 = (Info *)b;
-    if (temp1->value > temp2->value) {
-        return 1;
-    } else if (temp1->value < temp2->value) {
-        return -1;
-    } else {
-        return 0;
-    }
+	Info *temp1 = (Info *)a;
+	Info *temp2 = (Info *)b;
+
+	return temp1->value > temp2->value;
 }
+
 int isCover(int *kCount, int k)
 {
-    for (int i = 0; i < k; i++) {
-        if (kCount[i] == 0) {
-            return 0;
-        }
-    }
-    return 1;
+	for (int i = 0; i < k; i++) {
+		if (kCount[i] == 0) {
+			return 0;
+		}
+	}
+	return 1;
 }
-void updateIndex(int begin, int end, int *resBegin, int *resEnd, Info *allNum)
+void updateIndex(int left, int right, int *resBegin, int *resEnd, Info *allNum)
 {
-    if ((*resBegin == -1) ||
-        (allNum[end].value - allNum[begin].value < allNum[*resEnd].value - allNum[*resBegin].value) ||
-        (allNum[end].value - allNum[begin].value == allNum[*resEnd].value - allNum[*resBegin].value &&
-         begin < *resBegin)) {
-        *resBegin = begin;
-        *resEnd = end;
-        return;
-    }
+	if ((*resBegin == -1) ||
+	(allNum[right].value - allNum[left].value < allNum[*resEnd].value - allNum[*resBegin].value) ||
+	(allNum[right].value - allNum[left].value == allNum[*resEnd].value - allNum[*resBegin].value &&
+	left < *resBegin)) {
+		*resBegin = left;
+		*resEnd = right;
+		return;
+	}
 }
-int* smallestRange(int** nums, int numsSize, int* numsColSize, int* returnSize){
-    int numall = 0;
-    for (int i = 0; i < numsSize; i++) {
-        numall += numsColSize[i];
-    }
-    Info *allNum = NULL;
-    allNum = (Info *) malloc(sizeof(Info) * numall);
-    if (allNum == NULL) {
-        return NULL;
-    }
-    int index = 0;
-    for (int i = 0; i < numsSize; i++) {
-        for (int j = 0; j < numsColSize[i]; j++) {
-            allNum[index].value = nums[i][j];
-            allNum[index].index = i;
-            index++;
-        }
-    }
-    int kCount[MAX_NUM] = { 0 };
-    qsort(allNum, numall, sizeof(Info), cmpFun);
-    int begin = 0;
-    int end = 0;
-    int resBegin = -1;
-    int resEnd = -1;
-    while (end < numall) {
-        kCount[allNum[end++].index]++;
-        while (isCover(kCount, numsSize)) {
-            updateIndex(begin, (end - 1), &resBegin, &resEnd, allNum);
-            kCount[allNum[begin++].index]--;
-        }
-    }
-    int *res = (int *)malloc(sizeof(int) * RETURN_SIZE);
-    res[0] = allNum[resBegin].value;
-    res[1] = allNum[resEnd].value;
-    free(allNum);
-    *returnSize = RETURN_SIZE;
-    return res;
+
+int* smallestRange(int** nums, int numsSize, int* numsColSize, int* returnSize)
+{
+	int numall = 0;
+	for (int i = 0; i < numsSize; i++) {
+		numall += numsColSize[i];
+	}
+
+	Info allNum[numall];
+
+	int allNumSize = 0;
+	for (int i = 0; i < numsSize; i++) {
+		for (int j = 0; j < numsColSize[i]; j++) {
+			allNum[allNumSize].value = nums[i][j];
+			allNum[allNumSize].group = i;
+			allNumSize++;
+		}
+	}
+
+	int kCount[MAX_NUM] = { 0 };
+	qsort(allNum, numall, sizeof(Info), cmpFun);
+	int left = 0;
+	int right = 0;
+	int resBegin = -1;
+	int resEnd = -1;
+	while (right < numall) {
+
+		kCount[allNum[right].group]++;
+
+		while (isCover(kCount, numsSize)) {//满足求最小
+			updateIndex(left, right, &resBegin, &resEnd, allNum);
+			kCount[allNum[left++].group]--;
+		}
+
+		right++;
+	}
+
+	int *res = (int *)malloc(sizeof(int) * RETURN_SIZE);
+	res[0] = allNum[resBegin].value;
+	res[1] = allNum[resEnd].value;
+	*returnSize = RETURN_SIZE;
+	return res;
 }
+
 
 /*
 80. 删除排序数组中的重复项 II
 难度中等271收藏分享切换为英文关注反馈
-给定一个排序数组，你需要在原地删除重复出现的元素，使得每个元素最多出现两次，返回移除后数组的新长度。
-不要使用额外的数组空间，你必须在原地修改输入数组并在使用 O(1) 额外空间的条件下完成。
+给定一个排序数组，你需要在原地删除重复出现的元素，
+使得每个元素最多出现两次，返回移除后数组的新长度。
+不要使用额外的数组空间，你必须在原地修改输入数组并在
+使用 O(1) 额外空间的条件下完成。
 示例 1:
 给定 nums = [1,1,1,2,2,3],
-
-函数应返回新长度 length = 5, 并且原数组的前五个元素被修改为 1, 1, 2, 2, 3 。
-
+函数应返回新长度 length = 5, 并且原数组的前五个元素被修改
+为 1, 1, 2, 2, 3 。
 你不需要考虑数组中超出新长度后面的元素。
-
-
 */
-
-int removeDuplicates(int* nums, int numsSize){
+//动态调整移位距离
+int removeDuplicates(int* nums, int numsSize)
+{
     int flag = 0, temp = 0;
     for(int i=1;i<numsSize;i++){
-        if(nums[i] == nums[i-1])flag++; //计数
-        else flag = 0;  //计数器置0
-        if(flag>=2)temp++;  //移位距离加1
+        if(nums[i] == nums[i-1])
+			flag++; //计数
+        else
+			flag = 0;  //计数器置0
+        if(flag>=2)
+			temp++;  //移位距离加1
+
         nums[i-temp] = nums[i]; //移位
     }
     return numsSize - temp;
 }
+
