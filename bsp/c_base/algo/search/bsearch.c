@@ -3,8 +3,8 @@ int lower_bound(int *nums, int numsSize, int target)
 {
 	 int left = 0;
 	 int right = numsSize - 1;//思考
-
-	while(left < right) {//搜索区间[left, right)不为空，退出的时候left = right
+//搜索区间[left, right)不为空，退出的时候left = right
+	while(left < right) {
 		int mid = left + (right - left >> 1);
 
 		if (nums[mid] < target) {//严格不是目标target，则排除
@@ -20,21 +20,26 @@ int lower_bound(int *nums, int numsSize, int target)
 /*
 
 二维
-
-int lb = 0; ub = row * col;
-
-while (ub - lb > 1) {
-	int mid = (lb + ub) / 2;
-	int i = mid / width;
-	int j = mid % width;
-	if (matrix[i][j] <= target) {
-		lb = mid;
-	} else {
-		ub = mid;
+int lower_bound(int *nums, int numsSize, int target)
+{
+	 int left = 0;
+	 int right = row * col - 1;//思考
+//搜索区间[left, right)不为空，退出的时候left = right
+	while(left < right) {
+		int mid = left + (right - left >> 1);
+		int i = mid / col;
+		int j = mid % col;
+		if (nums[i][j] < target) {//严格不是目标target，则排除
+			left = mid + 1;//[mid + 1, right]
+		} else {
+			right = mid;
+		}
 	}
+
+	return left;//right 也行 因为[left, right)为空的时候他们重合
 }
 
-return matrix[lb / width][lb % width] == target;
+
 */
 int binary_find_recur(int a[],int key,int start,int end)
 {
@@ -53,20 +58,19 @@ int binary_find_recur(int a[],int key,int start,int end)
 void *bsearch(const void *key, const void *base, size_t nelem, size_t width,
 int(*fcmp)(const void *, const *));
 参数：
-key指向所要查找的元素.
-第一个找的关键字。
-第二个：要查找的数组。
-第三个：指定数组中元素的数目。
-第四个：每个元素的长度（以字符为单位）。
-第五个：指向比较函数的指针.
+key是查找元素的地址
+其他跟qsort一致
 */
 
 /*
 1011. 在 D 天内送达包裹的能力
 难度中等75
 传送带上的包裹必须在 D 天内从一个港口运送到另一个港口。
-传送带上的第 i 个包裹的重量为 weights[i]。每一天，我们都会按给出重量的顺序往传送带上装载包裹。我们装载的重量不会超过船的最大运载重量。
-返回能在 D 天内将传送带上的所有包裹送达的船的最低运载能力。
+传送带上的第 i 个包裹的重量为 weights[i]。每一天，我们都会按
+给出重量的顺序往传送带上装载包裹。我们装载的重量不会
+超过船的最大运载重量。
+返回能在 D 天内将传送带上的所有包裹送达的船的最低运载
+能力。
 
 示例 1：
 输入：weights = [1,2,3,4,5,6,7,8,9,10], D = 5
@@ -79,15 +83,26 @@ key指向所要查找的元素.
 第 4 天：9
 第 5 天：10
 
-请注意，货物必须按照给定的顺序装运，因此使用载重能力为 14 的船舶并将包装分成 (2, 3, 4, 5), (1, 6, 7), (8), (9), (10) 是不允许的。
+请注意，货物必须按照给定的顺序装运，因此使用载重能力
+为 14 的船舶并将包装分成 (2, 3, 4, 5), (1, 6, 7), (8), (9), (10) 是不允许的。
 
 */
 /*
- //1.最低运载能力必然大于等于序列中的最大值；结果落在[max(weights), sum(weights)]        //2.要注意是在D天“内”完成，所以运载能力要尽量小，只要是在D天之内就可以作者：luke-9r链接：https://leetcode-cn.com/problems/capacity-to-ship-packages-within-d-days/solution/c-er-fen-cha-zhao-jian-dan-shi-xian-dai-ma-by-luke/来源：力扣（LeetCode）著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
-对于一艘承载力为K船来说，我们必然会在不超过其承载力的前提下贪心地往上装载货物，这样才能使得运送包裹所花费的时间最短。
-如果船在承载力为K的条件下可以完成在D天内送达包裹的任务，那么任何承载力大于K的条件下依然也能完成任务。
-我们可以让这个承载力K从max(weights)max(weights)开始（即所有包裹中质量最大包裹的重量，低于这个重量我们不可能完成任务），逐渐增大承载力K，直到K可以让我们在D天内送达包裹。此时K即为我们所要求的最低承载力。
-逐渐增大承载力K的方法效率过低，让我们用二分查找的方法来优化它。
+ //1.最低运载能力必然大于等于序列中的最大值；
+ 结果落在[max(weights), sum(weights)]
+ //2.要注意是在D天“内”完成，所以运载能力要尽量小，只要
+ 是在D天之内就可以
+对于一艘承载力为K船来说，我们必然会在不超过其承载力的
+前提下贪心地往上装载货物，这样才能使得运送包裹所花费
+的时间最短。
+如果船在承载力为K的条件下可以完成在D天内送达包裹的任
+务，那么任何承载力大于K的条件下依然也能完成任务。
+我们可以让这个承载力K从max(weights)max(weights)开始（即所有包
+裹中质量最大包裹的重量，低于这个重量我们不可能完成任
+务），逐渐增大承载力K，直到K可以让我们在D天内送达包裹
+。此时K即为我们所要求的最低承载力。
+逐渐增大承载力K的方法效率过低，让我们用二分查找的方法
+来优化它。
 */
 bool canShip(int* weights, int weightsSize, int D, int shipCapacity)
 {
@@ -104,22 +119,49 @@ bool canShip(int* weights, int weightsSize, int D, int shipCapacity)
 	return D > 0;
 }
 
-int shipWithinDays(int* weights, int weightsSize, int D)
-{
-	int left = 0;
-	int right = 0;
 
-	for(int i = 0; i < weightsSize; i++) {
-		left = fmax(left, weights[i]);
-		right += weights[i];
+bool checkWeight(int* weights, int weightsSize, int D, int cap)
+{
+	int days = 0;
+	int prefix = 0;
+
+	for (int i = 0; i < weightsSize; i++) {
+		if (weights[i] > cap) {
+			return false;
+		}
+
+		if (prefix + weights[i]> cap) {
+			days++;
+			prefix = 0;
+		}
+
+		prefix +=  weights[i];
 	}
 
-	while(left < right) {
-		int mid = (right + left) / 2;
-		if (canShip(weights, weightsSize, D, mid)) {
-			right = mid;
-		} else {
+	days = prefix == 0 ? days : days + 1;
+
+	return days <= D;
+}
+
+
+int shipWithinDays(int* weights, int weightsSize, int D)
+{
+	int max = 0;
+	int total = 0;
+
+	for (int i = 0; i < weightsSize; i++) {
+		max = fmax(max, weights[i]);
+		total += weights[i];
+	}
+
+	int left = max;
+	int right = total;
+	while (left < right) {
+		int mid = left + (right - left >> 1);
+		if (checkWeight(weights, weightsSize, D, mid) == false) {
 			left = mid + 1;
+		} else {
+			right = mid;
 		}
 	}
 
@@ -146,36 +188,21 @@ k = 8,
 
 */
 /*
-首先第k大数一定落在[l, r]中，其中l = matrix[0][0], r = matrix[row - 1][col - 1].
-我们二分值域[l, r]区间，mid = (l + r) >> 1, 对于mid，我们检查矩阵中
-有多少元素小于等于mid，
-记个数为cnt，那么有：
-1、如果cnt < k, 那么[l, mid]中包含矩阵元素个数一定小于k，那么
-第k小元素一定不在[l, mid]
-中，必定在[mid + 1, r]中，所以更新l = mid + 1.
-2、否则cnt >= k，那么[l, mid]中包含矩阵元素个数就大于等于k，
-即第k小元素一定在[l,mid]区间中，
-更新r = mid;
+1)直接转一维排序
 
-至于怎么得矩阵中有多少元素小于等于k，可以利用矩阵本身
-性质，从左下角开始按列枚举
-综上：
-算法时间复杂度为O(n * log(m)), 其中n = max(row, col)，代表矩阵行数
-和列数的最大值,
- m代表二分区间的长度，即矩阵最大值和最小值的差。
 */
 int getLowerCnt(int **matrix, int row, int col, int mid)
 {
-    int i = row - 1, j = 0, cnt = 0;
-    while (i >= 0 && j < col) {
-        if (matrix[i][j] <= mid) {
-            cnt = cnt + i + 1;
-            j++;
-        } else {
-            i--;
-        }
-    }
-    return cnt;
+	int i = row - 1, j = 0, cnt = 0;
+	while (i >= 0 && j < col) {
+		if (matrix[i][j] <= mid) {
+			cnt = cnt + i + 1;/*一列有i + 1的元素*/
+			j++;
+		} else {
+			i--;
+		}
+	}
+	return cnt;
 }
 
 int kthSmallest(int** matrix, int matrixSize, int* matrixColSize, int k)
@@ -183,17 +210,17 @@ int kthSmallest(int** matrix, int matrixSize, int* matrixColSize, int k)
 	if (matrix == NULL || matrixColSize == NULL || matrixSize == 0)
 		return -1;
 	int row = matrixSize, col = matrixColSize[0];
-	int l = matrix[0][0], r = matrix[row - 1][col - 1];
-	while (l < r) {//值域
-		int mid = (l + r) >> 1;
+	int left = matrix[0][0], right = matrix[row - 1][col - 1];
+	while (left < right) {
+		int mid = left + (right - left >> 1);
 		if (getLowerCnt(matrix, row, col, mid) < k) {
-			l = mid + 1;
+			left = mid + 1;
 		} else {
-			r = mid;
+			right = mid;
 		}
 	}
 
-	return l;
+	return left;
 }
 
 /*
@@ -354,20 +381,22 @@ int search(struct ArrayReader* reader, int target)
 
 	// binary search
 	int mid, seachValue;
-	while (left <= right) {
-		mid = (left + right) >> 1;
+	while (left < right) {
+		mid = left + (right - left >> 1);
 		seachValue = getElement(reader, mid);
-
 		if (seachValue == target)
 			return mid;
-		if (seachValue > target)
-			right = mid - 1;
-		else
+
+		if (seachValue < target) {
 			left = mid + 1;
+		} else {
+			right = mid;
+		}
 	}
 
-	return -1;
+	return getElement(reader, left) == target ? left : -1;
 }
+
 
 /*
 153. 寻找旋转排序数组中的最小值
@@ -386,17 +415,83 @@ int findMin(int* nums, int numsSize)
 	int left = 0;
 	int right = numsSize - 1;
 
-	while(right - left > 1) {
-		int mid= (left + right) >> 1;
-		if(nums[mid] > nums[right])
-			left = mid;
+	while(left < right) {
+		int mid= left + (right - left >> 1);
+
+		if(nums[mid] > nums[right])//!
+			left = mid + 1;
 		else
 			right = mid;
 	}
 
-	return fmin(nums[left], nums[right]);
+	return nums[left];
 }
 
+/*
+33. 搜索旋转排序数组
+难度中等840
+假设按照升序排序的数组在预先未知的某个点上进行了旋转。
+( 例如，数组 [0,1,2,4,5,6,7] 可能变为 [4,5,6,7,0,1,2] )。
+搜索一个给定的目标值，如果数组中存在这个目标值，则返
+回它的索引，否则返回 -1 。
+你可以假设数组中不存在重复的元素。
+你的算法时间复杂度必须是 O(log n) 级别。
+示例 1:
+输入: nums = [4,5,6,7,0,1,2], target = 0
+输出: 4
+示例 2:
+输入: nums = [4,5,6,7,0,1,2], target = 3
+输出: -1
+
+*/
+int search(int* nums, int numsSize, int target)
+{
+	int left = 0,right = numsSize-1,mid;
+	while(left< right){
+		mid = left+(right-left >>1);
+		if(nums[0] > target){  //目标在右子数组
+			if(nums[mid]>= nums[0])
+				left = mid + 1; //中点在左子数组
+			else{ //中点在右子数组
+				if(nums[mid] == target)
+					return mid;
+				else if(nums[mid] <target)
+					left = mid+1;
+				else
+					right = mid;
+			}
+		} else {//目标在左子数组
+			if(nums[mid] < nums[0])
+				right = mid;//中点在右子数组
+			else{ //中点在左子数组
+				if(nums[mid] == target)
+					return mid;
+				else if (nums[mid] < target)
+					left = mid+1;
+				else
+					right = mid;
+			}
+		}
+	}
+
+	return nums[left] == target ? left : -1;
+}
+
+
+int search(int* nums, int numsSize, int target)
+{
+        int left = 0;
+        int right = numsSize - 1;
+        int mid;
+        while (left < right){
+            mid = left + (right - left >> 1);
+            if ((nums[0]> target) ^ (nums[mid] < nums[0]) ^ (nums[mid] < target))
+                left = mid + 1;
+            else
+                right = mid;
+        }
+        return left == right && nums[left] == target ? left:-1;
+}
 
 /*
 436. 寻找右区间
@@ -437,31 +532,31 @@ int MyCmp(const void *pa, const void *pb)
 
 int BinarySerach(int **intervalsTmp, int intervalsSize, int left, int right, int target)
 {
-    int mid;
-    while (left <= right) {
-        mid = (left + right) / 2;
-        // 正好搜索到目标直接返回
-        if (target == intervalsTmp[mid][0]) {
-            return intervalsTmp[mid][1];
-        } else if (target < intervalsTmp[mid][0]) {
-            // 目标小 砍掉右区间right = mid - 1
-            right = mid - 1;
-        } else if (target > intervalsTmp[mid][0]){
-            left = mid + 1;
-        }
-    }
+	int mid;
+	while (left <= right) {
+		mid = (left + right) / 2;
+		// 正好搜索到目标直接返回
+		if (target == intervalsTmp[mid][0]) {
+			return intervalsTmp[mid][1];
+		} else if (target < intervalsTmp[mid][0]) {
+			// 目标小 砍掉右区间right = mid - 1
+			right = mid - 1;
+		} else if (target > intervalsTmp[mid][0]){
+			left = mid + 1;
+		}
+	}
 
-    // 走到这里 while循环结束的条件只有一个left == right + 1 所以实际left需要减掉1
-    // 第一种情况 left元素 大于target 满足条件 直接返回
-    // 第二种情况 left元素 小于target 试探下left是否超过 最大边界 不越界直接返回left元素 越界说明找不到比target大的了
-    // 其他情况 通通返回-1
-    if (intervalsTmp[left - 1][0] >= target) {
-        return intervalsTmp[left - 1][1];
-    } else if (left < intervalsSize) {
-        return intervalsTmp[left][1];
-    }
+	// 走到这里 while循环结束的条件只有一个left == right + 1 所以实际left需要减掉1
+	// 第一种情况 left元素 大于target 满足条件 直接返回
+	// 第二种情况 left元素 小于target 试探下left是否超过 最大边界 不越界直接返回left元素 越界说明找不到比target大的了
+	// 其他情况 通通返回-1
+	if (intervalsTmp[left - 1][0] >= target) {
+		return intervalsTmp[left - 1][1];
+	} else if (left < intervalsSize) {
+		return intervalsTmp[left][1];
+	}
 
-    return -1;
+	return -1;
 }
 
 int* findRightInterval(int** intervals, int intervalsSize, int* intervalsColSize,
@@ -484,67 +579,13 @@ int* findRightInterval(int** intervals, int intervalsSize, int* intervalsColSize
 
 	// 二分查找
 	for (int i = 0; i < intervalsSize; i++) {
-	retArray[i] = BinarySerach(intervalsTmp, intervalsSize, 0, intervalsSize - 1, intervals[i][1]);
+		retArray[i] = BinarySerach(intervalsTmp, intervalsSize, 0, intervalsSize - 1, intervals[i][1]);
 	}
+
 	*returnSize = intervalsSize;
 	return retArray;
 }
 
-/*
-33. 搜索旋转排序数组
-难度中等840
-假设按照升序排序的数组在预先未知的某个点上进行了旋转。
-( 例如，数组 [0,1,2,4,5,6,7] 可能变为 [4,5,6,7,0,1,2] )。
-搜索一个给定的目标值，如果数组中存在这个目标值，则返回它的索引，否则返回 -1 。
-你可以假设数组中不存在重复的元素。
-你的算法时间复杂度必须是 O(log n) 级别。
-示例 1:
-输入: nums = [4,5,6,7,0,1,2], target = 0
-输出: 4
-示例 2:
-输入: nums = [4,5,6,7,0,1,2], target = 3
-输出: -1
-
-*/
-int search(int* nums, int numsSize, int target)
-{
-        int l = 0;
-        int r = numsSize - 1;
-        int mid;
-        while (l < r){
-            mid = l + (r - l) / 2;
-            if ((nums[0]> target) ^ (nums[mid] < nums[0]) ^ (nums[mid] < target))
-                l = mid + 1;
-            else
-                r = mid;
-        }
-        return l == r && nums[l] == target? l:-1;
-}
-
-int search(int* nums, int numsSize, int target)
-{
-        int left=0,right=numsSize-1,mid;
-        while(left<=right){
-            mid=left+(right-left)/2;
-            if(nums[0]>target){  //目标在右子数组
-                if(nums[mid]>=nums[0]) left=mid+1; //中点在左子数组
-                else{ //中点在右子数组
-                    if(nums[mid]==target) return mid;
-                    else if(nums[mid]<target) left=mid+1;
-                    else right=mid-1;
-                }
-            }
-            else {//目标在左子数组
-                if(nums[mid]<nums[0]) right=mid-1;//中点在右子数组
-                else{ //中点在左子数组
-                    if(nums[mid]==target) return mid;
-                    else if(nums[mid]<target) left=mid+1;
-                    else right=mid-1;
-                }
-            }
-        }
-        return -1;
-}
 
 /*
 4. 寻找两个正序数组的中位数
@@ -567,56 +608,30 @@ nums2 = [3, 4]
 */
 double findMedianSortedArrays(int* nums1, int nums1Size, int* nums2, int nums2Size)
 {
-    int m = nums1Size;
-    int n = nums2Size;
-    int len = m + n;
-    int left = -1, right = -1;
-    int aStart = 0, bStart = 0;
-    for (int i = 0; i <= len / 2; i++) {
-        left = right;
-        if (aStart < m && (bStart >= n || nums1[aStart] < nums2[bStart])) {
-            right = nums1[aStart++];
-        } else {
-            right = nums2[bStart++];
-        }
-    }
-    if ((len & 1) == 0)
-        return (left + right) / 2.0;
-    else
-        return right;
-}
+	int len = nums1Size+ nums2Size;
+	int left = -1, right = -1;
+	int aStart = 0, bStart = 0;
 
-double getNum(int* nums1, int nums1Size, int* nums2, int nums2Size, int k){
-        int result[nums1Size + nums2Size];
-        int i = 0, j = 0;
-        int cur = 0;
-        while(i < nums1Size && j <nums2Size && cur <= k){
-            if(nums1[i] < nums2[j]) result[cur++] = nums1[i++];
-            else result[cur++] = nums2[j++];
-        }
-        while(i < nums1Size && cur <=k) result[cur++] = nums1[i++];
-        while(j < nums2Size && cur <=k) result[cur++] = nums2[j++];
-        return result[cur-1];
-    }
+	for (int i = 0; i <= len / 2; i++) {
+		left = right;
+		if (aStart < nums1Size && (bStart >= nums2Size || nums1[aStart] < nums2[bStart])) {
+			right = nums1[aStart++];
+		} else {
+			right = nums2[bStart++];
+		}
+	}
 
-double findMedianSortedArrays(int* nums1, int nums1Size, int* nums2, int nums2Size)
-{
-        int length = nums1Size + nums2Size;
-        double result = 0;
-        //分别进行奇数偶数处理
-        if(length % 2 != 0){
-            result = getNum(nums1,nums1Size, nums2, nums2Size, length/2);
-        }else{
-            result = getNum(nums1,nums1Size, nums2, nums2Size, length/2-1)/2 +
-				getNum(nums1,nums1Size, nums2, nums2Size, length/2)/2;
-        }
-        return result;
+	if ((len & 1) == 0)
+		return (left + right) / 2.0;
+	else
+		return right;
 }
 
 /*
 295. 数据流的中位数
 难度困难227
-中位数是有序列表中间的数。如果列表长度是偶数，中位数则是中间两个数的平均值。
+中位数是有序列表中间的数。如果列表长度是偶数，中位数
+则是中间两个数的平均值。
 例如，
 [2,3,4] 的中位数是 3
 [2,3] 的中位数是 (2 + 3) / 2 = 2.5
@@ -629,10 +644,6 @@ addNum(2)
 findMedian() -> 1.5
 addNum(3)
 findMedian() -> 2
-进阶:
-1.	如果数据流中所有整数都在 0 到 100 范围内，你将如何优化你的算法？
-2.	如果数据流中 99% 的整数都在 0 到 100 范围内，你将如何优化你的算法？
-通过次数19,813
 */
 typedef struct {
 	int size;
@@ -643,7 +654,8 @@ MedianFinder* medianFinderCreate() {
 	return (MedianFinder*)calloc(1, sizeof(MedianFinder));
 }
 
-void medianFinderAddNum(MedianFinder* obj, int num) {
+void medianFinderAddNum(MedianFinder* obj, int num)
+{
 	//insert sort
 	if (obj->size >= 3) {
 		int left = 0;
@@ -679,7 +691,8 @@ void medianFinderAddNum(MedianFinder* obj, int num) {
 	}
 }
 
-double medianFinderFindMedian(MedianFinder* obj) {
+double medianFinderFindMedian(MedianFinder* obj)
+{
 	if (obj->size % 2 == 0) {
 		return (obj->array[obj->size / 2] + obj->array[obj->size / 2 - 1]) * 0.5;
 	} else {
@@ -687,73 +700,19 @@ double medianFinderFindMedian(MedianFinder* obj) {
 	}
 }
 
-void medianFinderFree(MedianFinder* obj) {
+void medianFinderFree(MedianFinder* obj)
+{
 	free(obj);
 	obj = NULL;
 }
 
-/*
-167. 两数之和 II - 输入有序数组
-难度简单375
-给定一个已按照升序排列 的有序数组，找到两个数使得它们相加之和等于目标数。
-函数应该返回这两个下标值 index1 和 index2，其中 index1 必须小于 index2。
-说明:
-"	返回的下标值（index1 和 index2）不是从零开始的。
-"	你可以假设每个输入只对应唯一的答案，而且你不可以重复使用相同的元素。
-示例:
-输入: numbers = [2, 7, 11, 15], target = 9
-输出: [1,2]
-解释: 2 与 7 之和等于目标数 9 。因此 index1 = 1, index2 = 2 。
-
-
-*/
-
-int* twoSum(int* numbers, int numbersSize, int target, int* returnSize) {
-    int* ret = (int*)malloc(sizeof(int) * 2);
-    *returnSize = 2;
-
-    for (int i = 0; i < numbersSize; ++i) {
-        int low = i + 1, high = numbersSize - 1;
-        while (low <= high) {
-            int mid = (high - low) / 2 + low;
-            if (numbers[mid] == target - numbers[i]) {
-                ret[0] = i + 1, ret[1] = mid + 1;
-                return ret;
-            } else if (numbers[mid] > target - numbers[i]) {
-                high = mid - 1;
-            } else {
-                low = mid + 1;
-            }
-        }
-    }
-    ret[0] = -1, ret[1] = -1;
-    return ret;
-}
-
-int* twoSum(int* numbers, int numbersSize, int target, int* returnSize) {
-    int* ret = (int*)malloc(sizeof(int) * 2);
-    *returnSize = 2;
-
-    int low = 0, high = numbersSize - 1;
-    while (low < high) {
-        int sum = numbers[low] + numbers[high];
-        if (sum == target) {
-            ret[0] = low + 1, ret[1] = high + 1;
-            return ret;
-        } else if (sum < target) {
-            ++low;
-        } else {
-            --high;
-        }
-    }
-    ret[0] = -1, ret[1] = -1;
-    return ret;
-}
 
 /*
 315. 计算右侧小于当前元素的个数
 难度困难409
-给定一个整数数组 nums，按要求返回一个新数组 counts。数组 counts 有该性质： counts[i] 的值是  nums[i] 右侧小于 nums[i] 的元素的数量。
+给定一个整数数组 nums，按要求返回一个新数组 counts。数组
+counts 有该性质： counts[i] 的值是  nums[i] 右侧小于 nums[i] 的元素的数
+量。
 
 示例：
 输入：nums = [5,2,6,1]
@@ -765,7 +724,8 @@ int* twoSum(int* numbers, int numbersSize, int target, int* returnSize) {
 
 */
 
-int* countSmaller(int* nums, int numsSize, int* returnSize){
+int* countSmaller(int* nums, int numsSize, int* returnSize)
+{
 	int *res = (int *)calloc(numsSize, sizeof(int));
 	*returnSize = numsSize;
 
@@ -788,40 +748,38 @@ int* countSmaller(int* nums, int numsSize, int* returnSize)
 		return NULL;
 	}
 
-        int n = numsSize;
 	int *res = (int *)calloc(numsSize, sizeof(int));
 	*returnSize = numsSize;
 
-	int ordered_arr[numsSize];
+	int sortArr[numsSize];
 	int sortSize = 0;
-	memset(ordered_arr, 0, sizeof(ordered_arr));
+	memset(sortArr, 0, sizeof(sortArr));
+	/*
+	输入：nums = [5,2,6,1]
+	输出：[2,1,1,0]
+	*/
+	for(int i = numsSize - 1; i >= 0; i--) {
+		int left = 0, right = sortSize;
+		while(left < right) {
+			int mid = left + (right - left >> 1);
+			if(nums[i] > sortArr[mid])
+				left = mid + 1;
+			else
+				right = mid;
+		}
 
-        for(int i = n - 1; i >= 0; i--)
-        {
-            int l = 0, r = sortSize;
-            while(l < r)
-            {
-                int mid = l + ((r - l) >> 1);
-                if(nums[i] > ordered_arr[mid])
-                    l = mid + 1;
-                else
-                    r = mid;
-            }
-            // r即插入ordered_arr的位置，也是在其右侧比其小的元素个数
-            res[i] = r;
-            // 倒序逐个插入元素
-            //ordered_arr.insert(ordered_arr.begin() + r, nums[i]);
-			//ordered_arr[sortSize++] = nums[i];
-			for (int i = sortSize; i > r; i--) {
-				ordered_arr[i] = ordered_arr[i - 1];
-			}
-			ordered_arr[r] = nums[i];
-			sortSize++;
+		res[i] = right;
+		// 倒序逐个插入元素
+		for (int i = sortSize; i > right; i--) {
+			sortArr[i] = sortArr[i - 1];
+		}
+		sortArr[right] = nums[i];
+		sortSize++;
+	}
 
-			//qsort(ordered_arr, sortSize, sizeof(ordered_arr[0]), cmp_int);
-        }
-        return res;
-    }
+	return res;
+}
+
 
 #include <stdio.h>
 
@@ -837,25 +795,29 @@ static struct BstNode g_root;
 static int g_smallCnt;
 static struct BstNode *AddNode(struct BstNode *root, int val)
 {
-    if (root == NULL) {
-        root = (struct BstNode *)calloc(1, sizeof(struct BstNode));
-        root->val = val;
-        return root;
-    }
-    /* 如果val小于等于root->val，说明val不会大于已有的值，所以g_smallCnt不更新，只需要更新小于该节点val的节点个数 */
-    if (root->val >= val) {
-        root->smallCnt++;
-        root->left = AddNode(root->left, val);
-    /* 如果val大于root->val，说明root节点以及root的左子树节点都是小于val的，+1是表示root节点本身 */
-    } else {
-        g_smallCnt += root->smallCnt + 1;
-        root->right = AddNode(root->right, val);
-    }
+	if (root == NULL) {
+		root = (struct BstNode *)calloc(1, sizeof(struct BstNode));
+		root->val = val;
+		return root;
+	}
 
-    return root;
+	/* 如果val小于等于root->val，说明val不会大于已有的值，
+	所以g_smallCnt不更新，只需要更新小于该节点val的节点个数 */
+	if (root->val >= val) {
+		root->smallCnt++;
+		root->left = AddNode(root->left, val);
+	/* 如果val大于root->val，说明root节点以及root的左子树节点都是
+	小于val的，+1是表示root节点本身 */
+	} else {
+		g_smallCnt += root->smallCnt + 1;
+		root->right = AddNode(root->right, val);
+	}
+
+	return root;
 }
 
-int* countSmaller(int* nums, int numsSize, int* returnSize){
+int* countSmaller(int* nums, int numsSize, int* returnSize)
+{
     int i;
     int *ans = (int *)calloc(1, sizeof(int) * numsSize);
 
@@ -937,19 +899,15 @@ int splitArray(int* nums, int numsSize, int m) {
 /*
 532. 数组中的K-diff数对
 难度简单90收藏分享切换为英文关注反馈
-给定一个整数数组和一个整数 k, 你需要在数组里找到不同的 k-diff 数对。这里将 k-diff 数对定义为一个整数对 (i, j), 其中 i 和 j 都是数组中的数字，且两数之差的绝对值是 k.
+给定一个整数数组和一个整数 k, 你需要在数组里找到不同的
+k-diff 数对。这里将 k-diff 数对定义为一个整数对 (i, j), 其中 i 和 j 都
+是数组中的数字，且两数之差的绝对值是 k.
 示例 1:
 输入: [3, 1, 4, 1, 5], k = 2
 输出: 2
 解释: 数组中有两个 2-diff 数对, (1, 3) 和 (3, 5)。
 尽管数组中有两个1，但我们只应返回不同的数对的数量。
 */
-
-int cmp_int(const void *a, const void *b)
-{
-	return *((int *)a) - *((int *)b);
-}
-
 int findPairs(int* nums, int numsSize, int k)
 {
 	qsort(nums, numsSize, sizeof(nums[0]), cmp_int);

@@ -1,21 +1,3 @@
-/*
-我们可以把前面的算法进行优化。
-我们不再检查数字的每一个位，
-而是不断把数字最后一个 11 反转，
-并把答案加一。当数字变成 00 的时候偶，
-我们就知道它没有 11 的位了，此时返回答案。
-这里关键的想法是对于任意数字 nn ，将 nn 和 n - 1n?1 做与运算，
-会把最后一个 11 的位变成 00 。为什么？考虑 nn 和 n - 1n?1 的
-二进制表示。
-
-在二进制表示中，数字 nn 中最低位的 11 总是对应 n - 1n?1 中的 00 。
-因此，将 nn 和 n - 1n?1 与运算总是能把 nn 中最低位的 11 变成 00 ，
-并保持其他位不变。使用这个小技巧，代码变得非常简单。
-
-
-统计一个位数组中非0位的数量，数学上称作：
-”Hanmming Weight“，汉明重量
-*/
 
 int hammingWeight(unsigned int n)
 {
@@ -72,24 +54,31 @@ int hammingWeight(unsigned int n)
 */
 int** subsets(int* nums, int numsSize, int* returnSize, int** returnColumnSizes)
 {
-	int **res = (int **)calloc(1024, sizeof(int *));
 	*returnSize = 0;
-	*returnColumnSizes = (int *)calloc(1024, sizeof(int));
+
+	if (nums == NULL) {
+		return NULL;
+	}
+
+	int **res = (int **)calloc(1 << numsSize, sizeof(int *));
+	*returnColumnSizes = (int *)calloc(1 << numsSize, sizeof(int));
 
 	for (int i = 0; i < (1 << numsSize); i++) {
 		res[*returnSize] = (int *)calloc(numsSize, sizeof(int));
-		int col = 0;
+		int colSize = 0;
 		for (int j = 0; j < numsSize; j++) {
-			if (i & (1 << j)) {
-				res[*returnSize][col++]=  nums[j];
+			if ((i & (1 << j)) != 0) {
+				res[*returnSize][colSize++] = nums[j];
 			}
 		}
 
-		(*returnColumnSizes)[*returnSize] = col;
+		(*returnColumnSizes)[*returnSize] = colSize;
 		(*returnSize)++;
 	}
+
 	return res;
 }
+
 
 
 /*
@@ -145,15 +134,15 @@ word 在 arr 中的索引 j 就表示它在 i 的第几位，使用 i & (1 << j) 就知道 word 的选
 同时，这里使用位掩码来表示字符串中 26 个英文小写字母的出现情况。在代码中用 int m; 中的 26 位，来表示 26 个英文的出现状态。
 
 */
-bool isUnique(char * str, int *bit)
+bool isUnique(char * str, int *bitmap)
 {
 	int i = 0;
 	while(str[i] != '\0') {
-		if (*bit & (1 << (str[i] - 'a'))) {
+		if (*bitmap & (1 << (str[i] - 'a'))) {
 			return false;
 		}
 
-		*bit |= (1 << (str[i] - 'a'));
+		*bitmap |= (1 << (str[i] - 'a'));
 		i++;
 	}
 
@@ -173,9 +162,9 @@ int maxLength(char ** arr, int arrSize)
 	int ans = 0;
 	for (int i = 0; i < (1 << arrSize); i++) {
 		int sum = 0;
-		int bit = 0;
+		int bitmap = 0;
 		for (int j = 0; j < arrSize; j++) {
-			if ((i & (1 << j)) && isUnique(arr[j], &bit)) {
+			if ((i & (1 << j)) && isUnique(arr[j], &bitmap)) {
 				sum += strlen(arr[j]);
 			}
 		}

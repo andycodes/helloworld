@@ -17,11 +17,26 @@ sumRange(0, 2) -> 8
 */
 
 /*
-我们将使用一种非常有效的自下而上的方法来构建线段树。从上面我们已经知道，如果某个节点 pp 包含范围 [i\ldots j][i…j] 的和，那么其左、右子节点分别包含范围 [i \ldots \frac{i + j}{2}][i… 2i+j?	 ] 和 [\frac{i + j}{2} + 1, j][ 2i+j?	 +1,j] 上的和。因此，为了找到节点 pp 的和，我们需要提前计算其左、右子节点的和。作者：LeetCode链接：https://leetcode-cn.com/problems/range-sum-query-mutable/solution/qu-yu-he-jian-suo-shu-zu-ke-xiu-gai-by-leetcode/来源：力扣（LeetCode）著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
-我们从叶节点开始，用输入数组的元素 a[0,1,\ldots,n-1]a[0,1,…,n?1] 初始化它们。然后我们逐步向上移动到更高一层来计算父节点的和，直到最后到达线段树的根节点。作者：LeetCode链接：https://leetcode-cn.com/problems/range-sum-query-mutable/solution/qu-yu-he-jian-suo-shu-zu-ke-xiu-gai-by-leetcode/来源：力扣（LeetCode）著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
-复杂度分析时间复杂度：O(n)O(n)。因为我们在 for 循环的每次迭代中计算一个节点的和。而一个线段树中大约有 2n2n 个节点。这可以通过以下方式证明：具有 nn 个元素的数组线段树有 nn 个叶节点（数组元素本身）。每一层中的节点数是下面一层中节点数的一半。因此，如果我们按层对节点数求和，我们将得到：n + n/2 + n/4 + n/8 + \ldots + 1 \approx 2nn+n/2+n/4+n/8+…+1≈2n空间复杂度：O(n)O(n)，我们用了 2n2n 的额外空间来存储整个线段树。作者：LeetCode链接：https://leetcode-cn.com/problems/range-sum-query-mutable/solution/qu-yu-he-jian-suo-shu-zu-ke-xiu-gai-by-leetcode/来源：力扣（LeetCode）著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
-
-更新线段树 :当我们更新数组中某个索引 ii 处的元素时，我们需要重建线段树，因为一些树节点上的和值也会随之产生变化。我们将再次使用自下而上的方法。首先更新存储 a[i]a[i] 元素的叶节点。从那里我们将一路向上，直到根节点，并用其子节点值的总和来更新每个父节点的值。作者：LeetCode链接：https://leetcode-cn.com/problems/range-sum-query-mutable/solution/qu-yu-he-jian-suo-shu-zu-ke-xiu-gai-by-leetcode/来源：力扣（LeetCode）著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+我们将使用一种非常有效的自下而上的方法来构建线段树。
+从上面我们已经知道，如果某个节点 pp 包含范围 [i\ldots j][i…j] 的
+和，那么其左、右子节点分别包含范围 [i \ldots \frac{i + j}{2}][i… 2i+j?	 ]
+和 [\frac{i + j}{2} + 1, j][ 2i+j?	 +1,j] 上的和。因此，为了找到节点 pp 的和
+，我们需要提前计算其左、右子节点的和。
+我们从叶节点开始，用输入数组的元素 a[0,1,\ldots,n-1]a[0,1,…,n?1] 初
+始化它们。然后我们逐步向上移动到更高一层来计算父节点
+的和，直到最后到达线段树的根节点。
+复杂度分析时间复杂度：O(n)O(n)。因为我们在 for 循环的每次迭
+代中计算一个节点的和。而一个线段树中大约有 2n2n 个节点。
+这可以通过以下方式证明：具有 nn 个元素的数组线段树有 nn
+个叶节点（数组元素本身）。每一层中的节点数是下面一层
+中节点数的一半。因此，如果我们按层对节点数求和，我们
+将得到：n + n/2 + n/4 + n/8 + \ldots + 1 \approx 2nn+n/2+n/4+n/8+…+1≈2n空间
+复杂度：O(n)O(n)，我们用了 2n2n 的额外空间来存储整个线段树。
+更新线段树 :当我们更新数组中某个索引 ii 处的元素时，
+我们需要重建线段树，因为一些树节点上的和值也会随之
+产生变化。我们将再次使用自下而上的方法。首先更新存
+储 a[i]a[i] 元素的叶节点。从那里我们将一路向上，直到根节
+点，并用其子节点值的总和来更新每个父节点的值。
 */
 
 typedef struct {
@@ -44,7 +59,8 @@ void buildTree(NumArray* obj)
 	}
 }
 
-NumArray* numArrayCreate(int* nums, int numsSize) {
+NumArray* numArrayCreate(int* nums, int numsSize)
+{
 	NumArray* obj = (NumArray*)calloc(1, sizeof(NumArray));
 	obj->nums = nums;
 	obj->numsSize = numsSize;
@@ -53,15 +69,16 @@ NumArray* numArrayCreate(int* nums, int numsSize) {
 	return obj;
 }
 
-void numArrayUpdate(NumArray* obj, int i, int val) {
+void numArrayUpdate(NumArray* obj, int i, int val)
+{
         int pos = obj->numsSize+ i;
         obj->tree[pos] = val;
 
         while(pos > 0) {
-            int left = pos%2==0? pos: pos-1;
-            int right = pos%2==0? pos+1: pos;
-            obj->tree[pos/2] = obj->tree[left] + obj->tree[right];
-            pos /= 2;
+		int left = pos % 2 == 0 ? pos : pos-1;
+		int right = pos % 2 == 0 ?  pos + 1 : pos;
+		obj->tree[pos / 2] = obj->tree[left] + obj->tree[right];
+		pos /= 2;
         }
 }
 
@@ -76,6 +93,7 @@ int numArraySumRange(NumArray* obj, int i, int j)
                 sum += obj->tree[l];
                 l++;
             }
+
             if(r % 2 == 0){
                 sum += obj->tree[r];
                 r--;
