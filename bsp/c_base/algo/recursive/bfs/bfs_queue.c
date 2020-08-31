@@ -114,62 +114,6 @@ int orangesRotting(int** grid, int gridSize, int* gridColSize)
     return (count > 0) ? -1: deep;
 }
 
-/*
-733. 图像渲染
-see dfs floodFill*/
-int** floodFill(int** image, int imageSize, int* imageColSize,
-	int sr, int sc, int newColor, int* returnSize, int** returnColumnSizes)
-{
-	int row = imageSize;
-	int col = imageColSize[0];
-
-	*returnSize = imageSize;
-	*returnColumnSizes = imageColSize;
-
-	if (newColor == image[sr][sc]) {
-		return image;
-	}
-
-	int queue[row * col];
-	int head = 0;
-	int rear = 0;
-
-	queue[rear++] = sr * col + sc;
-	int oldColor = image[sr][sc];
-	image[sr][sc] = newColor;
-
-	int d[4][2] = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
-	int deep = 0;
-	while(rear != head) {
-		int floorSize = rear - head;
-		deep++;
-
-		for (int i = 0; i < floorSize; i++) {
-			int pop = queue[head++];
-			int pop_x = pop / col;
-			int pop_y = pop % col;
-
-			for (int k = 0; k < 4; k++) {
-				int nx = pop_x + d[k][0];
-				int ny = pop_y + d[k][1];
-
-				if (nx < 0 || nx >= row || ny < 0 || ny >= col) {
-					continue;
-				}
-
-				if (image[nx][ny] != oldColor) {
-					continue;
-				}
-
-				image[nx][ny] = newColor;
-				queue[rear++] = nx * col + ny;
-			}
-		}
-	}
-
-	return image;
-}
-
 
 /*
 200. 岛屿数量
@@ -197,7 +141,7 @@ void bfs(char** grid, int row, int col, int x, int y)
 	int rear = 0;
 
 	queue[rear++] = x * col + y;
-	grid[x][y] = '0';
+	grid[x][y] = '0'; /*先修改后加入queue，减少入队*/
 
 	int d[4][2] = {{0,1}, {1,0}, {0,-1}, {-1,0}};
 	int deep = 0;
@@ -248,114 +192,6 @@ int numIslands(char** grid, int gridSize, int* gridColSize)
 	}
 
 	return num;
-}
-
-/*
-529. 扫雷游戏
-让我们一起来玩扫雷游戏！
-
-给定一个代表游戏板的二维字符矩阵。
-'M' 代表一个未挖出的地雷，
-'E' 代表一个未挖出的空方块，
-'B' 代表没有相邻（上，下，左，右，和所有4个对角线）
-地雷的已挖出的空白方块，
-数字（'1' 到 '8'）表示有多少地雷与这块已挖出的方块相邻，
-'X' 则表示一个已挖出的地雷。
-
-现在给出在所有未挖出的方块中（'M'或者'E'）的
-下一个点击位置（行和列索引），
-根据以下规则，返回相应位置被点击后对应的面板：
-
-如果一个地雷（'M'）被挖出，游戏就结束了- 把它改为 'X'。
-如果一个没有相邻地雷的空方块（'E'）被挖出，修改它为（'B'），
-并且所有和其相邻的方块都应该被递归地揭露。
-如果一个至少与一个地雷相邻的空方块（'E'）被挖出，
-修改它为数字（'1'到'8'），表示相邻地雷的数量。
-如果在此次点击中，若无更多方块可被揭露，则返回面板。
-
-
-示例 1：
-
-输入:
-
-[['E', 'E', 'E', 'E', 'E'],
- ['E', 'E', 'M', 'E', 'E'],
- ['E', 'E', 'E', 'E', 'E'],
- ['E', 'E', 'E', 'E', 'E']]
-
-Click : [3,0]
-
-*/
-
-/**
- * Return an array of arrays of size *returnSize.
- * The sizes of the arrays are returned as *returnColumnSizes array.
- * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
- */
-char** updateBoard(char** board, int boardSize, int* boardColSize,
-	int* click, int clickSize, int* returnSize, int** returnColumnSizes)
-{
-	int row = boardSize;
-	int col = boardColSize[0];
-	int queue[row * col * 1000];
-	int head = 0;
-	int rear = 0;
-
-	*returnSize = boardSize;
-	*returnColumnSizes = boardColSize;
-	if (board == NULL || boardSize <= 0 || boardColSize == NULL || click == NULL || clickSize != 2)
-		return board;
-
-	queue[rear++] = click[0] * col + click[1];
-
-	int deep = 0;
-	int d[][2] = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}, {1, -1}, {-1, 1}, {-1, -1}, {1, 1}};
-	while(head != rear) {
-		int floorSize = rear - head;
-		deep++;
-		for (int i = 0; i < floorSize; i++) {
-			int pop = queue[head++];
-			int popx = pop / col;
-			int popy = pop % col;
-
-			if (board[popx][popy] == 'M') {
-				board[popx][popy] = 'X';
-				return board;
-			}
-
-			int mineCnt = 0;
-			for (int k = 0; k < 8; k++) {
-				int nx = popx + d[k][0];
-				int ny = popy + d[k][1];
-
-				if (nx < 0 || nx >= row || ny < 0 || ny >= col) {
-					continue;
-				}
-
-				if (board[nx][ny] == 'M') {
-					mineCnt++;
-				}
-			}
-
-			if (mineCnt > 0 && board[popx][popy] == 'E') {
-				board[popx][popy] = '0' + mineCnt;
-			} else if (board[popx][popy] == 'E'){
-				board[popx][popy] = 'B';
-				for (int k = 0; k < 8; k++) {
-					int nx = popx + d[k][0];
-					int ny = popy + d[k][1];
-
-					if (nx < 0 || nx >= row || ny < 0 || ny >= col) {
-						continue;
-					}
-
-					queue[rear++] = nx * col + ny;
-				}
-			}
-		}
-	}
-
-	return board;
 }
 
 /*
@@ -431,6 +267,7 @@ int prerequisitesSize, int* prerequisitesColSize)
 
 	return cnt == numCourses;
 }
+
 
 /*
 210. 课程表 II
