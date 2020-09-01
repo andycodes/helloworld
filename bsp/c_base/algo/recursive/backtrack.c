@@ -947,3 +947,97 @@ void solveSudoku(char** board, int boardSize, int* boardColSize)
 	backtrack(board, rowVisited, colVisited, boxVisited, 0, 0, boardSize, boardColSize);
 }
 
+/*
+10. 正则表达式匹配
+给你一个字符串 s 和一个字符规律 p，请你来实现一个支持 '.' 和 '*' 的正则表达式匹配。
+
+'.' 匹配任意单个字符
+'*' 匹配零个或多个前面的那一个元素
+所谓匹配，是要涵盖 整个 字符串 s的，而不是部分字符串。
+
+说明:
+
+s 可能为空，且只包含从 a-z 的小写字母。
+p 可能为空，且只包含从 a-z 的小写字母，以及字符 . 和 *。
+示例 1:
+
+输入:
+s = "aa"
+p = "a"
+输出: false
+解释: "a" 无法匹配 "aa" 整个字符串。
+*/
+bool isMatch(char * s, char * p){
+    if (!*p) return !*s;
+    bool first_match = *s && (*s == *p || *p == '.');
+    if (*(p+1) == '*') {
+        return isMatch(s, p+2) || (first_match && isMatch(++s, p));
+    }
+    else {
+        return first_match && isMatch(++s, ++p);
+    }
+}
+
+int memo[100][100];
+bool dfs(char *s,char *p,int s_index,int p_index)
+{
+    if(s[s_index]=='\0'&&p[p_index]=='\0')return true;//如果都遍历到最后说明匹配成功
+    if(p[p_index]=='\0')return false;//如果p字符串匹配到最后,而s没有,则匹配不成功
+    if(memo[s_index][p_index]!=-1)return memo[s_index][p_index];//记忆化,判断当前位置是否被搜过,是子直接返回当前结果,省去重复步骤
+    bool flag=false;//初始标记
+    if(p[p_index]=='.')//首先判断该位置是否是点
+    {
+        if(p[p_index+1]=='*')//然后判断下一个是否是*,如果是*,则可以匹配s中的任意个不同字符
+        {
+            for(int i=s_index;i<=strlen(s);i++)//遍历s当前位置到末尾,看是否能匹配成功
+            {
+                flag=dfs(s,p,i,p_index+2);//p是.*代替s,所以加2
+                if(flag==true)//如果能匹配直接停止
+                    break;
+            }
+        }
+        else if(s[s_index]!='\0')//如果下一个不是*,一个.只能匹配一个字符
+        {
+            flag=dfs(s,p,s_index+1,p_index+1);//p是.代替s一个字符,所以各加1
+        }
+    }
+    else if(p[p_index+1]=='*')//如果当前位置是字母,下一个是*,*可以匹配0个或多个s中与当前字母一样的字符
+    {
+        flag=dfs(s,p,s_index,p_index+2);//当匹配0个的情况,p中字母+*代替s中0个字符
+        if(flag==false)//如果匹配不成功
+        {
+            for(int i=s_index;i<strlen(s);i++)//遍历s当前位置到末尾,看是否能匹配成功
+            {
+                if(s[i]==p[p_index])//即p中字母+*是否等价于s当前位置的字母,是则进行下一位置的匹配
+                    flag=dfs(s,p,i+1,p_index+2);
+                else//否则停止
+                    break;
+                if(flag==true)//如果匹配成功停止
+                    break;
+            }
+        }
+    }
+    else if(s[s_index]==p[p_index])//在以上情况不满足的情况下,如果两字符相等,则遍历下一位置
+    {
+        flag=dfs(s,p,s_index+1,p_index+1);
+    }
+    //其他情况皆为false
+    memo[s_index][p_index]=flag;//记忆化存储
+    return flag;
+}
+bool isMatch(char * s, char * p){
+    memset(memo,-1,sizeof(memo));//设-1为未访问过
+    return dfs(s,p,0,0);
+}
+/*
+"mississippi"
+"mis*is*p*."
+"ab"
+".*"
+""
+".*"
+"a"
+".*..a*"
+"aab"
+"c*a*b"
+*/
