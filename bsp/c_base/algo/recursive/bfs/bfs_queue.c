@@ -570,6 +570,7 @@ int shortestDistance(int** grid, int gridSize, int* gridColSize){
     return res;
 }
 
+
 /*
 490. 迷宫
 难度中等43
@@ -710,6 +711,124 @@ int* start, int startSize, int* destination, int destinationSize){
 
         return distance[destination[0]][destination[1]] == INT_MAX ? -1 : distance[destination[0]][destination[1]];
 }
+
+/*
+499. 迷宫 III
+由空地和墙组成的迷宫中有一个球。球可以向上（u）下（d）左（l）右（r）四个方向滚动，但在遇到墙壁前不会停止滚动。当球停下时，可以选择下一个方向。迷宫中还有一个洞，当球运动经过洞时，就会掉进洞里。
+
+给定球的起始位置，目的地和迷宫，找出让球以最短距离掉进洞里的路径。 距离的定义是球从起始位置（不包括）到目的地（包括）经过的空地个数。通过'u', 'd', 'l' 和 'r'输出球的移动方向。 由于可能有多条最短路径， 请输出字典序最小的路径。如果球无法进入洞，输出"impossible"。
+
+迷宫由一个0和1的二维数组表示。 1表示墙壁，0表示空地。你可以假定迷宫的边缘都是墙壁。起始位置和目的地的坐标通过行号和列号给出。
+
+
+
+示例1:
+
+输入 1: 迷宫由以下二维数组表示
+
+0 0 0 0 0
+1 1 0 0 1
+0 0 0 0 0
+0 1 0 0 1
+0 1 0 0 0
+*/
+#define MAX_ROW 30
+#define MAX_COL 30
+
+typedef struct MazeSearch_t {
+    int visited;
+    int step;
+    char* path;
+}MazeSearch;
+
+MazeSearch g_MazeSearch[MAX_ROW][MAX_COL];
+
+void directMove(int** maze, int row, int col, int* hole,
+	int curIdx, int *queue, int dir, int *head, int *rear)
+{
+	int curStep;
+	char *curPath;
+	int dirs[4][2] = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+	char str[4] = {'d', 'u', 'r', 'l'};
+
+	int curRow = curIdx / col;
+	int curCol = curIdx % col;
+	curStep = g_MazeSearch[curRow][curCol].step;
+	curPath = g_MazeSearch[curRow][curCol].path;
+
+	int nextRow = curRow;
+	int nextCol = curCol;
+	while(((nextRow + dirs[dir][0]) >= 0) && ((nextRow + dirs[dir][0]) < row)
+		&& ((nextCol + dirs[dir][1]) >= 0) && ((nextCol + dirs[dir][1]) < col)) {
+
+		if (maze[nextRow + dirs[dir][0]][nextCol + dirs[dir][1]] == 1) // 1表示墙壁
+			break;
+
+		nextRow += dirs[dir][0];
+		nextCol += dirs[dir][1];
+		curStep++;
+
+		if ((nextRow == hole[0]) && (nextCol == hole[1])) // 洞
+			break;
+
+		if (g_MazeSearch[nextRow][nextCol].visited == 1)
+			return;
+	}
+
+	if (curStep == g_MazeSearch[curRow][curCol].step)
+		return;
+	if ((g_MazeSearch[hole[0]][hole[1]].step > 0) && (curStep > g_MazeSearch[hole[0]][hole[1]].step))
+		return;
+	if ((g_MazeSearch[nextRow][nextCol].step > 0) && (curStep > g_MazeSearch[nextRow][nextCol].step))
+		return;
+
+	char* newPath = (char*)malloc(sizeof(char) * (strlen(curPath) + 2));
+	snprintf(newPath, strlen(curPath) + 2, "%s%c", curPath, str[dir]);
+
+	if ((g_MazeSearch[nextRow][nextCol].step == curStep) &&
+		(strcmp(newPath, g_MazeSearch[nextRow][nextCol].path) >= 0)) {
+		free(newPath);
+		return;
+	}
+
+	g_MazeSearch[nextRow][nextCol].step = curStep;
+	if (g_MazeSearch[nextRow][nextCol].path != NULL)
+		free(g_MazeSearch[nextRow][nextCol].path);
+	g_MazeSearch[nextRow][nextCol].path = newPath;
+
+	if ((nextRow == hole[0]) && (nextCol == hole[1]))
+		return;
+
+	queue[*rear] = nextRow * col + nextCol;
+	(*rear)++;
+}
+
+char* findShortestWay(int** maze, int mazeSize, int* colSize, int* ball, int ballSize, int* hole, int holeSize) {
+	int row = mazeSize;
+	int col = colSize[0];
+
+	memset(g_MazeSearch, 0, sizeof(g_MazeSearch));
+	int  queue[row * col];
+	int head = 0;
+	int rear = 0;
+
+	queue[rear++] = ball[0] * col + ball[1];
+	g_MazeSearch[ball[0]][ball[1]].visited = 1;
+	g_MazeSearch[ball[0]][ball[1]].path = (char*)malloc(sizeof(char));
+	g_MazeSearch[ball[0]][ball[1]].path = "\0";
+
+	while(head != rear) {
+		int pop = queue[head++];
+		for (int i = 0; i < 4; i++) {
+			directMove(maze, row, col, hole, pop, queue, i, &head, &rear);
+		}
+	}
+
+	if (g_MazeSearch[hole[0]][hole[1]].path == NULL)
+		return "impossible";
+	return g_MazeSearch[hole[0]][hole[1]].path;
+}
+
 
 /*
 22. 括号生成dfs
