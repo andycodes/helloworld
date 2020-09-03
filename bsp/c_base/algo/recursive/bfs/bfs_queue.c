@@ -490,6 +490,127 @@ int maximumMinimumPath(int** A, int ASize, int* AColSize)
 }
 
 /*
+407. 接雨水 II
+难度困难214
+给你一个 m x n 的矩阵，其中的值均为非负整数，代表二维高度图每个单元的高度，请计算图中形状最多能接多少体积的雨水。
+
+示例：
+给出如下 3x6 的高度图:
+[
+  [1,4,3,1,3,2],
+  [3,2,1,3,2,4],
+  [2,3,3,2,3,1]
+]
+
+返回 4 。
+*/
+/*
+Given the following 3x6 height map:
+[
+[1,4,3,1,3,2],
+[3,2,1,3,2,4],
+[2,3,3,2,3,1]
+]
+*/
+
+/*
+Q<x,y,h>：优先级队列；
+将地图的四周作为第一个边界，存入Q；
+总储水量 = 0;
+while(Q不空){
+    <x,y,h> = Q弹出堆顶;
+    for(<nx,ny> in <x,y>的上下左右){
+        if(<nx,ny> 在图上 且 在边界内部){
+            总储水量 += max(0, h - <nx,ny>的高度);
+            新边界位置<nx,ny, max(h,<nx,ny>的高度)>入Q;
+        }
+    }
+}
+*/
+/*
+假设"第一个元素"在数组中的索引为 0 的话，
+则父节点和子节点的位置关系如下：
+(01) 索引为i的左孩子的索引是 (2*i+1);
+(02) 索引为i的左孩子的索引是 (2*i+2);
+(03) 索引为i的父结点的索引是 floor((i-1)/2);
+
+二叉堆的核心是"添加节点"和"删除节点"
+
+第K小元素 ----大堆栈
+*/
+#define PRIORITY_QUEUE_MIN
+int dirR[4] = {-1, 0, 1, 0};
+int dirC[4] = {0, 1, 0, -1};
+int trapRainWater(int** heightMap, int heightMapSize, int* heightMapColSize)
+{
+	int row = heightMapSize;
+	int col = *heightMapColSize;
+
+	if (row == 0 || col ==0) return 0;
+
+	int hpSzie = fmax(1024, row * col);
+	struct HeapCtrl *hp = heapInit(hpSzie);
+	// 是否访问到；是否在围墙外层
+	int visited[row][col];
+	memset(visited, 0, sizeof(visited));
+
+	// 边界入堆
+        for (int i =0; i< col; i++){
+		struct heapEntry node;
+		node.x = 0;
+		node.y = i;
+		node.key = heightMap[0][i];
+		heapPush(hp,node);
+
+		node.x = row - 1;
+		node.y = i;
+		node.key = heightMap[row-1][i];
+		heapPush(hp,node);
+
+            visited[0][i] = visited[row-1][i] = 1;
+        }
+
+        for (int i = 1; i< row -1; i++){
+		struct heapEntry node;
+		node.x = i;
+		node.y = 0;
+		node.key = heightMap[i][0];
+		heapPush(hp,node);
+		node.x = i;
+		node.y = col - 1;
+		node.key = heightMap[i][col-1];
+		heapPush(hp,node);
+              visited[i][0] = visited[i][col-1] = 1;
+        }
+
+        int ans = 0;
+        while (!heapEmpty(hp)){
+            struct heapEntry top = heapPop(hp);
+
+            for (int d = 0; d< 4; d++) {
+		int nx = dirR[d] + top.x;
+		int ny = dirC[d] + top.y;
+		if (nx <0 || nx >=row || ny < 0|| ny >= col)
+			continue;
+		if (visited[nx][ny])
+			continue;
+		visited[nx][ny] = 1;
+		if (heightMap[nx][ny] < top.key){
+			ans += (top.key - heightMap[nx][ny]);
+		}
+		struct heapEntry node;
+		node.x = nx;
+		node.y = ny;
+		node.key = fmax(top.key, heightMap[nx][ny]);
+		heapPush(hp,node);
+            }
+        }
+        return ans;
+}
+
+
+
+/*
 317. 离建筑物最近的距离
 难度困难29
 你是个房地产开发商，想要选择一片空地 建一栋大楼。你想把这栋大楼够造在一个距离周边设施都比较方便的地方，通过调研，你希望从它出发能在 最短的距离和 内抵达周边全部的建筑物。请你计算出这个最佳的选址到周边全部建筑物的 最短距离和。
@@ -829,6 +950,96 @@ char* findShortestWay(int** maze, int mazeSize, int* colSize, int* ball, int bal
 	return g_MazeSearch[hole[0]][hole[1]].path;
 }
 
+/*
+1036. 逃离大迷宫
+在一个 10^6 x 10^6 的网格中，每个网格块的坐标为 (x, y)，其中 0 <= x, y < 10^6。
+
+我们从源方格 source 开始出发，意图赶往目标方格 target。每次移动，我们都可以走到网格中在四个方向上相邻的方格，只要该方格不在给出的封锁列表 blocked 上。
+
+只有在可以通过一系列的移动到达目标方格时才返回 true。否则，返回 false。
+
+
+
+示例 1：
+
+输入：blocked = [[0,1],[1,0]], source = [0,0], target = [0,2]
+输出：false
+解释：
+从源方格无法到达目标方格，因为我们无法在网格中移动。
+示例 2：
+
+输入：blocked = [], source = [0,0], target = [999999,999999]
+输出：true
+解释：
+因为没有方格被封锁，所以一定可以到达目标方格。
+*/
+struct node {
+    int x;
+    int y;
+};
+
+int dirs[4][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+
+// -1表示被困住了，2表示达到了目的地，1表示超过了len的封锁
+int bfs(int* source, int* target, int** blocked , int blockedSize) {
+    struct node nn[100000] = {0};
+    int cnt = 1;
+    nn[0].x = source[0];
+    nn[0].y = source[1];
+    int ll = 2 * (blockedSize + 2);
+    bool visited[ll][ll];
+    memset(visited, 0, ll*ll);
+    int cur = 0;
+    while (cur < cnt) {
+        struct node n = nn[cur++];
+        int x = n.x;
+        int y = n.y;
+        int disx = x - source[0] > 0 ? x - source[0] : source[0] - x;
+        int disy = y - source[1] > 0 ? y - source[1] : source[1] - y;
+        if (disx > blockedSize || disy > blockedSize) return 1;
+        if (x == target[0] && y == target[1]) return 2;
+        for (int i = 0; i < 4; i++) {
+            int nx = x + dirs[i][0];
+            int ny = y + dirs[i][1];
+            if (nx < 0 || nx >= 1000000) continue;
+            if (ny < 0 || ny >= 1000000) continue;
+            if (visited[nx-source[0]+blockedSize+1][ny-source[1]+blockedSize+1] == 1) continue;
+            bool isBlock = false;
+            for (int k = 0; k < blockedSize; k++) {
+                if (nx == blocked[k][0] && ny == blocked[k][1]) {
+                    isBlock = true;
+                    break;
+                }
+            }
+            if (isBlock) continue;
+            nn[cnt].x = nx;
+            nn[cnt].y = ny;
+            cnt++;
+            visited[nx-source[0]+blockedSize+1][ny-source[1]+blockedSize+1] = 1;
+        }
+    }
+    return -1;
+}
+
+bool isEscapePossible(int** blocked, int blockedSize, int* blockedColSize, int* source, int sourceSize, int* target, int targetSize){
+    // block的长度为len，接住矩形的边，障碍点最多可以封住边长为len的矩形
+    // 从source和target按普通的bfs去走，如果碰到了彼此则成功，如果到达点的坐标离起始点坐标大于len则也会成功
+    int r = bfs(source, target, blocked, blockedSize);
+    if (r == -1) return false;
+    if (r == 2) return true;
+    r = bfs(target, source, blocked, blockedSize);
+    if (r == -1) return false;
+    return true;
+}
+
+/*
+22. 括号生成dfs
+bfs  left right 为总数减法到0 */
+struct DataEntry {
+	int left;
+	int right;
+	char* path;
+};
 
 /*
 22. 括号生成dfs
@@ -841,42 +1052,43 @@ char** generateParenthesis(int n, int* returnSize)
 	}
 
 	char** res = (char**)calloc(1024 * 1024, sizeof(char*));
-	struct List list;
-	queue_init(&list);
+	struct DataEntry queue[1024 * 1024];
+	int head = 0;
+	int rear = 0;
+	queue[rear].left= n;
+	queue[rear].right = n;
+	queue[rear].path = calloc(1, sizeof(char));
+	rear++;
 
-	struct DataEntry  *entry = (struct DataEntry  *)calloc(1, sizeof(struct DataEntry));
-	entry->left = n;
-	entry->right = n;
-	memset(entry->data, 0, sizeof(entry->data));
-	ListAddTail(&list, &entry->node);
+	while(head != rear) {
+		struct DataEntry pop = queue[head++];
+		int popsize = strlen(pop.path);
 
-	while(!queue_empty(&list)) {
-		struct Node *pop = queue_pop(&list);
-		struct DataEntry  *popEntry = NODE_ENTRY(pop, struct DataEntry, node);
-
-		if (popEntry->left == 0 && popEntry->right == 0) {
-			res[*returnSize] = (char*)calloc(1024 * 1024, sizeof(char));
-			strcpy(res[*returnSize], popEntry->data);
+		if (pop.left == 0 && pop.right == 0) {
+			res[*returnSize] = strdup(pop.path);
 			(*returnSize)++;
 		}
 
-		if (popEntry->left > 0) {
-			struct DataEntry  *leftentry = (struct DataEntry  *)calloc(1, sizeof(struct DataEntry));
-			leftentry->left = popEntry->left - 1;
-			leftentry->right = popEntry->right;
-			strcpy(leftentry->data, popEntry->data);
-			strcat(leftentry->data, "(");
-			ListAddTail(&list, &leftentry->node);
+		if (pop.left > 0) {
+			queue[rear].left = pop.left - 1;
+			queue[rear].right = pop.right;
+			queue[rear].path = (char *)calloc(popsize + 2, sizeof(char));
+			strcpy(queue[rear].path, pop.path);
+			strcat(queue[rear].path, "(");
+			rear++;
 		}
 
-		if (popEntry->right > 0 && popEntry->left < popEntry->right) {
-			struct DataEntry  *rightentry = (struct DataEntry  *)calloc(1, sizeof(struct DataEntry));
-			rightentry->left = popEntry->left;
-			rightentry->right = popEntry->right - 1;
-			strcpy(rightentry->data, popEntry->data);
-			strcat(rightentry->data, ")");
-			ListAddTail(&list, &rightentry->node);
+		if (pop.right > 0 && pop.left < pop.right) {
+			queue[rear].left = pop.left;
+			queue[rear].right = pop.right - 1;
+			queue[rear].path = (char *)calloc(popsize + 2, sizeof(char));
+			strcpy(queue[rear].path, pop.path);
+			strcat(queue[rear].path, ")");
+			rear++;
 		}
+
+		free(pop.path);
+		pop.path = NULL;
 	}
 
 	return res;
@@ -965,307 +1177,24 @@ int shortestPath(int** grid, int gridSize, int* gridColSize, int k)
 	return -1;
 }
 
-/*
-407. 接雨水 II
-难度困难214
-给你一个 m x n 的矩阵，其中的值均为非负整数，代表二维高度图每个单元的高度，请计算图中形状最多能接多少体积的雨水。
-
-示例：
-给出如下 3x6 的高度图:
-[
-  [1,4,3,1,3,2],
-  [3,2,1,3,2,4],
-  [2,3,3,2,3,1]
-]
-
-返回 4 。
-*/
-/*
-Given the following 3x6 height map:
-[
-[1,4,3,1,3,2],
-[3,2,1,3,2,4],
-[2,3,3,2,3,1]
-]
-*/
 
 /*
-Q<x,y,h>：优先级队列；
-将地图的四周作为第一个边界，存入Q；
-总储水量 = 0;
-while(Q不空){
-    <x,y,h> = Q弹出堆顶;
-    for(<nx,ny> in <x,y>的上下左右){
-        if(<nx,ny> 在图上 且 在边界内部){
-            总储水量 += max(0, h - <nx,ny>的高度);
-            新边界位置<nx,ny, max(h,<nx,ny>的高度)>入Q;
-        }
-    }
-}
+542. 01 矩阵
+给定一个由 0 和 1 组成的矩阵，找出每个元素到最近的 0 的距离。
+
+两个相邻元素间的距离为 1 。
+
+示例 1:
+输入:
+
+0 0 0
+0 1 0
+0 0 0
 */
-/*
-假设"第一个元素"在数组中的索引为 0 的话，
-则父节点和子节点的位置关系如下：
-(01) 索引为i的左孩子的索引是 (2*i+1);
-(02) 索引为i的左孩子的索引是 (2*i+2);
-(03) 索引为i的父结点的索引是 floor((i-1)/2);
-
-二叉堆的核心是"添加节点"和"删除节点"
-
-第K小元素 ----大堆栈
-*/
-#define PRIORITY_QUEUE_MIN
-struct heapEntry {
-	int x;
-	int y;
-	int key;
-};
-
-struct HeapCtrl{
-	int size;
-	int cap;
-	void (*rmdown)(struct HeapCtrl *, int , int);
-	void (*pushup)(struct HeapCtrl *, int);
-	struct heapEntry node[0];
-};
-
-#ifdef PRIORITY_QUEUE_MAX
-void maxheapPushup(struct HeapCtrl *hp, int start)
-{
-	int child = start; // 当前节点(current)的位置
-	int p = (child - 1) / 2;// 父(parent)结点的位置
-	struct heapEntry cur = hp->node[child];// 当前节点(current)的大小
-
-	while(child > 0) {
-		if(hp->node[p].key >= cur.key) {
-			break;
-		} else {
-			hp->node[child] = hp->node[p];
-			child = p;
-			p = (child - 1) / 2;
-		}
-	}
-
-	hp->node[child] = cur;
-}
-
-void maxheapRmdown(struct HeapCtrl *hp, int start, int end)
-{
-	int p = start;
-	int lchild = 2*p + 1;
-	struct heapEntry cur = hp->node[p];
-
-	while(lchild <= end) {
-		if(lchild < end && hp->node[lchild].key < hp->node[lchild+1].key)
-			lchild++;// 左右两孩子中选择较大者，即m_heap[l+1]
-
-		if(cur.key >= hp->node[lchild].key) {
-			break;//调整结束
-		} else {
-			hp->node[p] = hp->node[lchild];
-			p = lchild;
-			lchild = 2*p + 1;
-		}
-	}
-
-	hp->node[p] = cur;
-}
-#endif
-
-#ifdef PRIORITY_QUEUE_MIN
-void minheapPushup(struct HeapCtrl *hp, int start)
-{
-	int child = start;
-	int p = (child - 1) / 2;
-	struct heapEntry cur = hp->node[child];
-
-	while(child > 0) {
-		if (hp->node[p].key <= cur.key) {
-			break;
-		} else {
-			hp->node[child] = hp->node[p];
-			child = p;
-			p = (child - 1) / 2;
-		}
-	}
-
-	hp->node[child] = cur;
-}
-
-void minheapRmdown(struct HeapCtrl *hp, int start, int end)
-{
-	int p = start;
-	int lchild = 2*p + 1;
-	struct heapEntry cur = hp->node[p];
-
-	while(lchild <= end) {
-		if(lchild < end && hp->node[lchild].key > hp->node[lchild+1].key)
-			lchild++;// 左右两孩子中选择较小者，即m_heap[l+1]
-
-		if(cur.key <= hp->node[lchild].key)
-			break;//调整结束
-		else {
-			hp->node[p] = hp->node[lchild];
-			p = lchild;
-			lchild = 2*lchild + 1;
-		}
-	}
-
-	hp->node[p] = cur;
-}
-#endif
-
-int heapGetIdx(struct HeapCtrl *hp, int key)
-{
-	for(int i = 0; i < hp->size; i++) {
-		if (key == hp->node[i].key) {
-			return i;
-		}
-	}
-
-	return -1;
-}
-
-bool heapEmpty(struct HeapCtrl *hp)
-{
-	return hp->size == 0;
-}
-
-bool heapFull(struct HeapCtrl *hp)
-{
-	return hp->size == hp->cap;
-}
-
-int heapSize(struct HeapCtrl *hp)
-{
-	return hp->size;
-}
-
-int heapRm(struct HeapCtrl *hp, int data)
-{
-	int index;
-	if(hp->size == 0)
-		return  -1;
-
-	index = heapGetIdx(hp, data);
-	if (index== -1) {
-		return -1;
-	}
-
-	hp->node[index] = hp->node[--hp->size];// 用最后元素填补
-	// 从index位置开始自上向下调整为最大堆
-	hp->rmdown(hp, index, hp->size -1);
-	return 0;
-}
-
-struct heapEntry heapPop(struct HeapCtrl *hp)
-{
-	struct heapEntry top;
-
-	top = hp->node[0];
-	heapRm(hp, top.key);
-	return top;
-}
-
-int heapPush(struct HeapCtrl *hp, struct heapEntry node)
-{
-	if(heapFull(hp)) {
-		return -1;
-	}
-
-	hp->node[hp->size] = node;
-	hp->pushup(hp, hp->size);
-	hp->size++;
-
-	return 0;
-}
-
-struct HeapCtrl *heapInit(int cap)
-{
-	struct HeapCtrl * hp = (struct HeapCtrl *)calloc(1, sizeof(struct HeapCtrl) + sizeof(struct heapEntry) * cap);
-	hp->cap = cap;
-	hp->rmdown = minheapRmdown;//minheapRmdown
-	hp->pushup = minheapPushup;
-	return hp;
-}
-
-    int dirR[4] = {-1, 0, 1, 0};
-    int dirC[4] = {0, 1, 0, -1};
-
-
-int trapRainWater(int** heightMap, int heightMapSize, int* heightMapColSize)
-{
-	int row = heightMapSize;
-	int col = *heightMapColSize;
-
-	if (row == 0 || col ==0) return 0;
-
-        //priority_queue<Node> q; // 优先队列维护最外层边界
-	int hpSzie = fmax(1024, row * col);
-	struct HeapCtrl *hp = heapInit(hpSzie);
-		// 是否访问到；是否在围墙外层
-       // vector<vector<int>> visited(row , vector<int>(col, 0));
-	int visited[row][col];
-	memset(visited, 0, sizeof(visited));
-        // 边界入堆
-        for (int i =0; i< col; i++){
-            //q.push({0, i, heightMap[0][i]});
-            //q.push({row-1, i, heightMap[row-1][i]});
-		struct heapEntry node;
-		node.x = 0;
-		node.y = i;
-		node.key = heightMap[0][i];
-		heapPush(hp,node);
-		node.x = row - 1;
-		node.y = i;
-		node.key = heightMap[row-1][i];
-		heapPush(hp,node);
-
-            visited[0][i] = visited[row-1][i] = 1;
-        }
-        for (int i = 1; i< row -1; i++){
-            //q.push({i, 0, heightMap[i][0]});
-           // q.push({i, col -1, heightMap[i][col-1]});
-
-		struct heapEntry node;
-		node.x = i;
-		node.y = 0;
-		node.key = heightMap[i][0];
-		heapPush(hp,node);
-		node.x = i;
-		node.y = col - 1;
-		node.key = heightMap[i][col-1];
-		heapPush(hp,node);
-              visited[i][0] = visited[i][col-1] = 1;
-        }
-        int ans = 0;
-
-        while (!heapEmpty(hp)){
-            struct heapEntry top = heapPop(hp);
-
-            for (int d = 0; d< 4; d++){
-                int r = dirR[d] + top.x;
-                int c = dirC[d] + top.y;
-                if (r <0 || r >=row || c < 0|| c >= col) continue;
-                if (visited[r][c]) continue;
-                visited[r][c] = 1;
-                if (heightMap[r][c] < top.key){
-                    ans += (top.key - heightMap[r][c]);
-                }
-                //q.push({r, c, max(top.key, heightMap[r][c])});
-			struct heapEntry node;
-			node.x = r;
-			node.y = c;
-			node.key = fmax(top.key, heightMap[r][c]);
-			heapPush(hp,node);
-            }
-        }
-        return ans;
-}
 
 int dir[4][2] = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
-
-int** updateMatrix(int** matrix, int matrixSize, int* matrixColSize, int* returnSize, int** returnColumnSizes)
+int** updateMatrix(int** matrix, int matrixSize,
+	int* matrixColSize, int* returnSize, int** returnColumnSizes)
 {
         int row = matrixSize;
 	int col = *matrixColSize;

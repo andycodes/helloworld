@@ -116,12 +116,6 @@ void heapPush(struct HeapCtrl *hp, struct heapEntry node)
 		return;
 	}
 
-	for (int i = 0; i < hp->size; i++) {
-		if (hp->node[i].key == node.key) {
-			return;
-		}
-	}
-
 	int cidx = hp->size;
 	int fidx = (cidx - 1) / 2;
 
@@ -141,9 +135,7 @@ void heapPush(struct HeapCtrl *hp, struct heapEntry node)
 
 struct heapEntry heapPop(struct HeapCtrl *hp)
 {
-	struct heapEntry top;
-
-	top = hp->node[0];
+	struct heapEntry top = hp->node[0];
 	if (heapEmpty(hp)) {
 		return top; // err
 	}
@@ -159,7 +151,7 @@ struct heapEntry heapPop(struct HeapCtrl *hp)
 		if(hp->node[cidx].key < cmp.key) {
 			hp->node[fidx] = hp->node[cidx];
 			fidx = cidx;
-			cidx = 2*cidx + 1;
+			cidx = 2 * fidx + 1;
 		} else {
 			break;
 		}
