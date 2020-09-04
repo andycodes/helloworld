@@ -23,98 +23,78 @@
 */
 int GetNum(char* input, int begin, int end)
 {
-    int i;
-    int num = 0;
+	int i;
+	int num = 0;
 
-    for (i = begin; i <= end; i++) {
-        num = num * 10 + input[i] - '0';
-    }
+	for (i = begin; i <= end; i++) {
+		num = num * 10 + input[i] - '0';
+	}
 
-    return num;
+	return num;
 }
 
-int* CalNum(char* input, int begin, int end, int* num)
+
+int* CalNum(char* input, int begin, int end, int*returnSize)
 {
-    int i;
-    int m, n;
-    int* out = NULL;
-    int* leftOut = NULL;
-    int* rightOut = NULL;
-    int leftNum = 0;
-    int rightNum = 0;
-    bool isNum = true;
-    int res = 0;
+	int i;
+	int m, n;
+	int* res = NULL;
+	int* leftOut = NULL;
+	int* rightOut = NULL;
+	int leftNumSize = 0;
+	int rightNumSize = 0;
+	bool isdigit = true;
+	int result = 0;
 
-    out = (int*)malloc(sizeof(int) * 2000);
-    *num = 0;
+	res = (int*)malloc(sizeof(int) * 2000);
+	*returnSize = 0;
 
-    for (i = begin; i <= end; i++) {
-           if (ispunct(input[i])) {
-	            leftOut = CalNum(input, begin, i - 1, &leftNum);
-	            rightOut = CalNum(input, i + 1, end, &rightNum);
+	for (i = begin; i <= end; i++) {
+		if (ispunct(input[i])) {
+			leftOut = CalNum(input, begin, i - 1, &leftNumSize);
+			rightOut = CalNum(input, i + 1, end, &rightNumSize);
 
-	            for (m = 0; m < leftNum; m++) {
-	                for (n = 0; n < rightNum; n++) {
-	                    switch (input[i]) {
-	                    case '+':
-	                        res = leftOut[m] + rightOut[n];
-	                        break;
-	                    case '-':
-	                        res = leftOut[m] - rightOut[n];
-	                        break;
-	                    case '*':
-	                        res = leftOut[m] * rightOut[n];
-	                        break;
-	                    default:
-	                        break;
-	                    }
-	                    out[*num] = res;
-	                    *num += 1;
-	                }
-	            }
-	            free(leftOut);
-	            free(rightOut);
-	            leftOut = NULL;
-	            rightOut = NULL;
-	            isNum = false;
-        }
-    }
+			for (m = 0; m < leftNumSize; m++) {
+				for (n = 0; n < rightNumSize; n++) {
+					switch (input[i]) {
+						case '+':
+						result = leftOut[m] + rightOut[n];
+						break;
+						case '-':
+						result = leftOut[m] - rightOut[n];
+						break;
+						case '*':
+						result = leftOut[m] * rightOut[n];
+						break;
+						default:
+						break;
+					}
 
-    if (isNum) {
-        out[*num] = GetNum(input, begin, end);
-        *num += 1;
-    }
-    return out;
+					res[*returnSize] = result;
+					(*returnSize)++;
+				}
+			}
+
+			free(leftOut);
+			free(rightOut);
+			leftOut = NULL;
+			rightOut = NULL;
+
+			isdigit = false;
+		}
+	}
+
+	if (isdigit) {//字符串没有符号位；都是数字
+		res[*returnSize] = GetNum(input, begin, end);
+		(*returnSize)++;
+	}
+	return res;
 }
 
-
-/**
-* Note: The returned array must be malloced, assume caller calls free().
-*/
-int* diffWaysToCompute(char* input, int* returnSize) {
-    return CalNum(input, 0, strlen(input) - 1, returnSize);
-}
-
-
-
-
-int main(void) {
-    char array[2][20] = {
-        "2-1-1",
-        "2*3-4*5"
-    };
-
-    for (int j = 0; j < 2; j++) {
-        int returnSize = 0;
-        int* result = NULL;
-        result = diffWaysToCompute(array[j], &returnSize);
-        qsort(result, returnSize, sizeof(int), cmp_int);
-        for (int i = 0; i < returnSize; i++) {
-            printf("%d ", result[i]);
-        }
-        printf("\n");
-    }
-    return 0;
+int* diffWaysToCompute(char* input, int* returnSize)
+{
+	*returnSize = 0;
+	return CalNum(input, 0, strlen(input) - 1, returnSize);
 }
 
 
@@ -122,19 +102,10 @@ int main(void) {
 932. 漂亮数组
 对于某些固定的 N，如果数组 A 是整数 1, 2, ..., N 组成的排列，
 使得：
-
 对于每个 i < j，都不存在 k 满足 i < k < j 使得 A[k] * 2 = A[i] + A[j]。
-
 那么数组 A 是漂亮数组。
-
-
-
 给定 N，返回任意漂亮数组 A（保证存在一个）。
-
-
-
 示例 1：
-
 输入：4
 输出：[2,1,4,3]
 

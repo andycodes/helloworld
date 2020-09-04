@@ -537,3 +537,8 @@ isascii
 */
 int isascii(int ch);
 
+/*
+除了字母和十进制数字以外的所有图形字符都会被判定为标点符号；
+*/
+int ispunct ( int c );
+
