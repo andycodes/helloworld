@@ -1196,92 +1196,47 @@ int dir[4][2] = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
 int** updateMatrix(int** matrix, int matrixSize,
 	int* matrixColSize, int* returnSize, int** returnColumnSizes)
 {
-        int row = matrixSize;
+	int row = matrixSize;
 	int col = *matrixColSize;
-	int **dist = (int **)calloc(row, sizeof(int *));
+	int **res = (int **)calloc(row, sizeof(int *));
 	for (int i = 0; i < row; i++) {
-		dist[i] = (int *)calloc(col, sizeof(int));
+		res[i] = (int *)calloc(col, sizeof(int));
 	}
 
 	int visited[row][col];
 	memset(visited, 0, sizeof(visited));
-	   int queue[10001];
-		memset(queue, 0, sizeof(queue));
-	   int head = 0;
-	   int rear = 0;
-        // 将所有的 0 添加进初始队列中
-        for (int i = 0; i < row; ++i) {
-            for (int j = 0; j < col; ++j) {
-                if (matrix[i][j] == 0) {
-			queue[rear++] = i * col + j;
-                    visited[i][j] = 1;
-                }
-            }
-        }
+	int queue[10001];
+	int head = 0;
+	int rear = 0;
 
-        // 广度优先搜索
-        while (head != rear) {
-             int top = queue[head++];
-		  int i = top / col;
-		  int j = top % col;
-            for (int d = 0; d < 4; ++d) {
-                int ni = i + dir[d][0];
-                int nj = j + dir[d][1];
-                if (ni >= 0 && ni < row && nj >= 0 && nj < col && !visited[ni][nj]) {
-                    dist[ni][nj] = dist[i][j] + 1;
-				queue[rear++] = ni * col + nj;
-                    visited[ni][nj] = 1;
-                }
-            }
-        }
+	// 将所有的 0 添加进初始队列中
+	for (int i = 0; i < row; ++i) {
+		for (int j = 0; j < col; ++j) {
+			if (matrix[i][j] == 0) {
+				queue[rear++] = i * col + j;
+				visited[i][j] = 1;
+			}
+		}
+	}
+
+	while (head != rear) {
+		int top = queue[head++];
+		int i = top / col;
+		int j = top % col;
+		for (int d = 0; d < 4; ++d) {
+			int nx = i + dir[d][0];
+			int ny = j + dir[d][1];
+			if (nx >= 0 && nx < row && ny >= 0 && ny < col && !visited[nx][ny]) {
+				res[nx][ny] = res[i][j] + 1;
+				queue[rear++] = nx * col + ny;
+				visited[nx][ny] = 1;
+			}
+		}
+	}
 
 	*returnSize = matrixSize;
 	*returnColumnSizes = matrixColSize;
-    return dist;
-}
-
-/*
-Tree 的 BFS 单源 BFS
-图 的 BFS 多源 BFS
-*/
-
-int** updateMatrix(int** matrix, int matrixSize, int* matrixColSize, int* returnSize, int** returnColumnSizes)
-{
-    int m = matrixSize, n = *matrixColSize;
-
-
-    for (int i = 0; i < m; i++) {
-      for (int j = 0; j < n; j++) {
-        matrix[i][j] = matrix[i][j] == 0 ? 0 : 10000;
-      }
-    }
-
-    // 从左上角开始
-    for (int i = 0; i < m; i++) {
-      for (int j = 0; j < n; j++) {
-        if (i - 1 >= 0) {
-          matrix[i][j] = fmin(matrix[i][j], matrix[i - 1][j] + 1);
-        }
-        if (j - 1 >= 0) {
-          matrix[i][j] = fmin(matrix[i][j], matrix[i][j - 1] + 1);
-        }
-      }
-    }
-    // 从右下角开始
-    for (int i = m - 1; i >= 0; i--) {
-      for (int j = n - 1; j >= 0; j--) {
-        if (i + 1 < m) {
-          matrix[i][j] = fmin(matrix[i][j], matrix[i + 1][j] + 1);
-        }
-        if (j + 1 < n) {
-          matrix[i][j] = fmin(matrix[i][j], matrix[i][j + 1] + 1);
-        }
-      }
-    }
-
-	*returnColumnSizes = matrixColSize;
-	*returnSize = matrixSize;
-    return matrix;
+	return res;
 }
 
 /*
@@ -1429,84 +1384,36 @@ DFS
 #define LEFT_P '('
 #define RIGHT_P ')'
 
-struct Queue {
-    char** parentheses;
-    int head;
-    int rear;
-};
-typedef struct Queue Queue_t;
-
-void InitQueue(Queue_t* que)
-{
-    que->parentheses = (char**)calloc(MAX_QUEUE_SIZE, sizeof(char*));
-    for (int i = 0; i < MAX_QUEUE_SIZE; i++) {
-        que->parentheses[i] = (char*)calloc(MAX_WORD_SIZE, sizeof(char));
-    }
-    que->head = que->rear = 0;
-}
-
-void DeInitQueue(Queue_t* que)
-{
-    for (int i = 0; i < MAX_QUEUE_SIZE; i++) {
-        free(que->parentheses[i]);
-    }
-    free(que->parentheses);
-}
-
-bool IsEmpty(Queue_t* que)
-{
-    return que->head == que->rear;
-}
-
-void EnQueue(Queue_t* que, char* strParentheses)
-{
-    strcpy(que->parentheses[que->rear], strParentheses);
-    que->rear = (que->rear + 1) % MAX_QUEUE_SIZE;
-}
-
-void DeQueue(Queue_t* que, char** strParentheses)
-{
-    if (que->head >= que->rear) {
-        return;
-    }
-
-    // strcpy(strParentheses, que->parentheses[que->head]);
-    *strParentheses =  que->parentheses[que->head];
-    que->head = (que->head + 1) % MAX_QUEUE_SIZE;
-}
-
-int GetQueueSize(Queue_t* que)
-{
-    return que->rear - que->head;
-}
-
 bool IsStringValid(char* pString, int* delta)
 {
-    int leftCount = 0;
-    int rightCount = 0;
-    bool flag = true;
-    for (int i = 0; i < strlen(pString); i++) {
-        if (pString[i] == LEFT_P) {
-            leftCount++;
-        } else if (pString[i] == RIGHT_P) {
-            rightCount++;
-        }
-        if (leftCount < rightCount) {
-            flag = false;
-        }
-    }
-    *delta = leftCount - rightCount;
-    if (flag && *delta == 0) {
-        return true;
-    } else {
-        return false;
-    }
+	int leftCount = 0;
+	int rightCount = 0;
+	bool flag = true;
+
+	for (int i = 0; i < strlen(pString); i++) {
+		if (pString[i] == LEFT_P) {
+			leftCount++;
+		} else if (pString[i] == RIGHT_P) {
+			rightCount++;
+		}
+
+		if (leftCount < rightCount) {
+			flag = false;
+		}
+	}
+
+	*delta = leftCount - rightCount;
+	if (flag && *delta == 0) {
+		return true;
+	} else {
+		return false;
+	}
 }
 
-bool IsInQueue(char* pString, Queue_t* que)
+bool IsInQueue(char **queue, int head, int rear, char* pString)
 {
-    for (int i = que->head; i < que->rear; i++) {
-        if (strcmp(pString, que->parentheses[i]) == 0) {
+    for (int i = head; i < rear; i++) {
+        if (strcmp(pString, queue[i]) == 0) {
             return true;
         }
     }
@@ -1515,84 +1422,71 @@ bool IsInQueue(char* pString, Queue_t* que)
 
 void RemoveChar(char* pString, int index)
 {
-    int len = strlen(pString);
-    if (index < 0 || index >= len) {
-        return;
-    }
+	int len = strlen(pString);
+	if (index < 0 || index >= len) {
+		return;
+	}
 
-    for (int i = index; i < len - 1; i++) {
-        pString[i] = pString[i + 1];
-    }
-    pString[len - 1] = '\0';
+	for (int i = index; i < len - 1; i++) {
+		pString[i] = pString[i + 1];
+	}
+	pString[len - 1] = '\0';
 }
 
-void BFS(Queue_t* quePtr, char** rst, int* returnSize)
-{
-    char* tmpStr = NULL;
-    bool flag = false;
-    int delta = 0;
-
-    while (!IsEmpty(quePtr)) {
-        int curSize = GetQueueSize(quePtr);
-        for (int i = 0; i < curSize; i++) {
-            // termination is result ok
-            DeQueue(quePtr, &tmpStr);
-            // process
-            if (IsStringValid(tmpStr, &delta)) {
-                rst[*returnSize] = (char*)calloc(strlen(tmpStr) + 1, sizeof(char));
-                strcpy(rst[*returnSize], tmpStr);
-                *returnSize = *returnSize + 1;
-                flag = true;
-            }
-
-            // drill down and enqueue
-            if (!flag) { // if find result this round
-                for (int k = 0; k < strlen(tmpStr); k++) {
-                    if (tmpStr[k] != LEFT_P && tmpStr[k] != RIGHT_P) {
-                        continue;
-                    }
-
-                    if (tmpStr[k] == LEFT_P && delta < 0) {
-                        continue;
-                    }
-
-                    if (tmpStr[k] == RIGHT_P && delta > 0) {
-                        continue;
-                    }
-
-                    char* tmpStr2 = (char*)calloc(strlen(tmpStr) + 1, sizeof(char));
-                    strcpy(tmpStr2, tmpStr);
-                    RemoveChar(tmpStr2, k);
-                    if (!IsInQueue(tmpStr2, quePtr)) {
-                        EnQueue(quePtr, tmpStr2);
-                    } else {
-                        free(tmpStr2);
-                    }
-                }
-            }
-        }
-        if (flag) {
-            return;
-        }
-    }
-    return;
-}
-
-/**
- * Note: The returned array must be malloced, assume caller calls free().
- */
 char** removeInvalidParentheses(char* s, int* returnSize)
 {
-    Queue_t que;
-    InitQueue(&que);
-    EnQueue(&que, s);
-    char** rst = (char**)calloc(MAX_QUEUE_SIZE, sizeof(char*));
-    *returnSize = 0;
+	char** res = (char**)calloc(MAX_QUEUE_SIZE, sizeof(char*));
+	*returnSize = 0;
 
-    BFS(&que, rst, returnSize);
-    return rst;
+	char *queue[MAX_QUEUE_SIZE];
+	int head = 0;
+	int rear = 0;
+	queue[rear++] = strdup(s);
+	char* tmpStr = NULL;
+	bool flag = false;
+	int delta = 0;
+
+	while (head != rear) {
+		int floorSize = rear - head;
+		for (int i = 0; i < floorSize; i++) {
+			tmpStr = queue[head++];
+
+			if (IsStringValid(tmpStr, &delta)) {
+				res[*returnSize] = strdup(tmpStr);
+				(*returnSize)++;
+				flag = true;
+			}
+
+			// drill down and enqueue
+			if (!flag) { // if find result this round
+				for (int k = 0; k < strlen(tmpStr); k++) {
+					if (tmpStr[k] != LEFT_P && tmpStr[k] != RIGHT_P) {
+						continue;
+					}
+
+					if (tmpStr[k] == LEFT_P && delta < 0) {
+						continue;
+					}
+
+					if (tmpStr[k] == RIGHT_P && delta > 0) {
+						continue;
+					}
+
+					char* tmpStr2 = strdup(tmpStr);
+					//strcpy(tmpStr2, tmpStr);
+					RemoveChar(tmpStr2, k);
+					if (!IsInQueue(queue, head, rear, tmpStr2)) {
+						queue[rear++] = tmpStr2;
+					} else {
+						free(tmpStr2);
+					}
+				}
+			}
+		}
+	}
+
+	return res;
 }
-
 
 /*
 127. 单词接龙
@@ -1622,52 +1516,6 @@ wordList = ["hot","dot","dog","lot","log","cog"]
 
 #define MAX_QUEUE_SIZE 10000
 
-int isValidString(char *popString, char *dicString);
-
-int ladderLength(char * beginWord, char * endWord, char ** wordList, int wordListSize){
-    if ((beginWord == NULL) || (strlen(beginWord) <= 0) || (endWord == NULL) || (strlen(endWord) <= 0) || (wordList == NULL) || (wordListSize <= 0)) {
-        return 0;
-    }
-
-    char *queue[MAX_QUEUE_SIZE];
-    int front = 0;
-    int rear = 0;
-    int *pVisit = (int *)malloc(sizeof(int) * wordListSize);
-    memset(pVisit, 0, sizeof(int) * wordListSize);
-
-    queue[rear] = beginWord;
-    rear++;
-    int step = 0;
-
-    while (front != rear) {
-        step++;
-        int gap = rear - front;
-        if (gap < 0) {
-            gap = front - rear + 1;
-        }
-
-        for (int k = 0; k < gap; k++) {
-            char *pop = queue[front];
-            front = (front + 1) % MAX_QUEUE_SIZE;
-
-            if (strcmp(pop, endWord) == 0) {
-                free(pVisit);
-                return step;
-            }
-
-            for (int i = 0; i < wordListSize; i++) {
-                if ((pVisit[i] == 0) && (isValidString(pop, wordList[i]))) {
-                    queue[rear] = wordList[i];
-                    rear = (rear + 1) % MAX_QUEUE_SIZE;
-                    pVisit[i] = 1;
-                }
-            }
-        }
-    }
-    free(pVisit);
-    return 0;
-}
-
 int isValidString(char *popString, char *dicString)
 {
     int diffNum = 0;
@@ -1684,57 +1532,44 @@ int isValidString(char *popString, char *dicString)
     return 1;
 }
 
-#define MAX_QUEUE_LEN 100000
+int ladderLength(char * beginWord, char * endWord, char ** wordList, int wordListSize){
+	if ((beginWord == NULL) || (strlen(beginWord) <= 0) || (endWord == NULL) || (strlen(endWord) <= 0) || (wordList == NULL) || (wordListSize <= 0)) {
+		return 0;
+	}
 
-int isSequ(char* a, char* b){
-    int len = strlen(a);
-    int count = 0;
-    for(int i = 0; i < len; i++){
-        if(a[i] != b[i])
-            count++;
-    }
-    if(count == 1)
-        return true;
-    else
-        return false;
+	char *queue[MAX_QUEUE_SIZE];
+	int front = 0;
+	int rear = 0;
+	int visited[wordListSize];
+	memset(visited, 0, sizeof(visited));
 
+	queue[rear++] = beginWord;
+	int step = 0;
+
+	while (front != rear) {
+		step++;
+		int floorSize = rear - front;
+		if (floorSize < 0) {
+			floorSize = front - rear + 1;
+		}
+
+		for (int k = 0; k < floorSize; k++) {
+			char *pop = queue[front];
+			front = (front + 1) % MAX_QUEUE_SIZE;
+
+			if (strcmp(pop, endWord) == 0) {
+				return step;
+			}
+
+			for (int i = 0; i < wordListSize; i++) {
+				if ((visited[i] == 0) && (isValidString(pop, wordList[i]))) {
+					queue[rear++] = wordList[i];
+					//rear = (rear + 1) % MAX_QUEUE_SIZE;
+					visited[i] = 1;
+				}
+			}
+		}
+	}
+	//free(visited);
+	return 0;
 }
-
-int ladderLength(char *beginWord, char *endWord, char **wordList, int wordListSize)
-{
-    char* queueList[MAX_QUEUE_LEN] = {0};       //定义一个很大的数组，用来当做队列
-    int head = 0;                               //需要首尾指针标记
-    int tail = 0;
-
-    for(int i = 0; i < wordListSize; i++){
-        if(strcmp(endWord, wordList[i]) == 0){  //字符串中有可以匹配的
-            break;
-        }
-        if(i == wordListSize-1) return 0;       //字符串数组中没有匹配的，return 0
-    }
-    int* mark = (int*)malloc(wordListSize*sizeof(int)); //需要标识这个字符串是否已经遍历过了，避免死循环
-    memset(mark, 0, wordListSize * sizeof(int));
-
-    queueList[tail++] = beginWord;              //初始，起始字符串入队列，尾指针+1
-    int step = 1;
-    while(head != tail){                        //队列不为空，遍历未结束
-        int scop = tail-head;                   //广度搜索，当前这一层有多少个
-        for(int i = 0; i < scop; i++){
-            char *temp = queueList[head++];
-            if(strcmp(temp, endWord) == 0){     //相当于出队列，判断是否符合。首指针++
-                free(mark);
-                return step;
-            }
-            for(int j = 0; j < wordListSize; j++){  //相当于搜索下一层，查是否存在可以变化的
-                if(mark[j] == 0 && isSequ(temp, wordList[j])){
-                    mark[j] = 1;
-                    queueList[tail++] = wordList[j];
-                }
-            }
-        }
-        step++;
-    }
-    free(mark);
-    return 0;
-}
-
