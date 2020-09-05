@@ -1573,3 +1573,106 @@ int ladderLength(char * beginWord, char * endWord, char ** wordList, int wordLis
 	//free(visited);
 	return 0;
 }
+
+
+/*
+934. 最短的桥
+难度中等68
+在给定的二维二进制数组 A 中，存在两座岛。（岛是由四面
+相连的 1 形成的一个最大组。）
+现在，我们可以将 0 变为 1，以使两座岛连接起来，变成一
+座岛。
+返回必须翻转的 0 的最小数目。（可以保证答案至少是 1。）
+
+示例 1：
+输入：[[0,1],[1,0]]
+输出：1
+示例 2：
+输入：[[0,1,0],[0,0,0],[0,0,1]]
+输出：2
+示例 3：
+输入：[[1,1,1,1,1],[1,0,0,0,1],[1,0,1,0,1],[1,0,0,0,1],[1,1,1,1,1]]
+输出：1
+
+*/
+
+/*(明确是2座岛)
+第一步：dfs将第一个的岛屿元素全部标记出来，并顺序入队；
+第二步：bfs遍历队内各元素，将未标记元素标记并入队，step++;
+第三步：找到新的元素为1即为新岛屿，step++返回即可。
+*/
+int d[4][2] = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
+void dfs(int** A, int ASize, int* AColSize, int x, int y)
+{
+	if (x < 0 || y < 0 || x >= ASize || y >= AColSize[x]) {
+		return;
+	}
+
+	if (A[x][y] != 1)
+		return;
+
+	A[x][y] = 2;
+
+	for (int i = 0; i < 4; i++) {
+		dfs(A, ASize, AColSize, x + d[i][0], y + d[i][1]);
+	}
+}
+
+void colorFirstIsland(int** A, int ASize, int* AColSize)
+{
+	for (int i = 0; i < ASize; i++) {
+		for (int j = 0; j < AColSize[i]; j++) {
+			if (A[i][j] == 1) {
+				dfs(A, ASize, AColSize, i, j);
+				return;
+			}
+		}
+	}
+}
+
+int shortestBridge(int** A, int ASize, int* AColSize)
+{
+	colorFirstIsland(A, ASize, AColSize);
+	struct List queue;
+	struct List* pqueue = &queue;
+	queue_init(pqueue);
+
+	for (int i = 0; i < ASize; i++) {
+		for (int j = 0; j < AColSize[i]; j++) {
+			if (A[i][j] == 2) {
+				struct DataEntry  *entry = (struct DataEntry  *)calloc(1, sizeof(struct DataEntry ));
+				entry->key = i;
+				entry->value = j;
+				entry->step = 0;
+				ListAddTail(pqueue, &entry->node);
+			}
+		}
+	}
+
+	while(!queue_empty(pqueue)) {
+		struct DataEntry *pop = queue_pop_entry(pqueue);
+		for (int i = 0; i < 4; i++) {
+			int nx = pop->key + d[i][0];
+			int ny = pop->value + d[i][1];
+
+			if (nx < 0 || ny < 0 || nx >= ASize || ny >= AColSize[nx])
+				continue;
+
+			if (A[nx][ny] == 1)
+				return pop->step;
+
+			if (A[nx][ny] == 0) {
+				A[nx][ny] = 2;
+				struct DataEntry  *entry = (struct DataEntry  *)calloc(1, sizeof(struct DataEntry ));
+				entry->key = nx;
+				entry->value = ny;
+				entry->step = pop->step + 1;
+				ListAddTail(pqueue, &entry->node);
+			}
+		}
+	}
+
+	return 0;
+}
+
+
