@@ -206,6 +206,8 @@ int** combinationSum3(int k, int n, int* returnSize, int** returnColumnSizes)
 	return res;
 }
 
+//20200905
+
 /*
 1034. 边框着色
 给出一个二维整数网格 grid，网格中的每个值表示该位置处的
@@ -839,243 +841,65 @@ char ** restoreIpAddresses(char * s, int* returnSize){
 /*
 491. 递增子序列
 难度中等104
-给定一个整型数组, 你的任务是找到所有该数组的递增子序列，递增子序列的长度至少是2。
+给定一个整型数组, 你的任务是找到所有该数组的递增子
+序列，递增子序列的长度至少是2。
 示例:
 输入: [4, 6, 7, 7]
 输出: [[4, 6], [4, 7], [4, 6, 7], [4, 6, 7, 7], [6, 7], [6, 7, 7], [7,7], [4,7,7]]
 说明:
 1.	给定数组的长度不会超过15。
 2.	数组中的整数范围是 [-100,100]。
-3.	给定数组中可能包含重复数字，相等的数字应该被视为递增的一种情况。
-通过次数8,579
-提交次数17,508
-
-
+3.	给定数组中可能包含重复数字，相等的数字应该被视
+为递增的一种情况。
 */
 
 #define BIG_NUM 100000
-
-void FindSubUp(int* nums, int numsSize, int *map, int index, int len, int **ret, int *retCol, int *cnt)
+void dfs(int* nums, int numsSize, int *path, int index, int pathsize,
+int **ret, int *retCol, int *returnSize)
 {
-    int i;
-    int duplicate[201] = {0};
+	int map[201] = {0};
 
-    if (len > 1) {
-        ret[*cnt] = malloc(sizeof(int) * len);
-        memcpy(ret[*cnt], map, sizeof(int) * len);
-        retCol[*cnt] = len;
-        (*cnt)++;
-    }
-
-    for (i = index; i < numsSize; i++) {
-        // 去重，本层不重复遍历相同的数字
-        if (duplicate[nums[i]+100] != 0) {
-            continue;
-        }
-        duplicate[nums[i]+100] = 1;
-        if (len > 0) {
-            if (nums[i] >= map[len-1]) {
-                map[len] = nums[i];
-                FindSubUp(nums, numsSize, map, i+1, len+1, ret, retCol, cnt);
-            }
-        } else {
-            map[len] = nums[i];
-            FindSubUp(nums, numsSize, map, i+1, len+1, ret, retCol, cnt);
-        }
-    }
-    return;
-}
-
-int** findSubsequences(int* nums, int numsSize, int* returnSize, int** returnColumnSizes){
-    int **ret = malloc(sizeof(int *) * BIG_NUM);
-    int *retCol = malloc(sizeof(int) * BIG_NUM);
-    int i;
-    int cnt = 0;
-    int map[15];
-
-    FindSubUp(nums, numsSize, map, 0, 0, ret, retCol, &cnt);
-
-    *returnSize = cnt;
-    *returnColumnSizes = retCol;
-    return ret;
-}
-
-/*
-174. 地下城游戏
-一些恶魔抓住了公主（P）并将她关在了地下城的右下角。地下城是由 M x N 个房间组成的二维网格。我们英勇的骑士（K）最初被安置在左上角的房间里，他必须穿过地下城并通过对抗恶魔来拯救公主。
-
-骑士的初始健康点数为一个正整数。如果他的健康点数在某一时刻降至 0 或以下，他会立即死亡。
-
-有些房间由恶魔守卫，因此骑士在进入这些房间时会失去健康点数（若房间里的值为负整数，则表示骑士将损失健康点数）；其他房间要么是空的（房间里的值为 0），要么包含增加骑士健康点数的魔法球（若房间里的值为正整数，则表示骑士将增加健康点数）。
-
-为了尽快到达公主，骑士决定每次只向右或向下移动一步。
-
-
-
-编写一个函数来计算确保骑士能够拯救到公主所需的最低初始健康点数。
-
-例如，考虑到如下布局的地下城，如果骑士遵循最佳路径 右 -> 右 -> 下 -> 下，则骑士的初始健康点数至少为 7。
-*/
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <string.h>
-#include <math.h>
-#include <ctype.h>
-#include <malloc.h>
-#include <limits.h>
-
-int dfs (int rowIndex, int colIndex, int rowSize, int colSize, int **dungeon) {
-	//
-	if (rowIndex >= rowSize || colIndex >= colSize) {
-		return INT_MAX;
+	if (pathsize > 1) {
+		ret[*returnSize] = malloc(sizeof(int) * pathsize);
+		memcpy(ret[*returnSize], path, sizeof(int) * pathsize);
+		retCol[*returnSize] = pathsize;
+		(*returnSize)++;
 	}
-	// 退出条件
-	if (rowIndex == rowSize - 1 && colIndex == colSize - 1) {
-		if (dungeon[rowIndex][colIndex] >= 0) {
-			// 如果最后一个大于等于0，就返还0。
-			return 0;
+
+	for (int i = index; i < numsSize; i++) {
+		// 去重，本层不重复遍历相同的数字
+		if (map[nums[i]+100] != 0) {
+			continue;
+		}
+
+		map[nums[i]+100] = 1;
+
+		if (pathsize > 0) {
+			if (nums[i] >= path[pathsize-1]) {
+				path[pathsize] = nums[i];
+				dfs(nums, numsSize, path, i+1, pathsize+1, ret, retCol, returnSize);
+			}
 		} else {
-			//如果最后一个小于零，就返回负的值。
-			return -dungeon[rowIndex][colIndex];
+			path[pathsize] = nums[i];
+			dfs(nums, numsSize, path, i+1, pathsize+1, ret, retCol, returnSize);
 		}
 	}
-//  右边格子的最优解，也就是最低的耗血量
-	int rightMin = dfs(rowIndex, colIndex + 1, rowSize, colSize, dungeon);
-//  下边格子的最优解
-	int downMin = dfs(rowIndex + 1, colIndex, rowSize, colSize, dungeon);
-	// f(i,j) = min(f(i+1, j), f(i, j+1)) - dungeon[i][j]
-	int needMin = fmin(rightMin, downMin) - dungeon[rowIndex][colIndex];
-	int res = 0;
-	if (needMin < 0) {
-		res =  0;
-	} else {
-		res = needMin;
-	}
-	//System.out.println(rowIndex+ " "+colIndex + " "  + res);
+}
+
+int** findSubsequences(int* nums, int numsSize,
+	int* returnSize, int** returnColumnSizes)
+{
+	int **res = malloc(sizeof(int *) * BIG_NUM);
+	int *retCol = malloc(sizeof(int) * BIG_NUM);
+	int path[15] = {0};
+	*returnSize = 0;
+	dfs(nums, numsSize, path, 0, 0, res, retCol, returnSize);
+	*returnColumnSizes = retCol;
 	return res;
-}
-
-
-
-int calculateMinimumHP(int** dungeon, int dungeonSize, int* dungeonColSize)
-{
-	if (dungeon == NULL || dungeonSize == 0 || *dungeonColSize == 0) {
-		return 0;
-	}
-	int rowLen = dungeonSize;
-	int colLen = *dungeonColSize;
-	// 最低的耗血量为 + 1；就是骑士的救公主的最低血量。
-	return dfs(0, 0, rowLen, colLen, dungeon) + 1;
-}
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <string.h>
-#include <math.h>
-#include <ctype.h>
-#include <malloc.h>
-#include <limits.h>
-
-int rowSize = 0;
-int colSize = 0;
-int **globalDun = NULL;
-int dfs (int rowIndex, int colIndex,  int memory[rowSize][colSize]) {
-    if (rowIndex >= rowSize || colIndex  >=  colSize) {
-        return INT_MAX;
-    }
-	// 不为-1就是计算过了，直接返回结果。
-    if (memory[rowIndex][colIndex] != -1) {
-        return memory[rowIndex][colIndex];
-    }
-    if (rowIndex == rowSize - 1 && colIndex == colSize - 1) {
-        if (globalDun[rowIndex][colIndex] >= 0) {
-            return 0;
-        } else {
-            return -globalDun[rowIndex][colIndex];
-        }
-    }
-    int right = dfs(rowIndex, colIndex + 1, memory);
-    int down = dfs(rowIndex + 1, colIndex, memory);
-    int needMin = fmin(right, down) - globalDun[rowIndex][colIndex];
-    int res = 0;
-    if (needMin < 0) {
-        res =  0;
-    } else {
-        res =  needMin;
-    }
-    memory[rowIndex][colIndex] = res;
-    //System.out.println(rowIndex+ " "+colIndex + " "  + res);
-    return res;
-}
-
-int calculateMinimumHP(int** dungeon, int dungeonSize, int* dungeonColSize)
-{
-    if (dungeon == NULL || dungeonSize == 0 || *dungeonColSize == 0) {
-        return 0;
-    }
-    rowSize = dungeonSize;
-    colSize = *dungeonColSize;
-    globalDun = dungeon;
-    int memory[rowSize][colSize];
-	// 初始化为-1，便于区别是否计算过结果了。
-    for (int i = 0; i < rowSize; ++i) {
-        for (int j = 0; j < colSize; ++j) {
-            memory[i][j] = -1;
-        }
-    }
-    return dfs(0, 0, memory) + 1;
-}
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <string.h>
-#include <math.h>
-#include <ctype.h>
-#include <malloc.h>
-#include <limits.h>
-
-
-int calculateMinimumHP(int** dungeon, int dungeonSize, int* dungeonColSize)
-{
-    if (dungeon == NULL || dungeonSize == 0 || *dungeonColSize == 0) {
-        return 0;
-    }
-    int rowSize = dungeonSize;
-    int colSize = *dungeonColSize;
-   int dp[rowSize][colSize];
-    // 设置最后一个值。
-  	dp[rowSize - 1][colSize -1] = fmax(0, -dungeon[rowSize - 1][colSize - 1]);
-
-    // 设置最后一列的值
-  	for (int i = rowSize - 2; i >= 0; --i) {
-        int needMin = dp[i + 1][colSize - 1] - dungeon[i][colSize - 1];
-        dp[i][colSize -1] = fmax(0, needMin);
-    }
-
-    // 设置最后一行的值
-  	for (int i = colSize - 2; i >= 0; --i) {
-        int needMin = dp[rowSize - 1][i + 1] - dungeon[rowSize - 1][i];
-        dp[rowSize - 1][i] = fmax(0, needMin);
-    }
-
-    for (int i = rowSize - 2; i >= 0; --i) {
-        for (int j = colSize - 2; j >= 0; --j) {
-			// 从右边和下边选择一个最小值，然后减去当前的 dungeon 值
-            int needMin = fmin(dp[i + 1][j], dp[i][j + 1]) - dungeon[i][j];
-            dp[i][j] = fmax(0, needMin);
-        }
-    }
-    return dp[0][0] + 1;
-
-
 }
 
 /*
 133. 克隆图
-难度中等243收藏分享切换为英文关注反馈
 给你无向 连通 图中一个节点的引用，请你返回该图的 深拷贝（克隆）。
 图中的每个节点都包含它的值 val（int） 和其邻居的列表（list[Node]）。
 class Node {
@@ -1101,37 +925,40 @@ class Node {
 示例 2：
 
 */
+struct Node* dfs(struct Node* s, struct Node** visited)
+{
+	if (s == NULL) {
+		return NULL;
+	}
+/*
+如果该节点已经被访问过了，则直接从哈希表中取出对
+应的克隆节点返回
+*/
+	if (visited[s->val]) {
+		return visited[s->val];
+	}
+/*
+克隆节点，注意到为了深拷贝我们不会克隆它的邻居的
+列表
+*/
+	struct Node* cloneNode = (struct Node*)malloc(sizeof(struct Node));
+	cloneNode->val = s->val;
+	cloneNode->numNeighbors = s->numNeighbors;
 
-struct Node** visited;
+// 哈希表存储
+	visited[cloneNode->val] = cloneNode;
+	cloneNode->neighbors = (struct Node**)malloc(sizeof(struct Node*) * cloneNode->numNeighbors);
 
-struct Node* dfs(struct Node* s) {
-    if (s == NULL) {
-        return NULL;
-    }
-
-    // 如果该节点已经被访问过了，则直接从哈希表中取出对应的克隆节点返回
-    if (visited[s->val]) {
-        return visited[s->val];
-    }
-
-    // 克隆节点，注意到为了深拷贝我们不会克隆它的邻居的列表
-    struct Node* cloneNode = (struct Node*)malloc(sizeof(struct Node));
-    cloneNode->val = s->val;
-    cloneNode->numNeighbors = s->numNeighbors;
-
-    // 哈希表存储
-    visited[cloneNode->val] = cloneNode;
-    cloneNode->neighbors = (struct Node**)malloc(sizeof(struct Node*) * cloneNode->numNeighbors);
-
-    // 遍历该节点的邻居并更新克隆节点的邻居列表
-    for (int i = 0; i < cloneNode->numNeighbors; i++) {
-        cloneNode->neighbors[i] = dfs(s->neighbors[i]);
-    }
-    return cloneNode;
+// 遍历该节点的邻居并更新克隆节点的邻居列表
+	for (int i = 0; i < cloneNode->numNeighbors; i++) {
+		cloneNode->neighbors[i] = dfs(s->neighbors[i], visited);
+	}
+	return cloneNode;
 }
 
-struct Node* cloneGraph(struct Node* s) {
-    visited = (struct Node**)malloc(sizeof(struct Node*) * 101);
-    memset(visited, 0, sizeof(struct Node*) * 101);
-    return dfs(s);
+struct Node* cloneGraph(struct Node* s)
+{
+	struct Node** visited = (struct Node**)calloc(101, sizeof(struct Node*));
+	return dfs(s, visited);
 }
+
