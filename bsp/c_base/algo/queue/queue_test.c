@@ -1,12 +1,5 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
-#include <stdbool.h>
-#include <ctype.h>
-
-
 /*
+353. 贪吃蛇
 请你设计一个 贪吃蛇游戏，该游戏将会在一个 屏幕尺寸 =
 宽度 x 高度 的屏幕上运行。如果你不熟悉这个游戏，可以 点
 击这里 在线试玩。
@@ -50,10 +43,10 @@ struct queue_load{
 };
 */
 
-
-
 typedef struct {
-	struct queue_blk * queue;
+	int queue[10240];
+	int head;
+	int rear;
 	int width;
 	int height;
 	int** food;
@@ -62,15 +55,9 @@ typedef struct {
 	int foodCnt;
 } SnakeGame;
 
-/** Initialize your data structure here.
-        @param width - screen width
-        @param height - screen height
-        @param food - A list of food positions
-        E.g food = [[1,1], [1,0]] means the first food is positioned at [1,1], the second is at [1,0]. */
 SnakeGame* snakeGameCreate(int width, int height, int** food, int foodSize, int* foodColSize)
 {
 	SnakeGame* sg = malloc(sizeof(SnakeGame));
-	sg->queue = create_array_queue(width * height);
 	sg->width = width;
 	sg->height = height;
 	sg->food = food;
@@ -78,11 +65,7 @@ SnakeGame* snakeGameCreate(int width, int height, int** food, int foodSize, int*
 	sg->foodColSize = foodColSize;
 	sg->foodCnt = 0;
 
-	struct queue_load newLoc;
-	newLoc.x = 0;
-	newLoc.y = 0;
-	push(sg->queue, newLoc);
-
+	sg->queue[sg->rear++] = 0;
 	return sg;
 }
 
@@ -99,64 +82,65 @@ bool isFood(SnakeGame* obj,int x, int y)
 }
 
 
-/** Moves the snake.
-        @param direction - 'U' = Up, 'L' = Left, 'R' = Right, 'D' = Down
-        @return The game's score after the move. Return -1 if game over.
-        Game over when snake crosses the screen boundary or bites its body. */
 int snakeGameMove(SnakeGame* obj, char * direction)
 {
-	struct queue_load next;
-	next = back(obj->queue);
-
+	int last = obj->queue[obj->rear - 1];
+	int nx = last /obj->width;
+	int ny = last % obj->width;
 	switch(*direction) {
 		case 'U': {
-				next.x -= 1;
+				nx -= 1;
 		}break;
 		case 'L': {
-				next.y -= 1;
+				ny -= 1;
 		}break;
 		case 'R': {
-				next.y += 1;
+				ny += 1;
 		}break;
 		case 'D': {
-				next.x += 1;
+				nx += 1;
 		}break;
 		default:break;
 	}
 
-	if (next.x < 0 || next.x >= obj->height || next.y < 0 || next.y >= obj->width) {
+	if (nx < 0 || nx >= obj->height || ny < 0 || ny >= obj->width) {
 		return -1;
 	}
 
-	if(!isFood(obj,next.x,next.y)) {
-		(void)pop(obj->queue);
+	if(!isFood(obj,nx,ny)) {
+		obj->head++;
 	}
 
-	for_queue_entry(obj->queue) {
-		if (next.x == obj->queue->load[i].x && next.y == obj->queue->load[i].y) {
+	for (int i = obj->head; i < obj->rear; i++) {
+		if (nx == obj->queue[i] / obj->width && ny == obj->queue[i] % obj->width) {
 			return -1;
 		}
 	}
 
-	push(obj->queue, next);
-	return size(obj->queue) - 1;
-
+	obj->queue[obj->rear++] = nx * obj->width + ny;
+	return obj->rear - obj->head - 1;
 }
 
-void snakeGameFree(SnakeGame* obj) {
-	destroy_array_queue(obj->queue);
+void snakeGameFree(SnakeGame* obj)
+{
 	free(obj);
 	obj == NULL;
 }
+
+
 /*
 604. 迭代压缩字符串
 难度简单17
-对于一个压缩字符串，设计一个数据结构，它支持如下两种操作： next 和 hasNext。
-给定的压缩字符串格式为：每个字母后面紧跟一个正整数，这个整数表示该字母在解压后的字符串里连续出现的次数。
-next() - 如果压缩字符串仍然有字母未被解压，则返回下一个字母，否则返回一个空格。
+对于一个压缩字符串，设计一个数据结构，它支持如下两种
+操作： next 和 hasNext。
+给定的压缩字符串格式为：每个字母后面紧跟一个正整数，
+这个整数表示该字母在解压后的字符串里连续出现的次数。
+next() - 如果压缩字符串仍然有字母未被解压，则返回下一个字
+母，否则返回一个空格。
 hasNext() - 判断是否还有字母仍然没被解压。
 注意：
-请记得将你的类在 StringIterator 中 初始化 ，因为静态变量或类变量在多组测试数据中不会被自动清空。更多细节请访问 这里 。
+请记得将你的类在 StringIterator 中 初始化 ，因为静态变量或类变
+量在多组测试数据中不会被自动清空。更多细节请访问 这里 。
 示例：
 StringIterator iterator = new StringIterator("L1e2t1C1o1d1e1");
 
@@ -180,7 +164,8 @@ typedef struct {
 } StringIterator;
 
 //"L1e2t1C1o1d1e1"
-StringIterator* stringIteratorCreate(char * compressedString) {
+StringIterator* stringIteratorCreate(char * compressedString)
+{
 	StringIterator* obj = (StringIterator*)calloc(1, sizeof(StringIterator));
 	obj->queue = (int *)calloc(strlen(compressedString) * 10, sizeof(int));
 
@@ -203,21 +188,16 @@ StringIterator* stringIteratorCreate(char * compressedString) {
 
 	if (num != 0)
 		obj->queue[obj->rear++] = num;
-
-	//for (int i = 0; i < obj->rear; i += 2) {
-	//	printf("[c]%c %d\n", obj->queue[i], obj->queue[i + 1]);
-	//}
-
 	return obj;
 }
 //"L1e2t1C1o1d1e1"
-char stringIteratorNext(StringIterator* obj) {
+char stringIteratorNext(StringIterator* obj)
+{
 	if (obj->head == obj->rear)
 		return ' ';
 
 	int top = obj->queue[obj->head];
 	obj->queue[obj->head + 1]--;
-	//printf("[s]%c %d\n", top, obj->queue[obj->head + 1]);
 	if (obj->queue[obj->head + 1] <= 0) {
 		obj->head += 2;
 	}
@@ -235,36 +215,22 @@ void stringIteratorFree(StringIterator* obj) {
 	obj = NULL;
 }
 
-/**
- * Your StringIterator struct will be instantiated and called as such:
- * StringIterator* obj = stringIteratorCreate(compressedString);
- * char param_1 = stringIteratorNext(obj);
-
- * bool param_2 = stringIteratorHasNext(obj);
-
- * stringIteratorFree(obj);
-*/
 
 /*
 剑指 Offer 59 - II. 队列的最大值. 队列的最大值
 请定义一个队列并实现函数 max_value 得到队列里的最大值，
 要求函数max_value、push_back 和 pop_front 的时间复杂度都是O(1)。
-
 若队列为空，pop_front 和 max_value 需要返回 -1
-
 示例 1：
-
 输入:
 ["MaxQueue","push_back","push_back","max_value","pop_front","max_value"]
 [[],[1],[2],[],[],[]]
 输出: [null,null,null,2,1,2]
 示例 2：
-
 输入:
 ["MaxQueue","pop_front","max_value"]
 [[],[],[]]
 输出: [null,-1,-1]
-
 */
 
 /*
@@ -286,9 +252,9 @@ deque的出队列的操作
 */
 typedef struct {
 	int head;
-	int tear;
+	int rear;
 	int mhead;
-	int mtear;
+	int mrear;
 	int* queue;
 	int* maxqueue;
 } MaxQueue;
@@ -302,25 +268,25 @@ MaxQueue* maxQueueCreate() {
 }
 
 int maxQueueMax_value(MaxQueue* obj) {
-	if (obj->mhead == obj->mtear) {
+	if (obj->mhead == obj->mrear) {
 		return -1;
 	}
 
 	return obj->maxqueue[obj->mhead];
 }
 
-void maxQueuePush_back(MaxQueue* obj, int value) {
-
-	obj->queue[obj->tear++] = value;
-	while(obj->mtear != obj->mhead && value > obj->maxqueue[obj->mtear - 1]) {
-		obj->mtear--;
+void maxQueuePush_back(MaxQueue* obj, int value)
+{
+	obj->queue[obj->rear++] = value;
+	while(obj->mrear != obj->mhead && value > obj->maxqueue[obj->mrear - 1]) {
+		obj->mrear--;
 	}
 
-	obj->maxqueue[obj->mtear++] = value;
+	obj->maxqueue[obj->mrear++] = value;
 }
 
 int maxQueuePop_front(MaxQueue* obj) {
-	if (obj->head == obj->tear) {
+	if (obj->head == obj->rear) {
 		return -1;
 	}
 
