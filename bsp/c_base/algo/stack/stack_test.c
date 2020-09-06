@@ -995,3 +995,31 @@ int longestValidParentheses(char* s) {
     }
     return maxans;
 }
+
+/* 42. ½ÓÓêË® */
+int trap(int* height, int heightSize)
+{
+	if (height == NULL || heightSize <= 0)
+		return 0;
+
+	int ans = 0, current = 0;
+	int stackSize = fmax(heightSize, 1024);
+	int stack[stackSize];
+	int top = -1;
+
+	while (current < heightSize) {
+		while (top > -1 && height[current] > height[stack[top]]) {
+			int low = stack[top--];
+			if (top < 0)
+				break;
+			int distance = current - stack[top] - 1;
+			int bounded_height = fmin(height[current], height[stack[top]]) - height[low];
+			ans += distance * bounded_height;
+		}
+
+		stack[++top] = current++;
+	}
+
+	return ans;
+}
+
