@@ -153,30 +153,30 @@ R: 向x轴正方向移动一格。
 解释：机器人在到达终点前会碰到(2, 2)的障碍物。
 
 */
-void lower(int *x, int *y, int d1, int d2)
+void lower(int *x, int *y, int numR, int numU)
 {
-	int p1 = *x /d1;
-	int p2 = *y /d2;
+	int p1 = *x /numR;
+	int p2 = *y /numU;
 	int min = p1 > p2 ? p2 : p1;
-	*x = *x - min * d1;
-	*y = *y - min * d2;
+	*x = *x - min * numR;
+	*y = *y - min * numU;
 }
 
-bool isOk(char * command, int x, int y)
+bool isOk(char * command, int newCntR, int newCntU)
 {
 	int i=0;
-	while(x>=0 && y>=0) {
-		if(x==0&&y==0)
+	while(newCntR>=0 && newCntU>=0) {
+		if(newCntR==0&&newCntU==0)
 			return true;
 		if(*(command+i)=='U') {
-			y--;
+			newCntU--;
 		}else  {
-			x--;
+			newCntR--;
 		}
 		i++;
 	}
 
-	if(x==0&&y==0)
+	if(newCntR==0&&newCntU==0)
 	return true;
 		else
 	return false;
@@ -184,7 +184,7 @@ bool isOk(char * command, int x, int y)
 
 bool robot(char * command, int** obstacles, int obstaclesSize, int* obstaclesColSize, int x, int y)
 {
-	int nx = x, ny = y;
+	int newCntR = x, newCntU = y;
 	int numU=0,numR=0;
 
 	for(int i=0; i<strlen(command); i++) {
@@ -195,23 +195,24 @@ bool robot(char * command, int** obstacles, int obstaclesSize, int* obstaclesCol
 		}
 	}
 
-	lower(&nx,&ny,numR,numU);
-	if(!isOk(command,nx,ny))
+	lower(&newCntR,&newCntU,numR,numU);
+	if(!isOk(command,newCntR,newCntU))
 		return false;
 
 	for(int i=0; i<obstaclesSize; i++) {
 		if(obstacles[i][0]>x||obstacles[i][1]>y)
 			continue;
-		nx=obstacles[i][0];
-		ny=obstacles[i][1];
+		newCntR=obstacles[i][0];
+		newCntU=obstacles[i][1];
 
-		lower(&nx,&ny,numR,numU);
-		if(isOk(command,nx,ny))
+		lower(&newCntR,&newCntU,numR,numU);
+		if(isOk(command,newCntR,newCntU))
 			return false;
 	}
 
 	return true;
 }
+
 
 /*
 313. 超级丑数
@@ -233,61 +234,54 @@ bool robot(char * command, int** obstacles, int obstaclesSize, int* obstaclesCol
  *
  * [313] 超级丑数
  */
+int nthSuperUglyNumber(int n, int* primes, int primesSize)
+{
+	if(n == 1) {
+		return 1;
+	}
 
-// @lc code=start
+	int *res = (int *)calloc(n, sizeof(int));
+	int rsize = 0;
 
-//【算法思路】数学。丑数的构造方法。
-int nthSuperUglyNumber(int n, int* primes, int primesSize){
-    if(n == 1)
-    {
-        return 1;
-    }
+	int *pids = (int *)calloc(primesSize, sizeof(int));
 
-    int *res = (int *)calloc(n, sizeof(int));
-    int rsize = 0;
+	res[rsize++] = 1;
 
-    int *pids = (int *)calloc(primesSize, sizeof(int));
+	while(rsize < n) {
+		// 选择最小的(素数*res[pid])，更新其pid
+		int min = INT_MAX;
+		int id = 0;
 
-    res[rsize++] = 1;
+		for(int i = 0; i < primesSize; i++) {
+			int tmin = primes[i] * res[ pids[i] ];
 
-    while(rsize < n)
-    {
-        // 选择最小的(素数*res[pid])，更新其pid
-        int min = INT_MAX;
-        int id = 0;
+			if(tmin < min) {
+				min = tmin;
+				id = i;
+			} else if(tmin == min){
+				pids[i]++; // 去除重复
+			}
+		}
 
-        for(int i = 0; i < primesSize; i++)
-        {
-            int tmin = primes[i] * res[ pids[i] ];
+		res[rsize++] = min;
+		pids[id]++;
+	}
 
-            if(tmin < min)
-            {
-                min = tmin;
-                id = i;
-            }
-            // 去除重复
-            else if(tmin == min)
-            {
-                pids[i]++;
-            }
-        }
-
-        res[rsize++] = min;
-        pids[id]++;
-    }
-
-    return res[n - 1];
+	return res[n - 1];
 }
 
 /*
 1371. 每个元音包含偶数次的最长子字符串
 难度中等245
-给你一个字符串 s ，请你返回满足以下条件的最长子字符串的长度：每个元音字母，即 'a'，'e'，'i'，'o'，'u' ，在子字符串中都恰好出现了偶数次。
+给你一个字符串 s ，请你返回满足以下条件的最长子字符串的
+长度：每个元音字母，即 'a'，'e'，'i'，'o'，'u' ，在子字符串中都恰
+好出现了偶数次。
 
 示例 1：
 输入：s = "eleetminicoworoep"
 输出：13
-解释：最长子字符串是 "leetminicowor" ，它包含 e，i，o 各 2 个，以及 0 个 a，u 。
+解释：最长子字符串是 "leetminicowor" ，它包含 e，i，o 各 2 个，以
+及 0 个 a，u 。
 示例 2：
 输入：s = "leetcodeisgreat"
 输出：5
@@ -295,9 +289,13 @@ int nthSuperUglyNumber(int n, int* primes, int primesSize){
 示例 3：
 输入：s = "bcbcbc"
 输出：6
-解释：这个示例中，字符串 "bcbcbc" 本身就是最长的，因为所有的元音 a，e，i，o，u 都出
+解释：这个示例中，字符串 "bcbcbc" 本身就是最长的，因为所有
+的元音 a，e，i，o，u 都出
 */
-//00000 ~ 11111 一共2^5，32中状态，0表示出现偶数，1表示出现奇数
+/*
+0 代表出现了偶数次，1 代表出现了奇数次
+00000 ~ 11111 一共2^5，32中状态，0表示出现偶数，1表示出现奇数
+*/
 int findTheLongestSubstring(char * s)
 {
 	int n = strlen(s);
@@ -336,7 +334,8 @@ int findTheLongestSubstring(char * s)
 /*
 1296. 划分数组为连续数字的集合
 难度中等25
-给你一个整数数组 nums 和一个正整数 k，请你判断是否可以把这个数组划分成一些由 k 个连续数字组成的集合。
+给你一个整数数组 nums 和一个正整数 k，请你判断是否可以把
+这个数组划分成一些由 k 个连续数字组成的集合。
 如果可以，请返回 True；否则，返回 False。
 
 示例 1：
@@ -377,9 +376,11 @@ bool isPossibleDivide(int* nums, int numsSize, int k){
 /*
 442. 数组中重复的数据
 难度中等205
-给定一个整数数组 a，其中1 ≤ a[i] ≤ n （n为数组长度）, 其中有些元素出现两次而其他元素出现一次。
+给定一个整数数组 a，其中1 ≤ a[i] ≤ n （n为数组长度）, 其中有
+些元素出现两次而其他元素出现一次。
 找到所有出现两次的元素。
-你可以不用到任何额外空间并在O(n)时间复杂度内解决这个问题吗？
+你可以不用到任何额外空间并在O(n)时间复杂度内解决这个
+问题吗？
 示例：
 输入:
 [4,3,2,7,8,2,3,1]
