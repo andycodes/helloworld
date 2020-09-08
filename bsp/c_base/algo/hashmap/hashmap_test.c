@@ -298,42 +298,44 @@ int minimumLengthEncoding(char ** words, int wordsSize)
 输出: 2
 
 */
-int leastBricks(int** wall, int wallSize, int* wallColSize){
-    short cnt[60000] = {0};
-    int i, j, tmp;
+int leastBricks(int** wall, int wallSize, int* wallColSize)
+{
+	short gapX[60000] = {0}; /*列向 缝隙位置*/
+	int i, j, gappos;
+	int row = wallSize;
 
-    for (i = 0; i < wallSize; i++){
-        tmp = 0;
-        for (j = 0; j < (wallColSize[i] - 1); j++){
-            tmp += wall[i][j];
-            cnt[tmp]++;
-        }
-    }
+	for (i = 0; i < row; i++){
+		gappos = 0;
+		for (j = 0; j < (wallColSize[i] - 1); j++) {
+			gappos += wall[i][j];
+			gapX[gappos]++; /* 每行累计列位置缝隙个数 */
+		}
+	}
 
-    tmp = 0;
-    for (i = 0; i < 10000; i++){
-        if (cnt[i] > tmp){
-            tmp = cnt[i];
-        }
-    }
+	int maxGap = 0;
+	for (i = 0; i < 10000; i++){
+		maxGap = fmax(maxGap, colPos[i]);
+	}
 
-    return wallSize - tmp;
+    return wallSize - maxGap;
 }
 
 /*
 781. 森林中的兔子
-森林中，每个兔子都有颜色。其中一些兔子（可能是全部）告诉你还有多少其他的兔子和自己有相同的颜色。我们将这些回答放在 answers 数组里。
-
+森林中，每个兔子都有颜色。其中一些兔子（可能是全部）
+告诉你还有多少其他的兔子和自己有相同的颜色。我们将这
+些回答放在 answers 数组里。
 返回森林中兔子的最少数量。
-
 示例:
 输入: answers = [1, 1, 2]
 输出: 5
 解释:
 两只回答了 "1" 的兔子可能有相同的颜色，设为红色。
-之后回答了 "2" 的兔子不会是红色，否则他们的回答会相互矛盾。
+之后回答了 "2" 的兔子不会是红色，否则他们的回答会相互矛
+盾。
 设回答了 "2" 的兔子为蓝色。
-此外，森林中还应有另外 2 只蓝色兔子的回答没有包含在数组中。
+此外，森林中还应有另外 2 只蓝色兔子的回答没有包含在数
+组中。
 因此森林中兔子的最少数量是 5: 3 只回答的和 2 只没有回答的。
 
 输入: answers = [10, 10, 10]
