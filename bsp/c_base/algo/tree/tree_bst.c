@@ -841,3 +841,192 @@ struct TreeNode* sortedListToBST(struct ListNode* head){
     root->right=sortedListToBST(mid->next);
     return root;
 }
+
+/*
+面试题 17.12. BiNode
+二叉树数据结构TreeNode可用来表示单向链表（其中left置空，right为下一个链表节点）。实现一个方法，把二叉搜索树转换为单向链表，要求依然符合二叉搜索树的性质，转换操作应是原址的，也就是在原始的二叉搜索树上直接修改。
+
+返回转换后的单向链表的头节点。
+
+注意：本题相对原题稍作改动
+
+
+
+示例：
+
+输入： [4,2,5,1,3,null,6,0]
+输出： [0,null,1,null,2,null,3,null,4,null,5,null,6]
+*/
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     struct TreeNode *left;
+ *     struct TreeNode *right;
+ * };
+ */
+
+
+struct TreeNode *cur;
+    void inOrder(struct TreeNode* node)
+    {
+        if(node==NULL)  return ;
+        inOrder(node->left);
+        node->left=NULL;    //将该节点的左孩子设为NULL
+        cur->right=node;    //将该节点赋给上一个节点的右孩子
+        cur=node;           //更新cur
+        inOrder(node->right);
+    }
+struct TreeNode* convertBiNode(struct TreeNode* root)
+{
+    struct TreeNode *ans = (struct TreeNode *)calloc(1, sizeof(struct TreeNode));
+        cur = ans;
+        inOrder(root);
+        return ans->right;
+}
+
+/*
+1038. 从二叉搜索树到更大和树
+给出二叉 搜索 树的根节点，该二叉树的节点值各不相同，修改二叉树，使每个节点 node 的新值等于原树中大于或等于 node.val 的值之和。
+
+提醒一下，二叉搜索树满足下列约束条件：
+
+节点的左子树仅包含键 小于 节点键的节点。
+节点的右子树仅包含键 大于 节点键的节点。
+左右子树也必须是二叉搜索树。
+*/
+
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     struct TreeNode *left;
+ *     struct TreeNode *right;
+ * };
+ */
+
+
+int sum = 0;
+struct TreeNode* backingInOrder(struct TreeNode* root)
+{
+        if(root != NULL){
+            backingInOrder(root->right);
+            sum = sum + root->val;
+            root->val = sum;
+            backingInOrder(root->left);
+        }
+        return root;
+}
+
+struct TreeNode* bstToGst(struct TreeNode* root)
+{
+	sum = 0;
+	return backingInOrder(root);
+}
+
+/*
+1382. 将二叉搜索树变平衡
+给你一棵二叉搜索树，请你返回一棵 平衡后 的二叉搜索树，新生成的树应该与原来的树有着相同的节点值。
+
+如果一棵二叉搜索树中，每个节点的两棵子树高度差不超过 1 ，我们就称这棵二叉搜索树是 平衡的 。
+
+如果有多种构造方法，请你返回任意一种。
+
+
+*/
+
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     struct TreeNode *left;
+ *     struct TreeNode *right;
+ * };
+ */
+void func(struct TreeNode* root,int *re,int *returnSize){
+    if(root)//中序遍历二叉搜索树得到一个递增数组
+    {
+        func(root->left,re,returnSize);
+        re[(*returnSize)++]=root->val;
+        func(root->right,re,returnSize);
+    }
+}
+struct TreeNode* createTree(int *nums,int numsSize){
+    //利用一个递增数组创建平衡二叉搜索树
+    if(numsSize==0) return NULL;
+    struct TreeNode *node=(struct TreeNode *)malloc(sizeof(struct TreeNode));
+    node->val=nums[numsSize/2];
+    node->left=createTree(nums,numsSize/2);
+    node->right=createTree(&nums[numsSize/2+1],numsSize-1-numsSize/2);
+    return node;
+}
+struct TreeNode* balanceBST(struct TreeNode* root){
+    int numsSize=0,nums[10000]={0};
+    func(root,nums,&numsSize);
+    return createTree(nums,numsSize);
+}
+
+
+/*
+1373. 二叉搜索子树的最大键值和
+给你一棵以 root 为根的 二叉树 ，请你返回 任意 二叉搜索子树的最大键值和。
+
+二叉搜索树的定义如下：
+
+任意节点的左子树中的键值都 小于 此节点的键值。
+任意节点的右子树中的键值都 大于 此节点的键值。
+任意节点的左子树和右子树都是二叉搜索树。
+
+*/
+ int result = 0;
+struct Result{
+    bool isBST;
+    int sum;
+    int minLeft;
+    int maxLeft;
+};
+
+     struct Result* isBST(struct TreeNode *root){
+        if(root == NULL){
+            return NULL;
+        }
+
+	struct Result *res = (struct Result *)calloc(1, sizeof(struct Result));
+        res->isBST = true;
+        res->sum = root->val;
+        res->maxLeft = root->val;
+        res->minLeft = root->val;
+        if(root->left == NULL && root->right == NULL){
+            res->sum = root->val;
+            res->isBST = true;
+            res->minLeft = root->val;
+            res->maxLeft = root->val;
+            result = fmax(result,res->sum);
+            return res;
+        }else{
+            struct Result* leftRes = isBST(root->left);
+            struct Result* rightRes = isBST(root->right);
+            if(leftRes!=NULL){
+                res->isBST = res->isBST&&leftRes->isBST&&(root->val>leftRes->maxLeft);
+                res->sum += leftRes->sum;
+                res->maxLeft = fmax(leftRes->maxLeft,res->maxLeft);
+                res->minLeft = fmin(leftRes->minLeft,res->minLeft);
+            }
+            if(rightRes != NULL){
+                res->isBST = res->isBST&&rightRes->isBST&&(root->val<rightRes->minLeft);
+                res->sum += rightRes->sum;
+                res->maxLeft = fmax(rightRes->maxLeft,res->maxLeft);
+                res->minLeft = fmin(rightRes->minLeft,res->minLeft);
+            }
+            if(res->isBST){
+                result = fmax(result,res->sum);
+            }
+            return res;
+        }
+    }
+
+int maxSumBST(struct TreeNode* root){
+	result = 0;
+		isBST(root);
+        return result;
+}
