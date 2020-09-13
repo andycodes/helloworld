@@ -5,8 +5,9 @@ bool f = ((x ^ y) < 0); // true
 int x = 3, y = 2;
 bool f = ((x ^ y) < 0); // false
 
-/*绝对值*/
 int abs(int);
+double fabs(double x);
+
 /* sqrt() 用来求给定值的平方根 */
 double sqrt(double x);
 /*pow() 函数用来求 x 的 y 次幂（次方）*/
