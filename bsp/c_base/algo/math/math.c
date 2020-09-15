@@ -413,3 +413,74 @@ int* findDuplicates(int* nums, int numsSize, int* returnSize)
 
 	return res;
 }
+
+/*
+面试题 16.11. 跳水板
+你正在使用一堆木板建造跳水板。有两种类型的木板，其中长度较短的木板长度为shorter，长度较长的木板长度为longer。你必须正好使用k块木板。编写一个方法，生成跳水板所有可能的长度。
+
+返回的长度需要从小到大排列。
+
+示例 1
+
+输入：
+shorter = 1
+longer = 2
+k = 3
+输出： [3,4,5,6]
+解释：
+可以使用 3 次 shorter，得到结果 3；使用 2 次 shorter 和 1 次 longer，得到结果 4 。以此类推，得到最终结果。
+*/
+
+int* divingBoard(int shorter, int longer, int k, int* returnSize) {
+    if (k == 0) {
+        *returnSize = 0;
+        return NULL;
+    }
+    if (shorter == longer) {
+        int* p = (int*)malloc(sizeof(int));
+        *p = shorter * k;
+        *returnSize = 1;
+        return p;
+    }
+    *returnSize = k + 1;
+    int* lengths = (int*)malloc(sizeof(int) * (k + 1));
+    for (int i = 0; i <= k; ++i) {
+        lengths[i] = shorter * (k - i) + longer * i;
+    }
+    return lengths;
+}
+
+/*
+625. 最小因式分解
+给定一个正整数 a，找出最小的正整数 b 使得 b 的所有数位相乘恰好等于 a。
+
+如果不存在这样的结果或者结果不是 32 位有符号整数，返回 0。
+
+
+
+样例 1
+
+输入：
+
+48
+输出：
+
+68s
+*/
+
+int smallestFactorization(int a)
+{
+        if (a <= 1) return a;
+        long b = 0;
+        long tmp = 1;   // 权值,1 表示个位，10表示十位，100表示百位
+        // b 是单调不减的，假如上一位是除以 8 的，那下一位就得从 8 开始往下找
+        for (int i = 9; i >= 2; i--) {  // 注意 i 不能取到 1，否则回死循环
+            while (a % i == 0) {    // 能不能被 i 整除
+                a /= i; // 找到一个可以整除 a 的 i，更新 a 为 a/i
+                b = tmp * i + b;    // 新添新确定的位
+                tmp *= 10;
+            }
+        }
+        // 到最后如果 a 不为 1，说明此时的 a 肯定是质数
+        return a == 1 && b <= INT_MAX ? (int) b : 0;
+}

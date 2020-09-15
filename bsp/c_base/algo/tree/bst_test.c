@@ -486,7 +486,6 @@ int closestValue(struct TreeNode* root, double target)
  -10  5
 
 */
-
 struct ListNode* preMid(struct ListNode *head){       //找链表中间结点的前一个结点
     struct ListNode* slow=head,*fast=head,*preslow=head;
     while(fast!=NULL&&fast->next!=NULL)
@@ -497,9 +496,9 @@ struct ListNode* preMid(struct ListNode *head){       //找链表中间结点的前一个结
     }
     return preslow;
 }
-struct TreeNode* newTreeNode(int root){
+struct TreeNode* newTreeNode(int x){
     struct TreeNode* root=(struct TreeNode*)malloc(sizeof(struct TreeNode));
-    root->val=root;
+    root->val=x;
     root->left=root->right=NULL;
     return root;
 }
@@ -578,17 +577,18 @@ struct TreeNode* convertBiNode(struct TreeNode* root)
  * };
  */
 
-
 int sum = 0;
 struct TreeNode* backingInOrder(struct TreeNode* root)
 {
-        if(root != NULL){
-            backingInOrder(root->right);
-            sum = sum + root->val;
-            root->val = sum;
-            backingInOrder(root->left);
-        }
-        return root;
+	if (root == NULL) {
+		return NULL;
+	}
+
+	backingInOrder(root->right);
+	sum = sum + root->val;
+	root->val = sum;
+	backingInOrder(root->left);
+	return root;
 }
 
 struct TreeNode* bstToGst(struct TreeNode* root)
@@ -704,3 +704,85 @@ int maxSumBST(struct TreeNode* root){
         return result;
 }
 
+
+/*
+776. 拆分二叉搜索树
+给你一棵二叉搜索树（BST）、它的根结点 root 以及目标值 V。
+
+请将该树按要求拆分为两个子树：其中一个子树结点的值都必须小于等于给定的目标值 V；另一个子树结点的值都必须大于目标值 V；树中并非一定要存在值为 V 的结点。
+
+除此之外，树中大部分结构都需要保留，也就是说原始树中父节点 P 的任意子节点 C，假如拆分后它们仍在同一个子树中，那么结点 P 应仍为 C 的子结点。
+
+你需要返回拆分后两个子树的根结点 TreeNode，顺序随意。
+
+
+
+示例：
+
+输入：root = [4,2,6,1,3,5,7], V = 2
+输出：[[2,1],[4,3,6,null,null,5,7]]
+解释：
+注意根结点 output[0] 和 output[1] 都是 TreeNode 对象，不是数组。
+
+给定的树 [4,2,6,1,3,5,7] 可化为如下示意图：
+
+          4
+        /   \
+      2      6
+     / \    / \
+    1   3  5   7
+
+输出的示意图如下：
+
+          4
+        /   \
+      3      6       和    2
+            / \           /
+           5   7         1
+
+
+提示：
+
+二叉搜索树节点个数不超过 50
+二叉搜索树始终是有效的，并且每个节点的值都不相同
+*/
+
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     struct TreeNode *left;
+ *     struct TreeNode *right;
+ * };
+ */
+
+
+int splitSubBST(struct TreeNode* root, int V, struct TreeNode** left, struct TreeNode** right){
+    *left = NULL;
+    *right = NULL;
+    if (root == NULL) {
+        return 0;
+    }
+    if (root->val <= V) {
+        splitSubBST(root->right, V, left, right);
+        root->right = *left;
+        *left = root;
+    } else {
+        splitSubBST(root->left, V, left, right);
+        root->left = *right;
+        *right = root;
+    }
+    return 0;
+}
+
+struct TreeNode** splitBST(struct TreeNode* root, int V, int* returnSize){
+   struct TreeNode** res = (struct TreeNode**)malloc(2 * sizeof(struct TreeNode*));
+    *returnSize = 2;
+    res[0] = NULL;
+    res[1] = NULL;
+    if (root == NULL) {
+        return res;
+    }
+    splitSubBST(root, V, &res[0], &res[1]);
+    return res;
+}
