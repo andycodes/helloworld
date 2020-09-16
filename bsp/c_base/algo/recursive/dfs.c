@@ -41,24 +41,34 @@ candidates 中的数字可以无限制重复被选取。
 target 减法-->0
 sum 加法--->target
 */
-void dfs(int* candidates, int candidatesSize, int start,
+int cmp_int ( const void *a , const void *b)
+{
+        return *(int *)a > *(int *)b;
+}
+
+void dfs(int* candidates, int candidatesSize, int cidx,
     int target, int* returnSize, int** returnColumnSizes,
-    int **res, int *current, int curIdx)
+    int **res, int *path, int pathSize)
 {
 	if (target == 0) {
 		res[*returnSize] = (int*)calloc(1024, sizeof(int));
-		memcpy(res[*returnSize], current, sizeof(int) * curIdx);
-		(*returnColumnSizes)[*returnSize] = curIdx;
+		memcpy(res[*returnSize], path, sizeof(int) * pathSize);
+		(*returnColumnSizes)[*returnSize] = pathSize;
 		(*returnSize)++;
 		return;
 	}
 
-	/*start:组合不重复，上一层已经选用的元
-	素下一层再使用造成重复*/
-	for (int i = start; i < candidatesSize &&  candidates[i] <= target; i++) {
-		current[curIdx] = candidates[i];
+	/*cidx:
+		for : cidx~candidatesSize
+		2367所有组合可能
+		  367所有组合可能
+		   67所有组合可能
+		     7所有组合可能
+	*/
+	for (int i = cidx; i < candidatesSize &&  candidates[i] <= target; i++) {
+		path[pathSize] = candidates[i];
 		dfs(candidates, candidatesSize, i, target - candidates[i],
-			returnSize, returnColumnSizes, res, current, curIdx + 1);
+			returnSize, returnColumnSizes, res, path, pathSize + 1);
 	}
 }
 
@@ -73,9 +83,8 @@ int** combinationSum(int* candidates, int candidatesSize,
 	qsort(candidates, candidatesSize, sizeof(int), cmp_int);/*must*/
 	int** res = (int**)calloc(1024, sizeof(int*));
 	*returnColumnSizes = (int*)calloc(1024, sizeof(int));
-	int current[1024] = {0};
-	dfs(candidates, candidatesSize, 0, target, returnSize,
-		returnColumnSizes, res, current, 0);
+	int path[1024] = {0};
+	dfs(candidates, candidatesSize, 0, target, returnSize, returnColumnSizes, res, path, 0);
 	return res;
 }
 

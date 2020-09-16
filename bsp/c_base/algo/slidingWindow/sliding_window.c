@@ -408,11 +408,6 @@ int cmp_int1(const void *a, const void *b)
 	return abs(aa - gX) > abs(bb - gX);
 }
 
-int cmp_int(const void *a, const void *b)
-{
-	return *((int *)a) - *((int *)b);
-}
-
 int* findClosestElements(int* arr, int arrSize, int k, int x, int* returnSize)
 {
 	gX = x;

@@ -4,17 +4,12 @@
 
 int cmp_int ( const void *a , const void *b)
 {
-        return *(int *)a - *(int *)b; //return *(int *)a > *(int *)b;
+        return *(int *)a > *(int *)b;
 }
-
-/*
-二、对char类型数组排序（同int类型）
-*/
-int cmp_char( const void *a , const void *b){
-        return *(char *)a - *(char *)b;
+int cmp_char( const void *a , const void *b)
+{
+        return *(char *)a > *(char *)b;
 }
-
-/*三、对double类型数组排序（特别要注意）*/
 int cmp_double( const void *a , const void *b){
         return *(double *)a > *(double *)b ? 1 : -1;
 }
