@@ -69,7 +69,9 @@ void dfs(int* candidates, int candidatesSize, int cidx,
 		path[pathSize] = candidates[i];
 		dfs(candidates, candidatesSize, i, target - candidates[i],
 			returnSize, returnColumnSizes, res, path, pathSize + 1);
+		/* i  :每个数字在每个组合中重复使用 */
 	}
+
 }
 
 int** combinationSum(int* candidates, int candidatesSize,
@@ -115,38 +117,26 @@ candidates 中的每个数字在每个组合中只能使用一次。
 */
 void dfs(int* candidates, int candidatesSize,
 int target, int* returnSize, int** returnColumnSizes,
-int start, int **res, int *curBuf, int curSize)
+int start, int **res, int *path, int pathSize)
 {
 	if (target == 0) {
 		res[*returnSize] = (int *)calloc(1024, sizeof(int));
-		memcpy(res[*returnSize], curBuf, curSize * sizeof(int));
-		(*returnColumnSizes)[*returnSize] = curSize;
+		memcpy(res[*returnSize], path, pathSize * sizeof(int));
+		(*returnColumnSizes)[*returnSize] = pathSize;
 		(*returnSize)++;
 		return;
 	}
 
 	for (int i = start; i < candidatesSize && target > 0 && candidates[i] <= target; i++) {
-/*排序之后相同的肯定是挨着的，
-if（candidates[i] == candidates[i - 1]）我们就过滤掉candidates[i]*/
-/*
-无论是求组合/子集/排列，只要原数组中含有重复元素，通用一个去重方法：
-1.先排序，使相同元素相邻；
-2.在backtrack的for循环里：
-
-
-if(i>start&&candidates[i]==candidates[i-1]) continue;
-其中i>start一定要理解，i是当前考察的元素下标，start是本层最开始的那个元素的下标，我们的去重是要同层去重，
-如果你只写candidates[i]==candidates[i-1]这一个判断条件，那么在dfs树的时候，身处不同层的相同元素的组合/排列也都生成不了
-*/
 		if ( i > start && candidates[i] == candidates[i - 1])
 			continue;
 
-        	curBuf[curSize] = candidates[i];
+        	path[pathSize] = candidates[i];
 		dfs(candidates, candidatesSize, target - candidates[i],
-		returnSize, returnColumnSizes, i + 1, res, curBuf, curSize  + 1);
+		returnSize, returnColumnSizes, i + 1, res, path, pathSize  + 1);
+		/* i + 1 :每个数字在每个组合中只能使用一次 */
 	}
 }
-
 
 int** combinationSum2(int* candidates, int candidatesSize,
 int target, int* returnSize, int** returnColumnSizes)
@@ -157,11 +147,11 @@ int target, int* returnSize, int** returnColumnSizes)
 
 	int ** res = (int **)calloc(1024, sizeof(int *));
 	*returnColumnSizes = (int *)calloc(1024, sizeof(int));
-	int curBuf[1024] = {0};
+	int path[1024] = {0};
 
 	qsort(candidates, candidatesSize, sizeof(int), cmp_int);
 	dfs(candidates, candidatesSize, target,
-	returnSize, returnColumnSizes, 0, res, curBuf, 0);
+	returnSize, returnColumnSizes, 0, res, path, 0);
 	return res;
 }
 

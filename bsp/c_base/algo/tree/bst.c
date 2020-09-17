@@ -77,3 +77,64 @@ void bst_destroy(struct TreeNode* root)
 	free(root);
 }
 
+/*
+426. 将二叉搜索树转化为排序的双向链表
+将一个 二叉搜索树 就地转化为一个 已排序的双向循环链表 。
+
+对于双向循环列表，你可以将左右孩子指针作为双向循环链表的前驱和后继指针，第一个节点的前驱是最后一个节点，最后一个节点的后继是第一个节点。
+
+特别地，我们希望可以 就地 完成转换操作。当转化完成以后，树中节点的左指针需要指向前驱，树中节点的右指针需要指向后继。还需要返回链表中最小元素的指针。
+
+
+
+示例 1：
+
+输入：root = [4,2,5,1,3]
+*/
+
+/*
+// Definition for a Node.
+struct Node {
+    int val;
+    struct Node* left;
+    struct Node* right;
+};
+*/
+  // the smallest (first) and the largest (last) nodes
+ struct Node* first = NULL;
+ struct Node* last = NULL;
+
+  void helper(struct Node* node) {
+    if (node) {
+      // left
+      helper(node->left);
+      // node
+      if (last) {
+        // link the previous node (last)
+        // with the current one (node)
+        last->right = node;
+        node->left = last;
+      }
+      else {
+        // keep the smallest node
+        // to close DLL later on
+        first = node;
+      }
+      last = node;
+      // right
+      helper(node->right);
+    }
+  	}
+struct Node* treeToDoublyList(struct Node *root)
+{
+first = NULL;
+last = NULL;
+
+	if (!root) return NULL;
+
+    helper(root);
+    // close DLL
+    last->right = first;
+    first->left = last;
+    return first;
+}
