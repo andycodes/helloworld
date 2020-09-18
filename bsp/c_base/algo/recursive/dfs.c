@@ -176,22 +176,22 @@ int target, int* returnSize, int** returnColumnSizes)
 
 */
 void dfs(int k, int n, int* returnSize, int** returnColumnSizes,
-int **res, int *tmp, int tmpIdx, int start)
+int **res, int *path, int pathsize, int cidx)
 {
 	if (k == 0 && n == 0) {
-		res[*returnSize] = (int *)calloc(tmpIdx, sizeof(int));
-		memcpy(res[*returnSize], tmp, tmpIdx * sizeof(int));
-		(*returnColumnSizes)[*returnSize] = tmpIdx;
+		res[*returnSize] = (int *)calloc(pathsize, sizeof(int));
+		memcpy(res[*returnSize], path, pathsize * sizeof(int));
+		(*returnColumnSizes)[*returnSize] = pathsize;
 		(*returnSize)++;
 		return;
 	}
 
-	for (int i = start; i <= 9 && k > 0 && n > 0 && i <= n; i++) {
-		tmp[tmpIdx] = i;
+	for (int i = cidx; i <= 9 && k > 0 && n > 0 && i <= n; i++) {
+		path[pathsize] = i;
 		/*i + 1 :每种组合中不存在重复的数字。
 		因为结果集里的元素互不相同，
 		因此下一层搜索的起点应该是上一层搜索的起点值 + 1；*/
-		dfs(k - 1, n  - i, returnSize, returnColumnSizes, res, tmp, tmpIdx + 1, i + 1);
+		dfs(k - 1, n  - i, returnSize, returnColumnSizes, res, path, pathsize + 1, i + 1);
 	}
 }
 
@@ -200,8 +200,8 @@ int** combinationSum3(int k, int n, int* returnSize, int** returnColumnSizes)
 	int **res = (int **)calloc(1024, sizeof(int **));
 	*returnColumnSizes = (int *)calloc(1024, sizeof(int));
 	*returnSize = 0;
-	int tmp[1024] = {0};
-	dfs(k, n, returnSize, returnColumnSizes, res, tmp, 0, 1);
+	int path[1024] = {0};
+	dfs(k, n, returnSize, returnColumnSizes, res, path, 0, 1);
 	return res;
 }
 
@@ -224,43 +224,47 @@ grid 。
 输入：grid = [[1,1,1],[1,1,1],[1,1,1]], r0 = 1, c0 = 1, color = 2
 输出：[[2, 2, 2], [2, 1, 2], [2, 2, 2]]
 */
-int dis[4][2] = { {-1, 0}, {0, 1}, {1, 0}, {0, -1} };
-void dfs(int** g, int gridSize, int* gridColSize, int cx, int cy, int oldcolor, int newcolor)
+void dfs(int** grid, int row, int col, int cx, int cy, int oldcolor, int newcolor)
 {
-	// 越界 || 不属于同一个联通分量 || 被访问过
-	if(cx < 0 || cx >= gridSize || cy < 0 || cy >= gridColSize[cx] ||
-		g[cx][cy] != oldcolor || g[cx][cy] < 0) {
-		return;
-	}
-
 	// 当前节点已经被访问，设置负值
-	g[cx][cy] = -oldcolor;
+	grid[cx][cy] = -oldcolor;
 
 	// 判断边界
-	if(cx == 0 || cx+1 >= gridSize || cy == 0 || cy+1 >= gridColSize[cx]) {
+	if(cx == 0 || cx+1 >= row || cy == 0 || cy+1 >= col) {
 		// 区域边界
-		g[cx][cy] = -newcolor;
+		grid[cx][cy] = -newcolor;
 	} else {
 		// 连通分量的边界
 		for(int i = 0 ; i < 4 ; i++) {
-			int nextColor = g[cx + dis[i][0]][cy + dis[i][1]];
+			int nextColor = grid[cx + dir[i][0]][cy + dir[i][1]];
 			// 这里是关键点
 			if(nextColor != oldcolor && nextColor != -oldcolor && nextColor != -newcolor) {
-				g[cx][cy] = -newcolor;
+				grid[cx][cy] = -newcolor;
 				break;
 			}
 		}
 	}
 
 	for(int i = 0 ; i < 4 ; i++) {
-		dfs(g, gridSize, gridColSize, cx+dis[i][0], cy+dis[i][1], oldcolor, newcolor);
+		int nx = cx + dir[i][0];
+		int ny = cy + dir[i][1];
+
+		if (nx < 0 || nx >= row || ny < 0 || ny >= col) {
+			continue;
+		}
+
+		if (grid[nx][ny] != oldcolor) {
+			continue;
+		}
+
+		dfs(grid, row, col, nx, ny, oldcolor, newcolor);
 	}
 }
 
 int** colorBorder(int** grid, int gridSize, int* gridColSize, int r0, int c0,
 	int color, int* returnSize, int** returnColumnSizes)
 {
-	dfs(grid, gridSize, gridColSize, r0, c0, grid[r0][c0], color);
+	dfs(grid, gridSize, *gridColSize, r0, c0, grid[r0][c0], color);
 	// 将负值置为正值
 	for(int i = 0 ; i < gridSize ; i++) {
 		for(int j = 0 ; j < gridColSize[i] ; j++) {
@@ -275,6 +279,7 @@ int** colorBorder(int** grid, int gridSize, int* gridColSize, int r0, int c0,
 	}
 	return grid;
 }
+
 
 /*
 1391. 检查网格中是否存在有效路径
