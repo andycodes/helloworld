@@ -1218,3 +1218,264 @@ int dietPlanPerformance(int* calories, int caloriesSize, int k, int lower, int u
     return score;
 }
 
+/*
+1040. 移动石子直到连续 II
+在一个长度无限的数轴上，第 i 颗石子的位置为 stones[i]。如果一颗石子的位置最小/最大，那么该石子被称作端点石子。
+
+每个回合，你可以将一颗端点石子拿起并移动到一个未占用的位置，使得该石子不再是一颗端点石子。
+
+值得注意的是，如果石子像 stones = [1,2,5] 这样，你将无法移动位于位置 5 的端点石子，因为无论将它移动到任何位置（例如 0 或 3），该石子都仍然会是端点石子。
+
+当你无法进行任何移动时，即，这些石子的位置连续时，游戏结束。
+
+要使游戏结束，你可以执行的最小和最大移动次数分别是多少？ 以长度为 2 的数组形式返回答案：answer = [minimum_moves, maximum_moves] 。
+
+
+
+示例 1：
+
+输入：[7,4,9]
+输出：[1,2]
+解释：
+我们可以移动一次，4 -> 8，游戏结束。
+或者，我们可以移动两次 9 -> 5，4 -> 6，游戏结束。
+*/
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+
+int cmp_int ( const void *a , const void *b)
+{
+        return *(int *)a - *(int *)b; //return *(int *)a > *(int *)b;
+}
+
+int* numMovesStonesII(int* stones, int stonesSize, int* returnSize)
+{
+        qsort(stones, stonesSize, sizeof(stones[0]), cmp_int);
+
+        int minMove=stonesSize;
+
+        for(int i=0,j=0;j<stonesSize;++j)
+        {
+            //当前窗口的大小大于n
+            while(stones[j]-stones[i]+1>stonesSize)i++;
+
+            //当前窗口的石子个数
+            int already_stone=(j-i+1);
+
+            //前n-1个石子的顺序连续，最后一个石子不连续，需要移动2步。
+            //比如3 4 5 6 10，我们不能直接将10变为2，而是将3变为8，然后10变为7来移动
+            if (already_stone==stonesSize-1&&stones[j]-stones[i]+1==stonesSize-1)
+                minMove=fmin(minMove,2);
+            else
+                minMove=fmin(minMove,stonesSize-already_stone);
+
+        }
+
+	int *res = (int *)calloc(2, sizeof(int));
+	*returnSize = 2;
+	res[0] = minMove;
+	res[1] = fmax(stones[stonesSize-1]-stones[1]-stonesSize+2, stones[stonesSize-2]-stones[0]-stonesSize+2);
+
+        return res;
+}
+
+/*
+1438. 绝对差不超过限制的最长连续子数组
+给你一个整数数组 nums ，和一个表示限制的整数 limit，请你返回最长连续子数组的长度，该子数组中的任意两个元素之间的绝对差必须小于或者等于 limit 。
+
+如果不存在满足条件的子数组，则返回 0 。
+
+
+
+示例 1：
+
+输入：nums = [8,2,4,7], limit = 4
+输出：2
+解释：所有子数组如下：
+[8] 最大绝对差 |8-8| = 0 <= 4.
+[8,2] 最大绝对差 |8-2| = 6 > 4.
+[8,2,4] 最大绝对差 |8-2| = 6 > 4.
+[8,2,4,7] 最大绝对差 |8-2| = 6 > 4.
+[2] 最大绝对差 |2-2| = 0 <= 4.
+[2,4] 最大绝对差 |2-4| = 2 <= 4.
+[2,4,7] 最大绝对差 |2-7| = 5 > 4.
+[4] 最大绝对差 |4-4| = 0 <= 4.
+[4,7] 最大绝对差 |4-7| = 3 <= 4.
+[7] 最大绝对差 |7-7| = 0 <= 4.
+因此，满足题意的最长子数组的长度为 2 。
+*/
+
+#include <stdlib.h>
+#include <stdio.h>
+
+//【算法思路】滑窗 + 单调队列。
+// 1.滑窗，根据记录的最大最小值，判断是否在范围内
+// 2.单调增队列，记录最大值位置
+// 3.按掉减队列，记录最小值位置
+// 4.如果新增数据超出范围，则进行结算
+// 5.j结算过后，移动左边界，直至范围满足要求
+int longestSubarray(int* nums, int numsSize, int limit){
+    if(numsSize == 1) {
+        return 1;
+    }
+
+    int *inc_que = (int *)calloc(numsSize, sizeof(int));
+    int iq_r = 0;
+    int iq_w = 0;
+    int iq_size = 0;
+
+    int *dec_que = (int *)calloc(numsSize, sizeof(int));
+    int dq_r = 0;
+    int dq_w = 0;
+    int dq_size = 0;
+
+    //将首元素填入
+    inc_que[iq_w++] = 0;
+    iq_size++;
+
+    //将首元素填入
+    dec_que[dq_w++] = 0;
+    dq_size++;
+
+    int max_len = 1;
+
+    int ll = 0, rr = 1;
+    while(rr < numsSize) {
+        //剪枝
+        if(max_len >= numsSize - ll) {
+            break;
+        }
+
+        int minid = inc_que[iq_r];
+        int maxid = dec_que[dq_r];
+        int cur = nums[rr];
+        //printf("max = %d, min = %d\n", nums[maxid], nums[minid]);
+
+        //更新上升队列，向前挤掉大于该值的数据
+        while(iq_size > 0) {
+            if(nums[inc_que[iq_w - 1]] > cur) {
+                iq_w--;
+                iq_size--;
+            } else {
+                break;
+            }
+        }
+        inc_que[iq_w++] = rr;
+        iq_size++;
+
+        //更新下降队列,向前挤掉小于该值的数据
+        while(dq_size > 0) {
+            if(nums[dec_que[dq_w - 1]] < cur) {
+                dq_w--;
+                dq_size--;
+            } else {
+                break;
+            }
+        }
+        dec_que[dq_w++] = rr;
+        dq_size++;
+
+        //如果在范围之内,则继续访问
+        if(abs(nums[rr] - nums[maxid]) <= limit && abs(nums[rr] - nums[minid]) <= limit ) {
+            rr++;
+            continue;
+        }
+
+        //出现超出范围的情况,进行结算[ll, rr)
+        //printf("FIND: ll = %d, rr = %d\n", ll, rr);
+        max_len = fmax(max_len, rr - ll);
+
+        //更新左边界
+        while(ll < rr) {
+            if(ll != inc_que[iq_r] && ll != dec_que[dq_r]) {
+                ll++;
+                continue;
+            }
+
+            if(iq_size > 0 && ll == inc_que[iq_r]) {
+                iq_r++;
+                iq_size--;
+            } else if(dq_size > 0 && ll == dec_que[dq_r]) {
+                dq_r++;
+                dq_size--;
+            }
+            ll++;
+
+            //判断是否满足要求
+            minid = inc_que[iq_r];
+            maxid = dec_que[dq_r];
+            if(abs(nums[rr] - nums[maxid]) <= limit && abs(nums[rr] - nums[minid]) <= limit ) {
+                //满足要求，则退出
+                break;
+            }
+
+            continue;
+        }
+
+        //printf("ADJ: ll = %d, rr = %d\n", ll, rr);
+        rr++;
+    }
+
+    //处理尾部数据
+    //printf("FIND: ll = %d, rr = %d\n", ll, rr);
+    max_len = fmax(max_len, rr - ll);
+
+    return max_len;
+}
+
+/*
+1498. 满足条件的子序列数目
+给你一个整数数组 nums 和一个整数 target 。
+
+请你统计并返回 nums 中能满足其最小元素与最大元素的 和 小于或等于 target 的 非空 子序列的数目。
+
+由于答案可能很大，请将结果对 10^9 + 7 取余后返回。
+
+
+
+示例 1：
+
+输入：nums = [3,5,6,7], target = 9
+输出：4
+解释：有 4 个子序列满足该条件。
+[3] -> 最小元素 + 最大元素 <= target (3 + 3 <= 9)
+[3,5] -> (3 + 5 <= 9)
+[3,5,6] -> (3 + 6 <= 9)
+[3,6] -> (3 + 6 <= 9)
+*/
+int cmp_int ( const void *a , const void *b)
+{
+        return *(int *)a - *(int *)b; //return *(int *)a > *(int *)b;
+}
+
+int numSubseq(int* nums, int numsSize, int target)
+{
+	qsort(nums, numsSize, sizeof(nums[0]), cmp_int);
+	if (nums[0] * 2 > target) {
+		return 0;
+	}
+
+//大数溢出，建立乘方列表
+	int spow[numsSize];
+	spow[0] = 1;
+	for (int i = 1; i < numsSize; i++) {
+		spow[i] = (spow[i-1] * 2) % (1000000000 + 7);
+	}
+
+
+	int left = 0;
+	int right = numsSize - 1;
+	int res = 0;
+	while(left <= right) {
+		if (nums[left] + nums[right] <= target) {
+			res += spow[right - left];
+			res %= (1000000000 + 7);
+			left++;
+		} else {
+			right--;
+		}
+	}
+
+	return res % (1000000000 + 7);
+}
