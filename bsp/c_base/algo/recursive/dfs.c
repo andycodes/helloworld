@@ -380,38 +380,36 @@ bool hasValidPath(int** grid, int gridSize, int* gridColSize)
 钟
 2)球各个路径最大值
 */
-int numOfMinutes(int n, int headID, int* manager, int managerSize, int* informTime,
-int informTimeSize)
+int numOfMinutes(int n, int headID, int* manager, int managerSize,
+int* informTime, int informTimeSize)
 {
-	int res = 0;
-
-	for(int i =0;i<managerSize;i++){
-		if(informTime[i]==0){ //叶子节点
-			//临时值
-			int temp = 0;
-			int index=i;
-			//向上遍历
-			while(index!=-1) {
-				temp+=informTime[index];
-				index=manager[index];
-			}
-			res = fmax(res,temp);
+	int max = 0;
+	for (int i = 0; i < n; i++) {
+		if (informTime[i] != 0) { //叶子节点
+			continue;
 		}
+
+		int root = manager[i];
+		int sum = 0;
+		while(root != -1) {
+			sum += informTime[root];
+			root = manager[root];
+		}
+
+		max = fmax(sum, max);
 	}
-	return res;
+
+	return max;
 }
 
-/*DFS自底向上
-遍历所有员工，对所有最底层员工（叶子节点），
-DFS搜索父节点，直到没有父节点为止。记录所有遍历
-的最大时间即为答案。*/
 int dfs(int* manager, int *informTime, int id, int t)
 {
-    int m = manager[id];
-    if (m == -1) {
-        return t;
-    }
-    return dfs(manager, informTime, m, t + informTime[m]);
+	int m = manager[id];
+	if (m == -1) {
+		return t;
+	}
+
+	return dfs(manager, informTime, m, t + informTime[m]);
 }
 
 int numOfMinutes(int n, int headID, int* manager, int managerSize,
@@ -419,13 +417,14 @@ int* informTime, int informTimeSize)
 {
 	int max = 0;
 	for (int i = 0; i < n; i++) {
-		if (informTime[i] != 0) {//不是叶子节点
-		continue;
+		if (informTime[i] != 0) {
+			continue;
+		}
+
+		int t = dfs(manager, informTime, i, 0);
+		max = fmax(max, t);
 	}
 
-	int t = dfs(manager, informTime, i, 0);
-		max = max >= t ? max : t;
-	}
 	return max;
 }
 
@@ -548,7 +547,7 @@ bool IsValid(char *s)
 	return leftNum == 0 ? true : false;
 }
 
-void DeletChar(char *s, int num)
+void delChar(char *s, int num)
 {
 	char *p = s;
 	char *q = s;
@@ -564,7 +563,6 @@ void DeletChar(char *s, int num)
 
 void dfs(char *s, int left, int right, int start, char **res, int *returnSize)
 {
-	char *temp;
 	if ((left == 0) && (right == 0)) {
 		if (IsValid(s)) {
 			res[*returnSize] = strdup(s);
@@ -573,24 +571,28 @@ void dfs(char *s, int left, int right, int start, char **res, int *returnSize)
 		return;
 	}
 
-	temp = (char *)malloc((strlen(s)+1) * sizeof(char));
+	int slen = strlen(s) + 1;
+	char temp[slen];
 	for (int i = start; i < strlen(s); i++) {
 		/*
-		重复情况，比如，())()有两个相同的括号)连在一起，那么选择前一个删除后一个，或者删除前一个选择后一个这两种情况是相同的，会导致重复的情况，很显然我们不想重复。作者：durant-5链接：https://leetcode-cn.com/problems/remove-invalid-parentheses/solution/jian-zhi-de-yi-xie-xi-jie-by-durant-5/来源：力扣（LeetCode）著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+		重复情况，比如，())()有两个相同的括号)连在一起，那么
+		选择前一个删除后一个，或者删除前一个选择后一个这两
+		种情况是相同的，会导致重复的情况，很显然我们不想重
+		复。
 		*/
-		if ((i >= 1) && (s[i] == s[i-1])) {
+		if ((i > start) && (s[i] == s[i-1])) {
 			continue;
 		}
 
-		memcpy(temp, s, strlen(s)+1);
+		strcpy(temp, s);
 
 		if ((left > 0) && (s[i] == '(')) {
-			DeletChar(temp, i);
+			delChar(temp, i);
 			dfs(temp, left-1, right, i, res, returnSize);
 		}
 
 		if ((right > 0) && (s[i] == ')')) {
-			DeletChar(temp, i);
+			delChar(temp, i);
 			dfs(temp, left, right-1, i, res, returnSize);
 		}
 	}
@@ -641,18 +643,19 @@ bool isValid(char *s, int len)
 	return false;
 }
 
-void dfs(char *s, char **res, int *returnSize, char *path, int pathSize, int validNum)
+void dfs(char *s, char **res, int *returnSize, char *path, int pathSize, int groupNum)
 {
-	if (validNum > 4) {
+	if (groupNum > 4) {
 		return;
 	}
 
-	if (s[0] == '\0' && validNum == 4) {
+	if (s[0] == '\0' && groupNum == 4) {
 		res[*returnSize] = strdup(path);
 		(*returnSize)++;
+		return;
 	}
 
-	if (validNum > 0 && validNum < 4) {
+	if (groupNum > 0) {
 		path[pathSize++] = '.';
 	}
 
@@ -664,7 +667,8 @@ void dfs(char *s, char **res, int *returnSize, char *path, int pathSize, int val
 		for (int i = 0; i < substrlen; i++) {
 			path[pathSize + i] = s[i];
 		}
-		dfs(s + substrlen, res, returnSize, path, pathSize + substrlen, validNum + 1);
+
+		dfs(s + substrlen, res, returnSize, path, pathSize + substrlen, groupNum + 1);
 	}
 }
 
@@ -676,7 +680,6 @@ char ** restoreIpAddresses(char * s, int* returnSize)
 	dfs(s, res, returnSize, path, 0, 0);
 	return res;
 }
-
 
 /*
 491. 递增子序列
@@ -801,4 +804,5 @@ struct Node* cloneGraph(struct Node* s)
 	struct Node** visited = (struct Node**)calloc(101, sizeof(struct Node*));
 	return dfs(s, visited);
 }
+
 

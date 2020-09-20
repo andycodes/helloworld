@@ -1,4 +1,18 @@
 
+void delChar(char *s, int num)
+{
+	char *p = s;
+	char *q = s;
+	for (int i = 0; i < strlen(s); i++) {
+		if (i == num) {
+			q++;
+		}
+		*(p++) = *(q++);
+	}
+
+	*p = '\0';
+}
+
 /*
 memset的头文件是<string.h>  why ?
 int array[10];
