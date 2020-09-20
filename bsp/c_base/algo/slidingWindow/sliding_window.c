@@ -28,70 +28,6 @@ for (int right = 0; right < slen; right++) {
 
 */
 
-
-/*
-209. 长度最小的子数组
-难度中等261
-给定一个含有 n 个正整数的数组和一个正整数 s ，找出该数组
-中满足其和 ≥ s 的长度最小的连续子数组，并返回其长度。
-如果不存在符合条件的连续子数组，返回 0。
-示例:
-输入: s = 7, nums = [2,3,1,2,4,3]
-输出: 2
-解释: 子数组 [4,3] 是该条件下的长度最小的连续子数组。
-进阶:
-*/
-int minSubArrayLen(int s, int* nums, int numsSize)
-{
-	int left = 0;
-	int right = 0;
-	int sum = 0;
-	int res = INT_MAX;
-
-	for (int i = 0; i < numsSize; i++) {
-		sum += nums[i];
-	}
-
-	if (sum < s) {
-		return 0;
-	}
-
-	sum = 0;
-	while(right < numsSize) {
-		sum += nums[right++];
-		if (sum < s) {
-			continue;
-		}
-
-		while(sum - nums[left] >= s) {
-			sum -= nums[left++];
-		}
-
-		res = fmin(res, right - left);
-	}
-
-	return res;
-}
-
-
-int minSubArrayLen(int s, int* nums, int numsSize)
-{
-	int leftidx = 0;
-	int sum = 0;
-	int minret = INT_MAX;
-
-	for (int i = 0; i < numsSize; i++) {
-		sum += nums[i];
-		while(sum >= s) {
-			minret = fmin(minret, i + 1 - leftidx);
-			sum -= nums[leftidx++];
-		}
-	}
-
-	return minret == INT_MAX ? 0 : minret;
-}
-
-
 /*
 3. 无重复字符的最长子串
 难度中等6
@@ -218,12 +154,10 @@ s = "ABAB", k = 2
 用两个'A'替换为两个'B',反之亦然。
 
 */
+
 /*
-然后我们维护一个window，不断计算不为c的字符的个数counter，
-如果counter大于n了说明我们怎么替换也不行了，我们就要将start
-往前挪一格，否则一直挪end。
-每次挪完end之后都要记得更新这一轮的最大长度
-每个字符c循环后都要更新最终res。
+右指针开始右移，扩大窗口，直到窗口内除了出现次数最多的字符以外的其他字符数量达到k
+右指针再移动会超出k时，左指针开始同时移动，此时窗口按照之前的大小开始滑动；然后，右指针继续移动直到其它字符的数量再次超出k的限制，左指针又开始同时移动，如此循环下去直到右指针移动到字符串终点。作者：seerjjj链接：https://leetcode-cn.com/problems/longest-repeating-character-replacement/solution/hua-dong-chuang-kou-suan-fa-cban-by-seerjjj/来源：力扣（LeetCode）著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
 */
 int characterReplacement(char * s, int k)
 {
@@ -235,24 +169,17 @@ int characterReplacement(char * s, int k)
 
 	while(right < strlen(s)) {
 		map[s[right] - 'A']++;
-		maxCnt = fmax(maxCnt, map[s[right] - 'A']);//当前窗口内的最多字符的个数
-/*
-需要替换的字符个数就是当前窗口的大小减去窗口中数量最
-多的字符的数量
-*/
-		if (right - left + 1 -maxCnt > k) {
-			map[s[left] - 'A']--;//缩小窗口
+		maxCnt = fmax(maxCnt, map[s[right] - 'A']);
+		if (right - left + 1 > maxCnt + k) {
+			map[s[left] - 'A']--;
 			left++;
 		}
-/*
-当窗口内可替换的字符数小于等于k时，我们需要根据该窗口
-长度来确定是否更新result
-*/
 		ans = fmax(ans, right-left+1);
 		right++;
 	}
 
-	return ans;
+	//return ans;
+	return strlen(s) - left;
 }
 
 /*
@@ -335,50 +262,48 @@ int* shortestSeq(int* big, int bigSize, int* small, int smallSize, int* returnSi
 
 
 /*
+159. 至多包含两个不同字符的最长子串
 给定一个字符串 s ，找出 至多 包含两个
 不同字符的最长子串 t 。
-
 示例 1:
-
 输入: "eceba"
 输出: 3
 解释: t 是 "ece"，长度为3。
 示例 2:
-
 输入: "ccaabbb"
 输出: 5
 解释: t 是 "aabbb"，长度为5。
-
 */
 int lengthOfLongestSubstringTwoDistinct(char * s)
 {
-	int sSize = strlen(s);
-	if (sSize <= 2)
-		return sSize;
+	int slen = strlen(s);
+	if (slen <= 2)
+		return slen;
 
 	int left = 0;
 	int max = 0;
 
-	while( left + max < sSize) {
+	while( left + max < slen) {
 		int tempLeft = left;
 
-		while(left < sSize && s[left] == s[tempLeft]) {
+		while(left < slen && s[left] == s[tempLeft]) {
 			left++;
 		}
 
 		int right = left;
 		int tempRight = right;
 
-		while(right < sSize && (s[right] == s[tempRight] || s[right] == s[tempLeft] )) {
+		while(right < slen && (s[right] == s[tempRight] || s[right] == s[tempLeft] )) {
 			right++;
 		}
 
-		max = max > (right - tempLeft) ? max :(right - tempLeft);
+		max = fmax(max, right - tempLeft);
 		left = tempRight;
 	}
 
 	return max;
 }
+
 
 /*
 658. 找到 K 个最接近的元素
@@ -446,9 +371,13 @@ int* findClosestElements(int* arr, int arrSize, int k, int x, int* returnSize)
 /*
 面试题 17.11. 单词距离
 难度中等2
-有个内含单词的超大文本文件，给定任意两个单词，找出在这个文件中这两个单词的最短距离(相隔单词数)。如果寻找过程在这个文件中会重复多次，而每次寻找的单词不同，你能对此优化吗?
+有个内含单词的超大文本文件，给定任意两个单词，找出在
+这个文件中这两个单词的最短距离(相隔单词数)。如果寻找
+过程在这个文件中会重复多次，而每次寻找的单词不同，
+你能对此优化吗?
 示例：
-输入：words = ["I","am","a","student","from","a","university","in","a","city"], word1 = "a", word2 = "student"
+输入：words = ["I","am","a","student","from","a","university","in","a","city"], word1 = "a",
+word2 = "student"
 输出：1
 
 */
@@ -476,63 +405,14 @@ int findClosest(char** words, int wordsSize, char* word1, char* word2)
 }
 
 /*
-see hashmap
-*/
-struct it{
-	int num;
-	int idx;
-};
-
-int cmp_struct(const int *a, const int *b)
-{
-	struct it * c = (struct it *)a;
-	struct it * d = (struct it *)b;
-	return c->num - d->num;
-}
-
-int* twoSum(int* nums, int numsSize, int target, int* returnSize)
-{
-	int* res = (int *)calloc(2, sizeof(int));
-	*returnSize = 2;
-
-	struct it obj[numsSize];
-	for (int i = 0; i < numsSize; i++) {
-		obj[i].num = nums[i];
-		obj[i].idx = i;
-	}
-
-	qsort(obj, numsSize, sizeof(obj[0]), cmp_struct);
-	int left = 0;
-	int right = numsSize -1;
-	int sum;
-	while(1) {
-		sum = obj[left].num + obj[right].num;
-		if (sum > target) {
-			right--;
-		}else if(sum < target) {
-			left++;
-		}else {
-			break;
-		}
-	}
-
-	res[0] = obj[left].idx;
-	res[1] = obj[right].idx;
-	return res;
-}
-
-/*
 18. 四数之和
-给定一个包含 n 个整数的数组 nums 和一个目标值 target，判断 nums 中是否存在四个元素 a，b，c 和 d ，使得 a + b + c + d 的值与 target 相等？找出所有满足条件且不重复的四元组。
-
+给定一个包含 n 个整数的数组 nums 和一个目标值 target，
+判断 nums 中是否存在四个元素 a，b，c 和 d ，使得 a + b + c + d 的
+值与 target 相等？找出所有满足条件且不重复的四元组。
 注意：
-
 答案中不可以包含重复的四元组。
-
 示例：
-
 给定数组 nums = [1, 0, -1, 0, -2, 2]，和 target = 0。
-
 满足要求的四元组集合为：
 [
   [-1,  0, 0, 1],
@@ -1240,15 +1120,6 @@ int dietPlanPerformance(int* calories, int caloriesSize, int k, int lower, int u
 我们可以移动一次，4 -> 8，游戏结束。
 或者，我们可以移动两次 9 -> 5，4 -> 6，游戏结束。
 */
-/**
- * Note: The returned array must be malloced, assume caller calls free().
- */
-
-int cmp_int ( const void *a , const void *b)
-{
-        return *(int *)a - *(int *)b; //return *(int *)a > *(int *)b;
-}
-
 int* numMovesStonesII(int* stones, int stonesSize, int* returnSize)
 {
         qsort(stones, stonesSize, sizeof(stones[0]), cmp_int);
@@ -1444,10 +1315,6 @@ int longestSubarray(int* nums, int numsSize, int limit){
 [3,5,6] -> (3 + 6 <= 9)
 [3,6] -> (3 + 6 <= 9)
 */
-int cmp_int ( const void *a , const void *b)
-{
-        return *(int *)a - *(int *)b; //return *(int *)a > *(int *)b;
-}
 
 int numSubseq(int* nums, int numsSize, int target)
 {

@@ -795,8 +795,6 @@ char * shortestPalindrome(char * s)
 #include <string.h>
 
 #define MAX_SIZE    18
-#define MIN(a, b) ((a) < (b) ? (a) : (b))
-#define ABS(a)  ((a) >= 0 ? (a) : -(a))
 typedef long long int64;
 
 static int64 CalcHighHalfVal(char *n)

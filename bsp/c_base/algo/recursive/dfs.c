@@ -41,11 +41,6 @@ candidates 中的数字可以无限制重复被选取。
 target 减法-->0
 sum 加法--->target
 */
-int cmp_int ( const void *a , const void *b)
-{
-        return *(int *)a > *(int *)b;
-}
-
 void dfs(int* candidates, int candidatesSize, int cidx,
     int target, int* returnSize, int** returnColumnSizes,
     int **res, int *path, int pathSize)

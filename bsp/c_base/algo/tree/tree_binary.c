@@ -1907,3 +1907,54 @@ void dfs(struct TreeNode* node, int K, int dis, int* res)
     }
 }
 
+
+/*
+106. 从中序与后序遍历序列构造二叉树
+根据一棵树的中序遍历与后序遍历构造二叉树。
+
+注意:
+你可以假设树中没有重复的元素。
+
+例如，给出
+
+中序遍历 inorder = [9,3,15,20,7]
+后序遍历 postorder = [9,15,7,20,3]
+返回如下的二叉树：
+
+    3
+   / \
+  9  20
+    /  \
+   15   7
+*/
+
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     struct TreeNode *left;
+ *     struct TreeNode *right;
+ * };
+ */
+
+
+
+struct TreeNode* buildTree(int* inorder, int inorderSize, int* postorder, int postorderSize){
+    if(postorderSize == 0 || inorderSize == 0)return NULL;      //叶子结点的左右子树为空
+
+    struct TreeNode* root = (struct TreeNode*)malloc(sizeof(struct TreeNode));
+    root->val = postorder[postorderSize-1];                     //根结点值为后序遍历最后一位
+
+    int left;
+    for(left=0;left<inorderSize;left++){
+        if(inorder[left] == root->val)break;                    //找到中序列表中的根结点，其索引为左子树结点个数
+    }
+    int right = inorderSize - left - 1;                         //计算右子树结点个数
+
+    root->left = buildTree(inorder,left,postorder,left);        //递归构建左、右子树
+    root->right = buildTree(inorder+left+1,right,postorder+left,right);
+
+    return root;
+}
+
+
