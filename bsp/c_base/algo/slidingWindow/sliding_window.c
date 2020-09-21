@@ -1346,3 +1346,287 @@ int numSubseq(int* nums, int numsSize, int target)
 
 	return res % (1000000000 + 7);
 }
+
+/*
+1100. 长度为 K 的无重复字符子串
+给你一个字符串 S，找出所有长度为 K 且不含重复字符的子串，请你返回全部满足要求的子串的 数目。
+
+
+
+示例 1：
+
+输入：S = "havefunonleetcode", K = 5
+输出：6
+解释：
+这里有 6 个满足题意的子串，分别是：'havef','avefu','vefun','efuno','etcod','tcode'。
+*/
+// 滑窗
+int numKLenSubstrNoRepeats(char * S, int K){
+    // 存储字符出现频数
+    int fre[256] = {0};
+    // 窗口左右指针
+    int l, r;
+    l = r = 0;
+    // S长度
+    int len = strlen(S);
+    // 窗口内不同字符个数
+    int count = 0;
+    // 当前窗口宽度
+    int width = 0;
+    // result
+    int res = 0;
+    while(r < len){
+        // 一开始先扩展窗口到宽度为K
+        if(width < K){
+            // 频数为0，说明入窗的是新的字符，频数 + 1 ， 不同字符计数 + 1
+            if(fre[S[r++]]++ == 0) count++;
+            // 宽度 + 1
+            width++;
+        }else{ // 宽度为K后固定宽度滑动窗口
+            // 字符出窗后窗内无该字符， 不同字符计数 - 1
+            if(--fre[S[l++]] == 0) count--;
+            if(fre[S[r++]]++ == 0) count++;
+        }
+        // 不同字符计数 == K， 满足条件， res++
+        if(count == K) res++;
+
+    }
+    return res;
+}
+
+/*
+978. 最长湍流子数组
+当 A 的子数组 A[i], A[i+1], ..., A[j] 满足下列条件时，我们称其为湍流子数组：
+
+若 i <= k < j，当 k 为奇数时， A[k] > A[k+1]，且当 k 为偶数时，A[k] < A[k+1]；
+或 若 i <= k < j，当 k 为偶数时，A[k] > A[k+1] ，且当 k 为奇数时， A[k] < A[k+1]。
+也就是说，如果比较符号在子数组中的每个相邻元素对之间翻转，则该子数组是湍流子数组。
+
+返回 A 的最大湍流子数组的长度。
+
+
+
+示例 1：
+
+输入：[9,4,2,10,7,8,8,1,9]
+输出：5
+解释：(A[1] > A[2] < A[3] > A[4] < A[5])
+*/
+#define max(a,b) ((a) > (b) ? (a) : (b))
+int cmp(int a,int b) {
+    if(a > b) {
+        return 1;
+    } else if(a < b) {
+        return -1;
+    } else {
+        return 0;
+    }
+}
+
+int maxTurbulenceSize(int* A, int ASize){
+    int ans = 1;
+    int anchor = 0;
+
+    for(int i = 1;i < ASize;i++) {
+        int c = cmp(A[i-1],A[i]);
+        if(i == ASize - 1 || c * cmp(A[i],A[i+1]) != -1) {
+            if(c != 0) {
+                ans = max(ans,i - anchor + 1);
+            }
+            anchor = i;
+        }
+    }
+    return ans;
+}
+
+/*
+239. 滑动窗口最大值
+给定一个数组 nums，有一个大小为 k 的滑动窗口从数组的最左侧移动到数组的最右侧。你只可以看到在滑动窗口内的 k 个数字。滑动窗口每次只向右移动一位。
+
+返回滑动窗口中的最大值。
+
+
+
+进阶：
+
+你能在线性时间复杂度内解决此题吗？
+
+
+
+示例:
+
+输入: nums = [1,3,-1,-3,5,3,6,7], 和 k = 3
+输出: [3,3,5,5,6,7]
+*/
+int *maxSlidingWindow(int *nums, int numsSize, int k, int *returnSize) {
+    if (nums == NULL || returnSize == NULL) {
+        return NULL;
+    }
+    int outLen = numsSize - k + 1;
+    int *result = (int *)malloc(sizeof(int) * outLen);
+    int *deque = (int *)malloc(sizeof(int) * numsSize);
+    int start = 0;
+    int end = 0;
+    int i = 0, j = 0;
+    while (i < numsSize) {
+        //若右边成员的值小于即将入队的值，就从右边依次出队
+        while (start != end && nums[i] > nums[deque[end - 1]]) {
+            end--;
+        }
+        //从右边入队
+        deque[end++] = i;
+        //已入队了K次，需要开始记录当前窗口最大值
+        if (i >= k - 1) {
+            result[i - k + 1] = nums[deque[start]];
+            if (start != end && deque[start] <= i - k + 1) {
+                //最大值已出窗口，左边出队
+                start++;
+            }
+        }
+        i++;
+    }
+    free(deque);
+    *returnSize = outLen;
+    return result;
+}
+
+/*
+480. 滑动窗口中位数
+中位数是有序序列最中间的那个数。如果序列的大小是偶数，则没有最中间的数；此时中位数是最中间的两个数的平均数。
+
+例如：
+
+[2,3,4]，中位数是 3
+[2,3]，中位数是 (2 + 3) / 2 = 2.5
+给你一个数组 nums，有一个大小为 k 的窗口从最左端滑动到最右端。窗口中有 k 个数，每次窗口向右移动 1 位。你的任务是找出每次窗口移动后得到的新窗口中元素的中位数，并输出由它们组成的数组。
+
+
+
+示例：
+
+给出 nums = [1,3,-1,-3,5,3,6,7]，以及 k = 3。
+*/
+
+#if 1
+void dqueue_push(int *dqueue, int dqueueSize, int data)
+{
+    int i;
+    for (i = 0; i < dqueueSize - 1; i++) {
+        if (data > dqueue[i]) {
+            break;
+        }
+    }
+
+    for (int j = dqueueSize - 1; j > i; j--) {
+        dqueue[j] = dqueue[j - 1];
+    }
+
+    dqueue[i] = data;
+}
+
+void dqueue_del(int *dqueue, int dqueueSize, int data)
+{
+    int i;
+    for (i = 0; i < dqueueSize; i++) {
+        if (data == dqueue[i]) {
+            break;
+        }
+    }
+
+    for (int j = i; j < dqueueSize - 1; j++) {
+        dqueue[j] = dqueue[j + 1];
+    }
+}
+#else
+
+void dqueue_replace(int *dqueue, int dqueueSize, int oldData, int newData)
+{
+	for (int i = 0; i < dqueueSize; i++) {
+		if (dqueue[i] == oldData) {
+			dqueue[i] = newData;
+			return;
+		}
+	}
+}
+#endif
+
+int cmp_int(const void *a, const void *b)
+{
+	return *((int *)b) > *((int *)a);
+}
+
+double* medianSlidingWindow(int* nums, int numsSize, int k, int* returnSize)
+{
+	*returnSize = 0;
+    if (nums == NULL || numsSize <= 0) {
+        return NULL;
+    }
+
+    double *res = (int *)calloc(numsSize, sizeof(double));
+	int dqueue[k];
+	memcpy(dqueue, nums, sizeof(int) * k);
+	qsort(dqueue, k, sizeof(dqueue[0]), cmp_int);
+	res[0] = k % 2 == 1 ? dqueue[k / 2] : (dqueue[k / 2] * 0.5 + dqueue[k / 2 - 1] * 0.5);
+	(*returnSize) = 1;
+
+	for (int i = 0; i < numsSize - k; i++) {
+		dqueue_del(dqueue, k, nums[i]);
+		dqueue_push(dqueue, k, nums[i + k]);
+		res[*returnSize] = k % 2 ==1 ? dqueue[k / 2] : (dqueue[k / 2] * 0.5 + dqueue[k / 2 - 1] * 0.5);
+		(*returnSize)++;
+	}
+
+	return res;
+}
+
+/*
+727. 最小窗口子序列
+给定字符串 S and T，找出 S 中最短的（连续）子串 W ，使得 T 是 W 的 子序列 。
+
+如果 S 中没有窗口可以包含 T 中的所有字符，返回空字符串 ""。如果有不止一个最短长度的窗口，返回开始位置最靠左的那个。
+
+示例 1：
+
+输入：
+S = "abcdebdde", T = "bde"
+输出："bcde"
+解释：
+"bcde" 是答案，因为它在相同长度的字符串 "bdde" 出现之前。
+"deb" 不是一
+*/
+char * minWindow(char * S, char * T)
+{
+    if(S == T) return S;
+    int start = 0;
+    int end = strlen(S) - 1;
+    int s = 0,t = 0;
+    while(s < strlen(S)){
+        if(S[s] == T[t]){
+            t++;
+        }
+        if(t == strlen(T)){
+            int right = s;
+            t--;
+            while(t >= 0){
+                if(S[s] == T[t]){
+                    t--;
+                }
+                s--;
+            }
+            s++;
+            if(right - s + 1 < end - start + 1){
+                start = s;
+                end = right;
+            }
+            t = 0;
+        }
+        s++;
+    }
+
+	if (end - start + 1 == strlen(S))
+		return "";
+
+	char *res = (char *)calloc(20000, sizeof(char));
+	strncpy(res, S + start, end - start + 1);
+	return res;
+}
