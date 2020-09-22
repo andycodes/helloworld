@@ -44,3 +44,47 @@ int countSubstrings(char * s)
 	return ans;
 }
 
+/*
+5. 最长回文子串
+给定一个字符串 s，找到 s 中最长的回文子串。
+你可以假设 s 的最大长度为 1000。
+
+示例 1：
+
+输入: "babad"
+输出: "bab"
+注意: "aba" 也是一个有效答案。
+示例 2：
+
+输入: "cbbd"
+输出: "bb"
+*/
+char * longestPalindrome(char * s)
+{
+	int slen = strlen(s);
+	if (s == NULL || slen <= 1) {
+		return s;
+	}
+
+	int max = 1;
+	int save[2] = {0};
+	for (int centor = 0; centor < 2 * slen - 1; centor++) {
+		int left = centor / 2;
+		int right = left + centor % 2;
+
+		while(left >= 0 && right < slen && s[left] == s[right]) {
+			if (right - left + 1 > max) {
+				save[0] = left;
+				save[1] = right;
+				max = right - left + 1 ;
+			}
+
+			left--;
+			right++;
+		}
+	}
+
+	s[save[1]  + 1] = '\0';
+	return s + save[0];
+}
+
