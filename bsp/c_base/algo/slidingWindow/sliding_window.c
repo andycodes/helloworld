@@ -476,103 +476,17 @@ int** fourSum(int* nums, int numsSize, int target, int* returnSize, int** return
 
 
 /*
-1456. 定长子串中元音的最大数目
-给你字符串 s 和整数 k 。
-
-请返回字符串 s 中长度为 k 的单个子字符串中可能包含的最大元音字母数。
-
-英文中的 元音字母 为（a, e, i, o, u）。
-
-
-
-示例 1：
-
-输入：s = "abciiidef", k = 3
-输出：3
-解释：子字符串 "iii" 包含 3 个元音字母。
-*/
-int is_vowel(char c)
-{
-	const char vowel[] = {'a', 'e', 'i', 'o', 'u'};
-
-	int i = 0;
-	while(i < 5) {
-		if (c == vowel[i]) {
-			return 1;
-		}
-
-		i++;
-	}
-
-	return 0;
-}
-
-int maxVowels(char * s, int k)
-{
-	int cnt = 0;
-	int res = 0;
-
-	for (int right = 0; right < strlen(s); right++) {
-		cnt += is_vowel(s[right]);
-
-		if (right >= k) {
-			cnt -= is_vowel(s[right - k]);
-		}
-
-		res = fmax(res, cnt);
-	}
-
-	return res;
-}
-
-//a, e, i, o, u
-bool isYuan(char c)
-{
-	int d[] = {'a', 'e', 'i', 'o', 'u'};
-	for (int i = 0; i < 5; i++) {
-		if (c == d[i]) {
-			return true;
-		}
-	}
-
-	return false;
-}
-
-int maxVowels(char * s, int k)
-{
-	int left = 0;
-	int right = 0;
-	int slen = strlen(s);
-	int winCnt = 0;
-	int max = 0;
-
-	while(right < slen) {
-		if (isYuan(s[right])) {
-			winCnt++;
-		}
-
-		if (right - left + 1 < k) {
-			right++;
-			continue;
-		}
-
-		max = fmax(max, winCnt);
-
-		if (isYuan(s[left])) {
-			winCnt--;
-		}
-		left++;
-		right++;
-	}
-
-	return max;
-}
-
-/*
 457. 环形数组循环
-给定一个含有正整数和负整数的环形数组 nums。 如果某个索引中的数 k 为正数，则向前移动 k 个索引。相反，如果是负数 (-k)，则向后移动 k 个索引。因为数组是环形的，所以可以假设最后一个元素的下一个元素是第一个元素，而第一个元素的前一个元素是最后一个元素。
+给定一个含有正整数和负整数的环形数组 nums。 如果某个索
+引中的数 k 为正数，则向前移动 k 个索引。相反，如果是负
+数 (-k)，则向后移动 k 个索引。因为数组是环形的，所以可以
+假设最后一个元素的下一个元素是第一个元素，而第一个元
+素的前一个元素是最后一个元素。
 
-确定 nums 中是否存在循环（或周期）。循环必须在相同的索引处开始和结束并且循环长度 > 1。此外，一个循环中的所有运动都必须沿着同一方向进行。换句话说，一个循环中不能同时包括向前的运动和向后的运动。
+确定 nums 中是否存在循环（或周期）。循环必须在相同的索
+引处开始和结束并且循环长度 > 1。此外，一个循环中的所有
+运动都必须沿着同一方向进行。换句话说，一个循环中不能
+同时包括向前的运动和向后的运动。
 
 
 示例 1：
@@ -582,7 +496,25 @@ int maxVowels(char * s, int k)
 解释：存在循环，按索引 0 -> 2 -> 3 -> 0 。循环长度为 3
 */
 /*
-首先首先我们需要一个 visited 数组，来记录访问过的数字然后我们遍历原数组，如果当前数字已经访问过了，直接跳过，否则就以当前位置坐标为起始点开始查找，进行 while 循环，计算下一个位置（计算方法是当前位置坐标加上对应的数字，由于是循环数组，所以结果可能会超出数组的长度，所以我们要对数组长度取余。当然上面的数字也可能是负数，加完以后可能也是负数，所以在取余之前还得再补上一个n，使其变为正数，但是 若这个负数远大于n的话，取余之前只加上一个n，可能是不够的，所以正确的方法是应该先对n取余，再加上n。为了同时把正数的情况也包含进来，最终我们的处理方法是先对n取余，再加上n，再对n取余，这样不管正数还是负数，大小如何，都可以成功的旋转跳跃了。）此时我们判断，如果 fast 和 slow 相等，说明此时是一个数字的循环，不符合题意，再有就是检查二者的方向，数字是正数表示 forward，若是负数表示 backward，在一个 loop 中必须同正或同负，我们只要让二者相乘，如果结果是负数的话，说明方向不同，直接 break 掉。此时如果 fast 已经有映射了，说明我们找到了合法的 loop，返回 true，否则建立一个这样的映射，将 fast 位置在 visited 数组中标记 true，继续循环。
+首先首先我们需要一个 visited 数组，来记录访问过的数字然后
+我们遍历原数组，如果当前数字已经访问过了，直接跳过，
+否则就以当前位置坐标为起始点开始查找，进行 while 循环，
+计算下一个位置（计算方法是当前位置坐标加上对应的数字，
+由于是循环数组，所以结果可能会超出数组的长度，所以我
+们要对数组长度取余。当然上面的数字也可能是负数，加完
+以后可能也是负数，所以在取余之前还得再补上一个n，使其
+变为正数，但是 若这个负数远大于n的话，取余之前只加上一
+个n，可能是不够的，所以正确的方法是应该先对n取余，再
+加上n。为了同时把正数的情况也包含进来，最终我们的处理
+方法是先对n取余，再加上n，再对n取余，这样不管正数还是
+负数，大小如何，都可以成功的旋转跳跃了。）此时我们判
+断，如果 fast 和 slow 相等，说明此时是一个数字的循环，不符
+合题意，再有就是检查二者的方向，数字是正数表示 forward，
+若是负数表示 backward，在一个 loop 中必须同正或同负，我们只
+要让二者相乘，如果结果是负数的话，说明方向不同，直接
+break 掉。此时如果 fast 已经有映射了，说明我们找到了合法的
+loop，返回 true，否则建立一个这样的映射，将 fast 位置在 visited
+数组中标记 true，继续循环。
 */
 bool circularArrayLoop(int* nums, int numsSize)
 {
@@ -1509,4 +1441,50 @@ char * minWindow(char * S, char * T)
 	char *res = (char *)calloc(20000, sizeof(char));
 	strncpy(res, S + start, end - start + 1);
 	return res;
+}
+
+/*
+992. K 个不同整数的子数组
+给定一个正整数数组 A，如果 A 的某个子数组中不同整数的个数恰好为 K，则称 A 的这个连续、不一定独立的子数组为好子数组。
+
+（例如，[1,2,3,1,2] 中有 3 个不同的整数：1，2，以及 3。）
+
+返回 A 中好子数组的数目。
+
+
+
+示例 1：
+
+输入：A = [1,2,1,2,3], K = 2
+输出：7
+解释：恰好由 2 个不同整数组成的子数组：[1,2], [2,1], [1,2], [2,3], [1,2,1], [2,1,2], [1,2,1,2].
+*/
+
+/*
+第一种是求出不同整数个数<=K的子数组数量，再求出不同整数个数<=K - 1的子数组数量，两者相减。
+*/
+	int subarraysLessThanKDistinct(int* A, int ASize, int K){  //不同整数小于等于K的子数组数量
+        int m[ASize + 1];
+		memset(m, 0, sizeof(m));
+        int start = 0;
+        int end = 0;
+        int res = 0;
+        int count = 0; //不同整数的个数
+        while(end < ASize){
+            m[A[end]]++;
+            if(m[A[end]] == 1)  count++;
+            while(count > K){
+                m[A[start]]--;
+                if(!m[A[start]])  count--;
+                start++;
+            }
+            res += end - start + 1;//每变动一次end，增加的子数组数量为end - start + 1，end不动，向左数
+            end++;
+        }
+        return res;
+    }
+
+int subarraysWithKDistinct(int* A, int ASize, int K)
+{
+	return subarraysLessThanKDistinct(A, ASize, K) - subarraysLessThanKDistinct(A, ASize, K - 1);
 }
