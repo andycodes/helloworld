@@ -80,3 +80,148 @@ N 个顶点，连接两个城市的成本 cost 就是对应的权重，需要
 	return uf->cnt == 1 ? cost : -1;
 }
 
+
+/*
+1584. 连接所有点的最小费用
+给你一个points 数组，表示 2D 平面上的一些点，其中 points[i] = [xi, yi] 。
+
+连接点 [xi, yi] 和点 [xj, yj] 的费用为它们之间的 曼哈顿距离 ：|xi - xj| + |yi - yj| ，其中 |val| 表示 val 的绝对值。
+
+请你返回将所有点连接的最小总费用。只有任意两点之间 有且仅有 一条简单路径时，才认为所有点都已连接。
+
+
+
+示例 1：
+
+
+
+输入：points = [[0,0],[2,2],[3,10],[5,2],[7,0]]
+输出：20
+解释：
+
+我们可以按照上图所示连接所有点得到最小总费用，总费用为 20 。
+注意到任意两个点之间只有唯一一条路径互相到达。
+*/
+//记录两个点的编号和权值
+struct Edge{
+    int u;
+    int v;
+    int w;
+};
+typedef struct Edge Edge;
+
+//路径压缩
+int find(int* S, int x){
+    if(S[x] < 0)
+        return x;
+    else
+        return S[x] = find(S, S[x]);
+}
+
+//按秩归并
+void Union(int* S, int root1, int root2){
+    if(S[root1] < S[root2])
+        S[root2] = root1;
+    else{
+        if(S[root1] == S[root2])
+            S[root1]--;
+        S[root2] = root1;
+        }
+}
+
+//按权值进行快速排序
+void quick_sort(Edge* E, int l, int r){
+    if(l >= r) return;
+    int i = l - 1, j = r + 1, x = E[l + r >> 1].w;
+    while(i < j){
+        while(E[++i].w < x);
+        while(E[--j].w > x);
+        if(i < j){
+            Edge tmp;
+            tmp.u = E[i].u, tmp.v = E[i].v, tmp.w = E[i].w;
+            E[i].u = E[j].u, E[i].v = E[j].v, E[i].w = E[j].w;
+            E[j].u = tmp.u, E[j].v = tmp.v, E[j].w = tmp.w;
+            }
+        }
+    quick_sort(E, l, j);
+    quick_sort(E, j + 1, r);
+}
+
+int minCostConnectPoints(int** points, int pointsSize, int* pointsColSize){
+    int edges = 0;
+    int res = 0;
+    int u, v, w;
+    int n = pointsSize;
+    int* S = (int*)calloc(n, sizeof(int));
+    memset(S, -1, sizeof(int) * n);
+    Edge* E = (Edge*)calloc((n * (n - 1))/2, sizeof(Edge));
+    int size = 0;
+    for(int i = 0; i < n; i++){
+        for(int j = i + 1; j < n; j++){
+            E[size].u = i;
+            E[size].v = j;
+            E[size++].w = abs(points[i][0] - points[j][0]) + abs(points[i][1] - points[j][1]);
+            }
+        }
+    quick_sort(E, 0, size - 1);
+    int pos = 0;
+    while(edges != n - 1){
+        u = E[pos].u;
+        v = E[pos].v;
+        w = E[pos].w;
+        int root1 = find(S, u);
+        int root2 = find(S, v);
+        if(root1 != root2){
+            edges++;
+            res += w;
+            Union(S, root1, root2);
+            }
+        pos++;
+        }
+    free(S);
+    free(E);
+
+    return res;
+}
+
+//Prim算法
+
+int res;
+
+int minCostConnectPoints(int** points, int pointsSize, int* pointsColSize){
+    res = 0;
+    int n = pointsSize;
+    bool collected[n];
+    int dist[n];    //dist[i]表示i号点到点集的最短距离
+    int fee[n][n];  //fee[i][j] 表示i、j连接所需的费用
+    memset(collected, 0, sizeof(collected));
+
+    for(int i = 0; i < n; i++){
+        fee[i][i] = 0;
+        for(int j = i + 1; j < n; j++)
+            fee[i][j] = fee[j][i] = abs(points[i][0] - points[j][0]) + abs(points[i][1] - points[j][1]);
+        }
+    //从0号点开始,此时点集只有0
+    collected[0] = true;
+    for(int i = 0; i < n; i++) dist[i] = fee[i][0];
+
+    while(1){
+        int v = -1;
+        int mindist = INT_MAX;
+        for(int i = 0; i < n; i++){
+            if(collected[i]) continue;
+            if(dist[i] < mindist){
+                mindist = dist[i];
+                v = i;
+                }
+            }
+        if(v == -1) break;
+        res += mindist;
+        collected[v] = true;
+        dist[v] = 0;
+        for(int i = 0; i < n; i++)  //更新未收录顶点与收录点集的最短距离
+            if(!collected[i] && dist[i] > fee[v][i])
+                dist[i] = fee[v][i];
+        }
+    return res;
+}
