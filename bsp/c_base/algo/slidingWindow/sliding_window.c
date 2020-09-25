@@ -474,88 +474,6 @@ int** fourSum(int* nums, int numsSize, int target, int* returnSize, int** return
 	return ret;
 }
 
-/*
-567. 字符串的排列
-难度中等140
-给定两个字符串 s1 和 s2，写一个函数来判断 s2 是否包含 s1 的
-排列。
-换句话说，第一个字符串的排列之一是第二个字符串的子串。
-示例1:
-输入: s1 = "ab" s2 = "eidbaooo"
-输出: True
-解释: s2 包含 s1 的排列之一 ("ba").
-
-示例2:
-输入: s1= "ab" s2 = "eidboaoo"
-输出: False
-
-*/
-bool checkInclusion(char * s1, char * s2){
-        int mp[26] = {0};
-	for (int i = 0; i < strlen(s1); i++) {
-		mp[s1[i] - 'a']++;
-	}
-
-        int l = 0, r = 0;
-        while (r < strlen(s2)){
-            char c = s2[r++];
-            mp[c - 'a']--; // 入窗
-            while (l < r && mp[c - 'a'] < 0){ // 出窗
-                mp[s2[l++] - 'a'] ++;
-            }
-            if (r - l == strlen(s1)) return true;
-        }
-        return false;
-}
-
-bool checkMap(int *map1, int *map2)
-{
-	for (int i = 0; i < 26; i++) {
-		if (map1[i] != map2[i]) {
-			return false;
-		}
-	}
-
-	return true;
-}
-
-bool checkInclusion(char * s1, char * s2)
-{
-	int map[26] = {0};
-	int i = 0;
-	int s1len = strlen(s1);
-
-	while(i < s1len) {
-		map[s1[i++] - 'a']++;
-	}
-
-	int map2[26] = {0};
-	int left = 0;
-	int right = 0;
-	int s2len = strlen(s2);
-
-	while(right < s2len) {
-
-        map2[s2[right] - 'a']++;
-
-		if (right - left + 1 < s1len) {
-			right++;
-			continue;
-		}
-
-		bool check = checkMap(map, map2);
-		if (check == true) {
-			return true;
-		}
-
-		map2[s2[left] - 'a']--;
-		left++;
-		right++;
-	}
-
-	return false;
-}
-
 
 /*
 713. 乘积小于K的子数组
@@ -591,6 +509,7 @@ int numSubarrayProductLessThanK(int* nums, int numsSize, int k)
         }
         return ans;
 }
+
 
 /*
 76. 最小覆盖子串
@@ -651,8 +570,7 @@ char * minWindow(char * s, char * t)
 
 			char d = s[left];
 			left++;
-			// 更新数据
-			// mapt[d] == 0 标识left所指元素非关键
+			// 更新数据mapt[d] == 0 标识left所指元素非关键
 			if (mapt[d] == 0) {
 				continue;
 			}
@@ -667,6 +585,7 @@ char * minWindow(char * s, char * t)
 	s[minRight] = '\0';
 	return &s[minLeft];
 }
+
 
 
 /*
@@ -1417,3 +1336,4 @@ int subarraysWithKDistinct(int* A, int ASize, int K)
 {
 	return subarraysLessThanKDistinct(A, ASize, K) - subarraysLessThanKDistinct(A, ASize, K - 1);
 }
+
