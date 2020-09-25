@@ -225,3 +225,50 @@ int minCostConnectPoints(int** points, int pointsSize, int* pointsColSize){
         }
     return res;
 }
+
+/*
+1168. 水资源分配优化
+村里面一共有 n 栋房子。我们希望通过建造水井和铺设管道来为所有房子供水。
+
+对于每个房子 i，我们有两种可选的供水方案：
+
+一种是直接在房子内建造水井，成本为 wells[i]；
+另一种是从另一口井铺设管道引水，数组 pipes 给出了在房子间铺设管道的成本，其中每个 pipes[i] = [house1, house2, cost] 代表用管道将 house1 和 house2 连接在一起的成本。当然，连接是双向的。
+请你帮忙计算为所有房子都供水的最低总成本。
+*/
+
+int minCostToSupplyWater(int n, int* wells, int wellsSize,
+int** pipes, int pipesSize, int* pipesColSize)
+{
+	struct HeapCtrl *hp = heapInit(wellsSize + pipesSize);
+	for (int i = 0; i < wellsSize; i++) {
+		struct heapEntry node;
+		node.start = i + 1;
+		node.end = 0;
+		node.key = wells[i];
+		heapPush(hp, node);
+	}
+
+	for (int i = 0; i < pipesSize; i++) {
+		struct heapEntry node;
+		node.start = pipes[i][0];
+		node.end = pipes[i][1];
+		node.key = pipes[i][2];
+		heapPush(hp, node);
+	}
+
+	struct UnionFind duf;
+	struct UnionFind *uf = &duf;
+	uf_init(uf, n + 1);
+
+	int cost = 0;
+	while(!heapEmpty(hp)) {
+		struct heapEntry pop = heapPop(hp);
+		if (!uf_isOneUnion(uf, pop.start, pop.end)) {
+			uf_union(uf, pop.start, pop.end);
+			cost += pop.key;
+		}
+	}
+
+	return cost;
+}
