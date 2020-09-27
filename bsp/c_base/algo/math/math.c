@@ -484,3 +484,52 @@ int smallestFactorization(int a)
         // 到最后如果 a 不为 1，说明此时的 a 肯定是质数
         return a == 1 && b <= INT_MAX ? (int) b : 0;
 }
+
+/*
+1498. 满足条件的子序列数目
+给你一个整数数组 nums 和一个整数 target 。
+请你统计并返回 nums 中能满足其最小元素与最大元素的 和 小
+于或等于 target 的 非空 子序列的数目。
+由于答案可能很大，请将结果对 10^9 + 7 取余后返回。
+示例 1：
+输入：nums = [3,5,6,7], target = 9
+输出：4
+解释：有 4 个子序列满足该条件。
+[3] -> 最小元素 + 最大元素 <= target (3 + 3 <= 9)
+[3,5] -> (3 + 5 <= 9)
+[3,5,6] -> (3 + 6 <= 9)
+[3,6] -> (3 + 6 <= 9)
+*/
+/*包含左端点 i 的满足条件的子序列个数为：2^{j-i} 个*/
+/* min到max之间所有的子集都是满足要求的。个数为2 ^ (maxIdx - minIdx). */
+int numSubseq(int* nums, int numsSize, int target)
+{
+	qsort(nums, numsSize, sizeof(nums[0]), cmp_int);
+	if (nums[0] * 2 > target) {
+		return 0;
+	}
+
+//大数溢出，建立乘方列表
+	int spow[numsSize];
+	spow[0] = 1;
+	for (int i = 1; i < numsSize; i++) {
+		spow[i] = (spow[i-1] * 2) % (1000000000 + 7);
+	}
+
+
+	int left = 0;
+	int right = numsSize - 1;
+	int res = 0;
+	while(left <= right) {
+		if (nums[left] + nums[right] <= target) {
+			res += spow[right - left];
+			res %= (1000000000 + 7);
+			left++;
+		} else {
+			right--;
+		}
+	}
+
+	return res % (1000000000 + 7);
+}
+
