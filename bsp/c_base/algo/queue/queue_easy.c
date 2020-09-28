@@ -35,12 +35,8 @@ void iqueue_push(int newData)
 /*
 	更新上升队列，向前挤掉大于该值的数据
 */
-	while(iqRear > iqHead) {
-		if(newData <= iqueue[iqRear - 1]) {
+	while(iqRear > iqHead && newData < iqueue[iqRear - 1) {
 			iqRear--;
-		} else {
-			break;
-		}
 	}
 
 	iqueue[iqRear++] = newData;
@@ -64,12 +60,8 @@ void dqueue_push(int newData)
 /*
 更新下降队列,向前挤掉小于该值的数据
 */
-	while(dqRear > dqHead) {
-		if(newData >= dqueue[dqRear - 1]) {
+	while(dqRear > dqHead && newData >= dqueue[dqRear - 1]) {
 			dqRear--;
-		} else {
-			break;
-		}
 	}
 
 	dqueue[dqRear++] = newData;

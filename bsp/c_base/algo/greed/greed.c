@@ -961,3 +961,266 @@ bool isPossible(int* nums, int numsSize){
     }
     return true;
 }
+
+/*
+358. K 距离间隔重排字符串
+给你一个非空的字符串 s 和一个整数 k，你要将这个字符串中的字母进行重新排列，使得重排后的字符串中相同字母的位置间隔距离至少为 k。
+
+所有输入的字符串都由小写字母组成，如果找不到距离至少为 k 的重排结果，请返回一个空字符串 ""。
+
+示例 1：
+
+输入: s = "aabbcc", k = 3
+输出: "abcabc"
+解释: 相同的字母在新的字符串中间隔至少 3 个单位距离。
+示例 2:
+
+输入: s = "aaabc", k = 3
+输出: ""
+解释: 没有办法找到可能的重排结果。
+*/
+#define MAX(a, b) ((a) > (b)) ? (a) : (b)
+
+typedef struct letterCnt {
+    int letterVal;
+    int letterCnt;
+    int prePos;
+}LETTER_CNT;
+
+char findNextChar(LETTER_CNT *letterCnt, int curPos, int k)
+{
+    char nextChar = 0;
+    int i = 0;
+    for (; i < 27; i++) {
+        if (letterCnt[i].letterCnt == 0) {
+            continue;
+        }
+
+        if (letterCnt[i].prePos == -1  ||  (curPos - letterCnt[i].prePos) >= k) {
+            letterCnt[i].prePos = curPos;
+            letterCnt[i].letterCnt -= 1;
+            nextChar =  letterCnt[i].letterVal;
+            break;
+        }
+    }
+
+    return nextChar;
+}
+int compareLetterCnt(const void *elm1, const void *elm2) {
+    return ((LETTER_CNT *)elm2)->letterCnt - ((LETTER_CNT *)elm1)->letterCnt;
+}
+
+char * rearrangeString(char * s, int k)
+{
+    LETTER_CNT letterCnt[27] = { 0 };
+    int letterPrePos[27] = { 0 };
+    int maxDupLetter = 0;
+
+    if (s == NULL) {
+        return "";
+    }
+
+    int len = strlen(s);
+    for (int i = 0; i < len; i++) {
+        letterCnt[s[i] - 'a'].letterVal = s[i];
+        letterCnt[s[i] - 'a'].letterCnt += 1;
+        letterCnt[s[i] - 'a'].prePos = -1;
+        maxDupLetter = MAX(maxDupLetter, letterCnt[s[i] - 'a'].letterCnt);
+    }
+
+    if ((maxDupLetter - 1) * k + 1 > len) {
+        return "";
+    }
+
+    qsort(letterCnt, 27, sizeof(LETTER_CNT),  compareLetterCnt);
+
+    char *pNewStr = (char *)malloc(len + 1);
+    memset(pNewStr, 0, len + 1);
+    int i  = 0;
+    for (i = 0; i < len; i++) {
+        char c  =  findNextChar(letterCnt, i, k);
+        qsort(letterCnt, 27, sizeof(LETTER_CNT),  compareLetterCnt); // 取完重新排序一下 保证优先取最多的字符
+        if (c == 0) {
+            break;
+        }
+        pNewStr[i] = c;
+    }
+
+    if (i != len) {
+        free(pNewStr);
+        return "";
+    }
+
+    return pNewStr;
+}
+
+/*
+502. IPO
+假设 力扣（LeetCode）即将开始其 IPO。为了以更高的价格将股票卖给风险投资公司，力扣 希望在 IPO 之前开展一些项目以增加其资本。 由于资源有限，它只能在 IPO 之前完成最多 k 个不同的项目。帮助 力扣 设计完成最多 k 个不同项目后得到最大总资本的方式。
+
+给定若干个项目。对于每个项目 i，它都有一个纯利润 Pi，并且需要最小的资本 Ci 来启动相应的项目。最初，你有 W 资本。当你完成一个项目时，你将获得纯利润，且利润将被添加到你的总资本中。
+
+总而言之，从给定项目中选择最多 k 个不同项目的列表，以最大化最终资本，并输出最终可获得的最多资本。
+
+示例 1:
+
+输入: k=2, W=0, Profits=[1,2,3], Capital=[0,1,1].
+
+输出: 4
+
+解释:
+由于你的初始资本为 0，你尽可以从 0 号项目开始。
+在完成后，你将获得 1 的利润，你的总资本将变为 1。
+此时你可以选择开始 1 号或 2 号项目。
+由于你最多可以选择两个项目，所以你需要完成 2 号项目以获得最大的资本。
+因此，输出最后最大化的资本，为 0 + 1 + 3 = 4。
+*/
+typedef struct {
+	int p; // profit
+	int c; // capital
+} node_t;
+
+typedef int (*cmp_fn)(const void *,const void *);
+
+int cmpc(const void*a, const void*b)
+{ // 对成本cost进行排序，从小到大
+	node_t* n1 = (node_t*)a;
+	node_t* n2 = (node_t*)b;
+	return (n1->c - n2->c);
+}
+
+int cmpp(const void*a, const void*b)
+{ // 对收益profit进行排序，从小到大，大顶堆
+	node_t* n1 = (node_t*)a;
+	node_t* n2 = (node_t*)b;
+	return (n1->p - n2->p);
+}
+
+void swap(node_t *a, node_t *b)
+{ // 交换两个元素
+    node_t t = *a;
+    *a = *b;
+    *b = t;
+}
+
+bool HeadNodeDown(node_t *a, int n, cmp_fn cmp, int i)
+{ // 节点元素i进行下沉
+    if (a == NULL || n < 0 || i > n ) {
+        return false;
+    }
+	int dad = i; // 非叶子节点，即父节点的编号
+    int k = n / 2 - 1; // 非叶子节点的最大位置
+	while (dad <= k) { // 父节点，仍然是非叶子节点
+		int son = dad * 2 + 1; // 左子节点的编号
+		if (son + 1 < n && cmp(&a[son], &a[son + 1]) < 0) {
+		    son = son + 1;  // 右子节点更大，选右边
+		}
+		if (cmp(&a[son], &a[dad]) <= 0) { // 子节点都比较小
+		    break; // 不用再下沉了
+		}
+		swap(&a[son], &a[dad]);
+		dad = son;
+	}
+    return true;
+}
+
+bool HeadNodeUp(node_t *a, int n, cmp_fn cmp, int i)
+{ // 节点元素i进行上浮
+    if (a == NULL || n < 0 || i > n ) {
+        return false;
+    }
+	int son = i; // 叶子节点，即子节点的编号
+	while (son > 0) { // 子节点，仍然是正常节点
+		int dad = (son - 1) / 2; // 父节点的编号
+		if (cmp(&a[son], &a[dad]) <= 0) { // 子节点比较小
+		    break; // 不用再上浮了
+		}
+		swap(&a[son], &a[dad]);
+		son = dad;
+	}
+    return true;
+}
+
+bool HeadNodePush(node_t *a, int *n, cmp_fn cmp, node_t *t)
+{ // 在堆中压入一个节点元素，从尾部添加
+	if (a == NULL || n == NULL || *n < 0 || t == NULL) {
+        return false;
+    }
+	a[*n] = *t;
+    (*n)++;
+    HeadNodeUp(a, *n, cmp, *n-1);
+    return true;
+}
+
+bool HeadNodePop(node_t *a, int *n, cmp_fn cmp, node_t *t)
+{ // 在堆中弹出一个节点元素，从顶部弹出
+	if (a == NULL || n == NULL || *n < 0 || t == NULL) {
+        return false;
+    }
+    swap(&a[0], &a[*n - 1]);
+    *t = a[*n - 1];
+    memset(&a[*n - 1], 0, sizeof(node_t));
+    (*n)--;
+    HeadNodeDown(a, *n, cmp, 0);
+    return true;
+}
+
+bool HeadCreate(node_t *a, int n, cmp_fn cmp)
+{ // 堆的非叶子节点的调整
+    if (a == NULL || n < 0) {
+        return false;
+    }
+    int k = n / 2 - 1; // 非叶子节点的最大位置
+    for (int i = k; i >= 0; i--) { // 遍历所有非叶子节点
+    	HeadNodeDown(a, n, cmp, i); // 逐个判断是否可以下沉
+    }
+    return true;
+}
+
+bool HeapSort(node_t *a, int n)
+{ // 堆排序，大顶堆，从小到大
+    if (a == NULL || n < 0) {
+        return false;
+    }
+    for (int i = n; i > 0; i--) {
+        HeadCreate(a, i, cmpp);
+        swap(&a[0], &a[i - 1]);
+    }
+    return true;
+}
+
+int gd(int k, int w, node_t*a, int n)
+{ // 贪心greedy算法，每次都选择收益最大的那个
+    if (k == 0 || w < 0 || a == NULL || n <= 0) {
+        return 0;
+    }
+    node_t c[n];
+    memset(c, 0, sizeof(c));
+	qsort(a, n, sizeof(node_t), cmpc);
+	for (int ai = 0, ci = 0; k > 0; k--) {
+		while (ai < n && a[ai].c <= w) { // 都可选
+			HeadNodePush(c, &ci, cmpp, &a[ai]);
+			ai++;
+		}
+		if (ci > 0) { // 还有元素可选
+			node_t t; // 临时变量
+			HeadNodePop(c, &ci, cmpp, &t);
+			w += t.p;
+		}
+	}
+    return w;
+}
+
+int findMaximizedCapital(int k, int w, int*p, int pn, int*c, int cn)
+{
+    if (k == 0 || w < 0 || p == NULL || pn <= 0 || c == NULL || cn <= 0) {
+        return 0;
+    }
+    node_t a[pn];
+    memset(a, 0, sizeof(a));
+    for (int i = 0; i < pn; i++) {
+    	a[i].p = p[i];
+    	a[i].c = c[i];
+	}
+    return gd(k, w, a, pn);
+}

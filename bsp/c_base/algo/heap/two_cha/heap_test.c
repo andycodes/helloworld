@@ -219,4 +219,209 @@ double medianFinderFindMedian(MedianFinder* obj) {
 	}
 }
 
+/*
+218. 天际线问题
+城市的天际线是从远处观看该城市中所有建筑物形成的轮廓的外部轮廓。现在，假设您获得了城市风光照片（图A）上显示的所有建筑物的位置和高度，请编写一个程序以输出由这些建筑物形成的天际线（图B）。
 
+Buildings Skyline Contour
+
+每个建筑物的几何信息用三元组 [Li，Ri，Hi] 表示，其中 Li 和 Ri 分别是第 i 座建筑物左右边缘的 x 坐标，Hi 是其高度。可以保证 0 ≤ Li, Ri ≤ INT_MAX, 0 < Hi ≤ INT_MAX 和 Ri - Li > 0。您可以假设所有建筑物都是在绝对平坦且高度为 0 的表面上的完美矩形。
+
+例如，图A中所有建筑物的尺寸记录为：[ [2 9 10], [3 7 15], [5 12 12], [15 20 10], [19 24 8] ] 。
+
+输出是以 [ [x1,y1], [x2, y2], [x3, y3], ... ] 格式的“关键点”（图B中的红点）的列表，它们唯一地定义了天际线。关键点是水平线段的左端点。请注意，最右侧建筑物的最后一个关键点仅用于标记天际线的终点，并始终为零高度。此外，任何两个相邻建筑物之间的地面都应被视为天际线轮廓的一部分。
+
+例如，图B中的天际线应该表示为：[ [2 10], [3 15], [7 12], [12 0], [15 10], [20 8], [24, 0] ]。
+*/
+/**
+ * Return an array of arrays of size *returnSize.
+ * The sizes of the arrays are returned as *returnColumnSizes array.
+ * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ */
+struct Heap {
+    int capacity;
+    int size;
+    int *arr;
+};
+
+struct Heap* HeapInit(int maxSize)
+{
+    struct Heap* heap;
+
+    heap = malloc(sizeof(struct Heap));
+    heap->capacity = maxSize;
+    heap->size = 0;
+    heap->arr = malloc(sizeof(int)*(maxSize+1));
+
+    return heap;
+}
+
+void HeapInsert(int x, struct Heap *obj)
+{
+    int i;
+    obj->size += 1;
+    for (i=obj->size; i!=1 && x>(obj->arr)[i/2]; i=i/2) {
+        (obj->arr)[i] = (obj->arr)[i/2];
+    }
+    (obj->arr)[i] = x;
+    return;
+}
+
+int HeapDeleteMax(struct Heap *obj)
+{
+    int ret = (obj->arr)[1];
+    int x = (obj->arr)[obj->size];
+    int i, child;
+
+    obj->size -= 1;
+    for (i=1; i<=obj->size/2;i=child) {
+        child = i*2;
+        if (child < obj->size && (obj->arr)[child]<(obj->arr)[child+1]) {
+            child++;
+        }
+        if (x < (obj->arr)[child])
+            (obj->arr)[i] = (obj->arr)[child];
+        else
+            break;
+    }
+    (obj->arr)[i] = x;
+
+    return ret;
+}
+
+void HeapDelete(int x, struct Heap *obj)
+{
+    int i;
+
+    for(i=1; i<=obj->size; i++) {
+        if (x == (obj->arr)[i]) {
+            break;
+        }
+    }
+    if (i > obj->size)
+        return;
+
+    // 节点x上滤
+    for (; i!=1; i=i/2) {
+        (obj->arr)[i] = (obj->arr)[i/2];
+    }
+    (obj->arr)[i] = INT_MAX;
+
+    HeapDeleteMax(obj);
+
+    return;
+}
+
+int HeapGetMax(struct Heap *obj)
+{
+    if (obj->size > 0) {
+        return (obj->arr)[1];
+    } else {
+        return 0;
+    }
+}
+void HeapPrint(struct Heap *obj)
+{
+    int i;
+    for(i=1; i<=obj->size; i++) {
+        printf("%d ", (obj->arr)[i]);
+    }
+    printf("\n");
+}
+
+int Abs(int a)
+{
+    return a<0?-a:a;
+}
+
+int arraycmp(const void *elem1,const void *elem2)
+{
+    int ret;
+    int a, b;
+
+    ret = (*((int**)elem1))[0]-(*((int**)elem2))[0];
+    if (ret == 0) {
+        a = -(*((int**)elem2))[1];
+        b = -(*((int**)elem1))[1];
+        ret = a - b;
+    }
+    return ret;
+}
+
+int** getSkyline(int** buildings, int buildingsSize, int* buildingsColSize, int* returnSize, int** returnColumnSizes){
+    int **vetex;
+    int vetexCount = buildingsSize*2;
+    int **ret;
+    int retCount;
+    struct Heap *heap;
+    int i;
+    int lastHeight;
+
+    /*
+    step 1 找出建筑物所有左上、右上的点，存入vetex中。左上的点，高取负数
+    */
+    vetex = malloc(sizeof(int*)*vetexCount);
+    for (i=0; i<vetexCount; i++) {
+        vetex[i] = malloc(sizeof(int)*2);
+    }
+    for (i=0; i<buildingsSize; i++) {
+        vetex[i*2][0] = buildings[i][0];
+        vetex[i*2][1] = -buildings[i][2];
+        vetex[i*2+1][0] = buildings[i][1];
+        vetex[i*2+1][1] = buildings[i][2];
+    }
+    qsort(vetex, vetexCount, sizeof(int*), arraycmp);
+    // for(i=0; i<vetexCount; i++) {
+    //     printf("(%d %d)", vetex[i][0], vetex[i][1]);
+    // }
+    // printf("\n");
+
+    /*
+    调试堆
+    */
+    // heap = HeapInit(10);
+    // HeapInsert(8, heap);
+    // HeapInsert(20, heap);
+    // HeapInsert(2, heap);
+    // HeapInsert(15, heap);
+    // HeapInsert(19, heap);
+    // HeapPrint(heap);
+    // HeapDelete(19, heap);
+    // printf("\n");
+    // HeapPrint(heap);
+
+    /*
+    step 2 扫描线从左向右扫描，获取转折点
+    1)扫描到建筑物的左边界时，将高存入堆
+    2)扫描到建筑物的右边界时，将高从堆中取出
+    3)当存入、取出时，最大高度发生变化时，遇到转折点。算出新的height，转折点为 当前节点，height
+    */
+    heap = HeapInit(buildingsSize+1);
+    retCount = 0;
+    ret = malloc(sizeof(int*)*vetexCount);
+    lastHeight = 0;
+    for (i=0; i<vetexCount; i++) {
+        // printf("i=%d size=%d\n",i, heap->size);
+        if (vetex[i][1] < 0) {
+            HeapInsert(-vetex[i][1], heap);
+        } else {
+            HeapDelete(vetex[i][1], heap);
+        }
+        // HeapPrint(heap);
+        // printf("1111111\n");
+        if (lastHeight != HeapGetMax(heap)) {
+            lastHeight = HeapGetMax(heap);
+            //get i, lastHeight;
+            ret[retCount] = malloc(sizeof(int)*2);
+            ret[retCount][0] = vetex[i][0];
+            ret[retCount][1] = HeapGetMax(heap);
+            retCount++;
+        }
+    }
+    *returnColumnSizes = malloc(sizeof(int)*retCount);
+    for (i=0; i<retCount; i++) {
+        (*returnColumnSizes)[i] = 2;
+    }
+    *returnSize = retCount;
+    return ret;
+}

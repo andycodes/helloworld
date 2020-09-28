@@ -926,3 +926,92 @@ int findPairs(int* nums, int numsSize, int k)
 
 	return cnt;
 }
+
+/*
+719. 找出第 k 小的距离对
+给定一个整数数组，返回所有数对之间的第 k 个最小距离。一对 (A, B) 的距离被定义为 A 和 B 之间的绝对差值。
+
+示例 1:
+
+输入：
+nums = [1,3,1]
+k = 1
+输出：0
+解释：
+所有数对如下：
+(1,3) -> 2
+(1,1) -> 0
+(3,1) -> 2
+因此第 1 个最小距离的数对是 (1,1)，它们之间的距离为 0。
+*/
+
+#include <stdlib.h>
+#include <stdio.h>
+#include <stdbool.h>
+#include <limits.h>
+
+int compare(const void *a, const void *b) {
+    return *(int *)a - *(int *)b;
+}
+
+//双指针加速
+int helper(int* nums, int numsSize, int diff) {
+    int cnt = 0;
+
+    int ll = 0, rr = 0;
+    while(rr < numsSize) {
+        if(nums[rr] - nums[ll] <= diff) {
+            rr++;
+            continue;
+        }
+
+        //进行结算
+        cnt += rr - ll - 1;
+        ll++;
+        //printf("hll = %d, hrr = %d, cnt = %d\n", ll, rr, cnt);
+    }
+
+    //处理尾部数据
+    for(int i = ll; i < numsSize; i++) {
+        cnt += numsSize - i - 1;
+    }
+/*
+    for(int i = 0; i < numsSize - 1; i++) {
+        for(int j = i + 1; j < numsSize; j++) {
+            if(nums[j] - nums[i] <= diff) {
+                cnt++;
+            } else {
+                break;
+            }
+        }
+    }
+*/
+    //printf("diff = %d, cnt = %d\n", diff, cnt);
+    return cnt;
+}
+
+//【算法思路】扩展的二分查找。以二分查找为框架，对于二分值如何判定进行扩展。
+// 1.计算差值存在范围
+// 2.给定差值，查找小于等于差值的对数
+// 3.如果该数值大于K，则rr = mid
+// 4.否则ll = mid + 1;
+int smallestDistancePair(int* nums, int numsSize, int k){
+    //找到最大最小值
+    qsort(nums, numsSize, sizeof(int), compare);
+
+    int ll = 0, rr = nums[numsSize - 1] - nums[0];
+    while(ll < rr) {
+        //printf("ll = %d, rr = %d\n", ll, rr);
+        int mid = (ll + rr) / 2;
+
+        int cnt = helper(nums, numsSize, mid);
+
+        if(cnt >= k) {
+            rr = mid;
+        } else {
+            ll = mid + 1;
+        }
+    }
+
+    return ll;
+}
