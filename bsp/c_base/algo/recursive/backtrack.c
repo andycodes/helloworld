@@ -1041,3 +1041,246 @@ bool isMatch(char * s, char * p){
 "aab"
 "c*a*b"
 */
+
+/*
+351. 安卓系统手势解锁
+我们都知道安卓有个手势解锁的界面，是一个 3 x 3 的点所绘制出来的网格。
+
+给你两个整数，分别为 ??m 和 n，其中 1 ≤ m ≤ n ≤ 9，那么请你统计一下有多少种解锁手势，是至少需要经过 m 个点，但是最多经过不超过 n 个点的。
+
+
+
+先来了解下什么是一个有效的安卓解锁手势:
+
+每一个解锁手势必须至少经过 m 个点、最多经过 n 个点。
+解锁手势里不能设置经过重复的点。
+假如手势中有两个点是顺序经过的，那么这两个点的手势轨迹之间是绝对不能跨过任何未被经过的点。
+经过点的顺序不同则表示为不同的解锁手势。
+
+
+
+
+
+解释:
+
+| 1 | 2 | 3 |
+| 4 | 5 | 6 |
+| 7 | 8 | 9 |
+无效手势：4 - 1 - 3 - 6
+连接点 1 和点 3 时经过了未被连接过的 2 号点。
+
+无效手势：4 - 1 - 9 - 2
+连接点 1 和点 9 时经过了未被连接过的 5 号点。
+
+有效手势：2 - 4 - 1 - 3 - 6
+连接点 1 和点 3 是有效的，因为虽然它经过了点 2 ，但是点 2 在该手势中之前已经被连过了。
+
+有效手势：6 - 5 - 4 - 1 - 9 - 2
+连接点 1 和点 9 是有效的，因为虽然它经过了按键 5 ，但是点 5 在该手势中之前已经被连过了。
+*/
+/*
+共3种出发情况：角落出发、边缘出发和中心出发，分别对应4、4、1的重复情况。
+对于两个点是否可以划过去，可以通过查表的方式获得。
+当有了一些滑动步骤，那么之前不能走的点之间就有可能可以走了，只要判断两个点编号的中间点已经走过了就可以走了。
+所以判断两点之间是否可以划过去的方法就是：
+1、先查表如果可以走直接走，否则做逻辑判断；2、判断阻隔两点的中间点是否已经走过了。
+
+*/
+
+static const bool walk_map[9][9] = {
+    {0, 1, 0, 1, 1, 1, 0, 1, 0},
+    {1, 0, 1, 1, 1, 1, 1, 0, 1},
+    {0, 1, 0, 1, 1, 1, 0, 1, 0},
+    {1, 1, 1, 0, 1, 0, 1, 1, 1},
+    {1, 1, 1, 1, 0, 1, 1, 1, 1},
+    {1, 1, 1, 0, 1, 0, 1, 1, 1},
+    {0, 1, 0, 1, 1, 1, 0, 1, 0},
+    {1, 0, 1, 1, 1, 1, 1, 0, 1},
+    {0, 1, 0, 1, 1, 1, 0, 1, 0},
+};
+
+static void dfs(int arr[], int pos, int len, int level, int cnt[]);
+int numberOfPatterns(int m, int n)
+{
+    int cnt[10] = {0};
+    int corner[9] = {0, 1, 2, 3, 4, 5, 6, 7, 8};
+    dfs(corner, 1, 9, n, cnt);
+    int edge[9] = {1, 0, 2, 3, 4, 5, 6, 7, 8};
+    dfs(edge, 1, 9, n, cnt);
+    for (int i = 1; i <= n; i++)
+        cnt[i] *= 4;
+    int core[9] = {4, 0, 1, 2, 3, 5, 6, 7, 8};
+    dfs(core, 1, 9, n, cnt);
+
+    int result = 0;
+    for (int i = m; i <= n; i++)
+        result += cnt[i];
+
+    return result;
+}
+
+static inline void swap(int arr[], int l, int r)
+{
+    int temp = arr[l];
+    arr[l] = arr[r];
+    arr[r] = temp;
+}
+
+static inline bool can_walk(int arr[], int used, int from, int to)
+{
+    if (walk_map[from][to])
+        return true;
+    int spring_board = (from + to) / 2;
+    for (int i = 0; i < used; i++)
+        if (arr[i] == spring_board)
+            return true;
+    return false;
+}
+
+static void dfs(int arr[], int pos, int len, int level, int cnt[])
+{
+    cnt[pos]++;
+    if (pos == level)
+        return;
+
+    for (int i = pos; i < len; i++) {
+        if (!can_walk(arr, pos, arr[pos - 1], arr[i]))
+            continue;
+        swap(arr, pos, i);
+        dfs(arr, pos + 1, len, level, cnt);
+        swap(arr, pos, i);
+    }
+}
+
+/*
+306. 累加数
+累加数是一个字符串，组成它的数字可以形成累加序列。
+
+一个有效的累加序列必须至少包含 3 个数。除了最开始的两个数以外，字符串中的其他数都等于它之前两个数相加的和。
+
+给定一个只包含数字 '0'-'9' 的字符串，编写一个算法来判断给定输入是否是累加数。
+
+说明: 累加序列里的数不会以 0 开头，所以不会出现 1, 2, 03 或者 1, 02, 3 的情况。
+
+示例 1:
+
+输入: "112358"
+输出: true
+解释: 累加序列为: 1, 1, 2, 3, 5, 8 。1 + 1 = 2, 1 + 2 = 3, 2 + 3 = 5, 3 + 5 = 8
+示例 2:
+
+输入: "199100199"
+输出: true
+解释: 累加序列为: 1, 99, 100, 199。1 + 99 = 100, 99 + 100 = 199
+*/
+
+void dfs(char * num,int index,long *tmp,int tmpSize,bool *re){
+    if(tmpSize>=3)
+    {
+        if(tmp[tmpSize-3]+tmp[tmpSize-2]!=tmp[tmpSize-1])
+        {
+            return;//当暂时数组里的数字个数超过3个但不符合累加数要求，不用继续查找，直接返回
+        }
+    }
+    if(index==strlen(num))//用光了字符数组里所有字符
+    {
+        if(tmpSize<3) return;//只组成了少于3个数字，肯定为假，返回
+        int i=0;
+        for(i=0;i<tmpSize-2;i++)//遍历暂时数组所有元素是否满足累加数要求
+        {
+            if(tmp[i]+tmp[i+1]!=tmp[i+2])
+            {
+                break;
+            }
+        }
+        if(i==tmpSize-2)//有满足的情况，将返回值改为真
+        {
+            *re=true;
+        }
+        return;
+    }
+    if(num[index]=='0')//由于不能有前导零，如果当前数字为0，那么本次取的数字只能为0
+    {
+        tmp[tmpSize]=0;
+        dfs(num,index+1,tmp,tmpSize+1,re);
+        return;
+    }
+    int i=0,cnt=0;
+    long sum=0;
+    for(i=index;i<strlen(num);i++)//一般情况
+    {
+        sum=sum*10+num[i]-'0';
+        cnt++;
+        //下面这句是为了防止数字过大溢出long类型，可以轻松想到
+        //如果某个数字取了大于strlen(num)/2长度的字符，就不满足tmp[i]+tmp[i+1]=tmp[i+2]这个条件
+        //所以设置记数cnt，防止以上情况出现
+        if(2*cnt>strlen(num)) break;
+        tmp[tmpSize]=sum;
+        dfs(num,i+1,tmp,tmpSize+1,re);
+    }
+}
+bool isAdditiveNumber(char * num){
+    if(strlen(num)<3) return false;
+    bool re=false;
+    int size=0;
+    long tmp[strlen(num)];//暂时存放取出的n个字符组成的数字
+    memset(tmp,0,sizeof(tmp));
+    dfs(num,0,tmp,0,&re);
+    return re;
+}
+
+/*
+90. 子集 II
+给定一个可能包含重复元素的整数数组 nums，返回该数组所有可能的子集（幂集）。
+
+说明：解集不能包含重复的子集。
+
+示例:
+
+输入: [1,2,2]
+输出:
+[
+  [2],
+  [1],
+  [1,2,2],
+  [2,2],
+  [1,2],
+  []
+]
+*/
+int cmp_int(const void *a, const void *b)
+{
+	return *((int *)a) > *((int *)b);
+}
+
+void backtrack(int* nums, int numsSize, int* returnSize, int** returnColumnSizes,
+	int **res, int *path, int pathSize, int cidx)
+{
+	res[*returnSize] = (int *)calloc(pathSize, sizeof(int));
+	memcpy(res[*returnSize], path, sizeof(int) * pathSize);
+	(*returnColumnSizes)[*returnSize] = pathSize;
+	(*returnSize)++;
+
+	for (int i = cidx; i < numsSize; i++) {
+		if (i > cidx && nums[i] == nums[i - 1]) {
+			continue;
+		}
+
+		path[pathSize] = nums[i];
+		backtrack(nums, numsSize, returnSize, returnColumnSizes, res, path, pathSize + 1, i + 1);
+	}
+}
+
+int** subsetsWithDup(int* nums, int numsSize, int* returnSize, int** returnColumnSizes)
+{
+	*returnSize = 0;
+	qsort(nums, numsSize, sizeof(nums[0]), cmp_int);
+	int resSize = fmax(1024, pow(2, numsSize));
+	*returnColumnSizes = (int *)calloc(resSize, sizeof(int));
+	int **res = (int **)calloc(resSize, sizeof(int *));
+	int path[numsSize];
+	memset(path, 0, sizeof(path));
+
+	backtrack(nums, numsSize, returnSize, returnColumnSizes, res, path, 0, 0);
+	return res;
+}
