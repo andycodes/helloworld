@@ -1284,3 +1284,408 @@ int** subsetsWithDup(int* nums, int numsSize, int* returnSize, int** returnColum
 	backtrack(nums, numsSize, returnSize, returnColumnSizes, res, path, 0, 0);
 	return res;
 }
+
+/*
+79. 单词搜索
+给定一个二维网格和一个单词，找出该单词是否存在于网格中。
+
+单词必须按照字母顺序，通过相邻的单元格内的字母构成，其中“相邻”单元格是那些水平相邻或垂直相邻的单元格。同一个单元格内的字母不允许被重复使用。
+
+
+
+示例:
+
+board =
+[
+  ['A','B','C','E'],
+  ['S','F','C','S'],
+  ['A','D','E','E']
+]
+
+给定 word = "ABCCED", 返回 true
+给定 word = "SEE", 返回 true
+给定 word = "ABCB", 返回 false
+*/
+#define DIR 4
+int direction[DIR][2] = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+
+int dfs(char** board, int row, int col, int i, int j, int** visted, char * word,int deepth)
+{
+    if (deepth == strlen(word)) {
+        return 1;
+    }
+    if (i < 0 || i >= row || j < 0 || j >= col) {
+        return 0;
+    }
+    if (visted[i][j] || board[i][j] != word[deepth]) {
+        return 0;
+    }
+    visted[i][j] = 1;
+    for (int k = 0; k < DIR; k++) {
+        int newx = i + direction[k][0];
+        int newy = j + direction[k][1];
+        if (dfs(board, row, col, newx, newy, visted, word, deepth + 1)) {
+            return 1;
+        }
+    }
+    visted[i][j] = 0;
+    return 0;
+}
+bool exist(char** board, int boardSize, int* boardColSize, char * word)
+{
+    int m = boardSize;
+    int n = *boardColSize;
+    int **visted = (int **)calloc(m,sizeof(int *));
+    for (int i = 0; i < m; i++) {
+        visted[i] = (int *)calloc(n, sizeof(int));
+    }
+    for (int i = 0; i < m; i++) {
+        for (int j = 0; j < n; j++) {
+            if (dfs(board, m, n, i, j, visted, word,0)) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+bool _exist(char **board, int row, int col, char *word, int y, int x)
+{
+    if (*word == '\0')
+        return true;
+    if (y < 0 || y >= row || x < 0 || x >= col || *word != board[y][x])
+        return false;
+    board[y][x] = '\0';
+    bool result = _exist(board, row, col, word + 1, y, x - 1) ||
+                  _exist(board, row, col, word + 1, y - 1, x) ||
+                  _exist(board, row, col, word + 1, y, x + 1) ||
+                  _exist(board, row, col, word + 1, y + 1, x);
+    board[y][x] = *word;
+    return result;
+}
+bool exist(char **board, int boardSize, int *boardColSize, char *word)
+{
+    for (int y = 0; y < boardSize; y++)
+        for (int x = 0; x < boardColSize[0]; x++)
+            if (board[y][x] == word[0] && _exist(board, boardSize, boardColSize[0], word, y, x))
+                return true;
+    return false;
+}
+
+int flag = false;
+int dx[] = {0, 0, 1, -1};
+int dy[] = {1, -1, 0, 0};
+
+bool dfs(char ** board, int m, int n, char * word, int len, int index, int x, int y)
+{
+    if(index == len) {
+        return true;
+    }
+    if(x < 0 || x >= m || y < 0 || y >= n || board[x][y] != word[index]){
+        return false;
+    }
+    char tmp = board[x][y];
+    board[x][y] = '0';
+    if(dfs(board, m, n, word, len, index + 1, x + 1, y) ||
+       dfs(board, m, n, word, len, index + 1, x - 1, y) ||
+       dfs(board, m, n, word, len, index + 1, x, y + 1) ||
+       dfs(board, m, n, word, len, index + 1, x, y - 1)) {
+                return true;
+    }
+    board[x][y] = tmp;
+    return false;
+}
+
+
+bool exist(char** board, int boardSize, int* boardColSize, char * word){
+    flag = false;
+    int len1 = strlen(word);
+    int m = boardSize;
+    int n = boardColSize[0];
+
+    for(int i = 0; i < m; i++){
+        for(int j = 0; j < n; j++){
+            if(word[0] == board[i][j]){
+                if(dfs(board, m, n, word, len1, 0, i, j))
+                    return true;
+            }
+        }
+
+    }
+
+    return false;
+}
+
+/*
+357. 计算各个位数不同的数字个数
+给定一个非负整数 n，计算各位数字都不同的数字 x 的个数，其中 0 ≤ x < 10n 。
+
+示例:
+
+输入: 2
+输出: 91
+解释: 答案应为除去 11,22,33,44,55,66,77,88,99 外，在 [0,100) 区间内的所有数字。
+*/
+int countNumbersWithUniqueDigits(int n){
+        if (n == 0) return 1;
+        int res = 10, k = 9, temp = 9;
+        for (int i = 2; i <= fmin(n, 10); ++i){
+            temp *= k;
+            k--;
+            res += temp;
+        }
+        return res;
+}
+
+/*
+题目描述
+评论 (288)
+题解(262)
+提交记录
+89. 格雷编码
+格雷编码是一个二进制数字系统，在该系统中，两个连续的数值仅有一个位数的差异。
+
+给定一个代表编码总位数的非负整数 n，打印其格雷编码序列。即使有多个不同答案，你也只需要返回其中一种。
+
+格雷编码序列必须以 0 开头。
+
+
+
+示例 1:
+
+输入: 2
+输出: [0,1,3,2]
+解释:
+00 - 0
+01 - 1
+11 - 3
+10 - 2
+
+对于给定的 n，其格雷编码序列并不唯一。
+例如，[0,2,3,1] 也是一个有效的格雷编码序列。
+
+00 - 0
+10 - 2
+11 - 3
+01 - 1
+*/
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+
+// 快速幂
+unsigned pow2(unsigned n)
+{
+    unsigned ret = 1;
+    unsigned mod = 2;
+
+    for (; n; n >>= 1)
+    {
+        if (n & 0x01)
+            ret *= mod;
+        mod = mod * mod;
+    }
+
+    return ret;
+}
+
+/// 递归辅助函数
+int helper(int* ret, int* repeat, int n, int size, int i)
+{
+    /// 递归出口：如果已经到最后一个编码返回结束标志
+    if (i == size - 1)
+        return 1;
+
+    int code;
+
+    /// 尝试分别对第 i 次获得编码的每一位进行反转
+    for (int j = 0; j < n; ++j)
+    {
+        /// 利用异或操作计算得新编码
+        code = ret[i] ^ (1u << j);
+
+        /// 如果该编码已经使用过则跳过
+        if (repeat[code])
+            continue;
+
+        /// 更新编码与重复表
+        ret[i + 1] = code;
+        repeat[code] = 1;
+
+        /// 递归对下一个编码进行计算
+        if (helper(ret, repeat, n, size, i + 1))
+            return 1;
+    }
+
+    return 0;
+}
+
+int* grayCode(int n, int* returnSize)
+{
+    /// 编码的个数可直接由 n 确定
+    *returnSize = pow2(n);
+
+    /// 所有情况下第一个元素都是 0
+    int* ret = malloc(sizeof(int) * *returnSize);
+    *ret = 0;
+
+    /// 如果 n 为 0 则直接返回
+    if (*returnSize == 0)
+    {
+        return ret;
+    }
+
+    /// 初始化重复表，并且默认情况下 0 已经被使用过
+    int* repeat = calloc(sizeof(int), *returnSize);
+    *repeat = 1;
+
+    helper(ret, repeat, n, *returnSize, 0);
+
+    free(repeat);
+
+    return ret;
+}
+
+int str2int(char *str, int n){
+    int sum = 0;
+    for (int i = 0; i < n; i++) {
+        sum = sum * 2 + (str[i] - '0');
+    }
+    return sum;
+}
+
+void dfs(int n, int num, int *returnSize, int *res, char *str, int *visited)
+{
+    if (num == (*returnSize)) { // 全部找到了
+        return;
+    }
+
+    for (int i = 0; i < n; i++) {
+        str[i] = (str[i] == '0' ? '1' : '0');
+        if (visited[str2int(str, n)] == 0) {
+            visited[str2int(str, n)] = 1;
+            res[*returnSize] = str2int(str, n);
+            (*returnSize)++;
+            dfs(n, num, returnSize, res, str, visited);
+        } else {
+            str[i] = (str[i] == '0' ? '1' : '0');
+        }
+    }
+}
+
+int* grayCode(int n, int* returnSize){
+    int num = 1 << n;
+    int *res = (int *)malloc(num * sizeof(int));
+
+    char *str = (char *)calloc(n + 1, sizeof(char));
+    for (int i = 0; i < n; i++) {
+        str[i] = '0';
+    }
+    int *visited = (int *)calloc(num, sizeof(int));
+
+
+    *returnSize = 1;
+    res[0] = 0;
+    visited[str2int(str, n)] = 1;
+    dfs(n, num, returnSize, res, str, visited);
+    return res;
+}
+
+/*
+131. 分割回文串
+给定一个字符串 s，将 s 分割成一些子串，使每个子串都是回文串。
+
+返回 s 所有可能的分割方案。
+
+示例:
+
+输入: "aab"
+输出:
+[
+  ["aa","b"],
+  ["a","a","b"]
+]
+*/
+
+/**
+ * Return an array of arrays of size *returnSize.
+ * The sizes of the arrays are returned as *returnColumnSizes array.
+ * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ */
+
+
+#define MAX_RET 10000
+
+char ***g_ans;
+int g_ansSize;
+
+char *substr(char *s, int l, int r) {
+    char *sub = malloc(r - l + 2);
+    int index = 0;
+    while (l <= r) {
+        sub[index++] = s[l++];
+    }
+    sub[index] = '\0';
+    return sub;
+}
+
+bool isPalindrome(char *s, int l, int r) {
+    if (l == r) {
+        return true;
+    }
+    while (l < r) {
+        if (s[l++] != s[r--]) {
+            return false;
+        }
+    }
+    return true;
+}
+
+void dump(char **subs, int subSize) {
+    for (int i = 0; i < subSize; ++i) {
+        printf("%s, ", subs[i]);
+    }
+    printf("\n");
+}
+
+void copyToAns(char **subs, int subSize, int *retColSize) {
+    g_ans[g_ansSize] = malloc(sizeof(char *) * subSize);
+    retColSize[g_ansSize] = subSize;
+    for (int i = 0; i < subSize; ++i) {
+        g_ans[g_ansSize][i] = malloc(sizeof(char) * (strlen(subs[i]) + 1)); // one more char for '\0'
+        strcpy(g_ans[g_ansSize][i], subs[i]);
+    }
+    ++g_ansSize;
+}
+
+void dfs(char *s, int len, int pos, char **subs, int subSize, int *retColSize) {
+    if (pos == len) {
+            // dump(subs, subSize);
+        copyToAns(subs, subSize, retColSize);
+        return;
+    }
+    for (int i = pos; i < len; ++i) {
+        if (isPalindrome(s, pos, i)) {
+            subs[subSize] = substr(s, pos, i);
+            dfs(s, len, i + 1, subs, subSize + 1, retColSize);
+            free(subs[subSize]);
+        }
+    }
+}
+
+/**
+ * Return an array of arrays of size *returnSize.
+ * The sizes of the arrays are returned as *returnColumnSizes array.
+ * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ */
+char *** partition(char * s, int* returnSize, int** returnColumnSizes){
+    g_ansSize = 0;
+    g_ans = (char ***)malloc(sizeof(char *) * MAX_RET);
+    char **tmpSubs = malloc(sizeof(char *) * strlen(s));    // s can be splited into strlen(s) sub strings if length of each sub string is 1
+    *returnColumnSizes = (int *)malloc(sizeof(int) * MAX_RET);
+    dfs(s, strlen(s), 0, tmpSubs, 0, *returnColumnSizes);
+    *returnSize = g_ansSize;
+
+    free(tmpSubs);
+    return g_ans;
+}
