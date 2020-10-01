@@ -1017,12 +1017,11 @@ double* medianSlidingWindow(int* nums, int numsSize, int k, int* returnSize)
 
 /*
 727. 最小窗口子序列
-给定字符串 S and T，找出 S 中最短的（连续）子串 W ，使得 T 是 W 的 子序列 。
-
-如果 S 中没有窗口可以包含 T 中的所有字符，返回空字符串 ""。如果有不止一个最短长度的窗口，返回开始位置最靠左的那个。
-
+给定字符串 S and T，找出 S 中最短的（连续）子串 W ，使得 T 是
+W 的 子序列 。
+如果 S 中没有窗口可以包含 T 中的所有字符，返回空字符串 ""。
+如果有不止一个最短长度的窗口，返回开始位置最靠左的那个。
 示例 1：
-
 输入：
 S = "abcdebdde", T = "bde"
 输出："bcde"
@@ -1032,32 +1031,35 @@ S = "abcdebdde", T = "bde"
 */
 char * minWindow(char * S, char * T)
 {
-    if(S == T) return S;
-    int start = 0;
-    int end = strlen(S) - 1;
-    int s = 0,t = 0;
-    while(s < strlen(S)){
-        if(S[s] == T[t]){
-            t++;
-        }
-        if(t == strlen(T)){
-            int right = s;
-            t--;
-            while(t >= 0){
-                if(S[s] == T[t]){
-                    t--;
-                }
-                s--;
-            }
-            s++;
-            if(right - s + 1 < end - start + 1){
-                start = s;
-                end = right;
-            }
-            t = 0;
-        }
-        s++;
-    }
+	if(S == T)
+		return S;
+	int start = 0;
+	int end = strlen(S) - 1;
+	int s = 0,t = 0;
+	while(s < strlen(S)){
+		if(S[s] == T[t]) {
+			t++;
+		}
+
+		if(t == strlen(T)) {
+			int right = s;
+			t--;
+			while(t >= 0) {
+				if(S[s] == T[t]){
+					t--;
+				}
+				s--;
+			}
+
+			s++;
+			if(right - s + 1 < end - start + 1){
+				start = s;
+				end = right;
+			}
+			t = 0;
+		}
+		s++;
+	}
 
 	if (end - start + 1 == strlen(S))
 		return "";
@@ -1066,6 +1068,7 @@ char * minWindow(char * S, char * T)
 	strncpy(res, S + start, end - start + 1);
 	return res;
 }
+
 
 /*
 992. K 个不同整数的子数组
@@ -1085,31 +1088,39 @@ char * minWindow(char * S, char * T)
 */
 
 /*
-第一种是求出不同整数个数<=K的子数组数量，再求出不同整数个数<=K - 1的子数组数量，两者相减。
+第一种是求出不同整数个数<=K的子数组数量，再求出不同整
+数个数<=K - 1的子数组数量，两者相减。
 */
-	int subarraysLessThanKDistinct(int* A, int ASize, int K){  //不同整数小于等于K的子数组数量
-        int m[ASize + 1];
-		memset(m, 0, sizeof(m));
-        int start = 0;
-        int end = 0;
-        int res = 0;
-        int count = 0; //不同整数的个数
-        while(end < ASize){
-            m[A[end]]++;
-            if(m[A[end]] == 1)  count++;
-            while(count > K){
-                m[A[start]]--;
-                if(!m[A[start]])  count--;
-                start++;
-            }
-            res += end - start + 1;//每变动一次end，增加的子数组数量为end - start + 1，end不动，向左数
-            end++;
-        }
-        return res;
-    }
+int subarraysLessThanKDistinct(int* A, int ASize, int K)
+{
+	int m[ASize + 1];
+	memset(m, 0, sizeof(m));
+	int left = 0;
+	int right = 0;
+	int res = 0;
+	int count = 0; //不同整数的个数
+	while(right < ASize) {
+		m[A[right]]++;
+		if(m[A[right]] == 1)
+			count++;
+
+		while(count > K){
+			m[A[left]]--;
+			if(!m[A[left]])  count--;
+				left++;
+		}
+/*
+每变动一次right，增加的子数组数量为right - left + 1，right不动，
+向左数
+*/		res += right - left + 1;
+		right++;
+	}
+	return res;
+}
 
 int subarraysWithKDistinct(int* A, int ASize, int K)
 {
 	return subarraysLessThanKDistinct(A, ASize, K) - subarraysLessThanKDistinct(A, ASize, K - 1);
 }
+
 
