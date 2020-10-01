@@ -1123,4 +1123,64 @@ int subarraysWithKDistinct(int* A, int ASize, int K)
 	return subarraysLessThanKDistinct(A, ASize, K) - subarraysLessThanKDistinct(A, ASize, K - 1);
 }
 
+/*
+1156. 单字符重复子串的最大长度
+难度中等34
+如果字符串中的所有字符都相同，那么这个字符串是单字符
+重复的字符串。
+给你一个字符串 text，你只能交换其中两个字符一次或者什么
+都不做，然后得到一些单字符重复的子串。返回其中最长的
+子串的长度。
+
+示例 1：
+输入：text = "ababa"
+输出：3
+示例 2：
+输入：text = "aaabaaa"
+输出：6
+*/
+
+int maxRepOpt1(char * text)
+{
+	int len = strlen(text);
+	int cnt[26] = {0};//记录各个字符在text中出现的次数
+
+	for(int i = 0; i < len; i++)
+		cnt[text[i]-'a']++;
+
+	char cur_c = text[0];//当前单字符
+	int curSize = 1;//当前单字符串长度
+	int right = 1;//当前遍历到的字符索引
+	int ans = 0;
+
+	while(right < len) {
+		while(right < len && text[right] == cur_c){
+			right++;
+			curSize++;
+		}
+/*
+可以把某个位置的cur_c交换到right位置，使单字符串得以延长
+*/
+		if(curSize < cnt[cur_c-'a']) {
+			curSize++;
+			int tmp = right + 1;//继续向后延长单字符串
+			while(tmp < len && text[tmp] == cur_c){
+				curSize++;
+				tmp++;
+			}
+		}
+/*
+当aaaba这种情况时，前"交换"的a会在继续延长时再次计数，
+所以要取min，达到去重的作用
+*/		curSize = fmin(curSize, cnt[cur_c-'a']);
+		ans = fmax(ans, curSize);
+		if(right < len) {//继续记录下一段单字符串
+			cur_c = text[right];
+			curSize = 1;
+			right++;
+		}
+	}
+	return ans;
+}
+
 

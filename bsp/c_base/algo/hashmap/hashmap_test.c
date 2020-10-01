@@ -1,152 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
-#include <stdbool.h>
-#include <ctype.h>
-#include <hhash.h>
-/*
-1. 两数之和
-难度简单7810
-给定一个整数数组 nums 和一个目标值 target，请你在该数组中找出和为目标值的那 两个 整
-数，并返回他们的数组下标。
-你可以假设每种输入只会对应一个答案。但是，你不能重复利用这个数组中同样的元素。
-示例:
-给定 nums = [2, 7, 11, 15], target = 9
-
-因为 nums[0] + nums[1] = 2 + 7 = 9
-所以返回 [0, 1]
-
-*/
-
-#define MAXN 100
-int* twoSum(int* nums, int numsSize, int target, int* returnSize)
-{
-	struct HashTable ht;
-    	size_t bktSize = numsSize;
-	int ret = HashInit(&ht, bktSize, DataEntryEqual, DataEntryKey);
-	//SHOULD(ret == 0);
-
-	int* res = (int *)calloc(2, sizeof(int));
-
-	for (int i = 0; i < numsSize; i++) {
-		int diff = target - nums[i];
-		struct Node *findNode;
-		struct DataEntry findEntry;
-		findEntry.key = diff;
-		findNode = HashFind(&ht, &findEntry.node);
-		if(findNode == NULL) {
-			struct DataEntry *newEntry = (struct DataEntry *)calloc(1, sizeof(struct DataEntry));
-			newEntry->key = nums[i];
-			newEntry->value = i;
-			HashAdd(&ht, &newEntry->node);
-		} else {
-				*returnSize = 2;
-				res[1] = i;
-				struct DataEntry *entry;
-				entry = NODE_ENTRY(findNode, struct DataEntry, node);
-				res[0] = entry->value;
-				break;
-		}
-	}
-
-	HashDeinit(&ht, NULL);
-	return res;
-}
-
-int main()
-{
-	int array[] = {2, 7, 11, 15};
-	int target = 9;
-	int returnSize;
-	int *ret = twoSum(array, 4, target, &returnSize);
-
-	for (int i = 0; i < returnSize; i++) {
-			printf("%d", ret[i]);
-	}
-}
-
-
-struct HashCallBack {
-	char ***res;
-	int* returnSize;
-	int** returnColumnSizes;
-};
-
-void nodeFuncX(struct Node *node, void *arg)
-{
-	struct HashCallBack *cb = (struct HashCallBack *)arg;
-	struct DataEntry *entry = NODE_ENTRY(node, struct DataEntry, node);
-	int cnt = (*cb->returnColumnSizes)[*cb->returnSize];
-	cb->res[*cb->returnSize][cnt] = strdup(entry->value);
-	(*cb->returnColumnSizes)[*cb->returnSize]++;
-}
-
-
-void nodeFree(struct Node *node)
-{
-	struct DataEntry *entry = NODE_ENTRY(node, struct DataEntry, node);
-	free(entry->key);
-}
-
-
-/**
- * Return an array of arrays of size *returnSize.
- * The sizes of the arrays are returned as *returnColumnSizes array.
- * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
- */
-char*** groupAnagrams(char** strs, int strsSize, int* returnSize, int** returnColumnSizes)
-{
-	if (returnSize == NULL) {
-		return NULL;
-	}
-
-	if (strs == NULL || strsSize <= 0) {
-		*returnSize = 0;
-		return NULL;
-	}
-
-	struct HashTable ht;
-	int ret = HashInit(&ht, (size_t)strsSize * 3, hashequal_str, hashcode_str);
-	for (int i = 0; i < strsSize; i++) {
-		struct DataEntry *newEntry = (struct DataEntry *)calloc(1, sizeof(struct DataEntry));
-		char *sort = strdup(strs[i]);
-		qsort(sort, strlen(sort), sizeof(char), cmp_char);
-		newEntry->key = sort;
-		newEntry->value = strs[i];
-		HashAdd(&ht, &newEntry->node);
-	}
-
-	char ***res = (char ***)calloc(1024, sizeof(char **));
-	for (int i = 0; i < 1024; i++) {
-		res[i] = (char **)calloc(1024, sizeof(char *));
-		for (int j = 0; j < strsSize; j++) {
-			res[i][j] = calloc(1024, sizeof(char));
-		}
-	}
-
-	*returnColumnSizes = (int *)calloc(1024, sizeof(int));
-
-	struct HashCallBack arg;
-	arg.res = res;
-	arg.returnSize = returnSize;
-	arg.returnColumnSizes = returnColumnSizes;
-
-	for (int i = 0; i < ht.bktSize; i++) {
-		if(!ListEmpty(&ht.bkts[i])) {
-			struct Node *node;
-			LIST_FOR_EACH(node, &ht.bkts[i]) {
-				nodeFuncX(node, &arg);
-			}
-			(*returnSize)++;
-		}
-	}
-
-	HashDeinit(&ht, nodeFree);
-	return res;
-}
-
-
 /*
 面试题 16.21. 交换和
 难度中等5
@@ -169,19 +20,23 @@ char*** groupAnagrams(char** strs, int strsSize, int* returnSize, int** returnCo
 交换的两个数的差值一定是d = (sum(A) - sum(B)) / 2
 */
 
-/**
- * Note: The returned array must be malloced, assume caller calls free().
- */
-int* findSwapValues(int* array1, int array1Size, int* array2, int array2Size, int* returnSize)
+
+struct Hashmap {
+    int value;
+    UT_hash_handle hh;
+};
+
+int* findSwapValues(int* array1, int array1Size,
+int* array2, int array2Size, int* returnSize)
 {
 	int sum1 = 0;
 	int sum2 = 0;
+	struct Hashmap *hashmap = NULL;
+	struct Hashmap *find = NULL;
+	struct Hashmap *s, *tmp;
+
 
 	*returnSize = 0;
-
-	struct HashTable dht;
-	struct HashTable *ht = &dht;
-	HashInit(ht, array2Size, hashequal_int, hashcode_int);
 
 	for (int i = 0; i < array1Size; i++) {
 		sum1 += array1[i];
@@ -189,7 +44,9 @@ int* findSwapValues(int* array1, int array1Size, int* array2, int array2Size, in
 
 	for (int i = 0; i < array2Size; i++) {
 		sum2 += array2[i];
-		hashPushKey(ht, array2[i]);
+		struct Hashmap *node = (struct Hashmap *)calloc(1, sizeof(struct Hashmap));
+		node->value = array2[i];
+		HASH_ADD_INT(hashmap, value, node);
 	}
 
 	int diff = sum1 - sum2;
@@ -197,21 +54,97 @@ int* findSwapValues(int* array1, int array1Size, int* array2, int array2Size, in
 		return NULL;
 	}
 
-	diff =  diff / 2;
-
-	int *ret = (int *)calloc(2, sizeof(int));
 	for (int i = 0; i < array1Size; i++) {
-		struct DataEntry *find = hashFindKey(ht, array1[i] - diff);
+		int target = array1[i] - (sum1 - sum2) / 2;
+		HASH_FIND_INT(hashmap, &target, find);
 		if (find != NULL) {
-			ret[0] = array1[i];
-			ret[1] = array1[i] - diff;
+			int *res = (int *)calloc(2, sizeof(int));
+			res[0] = array1[i];
+			res[1] = target;
 			*returnSize = 2;
-			break;
+			return res;
 		}
 	}
 
-	HashDeinit(ht, node_free);
-	return ret;
+	HASH_ITER(hh, hashmap, s, tmp) {
+		HASH_DEL(hashmap, s);
+		free(s);
+	}
+
+	return NULL;
+}
+
+/*
+781. 森林中的兔子
+森林中，每个兔子都有颜色。其中一些兔子（可能是全部）
+告诉你还有多少其他的兔子和自己有相同的颜色。我们将这
+些回答放在 answers 数组里。
+返回森林中兔子的最少数量。
+示例:
+输入: answers = [1, 1, 2]
+输出: 5
+解释:
+两只回答了 "1" 的兔子可能有相同的颜色，设为红色。
+之后回答了 "2" 的兔子不会是红色，否则他们的回答会相互矛
+盾。
+设回答了 "2" 的兔子为蓝色。
+此外，森林中还应有另外 2 只蓝色兔子的回答没有包含在数
+组中。
+因此森林中兔子的最少数量是 5: 3 只回答的和 2 只没有回答的。
+
+输入: answers = [10, 10, 10]
+输出: 11
+
+输入: answers = []
+输出: 0
+*/
+typedef struct {
+    int key;
+    int val;
+    UT_hash_handle hh;
+} entry;
+
+void DeleteHash(entry** hashTable)
+{
+    entry* curEntry, *tmpEntry;
+    HASH_ITER(hh, *hashTable, curEntry, tmpEntry) {
+        HASH_DEL(*hashTable, curEntry);
+        free(curEntry);
+    }
+    free(*hashTable);
+    return;
+}
+
+int numRabbits(int* answers, int answersSize){
+    if (!answers || answersSize <= 0) {
+        return 0;
+    }
+    int cnt = 0;
+
+    entry* hashTable = NULL;
+    entry* findK;
+    int k;
+    for (int i = 0; i < answersSize; i++) {
+        findK = NULL;
+        k = answers[i];
+        HASH_FIND_INT(hashTable, &k, findK);
+        if (!findK) {
+            cnt += (k + 1);
+            entry* e = (entry*)malloc(sizeof(entry));
+            e->key = k;
+            e->val = 1;
+            HASH_ADD_INT(hashTable, key, e);
+        } else {
+            (findK->val)++;
+            int num = findK->key + 1;
+            if (findK->val > num) {
+                cnt += num;
+                findK->val = 1;
+            }
+        }
+    }
+    DeleteHash(&hashTable);
+    return cnt;
 }
 
 /*
@@ -281,11 +214,16 @@ int minimumLengthEncoding(char ** words, int wordsSize)
 
 /*
 554. 砖墙
-难度中等75收藏分享切换为英文关注反馈
-你的面前有一堵方形的、由多行砖块组成的砖墙。 这些砖块高度相同但是宽度不同。你现在要画一条自顶向下的、穿过最少砖块的垂线。
-砖墙由行的列表表示。 每一行都是一个代表从左至右每块砖的宽度的整数列表。
-如果你画的线只是从砖块的边缘经过，就不算穿过这块砖。你需要找出怎样画才能使这条线穿过的砖块数量最少，并且返回穿过的砖块数量。
-你不能沿着墙的两个垂直边缘之一画线，这样显然是没有穿过一块砖的。
+你的面前有一堵方形的、由多行砖块组成的砖墙。 这些砖块
+高度相同但是宽度不同。你现在要画一条自顶向下的、穿过
+最少砖块的垂线。
+砖墙由行的列表表示。 每一行都是一个代表从左至右每块砖
+的宽度的整数列表。
+如果你画的线只是从砖块的边缘经过，就不算穿过这块砖。
+你需要找出怎样画才能使这条线穿过的砖块数量最少，并且
+返回穿过的砖块数量。
+你不能沿着墙的两个垂直边缘之一画线，这样显然是没有穿
+过一块砖的。
 
 示例：
 输入: [[1,2,2,1],
@@ -300,269 +238,26 @@ int minimumLengthEncoding(char ** words, int wordsSize)
 */
 int leastBricks(int** wall, int wallSize, int* wallColSize)
 {
-	short gapX[60000] = {0}; /*列向 缝隙位置*/
+	short xgap[60000] = {0}; /*列向 缝隙位置*/
 	int i, j, gappos;
 	int row = wallSize;
 
-	for (i = 0; i < row; i++){
+	for (i = 0; i < row; i++) {
 		gappos = 0;
-		for (j = 0; j < (wallColSize[i] - 1); j++) {
+		for (j = 0; j < wallColSize[i] - 1; j++) {
 			gappos += wall[i][j];
-			gapX[gappos]++; /* 每行累计列位置缝隙个数 */
+			xgap[gappos]++; /* 每行累计列位置缝隙个数 */
 		}
 	}
 
 	int maxGap = 0;
 	for (i = 0; i < 10000; i++){
-		maxGap = fmax(maxGap, colPos[i]);
+		maxGap = fmax(maxGap, xgap[i]);
 	}
 
     return wallSize - maxGap;
 }
 
-/*
-781. 森林中的兔子
-森林中，每个兔子都有颜色。其中一些兔子（可能是全部）
-告诉你还有多少其他的兔子和自己有相同的颜色。我们将这
-些回答放在 answers 数组里。
-返回森林中兔子的最少数量。
-示例:
-输入: answers = [1, 1, 2]
-输出: 5
-解释:
-两只回答了 "1" 的兔子可能有相同的颜色，设为红色。
-之后回答了 "2" 的兔子不会是红色，否则他们的回答会相互矛
-盾。
-设回答了 "2" 的兔子为蓝色。
-此外，森林中还应有另外 2 只蓝色兔子的回答没有包含在数
-组中。
-因此森林中兔子的最少数量是 5: 3 只回答的和 2 只没有回答的。
-
-输入: answers = [10, 10, 10]
-输出: 11
-
-输入: answers = []
-输出: 0
-*/
-
-bool hashequal_int(const struct Node *node1, const struct Node *node2)
-{
-	struct DataEntry *entry1 = NODE_ENTRY(node1, struct DataEntry, node);
-	struct DataEntry *entry2 = NODE_ENTRY(node2, struct DataEntry, node);
-
-	return entry1->key == entry2->key && entry2->value < entry2->key;
-}
-int numRabbits(int* answers, int answersSize)
-{
-	struct HashTable dht;
-	struct HashTable *ht = &dht;
-
-	if (answers == NULL || answersSize <= 0)
-		return 0;
-
-	HashInit(ht, answersSize, hashequal_int, hashcode_int);
-
-	for (int i = 0; i < answersSize; i++) {
-		struct DataEntry *find = hashFindKey(ht, answers[i] + 1);
-		if (find != NULL) {
-			find->value++;
-		} else {
-			struct DataEntry *entry = (struct DataEntry *)calloc(1, sizeof(struct DataEntry));
-			entry->key = answers[i] + 1;
-			entry->value = 1;
-			HashAdd(ht, &entry->node);
-		}
-	}
-
-	int res = 0;
-	for (size_t i = 0; i < ht->bktSize; i++) {
-		if (!ListEmpty(&ht->bkts[i])) {
-			struct Node *node = NULL;
-			LIST_FOR_EACH(node, &ht->bkts[i]) {
-				struct DataEntry *entry = NODE_ENTRY(node, struct DataEntry, node);
-				//printf("[%d %c]", entry->key, entry->value);
-				res += entry->key;
-			}
-			//printf("\n");
-		}
-	}
-
-	HashDeinit(ht, node_free);
-	return res;
-}
-
-/*
-1156. 单字符重复子串的最大长度
-难度中等34
-如果字符串中的所有字符都相同，那么这个字符串是单字符重复的字符串。
-给你一个字符串 text，你只能交换其中两个字符一次或者什么都不做，然后得到一些单字符重复的子串。返回其中最长的子串的长度。
-
-示例 1：
-输入：text = "ababa"
-输出：3
-示例 2：
-输入：text = "aaabaaa"
-输出：6
-
-*/
-int maxRepOpt1(char * text)
-   {
-        int len = strlen(text);
-        int cnt[26];//记录各个字符在text中出现的次数
-
-	memset(cnt, 0, sizeof(cnt));
-	for(int i = 0; i < len; i++)
-            cnt[text[i]-'a']++;
-        //从左向右挨个字符遍历
-        char cur_c = text[0];//当前单字符
-        int cur_l = 1;//当前单字符串长度
-        int idx = 1;//当前遍历到的字符索引
-        int ans = -1;//答案
-        while(idx < len){
-            while(idx < len && text[idx] == cur_c){
-                idx++;
-                cur_l++;
-            }
-            if(cur_l < cnt[cur_c-'a']){//可以把某个位置的cur_c交换到idx位置，使单字符串得以延长
-                cur_l++;
-                int tmp = idx + 1;//继续向后延长单字符串
-                while(tmp < len && text[tmp] == cur_c){
-                    cur_l++;
-                    tmp++;
-                }
-            }
-            //当aaaba这种情况时，前"交换"的a会在继续延长时再次计数，所以要取min，达到去重的作用
-            cur_l = fmin(cur_l, cnt[cur_c-'a']);
-            ans = fmax(ans, cur_l);
-            if(idx < len){//继续记录下一段单字符串
-                cur_c = text[idx];
-                cur_l = 1;
-                idx++;
-            }
-        }
-        return ans;
-}
-
-/*
-432. 全 O(1) 的数据结构
-难度困难57
-请你实现一个数据结构支持以下操作：
-1.	Inc(key) - 插入一个新的值为 1 的 key。或者使一个存在的 key 增加一，保证 key 不为空字符串。
-2.	Dec(key) - 如果这个 key 的值是 1，那么把他从数据结构中移除掉。否则使一个存在的 key 值减一。如果这个 key 不存在，这个函数不做任何事情。key 保证不为空字符串。
-3.	GetMaxKey() - 返回 key 中值最大的任意一个。如果没有元素存在，返回一个空字符串"" 。
-4.	GetMinKey() - 返回 key 中值最小的任意一个。如果没有元素存在，返回一个空字符串""。
-
-*/
-
-typedef struct date{
-	int n;
-	char* key;
-	struct date* pre;
-	struct date* next;
-	UT_hash_handle hh;
-} AllOne;
-struct date* users = NULL;
-/** Initialize your data structure here. */
-AllOne* allOneCreate() {
-	struct date* obj = (struct date*)malloc(sizeof(struct date));
-	struct date* tail = (struct date*)malloc(sizeof(struct date));
-	obj->n = 0;
-	obj->pre = tail;
-	obj->next = tail;
-	tail->n = INT_MAX;
-	tail->pre = obj;
-	tail->next = obj;
-	return obj;
-}
-/** Inserts a new key <Key> with value 1. Or increments an existing key by 1. */
-void allOneInc(AllOne* obj, char * key) {
-	struct date* node = NULL;
-	HASH_FIND_STR(users, key, node);
-	if (!node){
-		node = (struct date*)malloc(sizeof(struct date));
-		node->n = 1;
-		node->key = key;
-		node->pre = obj;
-		node->next = obj->next;
-		obj->next->pre = node;
-		obj->next = node;
-        HASH_ADD_STR(users, key, node);
-	}
-	else{
-		node->n++;
-		while (node->n > node->next->n){
-			struct date* t = node->next;
-            t->next->pre = node;
-            node->pre->next = t;
-			node->next = t->next;
-			t->pre = node->pre;
-			t->next = node;
-			node->pre = t;
-		}
-	}
-}
-/** Decrements an existing key by 1. If Key's value is 1, remove it from the data structure. */
-void allOneDec(AllOne* obj, char * key) {
-	struct date* node = NULL;
-	HASH_FIND_STR(users, key, node);
-	if (node){
-		if (node->n > 1){
-			node->n--;
-			while (node->n < node->pre->n){
-				struct date* t = node->pre;
-                t->pre->next = node;
-                node->next->pre = t;
-				node->pre = t->pre;
-				t->pre = node;
-				t->next = node->next;
-				node->next = t;
-			}
-		}
-		else{
-			node->pre->next = node->next;
-			node->next->pre = node->pre;
-			HASH_DEL(users, node);
-			free(node);
-		}
-	}
-}
-/** Returns one of the keys with maximal value. */
-char * allOneGetMaxKey(AllOne* obj) {
-	if (obj->pre->pre->n)
-		return obj->pre->pre->key;
-	return "";
-}
-/** Returns one of the keys with Minimal value. */
-char * allOneGetMinKey(AllOne* obj) {
-	if (obj->next->n < INT_MAX)
-		return obj->next->key;
-	return "";
-}
-void allOneFree(AllOne* obj) {
-	struct date *current_user, *tmp;
-	HASH_ITER(hh, users, current_user, tmp) {
-		HASH_DEL(users, current_user);
-		free(current_user);
-	}
-	struct date *t = obj->pre;
-	free(t);
-    free(obj);
-	obj = NULL;
-}
-
-/**
- * Your AllOne struct will be instantiated and called as such:
- * AllOne* obj = allOneCreate();
- * allOneInc(obj, key);
-
- * allOneDec(obj, key);
-
- * char * param_3 = allOneGetMaxKey(obj);
-
- * char * param_4 = allOneGetMinKey(obj);
-
- * allOneFree(obj);
-*/
 
 /*
 30. 串联所有单词的子串
