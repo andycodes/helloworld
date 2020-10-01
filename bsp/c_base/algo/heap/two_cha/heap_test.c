@@ -425,3 +425,47 @@ int** getSkyline(int** buildings, int buildingsSize, int* buildingsColSize, int*
     *returnSize = retCount;
     return ret;
 }
+
+/*
+1499. 满足不等式的最大值
+给你一个数组 points 和一个整数 k 。数组中每个元素都表示二维平面上的点的坐标，并按照横坐标 x 的值从小到大排序。也就是说 points[i] = [xi, yi] ，并且在 1 <= i < j <= points.length 的前提下， xi < xj 总成立。
+
+请你找出 yi + yj + |xi - xj| 的 最大值，其中 |xi - xj| <= k 且 1 <= i < j <= points.length。
+
+题目测试数据保证至少存在一对能够满足 |xi - xj| <= k 的点。
+
+
+
+示例 1：
+
+输入：points = [[1,3],[2,0],[5,10],[6,-10]], k = 1
+输出：4
+解释：前两个点满足 |xi - xj| <= 1 ，代入方程计算，则得到值 3 + 0 + |1 - 2| = 4 。第三个和第四个点也满足条件，得到值 10 + -10 + |5 - 6| = 1 。
+没有其他满足条件的点，所以返回 4 和 1 中最大的那个。
+*/
+
+int findMaxValueOfEquation(int** points, int pointsSize, int* pointsColSize, int k)
+{
+	int res = INT_MIN;
+	struct HeapCtrl *hp = heapInit(pointsSize);
+
+	for (int j = 0; j < pointsSize; j++) {
+		//超出窗口长度的就 弹出
+		while(!heapEmpty(hp) && (points[j][0] - points[hp->node[0].xidx][0] > k))
+			heapPop(hp);
+
+		//计算当前窗口内的最大值
+		if (!heapEmpty(hp)) {
+			res = fmax(res, points[j][0] + points[j][1] +
+				points[hp->node[0].xidx][1] - points[hp->node[0].xidx][0]);
+		}
+
+		struct heapEntry node;
+		node.key = points[j][1] - points[j][0];
+		node.xidx = j;
+		heapPush(hp, node);
+	}
+
+	return res;
+}
+

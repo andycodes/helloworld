@@ -140,4 +140,45 @@ int longestSubarray(int* nums, int numsSize, int limit)
     return max_len;
 }
 
+/*
+问题就变成了，找到两个点，点 points[i] 的 y(i) - x(i) 和
+点 points[j] 的 y(j) + x(j) 的和最大。限制条件是，x(i) <= x(j) 且最大相差 k。
 
+yi + yj + |xi - xj| = yi + yj + xj - xi = (xj + yj) + (yi - xi) ，当j > x 时遍历xj， (xj + yj) 已
+知， 因此求 满足 |xi - xj| <= k(其实就是一个固定长度的窗口) 窗
+口内 (yi - xi)的最大值。滑动窗口的最大值 用单调队列。
+*/
+
+
+int findMaxValueOfEquation(int** points, int pointsSize, int* pointsColSize, int k)
+{
+
+	int res = INT_MIN;
+
+//q 维护滑动窗口内 yi - xi的最大值的下标
+	int dqueue[pointsSize]; //array idx
+	int head = 0;
+	int rear = 0;
+
+	for (int j = 0; j < pointsSize; j++) {
+		//超出窗口长度的就 弹出
+		while(rear > head && (points[j][0] - points[dqueue[head]][0] > k))
+			head++;
+
+		//计算当前窗口内的最大值
+		if (rear > head) {
+			res = fmax(res, points[j][0] + points[j][1] +
+				points[dqueue[head]][1] - points[dqueue[head]][0]);
+		}
+
+		//维护递减队列，队首总是窗口内最大的 y-x 的下标
+		while(rear > head && (points[j][1] - points[j][0] >
+			points[dqueue[rear]][1] - points[dqueue[rear]][0])) {
+			rear--;
+		}
+
+		dqueue[rear++] = j;
+	}
+
+	return res;
+}
