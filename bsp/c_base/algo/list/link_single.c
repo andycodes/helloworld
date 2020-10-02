@@ -1841,3 +1841,108 @@ void allOneFree(AllOne* obj) {
 
  * allOneFree(obj);
 */
+
+/*
+138. 复制带随机指针的链表
+给定一个链表，每个节点包含一个额外增加的随机指针，该指针可以指向链表中的任何节点或空节点。
+
+要求返回这个链表的 深拷贝。
+
+我们用一个由 n 个节点组成的链表来表示输入/输出中的链表。每个节点用一个 [val, random_index] 表示：
+
+val：一个表示 Node.val 的整数。
+random_index：随机指针指向的节点索引（范围从 0 到 n-1）；如果不指向任何节点，则为  null 。
+
+
+示例 1：
+
+
+
+输入：head = [[7,null],[13,0],[11,4],[10,2],[1,0]]
+输出：[[7,null],[13,0],[11,4],[10,2],[1,0]]
+*/
+
+/**
+ * Definition for a Node.
+ * struct Node {
+ *     int val;
+ *     struct TreeNode *next;
+ *     struct TreeNode *random;
+ * };
+ */
+
+typedef struct __hash_entry {
+    void *key;
+    void *data;
+    UT_hash_handle hh;
+}hash_entry_t;
+
+hash_entry_t *htbl = NULL;
+
+void delete_all_htbl(void)
+{
+    hash_entry_t *elem, *tmp;
+
+    HASH_ITER(hh, htbl, elem, tmp) {
+        HASH_DEL(htbl,elem);
+        free(elem);
+    }
+}
+
+struct Node* copyRandomList(struct Node* head)
+{
+    struct Node* phead = head;
+    struct Node* new_head = NULL;
+    struct Node* prev;
+
+    if (!head)
+        return NULL;
+
+    while (phead != NULL) {
+        hash_entry_t *elem;
+        struct Node *node;
+        HASH_FIND_PTR(htbl, &phead, elem);
+        if (elem) {
+            node = (struct Node*)elem->data;
+        } else {
+            node = malloc(sizeof(struct Node));
+            node->val = phead->val;
+            elem = malloc(sizeof(hash_entry_t));
+            elem->key = (void *)phead;
+            elem->data = (void *)node;
+            HASH_ADD_PTR(htbl, key, elem);
+        }
+        if (phead->random) {
+            hash_entry_t *h;
+            HASH_FIND_PTR(htbl, &phead->random, h);
+            if (h) {
+                node->random = (struct Node*)h->data;
+            } else {
+                struct Node* r_node = malloc(sizeof(struct Node));
+                r_node->val = phead->random->val;
+                node->random = r_node;
+                h = malloc(sizeof(hash_entry_t));
+                h->key = (void *)phead->random;
+                h->data = (void *)r_node;
+                HASH_ADD_PTR(htbl, key, h);
+            }
+        } else {
+            node->random = NULL;
+        }
+
+        if (new_head == NULL) {
+            new_head = node;
+            prev = new_head;
+        } else {
+            prev->next = node;
+            prev = node;
+        }
+        phead = phead->next;
+    }
+
+    prev->next = NULL;
+    delete_all_htbl();
+
+    return new_head;
+}
+

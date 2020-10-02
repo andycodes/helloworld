@@ -1,4 +1,61 @@
 /*
+454. 四数相加 II
+给定四个包含整数的数组列表 A , B , C , D ,计算有多少个元组 (i, j, k, l) ，使得 A[i] + B[j] + C[k] + D[l] = 0。
+
+为了使问题简单化，所有的 A, B, C, D 具有相同的长度 N，且 0 ≤ N ≤ 500 。所有整数的范围在 -228 到 228 - 1 之间，最终结果不会超过 231 - 1 。
+
+例如:
+
+输入:
+A = [ 1, 2]
+B = [-2,-1]
+C = [-1, 2]
+D = [ 0, 2]
+
+输出:
+2
+
+解释:
+两个元组如下:
+1. (0, 0, 0, 1) -> A[0] + B[0] + C[0] + D[1] = 1 + (-2) + (-1) + 2 = 0
+2. (1, 1, 0, 0) -> A[1] + B[1] + C[0] + D[0] = 2 + (-1) + (-1) + 0 = 0
+*/
+
+typedef struct hash{
+    int key;
+    int count;
+    UT_hash_handle hh;
+}*hash_;
+
+int fourSumCount(int* A, int ASize, int* B, int BSize, int* C, int CSize, int* D, int DSize){
+    hash_ p1 = NULL,t = NULL,p2 = NULL;
+    for(int i = 0;i < ASize;i++)
+        for(int j = 0; j < ASize;j++){
+            int tar = A[i]+B[j];
+            HASH_FIND_INT(t, &tar, p1);
+            if(!p1){
+                p1 = (hash_)malloc(sizeof(*p1));
+                p1->key = tar;
+                p1->count = 0;
+                HASH_ADD_INT(t, key, p1);
+            }
+            p1->count++;
+        }
+    int count = 0;
+    for(int i = 0;i < ASize;i++)
+        for(int j = 0; j < ASize;j++){
+            int tar = -(C[i]+D[j]);
+            HASH_FIND_INT(t, &tar, p2);
+            if(p2)
+                count += p2->count;
+        }
+    return count;
+}
+
+
+
+
+/*
 面试题 16.21. 交换和
 难度中等5
 给定两个整数数组，请交换一对数值（每个数组中取一个数值），使得两个数组所有元素的和相等。
@@ -328,4 +385,48 @@ char ** findWords(char ** words, int wordsSize, int* returnSize){
     return ret;
 }
 
+/*
+204. 计数质数
+统计所有小于非负整数 n 的质数的数量。
+
+
+
+示例 1：
+
+输入：n = 10
+输出：4
+解释：小于 10 的质数一共有 4 个, 它们是 2, 3, 5, 7 。
+示例 2：
+
+输入：n = 0
+输出：0
+示例 3：
+
+输入：n = 1
+输出：0
+*/
+
+
+int countPrimes(int n) {
+    int count = 0;
+    //初始默认所有数为质数
+    //vector<bool> signs(n, true);
+    if (n == 0) {
+            return 0;
+    }
+    bool signs[n];
+    for (int i = 0; i < n; i++) {
+            signs[i] = true;
+    }
+    for (int i = 2; i < n; i++) {
+        if (signs[i]) {
+            count++;
+            for (int j = i + i; j < n; j += i) {
+                //排除不是质数的数
+                signs[j] = false;
+            }
+        }
+    }
+    return count;
+}
 

@@ -550,11 +550,6 @@ int numSubseq(int* nums, int numsSize, int target)
 解释:
 两个回旋镖为 [[1,0],[0,0],[2,0]] 和 [[1,0],[2,0],[0,0]]
 */
-int cmp_int(const void *a, const void *b)
-{
-	return *((int *)a) > *((int *)b);
-}
-
 int numberOfBoomerangs(int** points, int pointsSize, int* pointsColSize)
 {
 	int* Distances = (int*)malloc(sizeof(int) * pointsSize);

@@ -294,3 +294,79 @@ int maxScore(int* cardPoints, int cardPointsSize, int k)
 	return prefixSum[cardPointsSize] - ans;
 }
 
+/*
+525. 连续数组
+给定一个二进制数组, 找到含有相同数量的 0 和 1 的最长连续子数组（的长度）。
+
+
+
+示例 1:
+
+输入: [0,1]
+输出: 2
+说明: [0, 1] 是具有相同数量0和1的最长连续子数组。
+示例 2:
+
+输入: [0,1,0]
+输出: 2
+说明: [0, 1] (或 [1, 0]) 是具有相同数量0和1的最长连续子数组。
+*/
+
+#include <stdlib.h>
+#include <stdio.h>
+#include <stdbool.h>
+#include <string.h>
+#include <math.h>
+#include <limits.h>
+
+#define MMAX(a, b)        ((a) > (b)? (a) : (b))
+#define MMIN(a, b)        ((a) < (b)? (a) : (b))
+
+typedef struct _hash_st {
+    int key;
+    int sid;
+    int eid;
+    UT_hash_handle hh;
+}hash_st;
+
+//【算法思路】积分+hash。经典的01问题，将0转化为-1。
+// 问题转换为最长子序列和为0,使用hash表求解
+int findMaxLength(int* nums, int numsSize){
+    if(numsSize <= 1) {
+        return 0;
+    }
+
+    hash_st *head = NULL;
+    int max = 0;
+
+    //0 -> -1 && 积分 && 填入hash
+    int sum = 0;
+    for(int i = 0; i < numsSize; i++) {
+        //0转-1并积分
+        sum += nums[i] == 0? -1 : 1;
+
+        if(sum == 0) {
+            //当sum为0则直接为结果
+            max = MMAX(max, i + 1);
+        } else {
+            int key = sum;
+
+            hash_st *tmph;
+            HASH_FIND(hh, head, &key, sizeof(key), tmph);
+            if(tmph == NULL) {
+                tmph = (hash_st *)calloc(1, sizeof(hash_st));
+                tmph->key = key;
+                tmph->sid = i;
+
+                HASH_ADD_KEYPTR(hh, head, &tmph->key, sizeof(tmph->key), tmph);
+            }
+
+            tmph->eid = i;
+            max = MMAX(max, i - tmph->sid);
+        }
+    }
+
+    return max;
+}
+
+
