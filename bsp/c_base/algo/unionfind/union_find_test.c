@@ -1,135 +1,4 @@
 /*
-684. 冗余连接
-难度中等82
-在本问题中, 树指的是一个连通且无环的无向图。
-输入一个图，该图由一个有着N个节点 (节点值不重复1, 2, ..., N) 的树及一条附加的边构成。附加的边的两个顶点包含在1到N中间，这条附加的边不属于树中已存在的边。
-结果图是一个以边组成的二维数组。每一个边的元素是一对[u, v] ，满足 u < v，表示连接顶点u 和v的无向图的边。
-返回一条可以删去的边，使得结果图是一个有着N个节点的树。如果有多个答案，则返回二维数组中最后出现的边。答案边 [u, v] 应满足相同的格式 u < v。
-示例 1：
-输入: [[1,2], [1,3], [2,3]]
-输出: [2,3]
-解释: 给定的无向图为:
-  1
- / \
-2 - 3
-
-*/
-
-/**
- * Note: The returned array must be malloced, assume caller calls free().
- */
- /**
- * Note: The returned array must be malloced, assume caller calls free().
- */
-/*
-遍历所有的边edges，将连通的结点放入同一个集合，
-形成一个联通分量GG。
-在遍历的过程中，
-如果边(a, b)(a,b)的两个结点aa, bb已经属于同一联通分量，
-则(a, b)(a,b)就是该联通分量的冗余边。
-
-如前面所述，我们可以遍历每一条边，
-而遍历到该条边时我们如果查询这条边
-左右两个顶点所在到树之根节点相同，
-即代表两个顶点在同一棵树，
-故该条边为当前情况「不必要的边」。
-
-如果那一条边是必要的，
-那代表两个顶点代表着两颗不同的树，
-此时我们将他们合并为同一棵。
-
-*/
-int* findRedundantConnection(int** edges, int edgesSize,
-int* edgesColSize, int* returnSize){
-	int *res = (int *)calloc(2, sizeof(int));
-	*returnSize = 2;
-
-	struct UnionFind duf;
-	struct UnionFind *uf = &duf;
-	uf_init(uf);
-
-	for (int i = 0; i < edgesSize; i++) {
-		if (uf_isOneUnion(uf, edges[i][0], edges[i][1])) {
-			res[0] = edges[i][0];
-			res[1] = edges[i][1];
-		} else {
-			uf_union(uf, edges[i][0], edges[i][1]);
-		}
-	}
-
-	return res;
-}
-
-/*
-1319. 连通网络的操作次数
-难度中等15
-用以太网线缆将 n 台计算机连接成一个网络，计算机的编号从 0 到 n-1。线缆用 connections 表示，其中 connections[i] = [a, b] 连接了计算机 a 和 b。
-网络中的任何一台计算机都可以通过网络直接或者间接访问同一个网络中其他任意一台计算机。
-给你这个计算机网络的初始布线 connections，你可以拔开任意两台直连计算机之间的线缆，并用它连接一对未直连的计算机。请你计算并返回使所有计算机都连通所需的最少操作次数。如果不可能，则返回 -1 。
-
-示例 1：
-
-输入：n = 4, connections = [[0,1],[0,2],[1,2]]
-输出：1
-解释：拔下计算机 1 和 2 之间的线缆，并将它插到计算机 1 和 3 上。
-示例 2：
-
-输入：n = 6, connections = [[0,1],[0,2],[0,3],[1,2],[1,3]]
-输出：2
-示例 3：
-输入：n = 6, connections = [[0,1],[0,2],[0,3],[1,2]]
-输出：-1
-解释：线缆数量不足。
-示例 4：
-输入：n = 5, connections = [[0,1],[0,2],[3,4],[2,3]]
-输出：0
-
-*/
-
-/*
-1)当计算机的数量为 m 时，我们至少需要 m - 1 根线缆才能将它们进行连接
-
-因此如果数组 connections 的长度小于 n - 1，我们可以直接返回 -1
-
-比较 n - 1 和 len(connections)：
-
-如果前者大于后者，那么一定无解，返回 -1；
-
-如果前者小于等于后者，那么我们统计出图中的连通分量数 k，返回 k - 1。
-
-统计图中连通分量数的方法有很多，我们介绍深度优先搜索和并查集两种方法。
-
-*/
-int makeConnected(int n, int** connections, int connectionsSize, int* connectionsColSize)
-{
-	if (n <= 0 || connections == NULL || connectionsSize <= 0 || connectionsColSize == NULL)
-		return 0;
-
-	struct UnionFind duf;
-	struct UnionFind *uf = &duf;
-
-	uf_init(uf, n);
-
-	int cnt = 0;// 多余的线缆数量
-	int part = n;//连通分量
-	for (int i = 0; i < connectionsSize; i++) {
-		// 两个点已经连通，不需要这个线缆
-		if (uf_isOneUnion(uf, connections[i][0], connections[i][1])) {
-			cnt++;
-		}else {
-			uf_union(uf, connections[i][0], connections[i][1]);
-			part--;
-		}
-	}
-
-	if (connectionsSize < n -1)
-		return -1;
-	part--;
-	return cnt >=  part? part : -1;
-}
-
-
-/*
 面试题 17.07. 婴儿名字
 难度中等0
 每年，政府都会公布一万个最常见的婴儿名字和它们出现
@@ -148,105 +17,112 @@ synonyms = ["(Jon,John)","(John,Johnny)","(Chris,Kris)","(Chris,Christopher)"]
 输出：["John(27)","Chris(36)"]
 
 */
-#define STR_LEN     50
-typedef struct _info_st
-{
-	char name[STR_LEN];
-	char *root;
-	int cnt;
-}info_st;
-char** trulyMostPopular(char** names, int namesSize,
-	char** synonyms, int synonymsSize, int* returnSize)
-{
-	*returnSize = 0;
+#define MAX 101
+typedef struct {
+    char name[MAX];
+    int index;
+    int count;
+    UT_hash_handle hh;
+} ChildName;
 
-	if(namesSize == 0) {
-		return NULL;
-	}
+int cmp (ChildName *p1, ChildName *p2) {
+    return strcmp(p1->name, p2->name);
+}
 
-	info_st *info = (info_st *)calloc(namesSize, sizeof(info_st));
-	struct HashTable dht;
-	struct HashTable *ht = &dht;
-	HashInit(ht, namesSize, hashequal_str, hashcode_str);
-	for(int i = 0; i < namesSize; i++) {
-		char *iterator;
-		char *p;
-		iterator = strtok_r(names[i], "(", &p);
-		strcpy(info[i].name, iterator);
+int FindRoot(int root, int *pre) {
+    int son, temp;
+    son = root;
+    while (root != pre[root]) {
+        root = pre[root];
+    }
 
-		iterator = strtok_r(NULL, ")", &p);
-		info[i].cnt = atoi(iterator);
-		info[i].root = info[i].name;
+    while (son != root) {
+        temp = pre[son];
+        pre[son] = root;
+        son = temp;
+    }
 
-		struct DataEntry cmpEntry;
-		cmpEntry.key = info[i].name;
-		struct DataEntry *find = hashFind(ht, &cmpEntry);
-		if (find == NULL) {
-			struct DataEntry *entry = (struct DataEntry *)calloc(1, sizeof(struct DataEntry));
-			entry->key = strdup(info[i].name);
-			entry->value = i;//序号
-			HashAdd(ht, &entry->node);
-		}
+    return root;
+}
 
-	}
+void UnionWord(ChildName *names1, ChildName *names2, int *pre) {
+    if (names1 == NULL || names2 == NULL) {
+        return;
+    }
+    int root1 = FindRoot(names1->index, pre);
+    int root2 = FindRoot(names2->index, pre);
+    if (root1 == root2) {
+        return;
+    }
+    if (strcmp(names1->name, names2->name) < 0) { //连接边，字典序小的作为根节点
+        pre[root2] = root1;
+    } else {
+        pre[root1] = root2;
+    }
+}
 
-	printf("\n");
+char** trulyMostPopular(char** names, int namesSize, char** synonyms, int synonymsSize, int* returnSize){
 
-	struct UnionFind duf;
-	struct UnionFind *uf = &duf;
-	uf_init(uf, namesSize);
+    ChildName *childrenMap = NULL;
+    ChildName *node;
 
-	for(int i = 0; i < synonymsSize; i++) {
-		int slen = strlen(synonyms[i]);
-		char synname[2][STR_LEN];
-		memset(synname, 0, sizeof(synname));
-		char *iterator;
-		char *p;
-		iterator = strtok_r(synonyms[i], ",", &p);
-		strcpy(synname[0],iterator + 1);
-		strcpy(synname[1], p);
-		int len = strlen(synname[1]);
-		synname[1][len - 1] = '\0';
+    for (int i = 0; i < namesSize; i++) {
+        node = malloc(sizeof(ChildName));
+        char *split;
+        split = strtok(names[i], "(");
+        strcpy(node->name, split);
+        split = strtok(NULL, ")");
+        node->count = atoi(split);
+        node->index = i;
+        HASH_ADD_STR(childrenMap, name, node);
+    }
 
-	        printf("%s; %s ", synname[0], synname[1]);
+    HASH_SORT(childrenMap, cmp);
 
-	        int id[2];
-	        for(int j = 0; j < 2; j++) {
-			struct DataEntry cmpEntry;
-			cmpEntry.key = synname[j];
-			struct DataEntry *findptr = hashFind(ht, &cmpEntry);
-			id[j] = findptr->value;
-	        }
+    int pre[namesSize];
+    for (int i = 0; i <namesSize; i++) {
+        pre[i] = i;
+    }
 
-	        printf("%d; %d\n", id[0], id[1]);
+    for (int i = 0; i < synonymsSize; i++) {
+        ChildName *names1, *names2;
+        char *split;
+        split = strtok(synonyms[i], "(,");
+        HASH_FIND_STR(childrenMap, split, names1);
+        split = strtok(NULL, ")");
+        HASH_FIND_STR(childrenMap, split, names2);
+        UnionWord(names1, names2, pre);
+    }
 
-		uf_union(uf, id[0], id[1]);
-	}
+    ChildName *newChildMap = NULL;
+    ChildName *newNode, *temp;
+    HASH_ITER(hh, childrenMap, node, temp) {
+        int rootIndex = FindRoot(node->index, pre);
+        HASH_FIND_INT(newChildMap, &rootIndex, newNode); // 以序号为键值，新建哈希表
+        if (newNode == NULL) {
+            newNode = malloc(sizeof(ChildName));
+            newNode->count = node->count;
+            newNode->index = rootIndex;
+            strcpy(newNode->name, node->name);
+            HASH_ADD_INT(newChildMap, index, newNode);
+        } else {
+            newNode->count += node->count;
+        }
+    }
 
-	int rsize = 0;
-	for(int i = 0; i < namesSize; i++) {
-		int root = uf_findRoot(uf, i);
-		if(strcmp(info[i].name, info[root].root) < 0) {
-			info[root].root = info[i].name;
-		}
+    char **strRes = malloc(HASH_COUNT(newChildMap) * sizeof(char *));
 
-		if(i == root) {
-			rsize++;
-		} else {
-			info[root].cnt += info[i].cnt;
-		}
-	}
+    int index = 0;
+    HASH_ITER(hh, newChildMap, newNode, temp) {
+        strRes[index] = malloc(MAX);
+        sprintf(strRes[index], "%s(%d)", newNode->name, newNode->count);
+        index++;
+    }
 
-	char **ret = (char **)calloc(rsize, sizeof(char *));
-	for (int i = 0; i < namesSize; i++) {
-		if(i == uf_findRoot(uf, i)) {
-			ret[*returnSize] = (char *)calloc(1024, sizeof(char));
-			sprintf(ret[*returnSize], "%s(%d)", info[i].root,  info[i].cnt);
-			printf("%s ", ret[*returnSize]);
-			(*returnSize)++;
-		}
-	}
-	return ret;
+    *returnSize = index;
+
+    return strRes;
+
 }
 
 
@@ -270,20 +146,19 @@ grid[i][j] 的街道可以是：
      v
      2
 
-这样编号的好处是什么呢？可以发现，只有在这些情况下，两个相邻的单元格才能相连：
-
-如果某一个单元格有第 00 个方向，那么它上方的单元格必须有第 22 个方向；
-
-如果某一个单元格有第 11 个方向，那么它右侧的单元格必须有第 33 个方向；
-
-如果某一个单元格有第 22 个方向，那么它下方的单元格必须有第 00 个方向；
-
-如果某一个单元格有第 33 个方向，那么它左侧的单元格必须有第 11 个方向。
-
+这样编号的好处是什么呢？可以发现，只有在这些情况下，
+两个相邻的单元格才能相连：
+如果某一个单元格有第 00 个方向，那么它上方的单元格必须
+有第 22 个方向；
+如果某一个单元格有第 11 个方向，那么它右侧的单元格必
+须有第 33 个方向；
+如果某一个单元格有第 22 个方向，那么它下方的单元格必须
+有第 00 个方向；
+如果某一个单元格有第 33 个方向，那么它左侧的单元格必须
+有第 11 个方向。
 发现了什么规律？
-
-如果某一个单元格有第 ii 个方向，那么它在第 ii 个方向相邻的单元格必须有第 (i + 2) \% 4(i+2)%4 个方向。
-
+如果某一个单元格有第 ii 个方向，那么它在第 ii 个方向相邻的
+单元格必须有第 (i + 2) \% 4(i+2)%4 个方向。
 因此，我们遍历整个网格，对于其中的每一个单元格 (x, y)(x,y)，
 我们枚举它的四个相邻的单元格，对于第 ii 个方向的相邻单元
 格，它和 (x, y)(x,y) 相连当且仅当 (x, y)(x,y) 对应的二进制数的第 ii 位
@@ -307,11 +182,11 @@ void hander(struct UnionFind* uf, int** grid, int row, int col, int x, int y)
 				continue;//自己不通
 
 		//each set bit
-		int sx = x + dirs[i][0];
-		int sy = y + dirs[i][1];
-		if (sx >= 0 && sx < row && sy >= 0 && sy < col &&
-			(patterns[grid[sx][sy]] & (1 << ((i + 2) % 4)))) {
-			uf_union(uf, dimenMap(x, y, col), dimenMap(sx, sy, col));
+		int nx = x + dirs[i][0];
+		int ny = y + dirs[i][1];
+		if (nx >= 0 && nx < row && ny >= 0 && ny < col &&
+			(patterns[grid[nx][ny]] & (1 << ((i + 2) % 4)))) {
+			uf_union(uf, dimenMap(x, y, col), dimenMap(nx, ny, col));
 		}
         }
 }
@@ -332,6 +207,7 @@ bool hasValidPath(int** grid, int gridSize, int* gridColSize)
 
 	return uf_isOneUnion(uf, dimenMap(0, 0, col), dimenMap(row - 1, col - 1, col));
 }
+
 
 /*
 1101. 彼此熟识的最早时间
@@ -647,3 +523,4 @@ int* findRedundantDirectedConnection(int** edges, int edgesSize, int* edgesColSi
     }
     return q;
 }
+
