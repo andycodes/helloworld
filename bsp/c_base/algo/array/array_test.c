@@ -1515,3 +1515,83 @@ struct HashTable *ht = &dht;
     return max;
 }
 
+/*
+30. 串联所有单词的子串
+给定一个字符串 s 和一些长度相同的单词 words。找出 s 中恰好可以由 words 中所有单词串联形成的子串的起始位置。
+
+注意子串要与 words 中的单词完全匹配，中间不能有其他字符，但不需要考虑 words 中单词串联的顺序。
+
+
+
+示例 1：
+
+输入：
+  s = "barfoothefoobarman",
+  words = ["foo","bar"]
+输出：[0,9]
+解释：
+从索引 0 和 9 开始的子串分别是 "barfoo" 和 "foobar" 。
+输出的顺序不重要, [9,0] 也是有效答案。
+*/
+#define printf() void();
+ char ** g_words;
+ int g_wordsSize;
+ int g_wordsLen;
+
+int isok(char *s,int i,int len)
+{
+	int *wordsVisted=calloc(g_wordsSize,sizeof(int));
+	int matchSize=0;
+	int matchFlag=0;
+
+	printf("!!!!!!!!!!i=%d\n",i);
+	while(i<len) {
+		matchFlag=0;
+		for(int k=0;k<g_wordsSize;k++) {
+			//if(wordsVisted[k]==0)printf("s+i:%s \ntry to match %s\n",s+i,g_words[k]);
+			if(wordsVisted[k]==0&&strncmp(s+i,g_words[k],g_wordsLen)==0) {
+				printf("matched %s\n",g_words[k]);
+				wordsVisted[k]=1;
+				matchFlag=1;
+				matchSize++;
+				i=i+g_wordsLen;
+				break;
+			}
+		}
+
+		if(matchFlag==0)
+			return 0;
+		if(matchSize==g_wordsSize)
+			return 1;
+	}
+
+	if(matchSize==g_wordsSize)
+		return 1;
+	return 0;
+}
+
+int* findSubstring(char * s, char ** words, int wordsSize, int* returnSize)
+{
+	int slen=strlen(s);
+	int * out = calloc(slen,sizeof(int));
+	(*returnSize)=0;
+
+	if(wordsSize==0||slen==0||s==NULL||words==NULL){
+		return out;
+	}
+
+	g_words=words;
+	g_wordsSize=wordsSize;
+	g_wordsLen=strlen(words[0]);
+
+	for(int i=0; slen-i >= wordsSize * g_wordsLen; i++){
+		if(isok(s,i,slen)){
+			out[*returnSize]=i;
+			(*returnSize)++;
+		}
+	}
+
+	return out;
+}
+
+

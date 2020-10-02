@@ -1248,11 +1248,6 @@ bool isAdditiveNumber(char * num){
   []
 ]
 */
-int cmp_int(const void *a, const void *b)
-{
-	return *((int *)a) > *((int *)b);
-}
-
 void backtrack(int* nums, int numsSize, int* returnSize, int** returnColumnSizes,
 	int **res, int *path, int pathSize, int cidx)
 {

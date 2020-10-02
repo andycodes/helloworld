@@ -21,7 +21,6 @@ bool hashequal_str(const struct Node *node1, const struct Node *node2)
 	return !strcmp((char *)entry1->key,  (char *)entry2->key);
 }
 
-
 static size_t hashcode_str(const struct Node *node, size_t bktSize)
 {
 	size_t hash = 0;
@@ -38,7 +37,6 @@ static size_t hashcode_str(const struct Node *node, size_t bktSize)
 		return hash % bktSize;
 	}
 }
-
 
 static size_t hashcode_int(const struct Node *node,  size_t bktSize)
 {
