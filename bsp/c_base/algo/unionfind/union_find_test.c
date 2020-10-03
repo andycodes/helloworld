@@ -414,5 +414,186 @@ int* findRedundantDirectedConnection(int** edges, int edgesSize, int* edgesColSi
     return NULL;
 }
 
+/*
+924. 尽量减少恶意软件的传播
+在节点网络中，只有当 graph[i][j] = 1 时，每个节点 i 能够直接连接到另一个节点 j。
+
+一些节点 initial 最初被恶意软件感染。只要两个节点直接连接，且其中至少一个节点受到恶意软件的感染，那么两个节点都将被恶意软件感染。这种恶意软件的传播将继续，直到没有更多的节点可以被这种方式感染。
+
+假设 M(initial) 是在恶意软件停止传播之后，整个网络中感染恶意软件的最终节点数。
+
+我们可以从初始列表中删除一个节点。如果移除这一节点将最小化 M(initial)， 则返回该节点。如果有多个节点满足条件，就返回索引最小的节点。
+
+请注意，如果某个节点已从受感染节点的列表 initial 中删除，它以后可能仍然因恶意软件传播而受到感染。
+*/
+/*
+根据题目要求减少恶意软件的传播，大体的意思是要求将该节点删除之后，不受感染的软件数量最多。简单的思考了一下，如果该节点连通的节点数量越多，那么该节点删除之后必然受影响的节点数最多。这是我最开始的一个思路，而且感觉这个思路，发现给出的几个举例都能顺利通过，如果只是这个问题，通过并查集理论上能够快速的搞定，但是发现提交后并没有通过，确实对的起这个问题的难度(困难)。这个题目中只是简单的找某个节点连通的节点最多还不行，为什么呢？因为如果连通的节点中，有多个在传染源中，我们及时找到其中一个将其删除，也不能减少软件被传染的节点数量。因为只要是连通的，那么其中一个的删除，也会被其他连通节点的传染源感染，因此不能简单的直接删除连通节点最多的节点，可行的方法是首先统计传染源节点中在同一个连通域(集合)中的节点个数，如果连通域中的节点数大于1，则该节点不能删除，如果该连通域中的节点数等于1，那么删除该连通域的节点就能减少被感染的节点。不受感染的节点数量最多，那么就是找到连通域中感染源只有1个，连接节点最多的那个感染源就是最终的答案。综合上述的分析可以通过如下的方法解决：1、首先根据当前的链接矩阵，快速的创建一个并查集，需要统计权重（主要是统计合并的个数），同时尽可能的往小的索引合并。2、由于需要输出索引小的感染源，因此按照升级排列感染源。3、根据感染源节点列表计算连通域的感染节点个数。4、根据感染源个数等于1，找到权重最大的，索引最小的感染源，该感染源就是要删除的节点。作者：gpking链接：https://leetcode-cn.com/problems/minimize-malware-spread/solution/jian-shao-e-yi-ruan-jian-de-chuan-bo-bing-cha-ji-d/来源：力扣（LeetCode）著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+*/
+
+/*
+核心思想求出联通子图个数统计各个子图中包含感染节点个数（一个感染节点就足以感染整个子图，所以如果一个子图有多于一个感染节点，那么即使去掉一个，也不会减少受感染节点数）选择子图中节点最多，且只有一个感染节点的结果作者：chaoooooo链接：https://leetcode-cn.com/problems/minimize-malware-spread/solution/cyu-yan-bing-cha-ji-by-chaoooooo/来源：力扣（LeetCode）著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+*/
+
+
+#define MAXPOINTS 301
+typedef struct {
+    int parent[MAXPOINTS];
+    int weight[MAXPOINTS];
+    int max;
+    int cnt;
+} UF_t;
+
+UF_t g_uf;
+
+UF_t *UFInit(int max)
+{
+    memset(&g_uf, 0, sizeof(UF_t));
+
+    g_uf.max = max;
+    g_uf.cnt = max;
+    for (int i = 0; i < max; ++i) {
+        g_uf.parent[i] = i;
+        g_uf.weight[i] = 1;
+    }
+
+    return &g_uf;
+}
+
+int UFFind(UF_t *uf, int id)
+{
+    int son = id;
+
+    while (id != uf->parent[id]) {
+        id = uf->parent[id];
+    }
+
+    while (son != id) { // 路劲压缩
+        int tmp = uf->parent[son];
+        uf->parent[son] = id;
+        son = tmp;
+    }
+
+    return id;
+}
+
+void UFUnion(UF_t *uf, int id1, int id2)
+{
+    int id1Root = UFFind(uf, id1);
+    int id2Root = UFFind(uf, id2);
+
+    if (id1Root == id2Root) {
+        return;
+    }
+
+    if (id1Root < id2Root) {
+        uf->parent[id2Root] = id1Root;
+        uf->weight[id1Root] += uf->weight[id2Root]; // 计算出节点的权重
+    } else {
+        uf->parent[id1Root] = id2Root;
+        uf->weight[id2Root] += uf->weight[id1Root];
+    }
+
+    uf->cnt--;
+}
+
+int UFCount(UF_t *uf)
+{
+    return uf->cnt;
+}
+
+int UFWeight(UF_t *uf, int id)
+{
+    int root = UFFind(uf, id);
+    return uf->weight[root];
+}
+
+int UFSize(UF_t *uf)
+{
+    return uf->max;
+}
+
+int CheckParam(int **graph, int graphSize, int *graphColSize, int *initial, int initialSize)
+{
+    if (graph == NULL || graphSize <= 0 || graphColSize == NULL || initial == NULL || initialSize <= 0) {
+        return -1;
+    }
+
+    if (graphColSize[0] <= 0) {
+        return -1;
+    }
+
+    return 0;
+}
+
+UF_t * BuildUF(int **graph, int graphSize, int *graphColSize)
+{
+    UF_t *uf = UFInit(graphSize);
+
+    for (int i = 0; i < graphSize; ++i) {
+        for (int j = i + 1; j < graphSize; ++j) {
+            if (graph[i][j] == 1) {
+                UFUnion(uf, i, j); // 合并连通域
+            }
+        }
+    }
+
+    return uf;
+}
+
+int InitCmp(const void *a, const void *b)
+{
+    return *(int *)a - *(int *)b;
+}
+
+int Search(UF_t *uf, int *initial, int initialSize)
+{
+    if (UFCount(uf) == 1) {
+        return initial[0];
+    }
+
+    int count[MAXPOINTS] = {0};
+    for (int i = 0; i < initialSize; ++i) {
+        int rootId = UFFind(uf, initial[i]);
+        count[rootId]++; // 基于连通域统计感染源
+    }
+
+    int weight = -1;
+    int index = -1;
+    for (int i = 0; i < UFSize(uf); ++i) {
+        if (count[i] == 1) { // 感染源只有1个的连通域
+            int w = UFWeight(uf, i);
+            if (w > weight) { // 找到权重（连通节点）最多的连通域
+                weight = w;
+                index = i;
+            }
+        }
+    }
+
+    if (index != -1) { // 找到连通域
+        for (int i = 0; i < initialSize; ++i) {
+            int rootId = UFFind(uf, initial[i]);
+            if (rootId == index) { // 再从感染源节点中找到符合连通域的节点，然后返回感染源索引即可。
+                return initial[i];
+            }
+        }
+    }
+
+    return initial[0]; // 如果找不到满足要求的连通域，那么删除任何一个节点都无法解决问题，因此输出最小的索引。
+}
+
+int minMalwareSpread(int **graph, int graphSize, int *graphColSize, int *initial, int initialSize)
+{
+    if (CheckParam(graph, graphSize, graphColSize, initial, initialSize)) {
+        return -1;
+    }
+
+    if (initialSize == 1) {
+        return initial[0]; // 只有一个节点直接返回即可，不管是否有用。
+    }
+
+    UF_t * uf = BuildUF(graph, graphSize, graphColSize);
+    qsort(initial, initialSize, sizeof(int), InitCmp);
+    return Search(uf, initial, initialSize);
+}
 
 
