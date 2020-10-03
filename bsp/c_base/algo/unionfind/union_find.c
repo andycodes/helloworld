@@ -5,14 +5,14 @@
 #define UNION_FIND_H
 
 struct UnionFind {
-	int sideCnt;
+	int edgeCnt;
 	int *root;
 	int *rank;
 };
 
 void uf_init(struct UnionFind *uf, size_t size)
 {
-	uf->sideCnt = size;
+	uf->edgeCnt = size;
 	uf->root = (int *)calloc(size, sizeof(int));
 	uf->rank = (int *)calloc(size, sizeof(int));
 	memset(uf->rank, 0, sizeof(int) * size);
@@ -63,8 +63,8 @@ void uf_union(struct UnionFind* uf, int sun0, int sun1)
 		uf->rank[root1]++;
 	}
 
-	uf->sideCnt--;
-	if (uf->sideCnt == 1) {
+	uf->edgeCnt--;
+	if (uf->edgeCnt == 1) {
 		//OK
 	}
 }
