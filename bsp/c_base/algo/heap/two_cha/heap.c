@@ -28,6 +28,7 @@
 第K小元素 ----大堆栈
 */
 
+#ifdef PRIORITY_QUEUE_MAX
 struct heapEntry {
 	int key;
 };
@@ -168,4 +169,4 @@ struct HeapCtrl *heapInit(int cap)
 	hp->cap = cap;
 	return hp;
 }
-
+#endif

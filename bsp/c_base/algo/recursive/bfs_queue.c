@@ -1,5 +1,7 @@
 /*         BFS
 
+BFS 使用queue 或者heap
+
 while queue 非空:
 	node = queue.pop()
     for node 的所有相邻结点 m:
@@ -410,83 +412,6 @@ int openLock(char ** deadends, int deadendsSize, char * target)
 	}
 
 	return -1;
-}
-
-/*
-1102. 得分最高的路径
-难度中等33
-给你一个 R 行 C 列的整数矩阵 A。矩阵上的路径从 [0,0] 开始，
-在 [R-1,C-1] 结束。
-路径沿四个基本方向（上、下、左、右）展开，
-从一个已访问单元格移动到任一相邻的未访问单元格。
-路径的得分是该路径上的 最小 值。例如，路径 8 →  4 →  5 →  9
-的值为 4 。
-找出所有路径中得分 最高 的那条路径，返回其 得分。
-
-示例 1：
-
-输入：[[5,4,5],[1,2,6],[7,4,6]]
-输出：4
-解释：
-得分最高的路径用黄色突出显示。
-
-*/
-
-/*
-不能直接每次取路径中的最大值当做下一条路径，
-需要利用优先队列，把当前所有能走的路，按分值从大到小
-排好序，不能做剪枝，否则可能会无解；每次都走当前路径
-中的最大值，则最后走到终点时，自然就是所有路径中分值
-的最大值，返回结果即可；每次取出当前点的时候，要计算一
-下当前的结果，更新最大分数。
-*/
-int maximumMinimumPath(int** A, int ASize, int* AColSize)
-{
-	int row = ASize;
-	int col = AColSize[0];
-
-	struct HeapSort *hp = heapsort_init(col * row, PRIORITY_QUEUE_MAX);
-	int visited[row][col];
-	memset(visited, 0, sizeof(visited));
-
-	struct heapEntry node;
-	node.key = A[0][0];
-	node.x = 0;
-	node.y = 0;
-	heapsort_push(hp, node);
-	visited[0][0] = 1;
-
-	int d[4][2] = { { 0, 1 }, { 1, 0 }, { -1, 0 }, { 0, -1 } };
-	int res = INT_MAX;
-	while(!heapsort_empty(hp)) {
-		struct heapEntry pop = heapsort_pop(hp);
-		res = fmin(res, pop.key);
-		if (pop.x == row -1 && pop.y == col - 1) {
-			return res;
-		}
-
-		for (int i = 0; i < 4; i++) {
-			int x = pop.x + d[i][0];
-			int y = pop.y + d[i][1];
-
-			if (x < 0 || x >= row || y < 0 || y >= col) {
-				continue;
-			}
-
-			if (visited[x][y] == 1) {
-				continue;
-			}
-
-			struct heapEntry node;
-			node.key = A[x][y];
-			node.x = x;
-			node.y = y;
-			heapsort_push(hp, node);
-			visited[x][y] = 1;
-		}
-	}
-
-	return res;
 }
 
 /*
