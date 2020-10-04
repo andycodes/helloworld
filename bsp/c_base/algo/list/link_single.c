@@ -23,6 +23,7 @@ void traverse(struct ListNode * head)
 对称问题
 到达中间位置
 
+删除动作:搞一个dummy节点
 */
 
 struct ListNode {
@@ -151,19 +152,14 @@ struct ListNode *slink_reverse(struct ListNode * head)
             return head;
         }
 
-        struct ListNode * p1 = head;
-        struct ListNode * p2 = head->next;
-        struct ListNode * p3 = NULL;
-
-        while(p2 != NULL){
-            p3 = p2->next;
-            p2->next = p1;
-            p1 = p2;
-            p2 = p3;
-        }
-        head.next = NULL;
-        head = p1;
-        return head;
+	struct ListNode *prep, *nextp;
+	prep = nextp = NULL;
+	while(head != NULL){
+		nextp = head->next;
+		head->next = prep;
+		prep = head;
+		head = nextp;
+	}
 }
 
 /*
@@ -294,82 +290,75 @@ struct ListNode *detectCycle(struct ListNode *head)
 */
 bool isPalindrome(struct ListNode* head)
 {
-    // 特殊情况的排除
-    if(head == NULL || head->next == NULL)
-        return true;
-    if(head->next->next == NULL){
-        if(head->val == head->next->val)
-            return true;
-        else
-            return false;
-    }
+	// 特殊情况的排除
+	if(head == NULL || head->next == NULL)
+		return true;
 
-    struct ListNode *fastp, *slowp;
-    fastp = head->next->next;
-    slowp = head->next;
+	if(head->next->next == NULL){
+		if(head->val == head->next->val)
+			return true;
+		else
+			return false;
+	}
 
-    // 快慢指针找到尾部及中部位置
-/*
-我们可以指定一个快指针每次以两个步长后移，
-慢指针每次以一个步长后移，这样当快指针走到尾部时，
-慢指针刚好走到中部
-*/
-    while(fastp && fastp->next != NULL){
-        fastp = fastp->next->next;
-        slowp = slowp->next;
-    }
+	struct ListNode *fast, *slow;
+	fast = head->next->next;
+	slow = head->next;
 
-//而后我们可以翻转中部之前的链表，以便于后续比较。
-    // 翻转中部前链表序列
-    struct ListNode *prep, *nextp;
-    prep = nextp = NULL;
-    while(head != slowp){
-        nextp = head->next;
-        head->next = prep;
-        prep = head;
-        head = nextp;
-    }
+	while(fast != NULL && fast->next != NULL){
+		fast = fast->next->next;
+		slow = slow->next;
+	}
 
-    // 若结点个数为奇数，则舍弃中间结点
-    if(fastp != NULL && fastp->next == NULL)
-        slowp = slowp->next;
+	//而后我们可以翻转中部之前的链表，以便于后续比较。
+	// 翻转中部前链表序列
+	struct ListNode *prep, *nextp;
+	prep = nextp = NULL;
+	while(head != slow){
+		nextp = head->next;
+		head->next = prep;
+		prep = head;
+		head = nextp;
+	}
 
-    // 回文匹配比较
-    while(prep != NULL){
-        if(prep->val != slowp->val)
-            return false;
-        prep = prep->next;
-        slowp = slowp->next;
-    }
-    return true;
+	// 若结点个数为奇数，则舍弃中间结点
+	if(fast != NULL && fast->next == NULL)
+		slow = slow->next;
+
+	// 回文匹配比较
+	while(prep != NULL) {
+		if(prep->val != slow->val)
+			return false;
+		prep = prep->next;
+		slow = slow->next;
+	}
+	return true;
 }
 
-
 /*
+83. 删除排序链表中的重复元素
 给定一个排序链表，删除所有重复的元素，
 使得每个元素只出现一次。
-
 示例 1:
-
 输入: 1->1->2
 输出: 1->2
 示例 2:
-
 输入: 1->1->2->3->3
 输出: 1->2->3
-
 */
-struct ListNode* deleteDuplicates(struct ListNode* head) {
-    struct ListNode* current = head;
-    while (current != NULL && current->next != NULL) {
-        if (current->next->val == current->val) {
-            current->next = current->next->next;
-        } else {
-            current = current->next;
-        }
-    }
-    return head;
+struct ListNode* deleteDuplicates(struct ListNode* head)
+{
+	struct ListNode* entry = head;
+	while (entry != NULL && entry->next != NULL) {
+		if (entry->next->val == entry->val) {
+			entry->next = entry->next->next;
+		} else {
+			entry = entry->next;
+		}
+	}
+	return head;
 }
+
 /*
 82. 删除排序链表中的重复元素 II
 给定一个排序链表，删除所有含有重复数字的节点，
@@ -390,8 +379,8 @@ struct ListNode* deleteDuplicates(struct ListNode* head) {
 struct ListNode* deleteDuplicates(struct ListNode* head)
 {
 //假设1->1->3->3->4
-	struct ListNode dmy;
-	struct ListNode* slow = &dmy;
+	struct ListNode dummy;
+	struct ListNode* slow = &dummy;
 	slow->next = head;
 	while(slow->next && slow->next->next) {// 1->1满足条件
 		if (slow->next->val == slow->next->next->val) {
@@ -405,8 +394,9 @@ struct ListNode* deleteDuplicates(struct ListNode* head)
 			slow = slow->next;
 	}
 
-	return dmy.next;
+	return dummy.next;
 }
+
 
 /*
 1171. 从链表中删去总和值为零的连续节点
