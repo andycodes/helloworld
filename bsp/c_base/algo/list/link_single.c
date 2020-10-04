@@ -1,30 +1,29 @@
 /*
-链表遍历框架，
-兼具线性和非线性遍历结构：
 
-void traverse(ListNode head) {
-    for (ListNode p = head; p != null; p = p.next) {
+哨兵节点head--->node1-->node2--->NULL
+
+链表遍历方式
+while (entry != NULL) {
+	do
+	entry = entry->next;
+}
+
+for (struct ListNode * p = head; p != NULL; p = p->next) {
         // 访问 p.val
-    }
 }
 
-void traverse(ListNode head) {
+void traverse(struct ListNode * head)
+{
     // 访问 head.val
-    traverse(head.next)
+    traverse(head->next)
 }
-
 */
 
-typedef  struct ListNode {
-      int val;
-      struct ListNode *next;
-}SLINKLIST;
+struct ListNode {
+     int val;
+    struct ListNode *next;
+};
 
-/*
-  	head|first node|.........|tail|
- idx:        |      0      |.........|n -1   |
-
-*/
 struct ListNode* slink_init(void)
 {
 	/*哨兵节点: head  has no usr data */
@@ -33,12 +32,15 @@ struct ListNode* slink_init(void)
 	return head;
 }
 
-int slink_empty(struct ListNode *head)
+int slink_isEmpty(struct ListNode *head)
 {
+	if (head == NULL)
+		return 1;
+
 	return head->next == NULL ? 1:0;
 }
 
-void slink_push_first(struct ListNode *head, int val)
+void slink_first_push(struct ListNode *head, int val)
 {
 	struct ListNode *newNode = (struct ListNode *)malloc(sizeof(struct ListNode));
 	newNode->val = val;
@@ -46,25 +48,23 @@ void slink_push_first(struct ListNode *head, int val)
 	head->next = newNode;
 }
 
-int slink_get_first(struct ListNode * head)
+int slink_first_top(struct ListNode * head)
 {
-	if (head == NULL || head->next == NULL)
+	if (slink_isEmpty(head))
 		return -1;
 
 	struct ListNode * entry = head->next;
 	return entry->val;
 }
 
-int slink_pop_first(struct ListNode * head)
+int slink_first_pop(struct ListNode * head)
 {
 	int ret = 0;
-	if (head == NULL || head->next == NULL) {
-		printf("%s err\n", __func__);
+	if (slink_isEmpty(head))
 		return -1;
-	}
 
-	struct ListNode * entry = head;
-	struct ListNode * del = entry->next;
+	struct ListNode *entry = head;
+	struct ListNode *del = entry->next;
 	ret = del->val;
 	entry->next = entry->next->next;
 	free(del);
@@ -72,7 +72,7 @@ int slink_pop_first(struct ListNode * head)
 	return ret;
 }
 
-void slink_push_last(struct ListNode* head, int val)
+void slink_last_push(struct ListNode* head, int val)
 {
 	struct ListNode* entry = head;
 	struct ListNode* newNode = (struct ListNode*)malloc(sizeof(struct ListNode));
@@ -84,11 +84,12 @@ void slink_push_last(struct ListNode* head, int val)
 			entry->next = newNode;
 			return;
 		}
+
 		entry = entry->next;
 	}
 }
 
-int slink_get_last(struct ListNode * head)
+int slink_last_top(struct ListNode * head)
 {
 	struct ListNode * entry = head;
 	while(entry->next != NULL) {
@@ -98,7 +99,7 @@ int slink_get_last(struct ListNode * head)
 	return entry->val;
 }
 
-int  slink_pop_last(struct ListNode * head)
+int  slink_last_pop(struct ListNode * head)
 {
 	struct ListNode * entry = head;
 	while(entry->next != NULL) {
@@ -110,77 +111,8 @@ int  slink_pop_last(struct ListNode * head)
 			del = NULL;
 			return ret;
 		}
-		entry = entry->next;
-	}
-
-	return -1;
-}
-
-void  slink_insert_before_idx(struct ListNode * head, int idx, int val)
-{
-	if(idx < 0) {
-		slink_push_first(head, val);
-		return;
-	}
-
-	struct ListNode * entry = head;
-	//首先找到要插入位置的上一个结点
-	for (int i = 0; i < idx - 1; i++) {
-		if (entry == NULL) {
-			printf("%s err\n", __func__);
-			return;
-		}
 
 		entry = entry->next;
-	}
-
-	struct ListNode * newNode = (struct ListNode *)malloc(sizeof(struct ListNode));
-	newNode->val = val;
-	newNode->next = entry->next;
-	entry->next = newNode;//?
-}
-
-int slink_get_val_by_idx(struct ListNode * head, int idx)
-{
-	int i = 0;
-	struct ListNode * entry = head;
-
-	while(entry->next != NULL) {
-		if(i++ == idx) {
-			return entry->next->val;
-		}
-		entry = entry->next;
-	}
-
-	return -1;
-}
-
-void slink_amend_val(struct ListNode * head, int idx, int newVal)
-{
-	int i = 0;
-	struct ListNode * entry = head;
-
-	while(entry->next != NULL) {
-		if(i++ == idx) {
-			entry->next->val = newVal;
-			return ;
-		}
-		entry = entry->next;
-	}
-}
-
-int slink_get_idx_by_val(struct ListNode *head, int val)
-{
-	struct ListNode *entry = head;
-	int i = 1;
-
-	while (entry->next != NULL) {
-		entry = entry->next;
-		if (entry->val == val) {
-			return i;
-		}
-
-		i++;
 	}
 
 	return -1;
@@ -207,62 +139,6 @@ void (struct ListNode * head,struct ListNode *delNode)
 			entry = entry->next;
 		}
 	}
-}
-
-/** Delete the idx-th node in the linked list, if the idx is valid. */
-void slink_del_by_idx(struct ListNode * head, int idx)
-{
-	int i = 0;
-	struct ListNode * entry = head;
-	while(entry->next != NULL) {
-		if(i++ == idx) {
-			struct ListNode * del = entry->next;//单独设置一个指针指向被删除结点，以防丢失
-			entry->next = entry->next->next;
-			free(del);
-			break;
-		}
-		entry = entry->next;
-	}
-}
-
-
-struct ListNode* slink_del_by_value(struct ListNode* head, int val)
-{
-/*
-删除值相同的头结点后，
-可能新的头结点也值相等，用循环解决
-*/
-	struct ListNode* entry;
-	while(head != NULL && head->val == val) {
-		entry = head;
-		head = head->next;
-		free(entry);
-        }
-
-	if(head == NULL)
-		return;
-
-	entry = head;
-        //确保当前结点后还有结点
-        while(entry->next != NULL) {
-            if(entry->next->val == val) {
-                entry->next = entry->next->next;
-            } else {
-                entry=entry->next;
-            }
-        }
-        return head;
-}
-
-void slink_display(struct ListNode *head)
-{
-	struct ListNode *entry = head;
-	int id = 0;
-	while (entry->next != NULL) {
-		entry = entry->next;
-		printf("[%d-%d]",id++, entry->val);
-	}
-	printf("\n");
 }
 
 /*
@@ -803,13 +679,13 @@ struct ListNode* addTwoNumbers(struct ListNode* l1, struct ListNode* l2)
 		int y = q != NULL ? q->val : 0;
 		int sum = plus + x + y;
 		plus = sum / 10;
-		slink_push_last(ret, sum % 10);
+		slink_last_push(ret, sum % 10);
 		if (p != NULL) p = p->next;
 		if (q != NULL) q = q->next;
 	}
 
 	if (plus > 0)  {
-		slink_push_last(ret, plus);
+		slink_last_push(ret, plus);
 	}
 
 	return ret->next;
@@ -874,11 +750,11 @@ struct ListNode* addTwoNumbers(struct ListNode* l1, struct ListNode* l2)
 		int sum = a + b + plus;
 		plus = sum / 10;
 		sum = sum % 10;
-		slink_push_first(ret, sum);
+		slink_first_push(ret, sum);
 	}
 
 	if (plus != 0)
-		slink_push_first(ret, plus);
+		slink_first_push(ret, plus);
 
 	return ret->next;
 }
@@ -1552,13 +1428,7 @@ struct ListNode* mergeKLists(struct ListNode** lists, int listsSize)
 	return merge(lists, 0, listsSize - 1);
 }
 
-/**
- * Definition for singly-linked list.
- * struct ListNode {
- *     int val;
- *     struct ListNode *next;
- * };
- */
+
 
 
 void swap(struct ListNode **tree, int i, int j) {
