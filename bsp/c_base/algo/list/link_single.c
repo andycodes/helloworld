@@ -17,6 +17,12 @@ void traverse(struct ListNode * head)
     // 访问 head.val
     traverse(head->next)
 }
+
+快慢指针:
+环路问题
+对称问题
+到达中间位置
+
 */
 
 struct ListNode {
@@ -118,48 +124,46 @@ int  slink_last_pop(struct ListNode * head)
 	return -1;
 }
 
-//考虑删除节点为尾节点
-void (struct ListNode * head,struct ListNode *delNode)
+/*
+新建链表,头节点插入法
+新建一个头结点，遍历原链表，把每个节点用头结点插入
+到新建链表中。最后，新建的链表就是反转后的链表。
+*/
+struct ListNode *slink_reverse(struct ListNode * head)
 {
-	if (delNode == NULL)
-		return;
+	struct ListNode * dummy = (struct ListNode*)malloc(sizeof(struct ListNode));
+	struct ListNode * pCur = head;
 
-	if(delNode->next != NULL) {
-		struct ListNode * pTemp = delNode->next;
-		delNode->val = pTemp->val;
-		delNode->next = pTemp->next;
-		free(pTemp);
-	} else {//last node
-		struct ListNode * entry = head;
-		while(entry != NULL) {
-			if(entry->next == delNode) {
-				free(delNode);
-				entry->next = NULL;
-			}
-			entry = entry->next;
-		}
+	while (pCur != NULL) {
+		struct ListNode * pNex = pCur->next;
+
+		pCur->next = dummy->next;
+		dummy->next = pCur;
+		pCur = pNex;
 	}
+
+	return dummy->next;
 }
 
-/*
-面试题 02.02. 返回倒数第 k 个节点
-实现一种算法，找出单向链表中倒数第
-k 个节点。返回该节点的值。
-*/
-int kthToLast(struct ListNode* head, int k){
-	struct ListNode*  fast = head;
-	struct ListNode*  slow = head;
+struct ListNode *slink_reverse(struct ListNode * head)
+{
+        if(head == NULL || head.next == NULL){
+            return head;
+        }
 
-	while(k--) {
-		fast = fast->next;
-	}
+        struct ListNode * p1 = head;
+        struct ListNode * p2 = head->next;
+        struct ListNode * p3 = NULL;
 
-	while(fast != NULL) {
-		fast = fast->next;
-		slow = slow->next;
-	}
-
-	return slow->val;
+        while(p2 != NULL){
+            p3 = p2->next;
+            p2->next = p1;
+            p1 = p2;
+            p2 = p3;
+        }
+        head.next = NULL;
+        head = p1;
+        return head;
 }
 
 /*
@@ -176,92 +180,37 @@ int kthToLast(struct ListNode* head, int k){
 你能尝试使用一趟扫描实现吗？
 */
 /*
-链表中解决带间距的问题，首先想到的也是很常用的就是双指针。
-让两个指针间隔 n+1个节点后两者同时后移，当跑得快的指针到达尾部时，跑的慢的指针的下一个节点刚好就是要被删除的节点，至此，问题迎刃而解。
-然后注意边界问题，当待删除的元素刚好是第一个元素时需要特殊处理。
-最后是参数合法，当 head == NULL 或 n 超出了链表长度需要特殊处理
+链表中解决带间距的问题，首先想到的也是很常用的就是
+双指针。
+让两个指针间隔 n+1个节点后两者同时后移，当跑得快的指
+针到达尾部时，跑的慢的指针的下一个节点刚好就是要被
+删除的节点，至此，问题迎刃而解。
+然后注意边界问题，当待删除的元素刚好是第一个元素时
+需要特殊处理。
+最后是参数合法，当 head == NULL 或 n 超出了链表长度需要特
+殊处理
 */
-struct ListNode* removeNthFromEnd(struct ListNode* head, int n){
+struct ListNode* removeNthFromEnd(struct ListNode* head, int n)
+{
 	struct ListNode* dummy = calloc(1, sizeof(struct ListNode));
 	dummy->next = head;
-	struct ListNode*first = dummy;
-	struct ListNode*second = dummy;
-	for(int i = 1; i <= n+1;i++) {
-		first = first->next;
+	struct ListNode*fast = dummy;
+	struct ListNode*slow = dummy;
+	for(int i = 0; i <= n; i++) {
+		fast = fast->next;
 	}
 
-	while(first != NULL) {
-		first = first->next;
-		second = second->next;
+	while(fast != NULL) {
+		fast = fast->next;
+		slow = slow->next;
 	}
 
-	second->next = second->next->next;
+	slow->next = slow->next->next;
 	return dummy->next;
 }
 
 /*
-将两个有序链表合并为一个新的有序链表并返回。
-新链表是通过拼接给定的两个链表的所有节点组成的。
-
-示例：
-
-输入：1->2->4, 1->3->4
-输出：1->1->2->3->4->4
-*/
-
-/*
-方法 1：递归
-想法
-
-我们可以如下递归地定义在两个链表里的 merge 操作（忽略边界情况，比如空链表等）：
-
-\left\{ \begin{array}{ll} list1[0] + merge(list1[1:], list2) & list1[0] < list2[0] \\ list2[0] + merge(list1, list2[1:]) & otherwise \end{array} \right.
-{
-list1[0]+merge(list1[1:],list2)
-list2[0]+merge(list1,list2[1:])
-?
-
-list1[0]<list2[0]
-otherwise
-?
-
-
-也就是说，两个链表头部较小的一个与
-剩下元素的 merge 操作结果合并。
-
-算法
-我们直接将以上递归过程建模，
-首先考虑边界情况。
-特殊的，如果 l1 或者 l2 一开始就是 null ，
-那么没有任何操作需要合并，
-所以我们只需要返回非空链表。
-否则，我们要判断 l1 和 l2 哪一个的头元素更小，
-然后递归地决定下一个添加到结果里的值。
-如果两个链表都是空的，那么过程终止，
-所以递归过程最终一定会终止。
-
-*/
-
-struct ListNode* mergeTwoLists(struct ListNode* l1, struct ListNode* l2)
-{
-        if (l1 == NULL) {
-            return l2;
-        }
-        else if (l2 == NULL) {
-            return l1;
-        }
-        else if (l1->val < l2->val) {
-            l1->next = mergeTwoLists(l1->next, l2);
-            return l1;
-        }
-        else {
-            l2->next = mergeTwoLists(l1, l2->next);
-            return l2;
-        }
-}
-
-
-/*
+141. 环形链表
 给定一个链表，判断链表中是否有环。
 检测链表中是否存在环路有一个方法叫做快慢指针法，
 即设置两个指针从起点同时出发，
@@ -275,40 +224,38 @@ bool hasCycle(struct ListNode *head)
 	}
 
 	struct ListNode *slow = head;
-	struct ListNode *fast = head->next;
-	while (slow != fast) {
-		if (fast == NULL || fast->next == NULL) {
-			return false;
-		}
-
+	struct ListNode *fast = head;
+	while (fast != NULL && fast->next != NULL) {
 		slow = slow->next;
 		fast = fast->next->next;
+		if (slow == fast)
+			return true;
 	}
 
-	return true;
+	return false;
 }
 
 /*
 面试题 02.08. 环路检测
 难度中等11
 给定一个有环链表，实现一个算法返回环路的开头节点。
-有环链表的定义：在链表中某个节点的next元素指向在它前面出现过的节点，则表明该链表存在环路。
-
+有环链表的定义：在链表中某个节点的next元素指向在它前
+面出现过的节点，则表明该链表存在环路。
 
 示例 1：
 输入：head = [3,2,0,-4], pos = 1
 输出：tail connects to node index 1
 解释：链表中有一个环，其尾部连接到第二个节点。
-
 */
 
 /*
 整体思路：
-
 检测有没有环，使用快慢指针slow和fast（一次走两步）；
-找位置，当找到环之后，slow从head出发，fast从相遇点出发，一次都走一步，再次相遇为环的入口点
+找位置，当找到环之后，slow从head出发，fast从相遇点出发，
+一次都走一步，再次相遇为环的入口点
 */
-struct ListNode *detectCycle(struct ListNode *head) {
+struct ListNode *detectCycle(struct ListNode *head)
+{
 	if (head == NULL || head->next == NULL) {
 		return NULL;
 	}
@@ -335,20 +282,18 @@ struct ListNode *detectCycle(struct ListNode *head) {
 }
 
 
-
 /*
+234. 回文链表
 请判断一个链表是否为回文链表。
-
 示例 1:
-
 输入: 1->2
 输出: false
 示例 2:
-
 输入: 1->2->2->1
 输出: true
 */
-bool isPalindrome(struct ListNode* head){
+bool isPalindrome(struct ListNode* head)
+{
     // 特殊情况的排除
     if(head == NULL || head->next == NULL)
         return true;
@@ -511,75 +456,6 @@ struct ListNode *getIntersectionNode(struct ListNode *headA, struct ListNode *he
         pB = pB == NULL ? headA : pB->next;
     }
     return pA;
-}
-
-
-//递归实现
-struct ListNode * reverse(struct ListNode *pHead)
-{
-//意思是如果链表只有一个节点的时候反转也是它自己，直接返回即可。
-	if (pHead == NULL || pHead->next == NULL) {
-		return pHead;
-	}
-
-	struct ListNode *p = pHead->next;
-	struct ListNode *pNewHead = reverse(p);
-	p->next = pHead;
-	pHead ->next = NULL;
-	return pNewHead;
-}
-
-
-//尾递归实现
-struct ListNode *do_reverse_tail(struct ListNode *pHead, struct ListNode *pNewHead)
-{
-	if(pHead == NULL)
-		return pNewHead;
-
-	struct ListNode *pNext = pHead->next;
-	pHead->next = pNewHead;
-	return do_reverse_tail(pNext, pHead);
-}
-
-struct ListNode * reverse_tail(struct ListNode *pHead)
-{
-    return do_reverse_tail(pHead, NULL);
-}
-
-/*
-迭代实现
-在看具体算法之前，有必要先弄清楚链接反转的原理以及需要哪些指针。举例而言，有一个三个不同结点组成的链表 A → B → C，需要反转结点中的链接成为 A ← B ← C。
-
-假设我们有两个指针，一个指向结点 A，一个指向结点 B。 分别记为 prev 和 cur。则可以用这两个指针简单地实现 A 和 B 之间的链接反转：
-
-
-cur.next = prev
-这样做唯一的问题是，没有办法继续下去，换而言之，这样做之后就无法再访问到结点 C。因此，我们需要引入第三个指针，用于帮助反转过程的进行。因此，我们不采用上面的反转方法，而是：
-
-
-third = cur.next
-cur.next = prev
-prev = cur
-cur = third
-
-*/
-struct ListNode * reverse_it(struct ListNode *pHead)
-{
-	struct ListNode *pNewHead = NULL;
-	struct ListNode *pPrev = NULL;
-	struct ListNode *pCur = pHead;
-
-	while(pCur != NULL) {
-		struct ListNode *pTmp = pCur->next;
-		if(pTmp == NULL) {
-			pNewHead = pCur;
-		}
-		pCur->next = pPrev;
-		pPrev = pCur;
-		pCur = pTmp;
-	}
-
-	return pNewHead;
 }
 
 /*
@@ -1721,15 +1597,15 @@ void allOneFree(AllOne* obj) {
 我们用一个由 n 个节点组成的链表来表示输入/输出中的链表。每个节点用一个 [val, random_index] 表示：
 
 val：一个表示 Node.val 的整数。
-random_index：随机指针指向的节点索引（范围从 0 到 n-1）；如果不指向任何节点，则为  null 。
+random_index：随机指针指向的节点索引（范围从 0 到 n-1）；如果不指向任何节点，则为  NULL 。
 
 
 示例 1：
 
 
 
-输入：head = [[7,null],[13,0],[11,4],[10,2],[1,0]]
-输出：[[7,null],[13,0],[11,4],[10,2],[1,0]]
+输入：head = [[7,NULL],[13,0],[11,4],[10,2],[1,0]]
+输出：[[7,NULL],[13,0],[11,4],[10,2],[1,0]]
 */
 
 /**
