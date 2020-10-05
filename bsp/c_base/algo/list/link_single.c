@@ -33,8 +33,7 @@ struct ListNode {
 
 struct ListNode* slink_init(void)
 {
-	/*哨兵节点: head  has no usr data */
-	struct ListNode* head = (struct ListNode*)malloc(sizeof(struct ListNode));
+	struct ListNode* head = (struct ListNode*)calloc(1, sizeof(struct ListNode));
 	head->next = NULL;
 	return head;
 }
@@ -152,14 +151,55 @@ struct ListNode *slink_reverse(struct ListNode * head)
             return head;
         }
 
-	struct ListNode *prep, *nextp;
-	prep = nextp = NULL;
+	struct ListNode *prev = NULL,
+	struct ListNode *pnext = NULL;
+
 	while(head != NULL){
-		nextp = head->next;
-		head->next = prep;
-		prep = head;
-		head = nextp;
+		pnext = head->next;
+		head->next = prev;
+		prev = head;
+		head = pnext;
 	}
+
+	return head;
 }
 
+/*
+148. 排序链表
+在 O(n log n) 时间复杂度和常数级空间复杂度下，
+对链表进行排序。
+示例 1:
+输入: 4->2->1->3
+输出: 1->2->3->4
+*/
+struct ListNode* merge_sotrlist(struct ListNode* p,struct ListNode* q){
+	struct ListNode *head=(struct ListNode*)malloc(sizeof(struct ListNode));
+	struct ListNode *entry=head;
+	while(p!=NULL&&q!=NULL){
+		if(p->val<=q->val){
+			entry->next=p;
+			entry=p;
+			p=p->next;
+		}else{
+			entry->next=q;
+			entry=q;
+			q=q->next;
+		}
+	}
+    entry->next=(p==NULL)?q:p;
+	return head->next;
+}
+struct ListNode* sortList(struct ListNode* head)
+{
+    if(head==NULL||head->next==NULL)
+		return head;
+	struct ListNode*p=head;
+	struct ListNode*q=head->next;
+	while(q!=NULL&&q->next!=NULL){
+		p=p->next;q=q->next->next;
+	}
+	q=p->next;
+	p->next=NULL;
+	return merge_sotrlist(sortList(head),sortList(q));
+}
 
