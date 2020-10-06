@@ -26,60 +26,6 @@ int hammingWeight(unsigned int n)
 
 */
 
-/*
-面试题 08.04. 幂集
-难度中等3
-幂集。编写一种方法，返回某集合的所有子集。集合中不包
-含重复的元素。
-说明：解集不能包含重复的子集。
-示例:
- 输入： nums = [1,2,3]
- 输出：
-[
-  [3],
-  [1],
-  [2],
-  [1,2,3],
-  [1,3],
-  [2,3],
-  [1,2],
-  []
-]
-
-*/
-
-/*
-0-(1<<n)的二进制数代表了一个集合的所有子集，
-位为1的位对应的索引在其中，位0的不在其中。
-*/
-int** subsets(int* nums, int numsSize, int* returnSize, int** returnColumnSizes)
-{
-	*returnSize = 0;
-
-	if (nums == NULL) {
-		return NULL;
-	}
-
-	int **res = (int **)calloc(1 << numsSize, sizeof(int *));
-	*returnColumnSizes = (int *)calloc(1 << numsSize, sizeof(int));
-
-	for (int i = 0; i < (1 << numsSize); i++) {
-		res[*returnSize] = (int *)calloc(numsSize, sizeof(int));
-		int colSize = 0;
-		for (int j = 0; j < numsSize; j++) {
-			if ((i & (1 << j)) != 0) {
-				res[*returnSize][colSize++] = nums[j];
-			}
-		}
-
-		(*returnColumnSizes)[*returnSize] = colSize;
-		(*returnSize)++;
-	}
-
-	return res;
-}
-
-
 
 /*
 1239. 串联字符串的最大长度
