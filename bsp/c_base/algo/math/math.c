@@ -1,3 +1,7 @@
+/*科学计数法
+1e-6
+*/
+
 /*判断两个数是否异号*/
 int x = -1, y = 2;
 bool f = ((x ^ y) < 0); // true
@@ -579,4 +583,27 @@ int numberOfBoomerangs(int** points, int pointsSize, int* pointsColSize)
 	return Num_Boo;
 }
 
+
+/*
+357. 计算各个位数不同的数字个数
+给定一个非负整数 n，计算各位数字都不同的数字 x 的个数，
+其中 0 ≤ x < 10n 。
+示例:
+输入: 2
+输出: 91
+解释: 答案应为除去 11,22,33,44,55,66,77,88,99 外，在 [0,100) 区间内的所
+有数字。
+*/
+int countNumbersWithUniqueDigits(int n)
+{
+        if (n == 0)
+			return 1;
+        int res = 10, k = 9, temp = 9;
+        for (int i = 2; i <= fmin(n, 10); ++i){
+            temp *= k;
+            k--;
+            res += temp;
+        }
+        return res;
+}
 

@@ -201,6 +201,56 @@ int** combinationSum3(int k, int n, int* returnSize, int** returnColumnSizes)
 }
 
 /*
+90. 子集 II
+给定一个可能包含重复元素的整数数组 nums，返回该数组所有
+可能的子集（幂集）。
+说明：解集不能包含重复的子集。
+示例:
+输入: [1,2,2]
+输出:
+[
+  [2],
+  [1],
+  [1,2,2],
+  [2,2],
+  [1,2],
+  []
+]
+*/
+void dfs(int* nums, int numsSize, int* returnSize, int** returnColumnSizes,
+	int **res, int *path, int pathSize, int ccx)
+{
+	res[*returnSize] = (int *)calloc(pathSize, sizeof(int));
+	memcpy(res[*returnSize], path, sizeof(int) * pathSize);
+	(*returnColumnSizes)[*returnSize] = pathSize;
+	(*returnSize)++;
+
+	for (int i = ccx; i < numsSize; i++) {
+		if (i > ccx && nums[i] == nums[i - 1]) {
+			continue;
+		}
+
+		path[pathSize] = nums[i];
+		dfs(nums, numsSize, returnSize, returnColumnSizes, res, path, pathSize + 1, i + 1);
+	}
+}
+
+int** subsetsWithDup(int* nums, int numsSize, int* returnSize, int** returnColumnSizes)
+{
+	*returnSize = 0;
+	qsort(nums, numsSize, sizeof(nums[0]), cmp_int);
+	int resSize = fmax(1024, pow(2, numsSize));
+	*returnColumnSizes = (int *)calloc(resSize, sizeof(int));
+	int **res = (int **)calloc(resSize, sizeof(int *));
+	int path[numsSize];
+	memset(path, 0, sizeof(path));
+
+	dfs(nums, numsSize, returnSize, returnColumnSizes, res, path, 0, 0);
+	return res;
+}
+
+
+/*
 1034. 边框着色
 给出一个二维整数网格 grid，网格中的每个值表示该位置处的
 网格块的颜色。
