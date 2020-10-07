@@ -34,7 +34,6 @@ int hammingWeight(unsigned int n)
 连接所得的字符串，如果 s 中的每一个字符都只出现过一次，
 那么它就是一个可行解。
 请返回所有可行解 s 中最长长度。
-
 示例 1：
 输入：arr = ["un","iq","ue"]
 输出：4
@@ -47,39 +46,34 @@ int hammingWeight(unsigned int n)
 示例 3：
 输入：arr = ["abcdefghijklmnopqrstuvwxyz"]
 输出：26
-
 */
 
 /*
 思路分析
 对于每个单词无非就两种情况，选或这不选。
-
 对于 arr 中的每个单词我用一个二进制位来表示它，
 为 1 表示选择这个单词，为 0 表示不选择这个单词。
-
 题目给出 1 <= arr.length <= 16，那一个 int(38位)就足够表示 arr 中的
 所有单词。
-
 例如 arr 中有 5 个单词，我用 int i; 来枚举对 arr 的所有选择情况：
-
-当 i = 0; 时，i 的所有位都为 0 ，表示的情况是： arr 中的单词都不选择。
-
-当 i = (1 << 5) - 1 时，i 的前 5 位都为 1，表示的情况是：arr中的单词都选择。
-
+当 i = 0; 时，i 的所有位都为 0 ，表示的情况是： arr 中的单词都不
+选择。
+当 i = (1 << 5) - 1 时，i 的前 5 位都为 1，表示的情况是：arr中的单词
+都选择。
 那所有选择情况就可以这样枚举：
-
 for (int i = 0; i < (1 << 5); i++) {
     // 得到的每个 i 都可以表示一种选择情况
 }
 对于 i 表示的情况，怎么知道某个单词 word 的选取状态？
-
-word 在 arr 中的索引 j 就表示它在 i 的第几位，使用 i & (1 << j) 就知道 word 的选取状态。
-
+word 在 arr 中的索引 j 就表示它在 i 的第几位，使用 i & (1 << j) 就知道
+word 的选取状态。
 当 i & (1 << j) 为 1 时，表示 word 的状态为选择；
 当 i & (1 << j) 为 0 时，表示 word 的状态为不选。
-同时，这里使用位掩码来表示字符串中 26 个英文小写字母的出现情况。在代码中用 int m; 中的 26 位，来表示 26 个英文的出现状态。
-
+同时，这里使用位掩码来表示字符串中 26 个英文小写字母的
+出现情况。在代码中用 int m; 中的 26 位，来表示 26 个英文的出
+现状态。
 */
+
 bool isUnique(char * str, int *bitmap)
 {
 	int i = 0;
@@ -119,57 +113,6 @@ int maxLength(char ** arr, int arrSize)
 
 	return ans;
 }
-
-/*
-77. 组合
-难度中等238
-给定两个整数 n 和 k，返回 1 ... n 中所有可能的 k 个数的组合。
-示例:
-输入: n = 4, k = 2
-输出:
-[
-  [2,4],
-  [3,4],
-  [2,3],
-  [1,2],
-  [1,3],
-  [1,4],
-]
-
-*/
-
-/**
- * Return an array of arrays of size *returnSize.
- * The sizes of the arrays are returned as *returnColumnSizes array.
- * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
- */
-int** combine(int n, int k, int* returnSize, int** returnColumnSizes)
-{
-	if (k > n || n < 1) {
-		return NULL;
-	}
-
-	int **res = (int **)calloc(1 << n, sizeof(int *));
-	*returnSize = 0;
-	*returnColumnSizes = (int *)calloc(1 << n, sizeof(int));
-
-	for (int i = 0; i < (1 << n); i++) {
-		if(hammingWeight(i) == k) {
-			res[*returnSize] = (int *)calloc(1 << n, sizeof(int));
-			for (int j = 0; j < n; j++) {
-				if (((i & (1 << j)) != 0)) {
-					res[*returnSize][(*returnColumnSizes)[*returnSize]] = j + 1;
-					((*returnColumnSizes)[*returnSize])++;
-				}
-			}
-
-			(*returnSize)++;
-		}
-	}
-
-	return res;
-}
-
 
 /*
 401. 二进制手表
