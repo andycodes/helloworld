@@ -2,12 +2,9 @@
 324. 摆动排序 II
 给定一个无序的数组 nums，将它重新排列成
 nums[0] < nums[1] > nums[2] < nums[3]... 的顺序。
-
 示例 1:
-
 输入: nums = [1, 5, 1, 1, 6, 4]
 输出: 一个可能的答案是 [1, 4, 1, 5, 1, 6]
-
 大小数据分2组+小数组降序大数组升序+大小数组互相穿插
 */
 void wiggleSort(int* nums, int numsSize)
@@ -64,9 +61,7 @@ position[i] （英里） 沿车道驶向目的地。
 空集合。注意，一辆车也可以是一个车队。
 即便一辆车在目的地才赶上了一个车队，它们仍然会被视作
 是同一个车队。
-
 会有多少车队到达目的地?
-
 示例：
 输入：target = 12, position = [10,8,0,5,3], speed = [2,4,1,1,3]
 输出：3
@@ -156,7 +151,9 @@ B 队排第三。
 示例 2：
 输入：votes = ["WXYZ","XYZW"]
 输出："XWYZ"
-解释：X 队在并列僵局打破后成为排名第一的团队。X 队和 W 队的「排位第一」票数一样，但是 X 队有一票「排位第二」，而 W 没有获得「排位第二」。
+解释：X 队在并列僵局打破后成为排名第一的团队。X 队和
+W 队的「排位第一」票数一样，但是 X 队有一票「排位第二」，
+而 W 没有获得「排位第二」。
 示例 3：
 输入：votes = ["ZMNAGUEDSJYLBOPHRQICWFXTVK"]
 输出："ZMNAGUEDSJYLBOPHRQICWFXTVK"
@@ -165,9 +162,12 @@ B 队排第三。
 输入：votes = ["BCA","CAB","CBA","ABC","ACB","BAC"]
 输出："ABC"
 解释：
-A 队获得两票「排位第一」，两票「排位第二」，两票「排位第三」。
-B 队获得两票「排位第一」，两票「排位第二」，两票「排位第三」。
-C 队获得两票「排位第一」，两票「排位第二」，两票「排位第三」。
+A 队获得两票「排位第一」，两票「排位第二」，
+两票「排位第三」。
+B 队获得两票「排位第一」，两票「排位第二」，
+两票「排位第三」。
+C 队获得两票「排位第一」，两票「排位第二」，
+两票「排位第三」。
 完全并列，所以我们需要按照字母升序排名。
 */
 
@@ -216,52 +216,6 @@ char * rankTeams(char ** votes, int votesSize)
 	for(int i = 0; i < 26; i++) {
 		if (hash[i].flag == 1)
 			ret[retCnt++] = hash[i].c;
-	}
-
-	return ret;
-}
-
-/*
-面试题45. 把数组排成最小的数
-难度中等33
-输入一个正整数数组，把数组里所有数字拼接起来排成一个
-数，打印能拼接出的所有数字中最小的一个。
-
-示例 1:
-输入: [10,2]
-输出: "102"
-示例 2:
-输入: [3,30,34,5,9]
-输出: "3033459"
-*/
-
-int cmp_str(const void *a, const void *b)
-{
-	char e[101] = {{0}};
-	char f[101] = {{0}};
-	sprintf(e, "%d", *((int *)a));
-	sprintf(f, "%d", *((int *)b));
-
-	char c[101] = {{0}};
-	char d[101] = {{0}};
-	strcat(c, e);
-	strcat(c, f);
-
-	strcat(d, f);
-	strcat(d, e);
-
-	return strcmp(c, d);
-}
-
-char* minNumber(int* nums, int numsSize)
-{
-	qsort(nums, numsSize, sizeof(int), cmp_str);
-	char *ret = (char *)calloc(1024 * 100, sizeof(char));
-	for (int i = 0; i < numsSize; i++) {
-		char tmpstr[101];
-		memset(tmpstr, 0, sizeof(tmpstr));
-		sprintf(tmpstr, "%d", nums[i]);
-		strcat(ret, tmpstr);
 	}
 
 	return ret;
@@ -349,6 +303,7 @@ void nextPermutation(int* nums, int numsSize)
 	swap(nums[left], nums[right -1]);
 	qsort(nums + left + 1, numsSize - 1 - left, sizeof(int), cmp_int);
 }
+
 
 /*
 539. 最小时间差
