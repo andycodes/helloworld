@@ -341,4 +341,120 @@ int findMinDifference(char ** timePoints, int timePointsSize)
 	return ret;
 }
 
+/*
+1452. 收藏清单
+给你一个数组 favoriteCompanies ，其中 favoriteCompanies[i] 是第 i 名用户收藏的公司清单（下标从 0 开始）。
+
+请找出不是其他任何人收藏的公司清单的子集的收藏清单，并返回该清单下标。下标需要按升序排列。
+
+
+
+示例 1：
+
+输入：favoriteCompanies = [["leetcode","google","facebook"],["google","microsoft"],["google","facebook"],["google"],["amazon"]]
+输出：[0,1,4]
+解释：
+favoriteCompanies[2]=["google","facebook"] 是 favoriteCompanies[0]=["leetcode","google","facebook"] 的子集。
+favoriteCompanies[3]=["google"] 是 favoriteCompanies[0]=["leetcode","google","facebook"] 和 favoriteCompanies[1]=["google","microsoft"] 的子集。
+其余的收藏清单均不是其他任何人收藏的公司清单的子集，因此，答案为 [0,1,4] 。
+*/
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+
+typedef struct _info_st {
+    char **fav;
+    int cnt;
+    int id;
+}info_st;
+
+int compare0(const void *a, const void *b) {
+    return strcmp(*(char **)a, *(char **)b);
+}
+
+int compare1(const void *a, const void *b) {
+    return ((info_st*)a)->cnt - ((info_st*)b)->cnt;
+}
+
+int compare2(const void *a, const void *b) {
+    return *(int*)a - *(int *)b;
+}
+
+//判断a是否是b的子集
+bool helper(char **a, int a_size, char **b, int b_size) {
+    int aid = 0;
+    for(int i = 0; i < b_size; i++) {
+        int tmp = strcmp(a[aid], b[i]);
+
+        if(tmp < 0) {
+            break;
+        } else if(tmp == 0) {
+            aid++;
+            if(aid == a_size) {
+                break;
+            }
+        }
+    }
+
+    return aid != a_size;
+}
+
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+
+//【算法思路】排序
+// 1.按照长度排序
+// 2.每个人按照字典序排序
+// 3.从短向长进行查找
+int* peopleIndexes(char *** favoriteCompanies, int favoriteCompaniesSize, int* favoriteCompaniesColSize, int* returnSize){
+    info_st *info = (info_st *)calloc(favoriteCompaniesSize, sizeof(info_st));
+
+    for(int i = 0; i < favoriteCompaniesSize; i++) {
+        info[i].fav = favoriteCompanies[i];
+        info[i].cnt = favoriteCompaniesColSize[i];
+        info[i].id = i;
+
+        qsort(favoriteCompanies[i], favoriteCompaniesColSize[i], sizeof(char *), compare0);
+    }
+
+    qsort(info, favoriteCompaniesSize, sizeof(info_st), compare1);
+/*
+    for(int i = 0; i < favoriteCompaniesSize; i++) {
+        printf("%d    ", info[i].id);
+    }
+    printf("\n");
+*/
+    int *ret = (int *)calloc(favoriteCompaniesSize, sizeof(int));
+    int rsize = 0;
+
+    //循环判断是否是子集
+    for(int i = 0; i < favoriteCompaniesSize; i++) {
+        int alen = info[i].cnt;
+
+        bool find = true;
+        for(int j = i + 1; j < favoriteCompaniesSize; j++) {
+            int blen = info[j].cnt;
+            if(alen == blen) {
+                continue;
+            }
+
+            bool tmp = helper(info[i].fav, alen, info[j].fav, blen);
+
+            if(tmp == false) {
+                find = false;
+                break;
+            }
+        }
+
+        if(find == true) {
+            ret[rsize++] = info[i].id;
+        }
+    }
+
+    qsort(ret, rsize, sizeof(int), compare2);
+
+    *returnSize = rsize;
+    return ret;
+}
 
