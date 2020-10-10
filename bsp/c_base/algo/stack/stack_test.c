@@ -4,35 +4,21 @@
 计算表达式的值。你可以假定给定的表达式始终
 都是有效的并且只包含数字 0-9, ?, :,
 T 和?F (T 和?F?分别表示真和假）。
-
 注意：
-
 给定的字符串长度 ≤ 10000。
 所包含的数字都只有一位数。
 条件表达式从右至左结合（和大多数程序设计语言类似）。
 条件是 T 和 F其一，即条件永远不会是数字。
 表达式的结果是数字 0-9, T 或者 F。
-
-
 示例 1：
-
 输入： "T?2:3"
-
 输出： "2"
-
 解释： 如果条件为真，结果为 2；否则，结果为 3。
-
 “F?1:T?4:5”Output: “4”
-
-
 “F?T?4:5:T?4:5
-
 示例 3：
-
 输入： "T?T?F:5:3"
-
 输出： "F"
-
 解释： 条件表达式自右向左结合。使用括号的话，相当于：
 
              "(T ? (T ? F : 5) : 3)"                   "(T ? (T ? F : 5) : 3)"
@@ -284,171 +270,6 @@ char * decodeString(char * s)
 	}
 
 	return str;
-}
-
-
-/*
-1209. 删除字符串中的所有相邻重复项 II
-给你一个字符串 s，「k 倍重复项删除操作」将会从 s 中选择
-k 个相邻且相等的字母，并删除它们，使被删去的字符串的
-左侧和右侧连在一起。
-你需要对 s 重复进行无限次这样的删除操作，直到无法继
-续为止。
-在执行完所有删除操作后，返回最终得到的字符串。
-本题答案保证唯一。
-示例 1：
-输入：s = "abcd", k = 2
-输出："abcd"
-解释：没有要删除的内容。
-示例 2：
-输入：s = "deeedbbcccbdaa", k = 3
-输出："aa"
-解释：
-先删除 "eee" 和 "ccc"，得到 "ddbbbdaa"
-再删除 "bbb"，得到 "dddaa"
-最后删除 "ddd"，得到 "aa"
-
-*/
-char * removeDuplicates(char * s, int k)
-{
-	if (s == NULL || strlen(s) < k || k < 2)
-		return s;
-
-	int slen = strlen(s);
-	int stack[slen][2]; // 0 --al  1 --cnt
-	int top = -1;
-
-	int i = 0;
-	while(s[i] != '\0') {
-		if (top < 0) {
-			stack[++top][0] = s[i];
-			stack[top][1] = 1;
-		} else {
-			if (s[i] == stack[top][0]) {
-				if (stack[top][1] == k -1) {
-					top--;
-				} else {
-					stack[top][1]++;
-				}
-			} else {
-				stack[++top][0] = s[i];
-				stack[top][1] = 1;
-			}
-		}
-		i++;
-	}
-
-	char *res = (char *)calloc(slen + 1, sizeof(char));
-	int resCnt = 0;
-	for (int i = 0; i <= top; i++) {
-		for (int j = 0; j < stack[i][1]; j++)
-			res[resCnt++] = stack[i][0];
-	}
-
-	return res;
-}
-
-/*
-946. 验证栈序列
-给定 pushed 和 popped 两个序列，每个序列中的 值都不重复，
-只有当它们可能是在最初空栈上进行的推入 push 和弹出
-pop 操作序列的结果时，返回 true；否则，返回 false 。
-示例 1：
-输入：pushed = [1,2,3,4,5], popped = [4,5,3,2,1]
-输出：true
-解释：我们可以按以下顺序执行：
-push(1), push(2), push(3), push(4), pop() -> 4,
-push(5), pop() -> 5, pop() -> 3, pop() -> 2, pop() -> 1
-示例 2：
-输入：pushed = [1,2,3,4,5], popped = [4,3,5,1,2]
-输出：false
-解释：1 不能在 2 之前弹出。
-*/
-/*
-入栈
-栈顶等于popped 则出栈
-判断是否栈空
-*/
-bool validateStackSequences(int* pushed, int pushedSize,
-	int* popped, int poppedSize)
-{
-	if (pushed == NULL || popped == NULL) {
-		return false;
-	}
-
-	if (pushedSize == 0 && poppedSize == 0)
-		return true;
-	else if(pushedSize != poppedSize)
-		return false;
-
-	int stack[pushedSize];
-	int top = -1;
-
-	for (int i = 0, j = 0; i < pushedSize; i++) {
-		stack[++top] = pushed[i];
-		while(top >= 0 && stack[top] == popped[j]) {
-			top--;
-			j++;
-		}
-	}
-
-	return top == -1;
-}
-
-
-/*  递减栈
-739. 每日温度
-难度中等283
-根据每日 气温 列表，请重新生成一个列表，对应位置的
-输出是需要再等待多久温度才会升高超过该日的天数。
-如果之后都不会升高，请在该位置用 0 来代替。
-例如，给定一个列表
-temperatures = [73, 74, 75, 71, 69, 72, 76, 73]，
-你的输出应该是 [1, 1, 4, 2, 1, 1, 0, 0]。
-提示：气温 列表长度的范围是 [1, 30000]。每个气温的值的均
-为华氏度，都是在 [30, 100] 范围内的整数。
-*/
-
-/*
-遍历整个数组，如果栈不空，且当前数字大于栈顶元素，
-那么如果直接入栈的话就不是 递减栈 ，
-所以需要取出栈顶元素，由于当前数字大于栈顶元素的
-数字，而且一定是第一个大于栈顶元素的数，
-直接求出下标差就是二者的距离。
-
-继续看新的栈顶元素，直到当前数字小于等于栈顶元
-素停止，然后将数字入栈，这样就可以一直保持递减栈，
-且每个数字和第一个大于它的数的距离也可以算出来。
-*/
-int* dailyTemperatures(int* T, int TSize, int* returnSize)
-{
-	*returnSize = TSize;
-	if (T == NULL || TSize <= 0) {
-		return T;
-	}
-
-	int stack[TSize][2];//0--value ; 1---idx
-	int top = -1;
-
-	int *res = (int *)calloc(TSize, sizeof(int));
-
-	for (int i = 0; i < TSize; i++) {
-		if (top < 0 || T[i] <= stack[top][0]) {
-			stack[++top][0] = T[i];
-			stack[top][1] = i;
-			continue;
-		}
-
-		while(top >= 0 && T[i] > stack[top][0]) {
-			int idx = stack[top--][1];
-			res[idx] = i - idx;
-		}
-
-		stack[++top][0] = T[i];
-		stack[top][1] = i;
-	}
-
-	return res;
 }
 
 /*
@@ -1021,5 +842,62 @@ int trap(int* height, int heightSize)
 	}
 
 	return ans;
+}
+
+/*
+735. 行星碰撞
+给定一个整数数组 asteroids，表示在同一行的行星。
+
+对于数组中的每一个元素，其绝对值表示行星的大小，正负表示行星的移动方向（正表示向右移动，负表示向左移动）。每一颗行星以相同的速度移动。
+
+找出碰撞后剩下的所有行星。碰撞规则：两个行星相互碰撞，较小的行星会爆炸。如果两颗行星大小相同，则两颗行星都会爆炸。两颗移动方向相同的行星，永远不会发生碰撞。
+
+示例 1:
+
+输入:
+asteroids = [5, 10, -5]
+输出: [5, 10]
+解释:
+10 和 -5 碰撞后只剩下 10。 5 和 10 永远不会发生碰撞。
+示例 2:
+
+输入:
+asteroids = [8, -8]
+输出: []
+解释:
+8 和 -8 碰撞后，两者都发生爆炸。
+*/
+int* asteroidCollision(int* asteroids, int asteroidsSize, int* returnSize)
+{
+	*returnSize = 0;
+	if (asteroids == NULL || asteroidsSize <= 0) {
+		return NULL;
+	}
+
+	int *stack = (int *)calloc(asteroidsSize, sizeof(int));
+	int top = -1;
+
+	for (int i = 0; i < asteroidsSize; i++) {
+		if (top == -1) {
+			stack[++top] = asteroids[i];
+		} else {
+			if (stack[top] * asteroids[i] > 0) {
+				stack[++top] = asteroids[i];
+			} else {
+				if (stack[top] < 0) {
+					stack[++top] = asteroids[i];
+				} else {
+					if (stack[top] + asteroids[i] < 0) {
+						top--;
+						i--;
+					} else if (stack[top] + asteroids[i] == 0) {
+						top--;
+					}
+				}
+			}
+		}
+	}
+	*returnSize = top + 1;
+	return stack;
 }
 
