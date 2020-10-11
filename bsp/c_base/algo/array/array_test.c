@@ -1594,4 +1594,92 @@ int* findSubstring(char * s, char ** words, int wordsSize, int* returnSize)
 	return out;
 }
 
+/*
+723. 粉碎糖果
+这个问题是实现一个简单的消除算法。
+
+给定一个二维整数数组 board 代表糖果所在的方格，不同的正整数 board[i][j] 代表不同种类的糖果，如果 board[i][j] = 0 代表 (i, j) 这个位置是空的。给定的方格是玩家移动后的游戏状态，现在需要你根据以下规则粉碎糖果，使得整个方格处于稳定状态并最终输出。
+
+如果有三个及以上水平或者垂直相连的同种糖果，同一时间将它们粉碎，即将这些位置变成空的。
+在同时粉碎掉这些糖果之后，如果有一个空的位置上方还有糖果，那么上方的糖果就会下落直到碰到下方的糖果或者底部，这些糖果都是同时下落，也不会有新的糖果从顶部出现并落下来。
+通过前两步的操作，可能又会出现可以粉碎的糖果，请继续重复前面的操作。
+当不存在可以粉碎的糖果，也就是状态稳定之后，请输出最终的状态。
+你需要模拟上述规则并使整个方格达到稳定状态，并输出。
+
+
+
+样例 :
+
+输入:
+board =
+[[110,5,112,113,114],[210,211,5,213,214],[310,311,3,313,314],[410,411,412,5,414],[5,1,512,3,3],[610,4,1,613,614],[710,1,2,713,714],[810,1,2,1,1],[1,1,2,2,2],[4,1,4,4,1014]]
+
+输出:
+[[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[110,0,0,0,114],[210,0,0,0,214],[310,0,0,113,314],[410,0,0,213,414],[610,211,112,313,614],[710,311,412,613,714],[810,411,512,713,1014]]
+
+*/
+
+
+int** candyCrush(int** board, int boardSize, int* boardColSize,
+int* returnSize, int** returnColumnSizes)
+{
+        int rows = boardSize, cols = *boardColSize;
+        bool todo = false;   // 是否存在要粉碎的糖果
+        // 一行一行扫描
+        for (int r = 0; r < rows; ++r) {
+            for (int c = 0; c + 2 < cols; ++c) {
+                // 取出这个点的绝对值（可能被取反了，所以要绝对值）
+                int v = abs(board[r][c]);
+                // 如果连续三个格子是相同的糖果
+                if (v != 0 && v == abs(board[r][c + 1]) && v == abs(board[r][c + 2])) {
+                    // 把这三个连续格子的糖果数值取反，表明待粉碎状态
+                    board[r][c] = board[r][c + 1] = board[r][c + 2] = -v;
+                    todo = true;
+                }
+            }
+        }
+        // 一列一列扫描
+        for (int r = 0; r + 2 < rows; ++r) {
+            for (int c = 0; c < cols; ++c) {
+                // 取出这个点的绝对值（可能被取反了，所以要绝对值）
+                int v = abs(board[r][c]);
+                // 如果连续三个格子是相同的糖果
+                if (v != 0 && v == abs(board[r + 1][c]) && v == abs(board[r + 2][c])) {
+                    // 把这三个连续格子的糖果数值取反，表明待粉碎状态
+                    board[r][c] = board[r + 1][c] = board[r + 2][c] = -v;
+                    todo = true;
+                }
+            }
+        }
+        // 经过上面两个 for 循环后，需要粉碎糖果的格子已经变为负数
+
+        // 遍历所有格子进行粉碎糖果
+        if (todo) {
+            for (int c = 0; c < cols; ++c) {   // 从左到右每一列
+                int wr = rows - 1;  // 接收掉落糖果所在行
+                for (int r = rows - 1; r >= 0; r--) {  // 从下往上遍历每一行
+                    if (board[r][c] > 0) {
+                        // 把 (r,c) 的糖果掉落到 (wr,c) 上
+                        // r 和 wr 要么在同一行，要么 r 在上面，因此不用特地找到 wr 的初始行。
+                        board[wr][c] = board[r][c];
+                        wr--;   // 往上走一行
+                    }
+                }
+                // 如果 wr 没有走到最顶行，说明上面应该全是要粉碎的
+                while (wr >= 0) {
+                    board[wr--][c] = 0;
+                }
+            }
+        }
+        // 如果还有需要粉碎的糖果，则再调用一次 candyCrush(board)
+        // 注意，本次 candyCrush 后是不确定存不存在新的要粉碎的糖果，只能再调用一次 candyCrush
+        // 如果多调用的 candyCrush 中两个 for 循环都没有把 tod0 标记为 true，则表示结束了
+        // 因此，本方法都会多调用一次 candyCrush 但不进行粉碎的操作。
+
+	*returnColumnSizes = boardColSize;
+		*returnSize = boardSize;
+		return todo ?
+			candyCrush(board, boardSize, boardColSize, returnSize, returnColumnSizes) : board;
+    }
+
 
