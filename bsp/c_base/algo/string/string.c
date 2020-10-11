@@ -106,7 +106,7 @@ void str2digit_sscanf(char * str)
 /*
 #include <string.h>
 查找子字符串
-意义为 判断str2是否为str1的字串，
+意义为 判断str2是否为str1的子串，
 若是则返回str2在str1中首次出现的指针位置，
 若不是返回NULL；
 */
