@@ -75,3 +75,17 @@ void iqueue_pop()
 		dqHead++;
 	}
 }
+
+dstack_push()
+{
+	int stack[nums2Size];//idx
+	int top = -1;
+	for(int i = 0; i < nums2Size; i++) {
+		while (top >= 0 && nums2[i] > nums2[stack[top]]) {
+			nums2NextBig[stack[top]] = nums2[i];
+			top--;
+		}
+
+		stack[++top] = i;
+	}
+}

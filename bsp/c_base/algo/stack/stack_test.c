@@ -272,113 +272,12 @@ char * decodeString(char * s)
 	return str;
 }
 
-/*
-496. 下一个更大元素 I
-难度简单186
-给定两个没有重复元素的数组 nums1 和 nums2 ，其中nums1 是
-nums2 的子集。找到 nums1 中每个元素在 nums2 中的下一个比其大
-的值。nums1 中数字 x 的下一个更大元素是指 x 在 nums2 中对应位
-置的右边的第一个比 x 大的元素。如果不存在，对应位置输
-出-1。
-示例 1:
-输入: nums1 = [4,1,2], nums2 = [1,3,4,2].
-输出: [-1,3,-1]
-解释:
-    对于num1中的数字4，你无法在第二个数组中找到
-    下一个更大的数字，因此输出 -1。
-    对于num1中的数字1，
-    第二个数组中数字1右边的下一个较大数字是 3。
-    对于num1中的数字2，第二个数组中没有下一个更大的数字，
-    因此输出 -1。
-注意:
-1.	nums1和nums2中所有元素是唯一的。
-*/
-/**
- * Note: The returned array must be malloced, assume caller calls free().
- */
-int* nextGreaterElement(int* nums1, int nums1Size,
-int* nums2, int nums2Size, int* returnSize)
-{
-	if (nums1Size == 0 || nums2Size == 0) {
-		*returnSize = 0;
-		return NULL;
-	}
-
-	int nums2NextBig[nums2Size];//对nums2 建立一下个更大元素
-	memset(nums2NextBig, -1, sizeof(nums2NextBig));
-
-	int stack[nums2Size];//idx
-	int top = -1;
-	for(int i = 0; i < nums2Size; i++) {
-		while (top >= 0 && nums2[i] > nums2[stack[top]]) {
-			nums2NextBig[stack[top]] = nums2[i];
-			top--;
-		}
-
-		stack[++top] = i;
-	}
-
-	int *ret = calloc(nums1Size, sizeof(int));
-	for(int i = 0; i < nums1Size; i++) {
-		for (int j = 0; j < nums2Size; j++) {
-			if (nums1[i] == nums2[j]) {
-				ret[i] = nums2NextBig[j];
-			}
-		}
-	}
-
-	*returnSize = nums1Size;
-	return ret;
-}
-
-/*
-503. 下一个更大元素 II
-给定一个循环数组（最后一个元素的下一个元素
-是数组的第一个元素），输出每个元素的下一个更大元素。
-数字 x 的下一个更大的元素是按数组遍历顺序，
-这个数字之后的第一个比它更大的数，这意味着你应该
-循环地搜索它的下一个更大的数。
-如果不存在，则输出 -1。
-示例 1:
-输入: [1,2,1]
-输出: [2,-1,2]
-解释: 第一个 1 的下一个更大的数是 2；
-数字 2 找不到下一个更大的数；
-第二个 1 的下一个最大的数需要循环搜索，结果也是 2。
-*/
-int* nextGreaterElements(int* nums, int numsSize, int* returnSize)
-{
-	if (nums == NULL || numsSize <= 0) {
-		*returnSize = 0;
-		return NULL;
-	}
-
-	int *res = (int *)calloc(numsSize, sizeof(int));
-	memset(res, -1, sizeof(int) * numsSize);
-
-	int stack[2 * numsSize];//idx
-	int top = -1;
-
-	for (int i = 0; i < 2 * numsSize; i++) {
-		int idx = i % numsSize;
-		while(top >= 0 && nums[stack[top]] < nums[idx]) {
-			res[stack[top--]] = nums[idx];
-		}
-
-		stack[++top] = idx;
-	}
-
-	*returnSize = numsSize;
-	return res;
-}
-
 
 /*
 1081. 不同字符的最小子序列
 难度中等33
 返回字符串 text 中按字典序排列最小的子序列，该子序列包
 含 text 中所有不同字符一次。
-
 示例 1：
 输入："cdadabcc"
 输出："adbc"
@@ -434,6 +333,7 @@ char * smallestSubsequence(char * text)
 	return stack;
 }
 
+
 /*
 300. 最长上升子序列
 难度中等812
@@ -475,7 +375,8 @@ int lengthOfLIS(int* nums, int numsSize)
 	return top + 1;
 }
 
-int lengthOfLIS(int* nums, int numsSize){
+int lengthOfLIS(int* nums, int numsSize)
+{
     if(numsSize==0)
     return 0;
     int stack[numsSize],i=0,top=0,j;
@@ -503,104 +404,44 @@ int lengthOfLIS(int* nums, int numsSize){
     return top;
 }
 
-int lengthOfLIS(int* nums, int numsSize)
-{
-	if(numsSize==0)
-		return 0;
-	int stack[numsSize],i=0,top=0,j;
-	int low,high,mid;
-	stack[top++]=nums[0];
-	for(i = 1;i<numsSize;i++) {
-		if(nums[i]>stack[top-1])//大于栈顶元素，入栈
-			stack[top++]=nums[i];
-		else {//小于栈顶元素
-			low=0;
-			high=top-1;
-			while(high>=low) {
-				mid=(low+high)/2;
-				if(stack[mid]>=nums[i])
-					high=mid-1;
-				else
-					low=mid+1;
-			}
-			stack[high+1]=nums[i];
-		}
-	}
-	return top;
-}
-
 /*
 84. 柱状图中最大的矩形
 难度困难836
-给定 n 个非负整数，用来表示柱状图中各个柱子的高度。每个柱子彼此相邻，且宽度为 1 。
+给定 n 个非负整数，用来表示柱状图中各个柱子的高度。
+每个柱子彼此相邻，且宽度为 1 。
 求在该柱状图中，能够勾勒出来的矩形的最大面积。
-
-
-以上是柱状图的示例，其中每个柱子的宽度为 1，给定的高度为 [2,1,5,6,2,3]。
-
-
-图中阴影部分为所能勾勒出的最大矩形面积，其面积为 10 个单位。
-
+以上是柱状图的示例，其中每个柱子的宽度为 1，给定的高
+度为 [2,1,5,6,2,3]。
+图中阴影部分为所能勾勒出的最大矩形面积，
+其面积为 10 个单位。
 示例:
 输入: [2,1,5,6,2,3]
 输出: 10
-
 */
-
-int largestRectangleArea(int* heights, int heightsSize){
-        int ans = 0;
-        // 枚举左边界
-        for (int left = 0; left < heightsSize; ++left) {
-            int minHeight = INT_MAX;
-            // 枚举右边界
-            for (int right = left; right < heightsSize; ++right) {
-                // 确定高度
-                minHeight = fmin(minHeight, heights[right]);
-                // 计算面积
-                ans = fmax(ans, (right - left + 1) * minHeight);
-            }
-        }
-        return ans;
-}
-
 int largestRectangleArea(int* heights, int heightsSize)
 {
-        int n = heightsSize;
-        int ans = 0;
-        for (int mid = 0; mid < n; ++mid) {
-            // 枚举高
-            int height = heights[mid];
-            int left = mid, right = mid;
-            // 确定左右边界
-            while (left - 1 >= 0 && heights[left - 1] >= height) {
-                --left;
-            }
-            while (right + 1 < n && heights[right + 1] >= height) {
-                ++right;
-            }
-            // 计算面积
-            ans = fmax(ans, (right - left + 1) * height);
-        }
-        return ans;
-}
-
-int largestRectangleArea(int* heights, int heightsSize)
-{
-        // 这里为了代码简便，在柱体数组的头和尾加了两个高度为 0 的柱体。
+/*
+这里为了代码简便，在柱体数组的头和尾加了两个高度为
+0 的柱体。
+*/
         int tmp[heightsSize + 2];
 	memset(tmp, 0, sizeof(tmp));
 	for (int i = 0; i < heightsSize; i++) {
 		tmp[i + 1] = heights[i];
 	}
 
-        //Deque<Integer> stack = new ArrayDeque<>();
 	int stack[heightsSize + 2];
 	int top = -1;
         int area = 0;
         for (int i = 0; i < heightsSize + 2; i++) {
-            // 对栈中柱体来说，栈中的下一个柱体就是其「左边第一个小于自身的柱体」；
-            // 若当前柱体 i 的高度小于栈顶柱体的高度，说明 i 是栈顶柱体的「右边第一个小于栈顶柱体的柱体」。
-            // 因此以栈顶柱体为高的矩形的左右宽度边界就确定了，可以计算面积??? ～
+/*
+对栈中柱体来说，栈中的下一个柱体就是其「左边第一个小
+于自身的柱体」；
+若当前柱体 i 的高度小于栈顶柱体的高度，说明 i 是栈顶柱体
+的「右边第一个小于栈顶柱体的柱体」。
+因此以栈顶柱体为高的矩形的左右宽度边界就确定了，
+可以计算面积
+*/
             while (top > -1 && tmp[i] < tmp[stack[top]]) {
                 int h = tmp[stack[top--]];
                 area = fmax(area, (i - stack[top] - 1) * h);
@@ -613,10 +454,9 @@ int largestRectangleArea(int* heights, int heightsSize)
 
 /*
 85. 最大矩形
-给定一个仅包含 0 和 1 的二维二进制矩阵，找出只包含 1 的最大矩形，并返回其面积。
-
+给定一个仅包含 0 和 1 的二维二进制矩阵，找出只包含 1 的
+最大矩形，并返回其面积。
 示例:
-
 输入:
 [
   ["1","0","1","0","0"],
@@ -628,165 +468,52 @@ int largestRectangleArea(int* heights, int heightsSize)
 */
 int maximalRectangle(char** matrix, int matrixSize, int* matrixColSize)
 {
-    if (matrixSize == 0) {
-        return 0;
-    }
-    //保存以当前数字结尾的连续 1 的个数
-    int width[matrixSize][*matrixColSize];
-	memset(width, 0, sizeof(width));
-    int maxArea = 0;
-    //遍历每一行
-    for (int row = 0; row < matrixSize; row++) {
-        for (int col = 0; col < *matrixColSize; col++) {
-            //更新 width
-            if (matrix[row][col] == '1') {
-                if (col == 0) {
-                    width[row][col] = 1;
-                } else {
-                    width[row][col] = width[row][col - 1] + 1;
-                }
-            } else {
-                width[row][col] = 0;
-            }
-            //记录所有行中最小的数
-            int minWidth = width[row][col];
-            //向上扩展行
-            for (int up_row = row; up_row >= 0; up_row--) {
-                int height = row - up_row + 1;
-                //找最小的数作为矩阵的宽
-                minWidth = fmin(minWidth, width[up_row][col]);
-                //更新面积
-                maxArea = fmax(maxArea, height * minWidth);
-            }
-        }
-    }
-    return maxArea;
-}
-
-int largestRectangleArea(int* heights, int heightsSize)
-{
-        // 这里为了代码简便，在柱体数组的头和尾加了两个高度为 0 的柱体。
-        int tmp[heightsSize + 2];
-	memset(tmp, 0, sizeof(tmp));
-	for (int i = 0; i < heightsSize; i++) {
-		tmp[i + 1] = heights[i];
+	if (matrixSize == 0) {
+		return 0;
 	}
 
-        //Deque<Integer> stack = new ArrayDeque<>();
-	int stack[heightsSize + 2];
-	int top = -1;
-        int area = 0;
-        for (int i = 0; i < heightsSize + 2; i++) {
-            // 对栈中柱体来说，栈中的下一个柱体就是其「左边第一个小于自身的柱体」；
-            // 若当前柱体 i 的高度小于栈顶柱体的高度，说明 i 是栈顶柱体的「右边第一个小于栈顶柱体的柱体」。
-            // 因此以栈顶柱体为高的矩形的左右宽度边界就确定了，可以计算面积??? ～
-            while (top > -1 && tmp[i] < tmp[stack[top]]) {
-                int h = tmp[stack[top--]];
-                area = fmax(area, (i - stack[top] - 1) * h);
-            }
-	     stack[++top] = i;
-        }
-
-        return area;
-}
-
-
-int maximalRectangle(char** matrix, int matrixSize, int* matrixColSize)
-{
-    if (matrixSize == 0) {
-        return 0;
-    }
-    int heights[*matrixColSize];
-	memset(heights, 0, sizeof(heights));
-    int maxArea = 0;
-    for (int row = 0; row < matrixSize; row++) {
-        //遍历每一列，更新高度
-        for (int col = 0; col < *matrixColSize; col++) {
-            if (matrix[row][col] == '1') {
-                heights[col] += 1;
-            } else {
-                heights[col] = 0;
-            }
-        }
-        //调用上一题的解法，更新函数
-        maxArea = fmax(maxArea, largestRectangleArea(heights, *matrixColSize));
-    }
-    return maxArea;
-}
-
-int largestRectangleArea(int* heights, int heightsSize)
-{
-        // 这里为了代码简便，在柱体数组的头和尾加了两个高度为 0 的柱体。
-        int tmp[heightsSize + 2];
-	memset(tmp, 0, sizeof(tmp));
-	for (int i = 0; i < heightsSize; i++) {
-		tmp[i + 1] = heights[i];
-	}
-
-        //Deque<Integer> stack = new ArrayDeque<>();
-	int stack[heightsSize + 2];
-	int top = -1;
-        int area = 0;
-        for (int i = 0; i < heightsSize + 2; i++) {
-            // 对栈中柱体来说，栈中的下一个柱体就是其「左边第一个小于自身的柱体」；
-            // 若当前柱体 i 的高度小于栈顶柱体的高度，说明 i 是栈顶柱体的「右边第一个小于栈顶柱体的柱体」。
-            // 因此以栈顶柱体为高的矩形的左右宽度边界就确定了，可以计算面积??? ～
-            while (top > -1 && tmp[i] < tmp[stack[top]]) {
-                int h = tmp[stack[top--]];
-                area = fmax(area, (i - stack[top] - 1) * h);
-            }
-	     stack[++top] = i;
-        }
-
-        return area;
-}
-
-
-int maximalRectangle(char** matrix, int matrixSize, int* matrixColSize)
-{
-    if (matrixSize == 0) {
-        return 0;
-    }
-
-    int heights[*matrixColSize + 1];//小技巧后边讲
+	int heights[*matrixColSize + 1];//小技巧后边讲
 	memset(heights, 0, sizeof(heights));
 	int maxArea = 0;
-    for (int row = 0; row < matrixSize; row++) {
-        int stack[*matrixColSize + 1];
-		int top = -1;
-        heights[*matrixColSize] = 0;
-        //每求一个高度就进行栈的操作
-        for (int col = 0; col <= *matrixColSize; col++) {
-            if (col < *matrixColSize) { //多申请了 1 个元素，所以要判断
-                if (matrix[row][col] == '1') {
-                    heights[col] += 1;
-                } else {
-                    heights[col] = 0;
-                }
-            }
-            if (top == -1 || heights[col] >= heights[stack[top]]) {
-                stack[++top] = col;
-            } else {
-                //每次要判断新的栈顶是否高于当前元素
-                while (top > -1 && heights[col] < heights[stack[top]]) {
-                    int height = heights[stack[top--]];
-                    int leftLessMin = top == -1 ? -1 : stack[top];
-                    int RightLessMin = col;
-                    int area = (RightLessMin - leftLessMin - 1) * height;
-                    maxArea = fmax(area, maxArea);
-                }
-                stack[++top] = col;
-            }
-        }
 
-    }
-    return maxArea;
+	for (int row = 0; row < matrixSize; row++) {
+		int stack[*matrixColSize + 1];
+		int top = -1;
+		heights[*matrixColSize] = 0;
+		//每求一个高度就进行栈的操作
+		for (int col = 0; col <= *matrixColSize; col++) {
+			if (col < *matrixColSize) { //多申请了 1 个元素，所以要判断
+				if (matrix[row][col] == '1') {
+					heights[col] += 1;
+				} else {
+					heights[col] = 0;
+				}
+			}
+
+			if (top == -1 || heights[col] >= heights[stack[top]]) {
+				stack[++top] = col;
+			} else {
+				//每次要判断新的栈顶是否高于当前元素
+				while (top > -1 && heights[col] < heights[stack[top]]) {
+					int height = heights[stack[top--]];
+					int leftLessMin = top == -1 ? -1 : stack[top];
+					int RightLessMin = col;
+					int area = (RightLessMin - leftLessMin - 1) * height;
+					maxArea = fmax(area, maxArea);
+				}
+				stack[++top] = col;
+			}
+		}
+	}
+
+	return maxArea;
 }
 
 /*
 32. 最长有效括号
 难度困难897
-给定一个只包含 '(' 和 ')' 的字符串，找出最长的包含有效括号的子串的长度。
+给定一个只包含 '(' 和 ')' 的字符串，找出最长的包含有效括号
+的子串的长度。
 示例 1:
 输入: "(()"
 输出: 2
@@ -795,26 +522,27 @@ int maximalRectangle(char** matrix, int matrixSize, int* matrixColSize)
 输入: ")()())"
 输出: 4
 解释: 最长有效括号子串为 "()()"
-
 */
+int longestValidParentheses(char* s)
+{
+	int maxans = 0, n = strlen(s);
+	int stk[n + 1], top = -1;
+	stk[++top] = -1;
 
-int longestValidParentheses(char* s) {
-    int maxans = 0, n = strlen(s);
-    int stk[n + 1], top = -1;
-    stk[++top] = -1;
-    for (int i = 0; i < n; i++) {
-        if (s[i] == '(') {
-            stk[++top] = i;
-        } else {
-            --top;
-            if (top == -1) {
-                stk[++top] = i;
-            } else {
-                maxans = fmax(maxans, i - stk[top]);
-            }
-        }
-    }
-    return maxans;
+	for (int i = 0; i < n; i++) {
+		if (s[i] == '(') {
+			stk[++top] = i;
+		} else {
+			--top;
+
+			if (top == -1) {
+				stk[++top] = i;
+			} else {
+				maxans = fmax(maxans, i - stk[top]);
+			}
+		}
+	}
+	return maxans;
 }
 
 /* 42. 接雨水 */
@@ -847,20 +575,19 @@ int trap(int* height, int heightSize)
 /*
 735. 行星碰撞
 给定一个整数数组 asteroids，表示在同一行的行星。
-
-对于数组中的每一个元素，其绝对值表示行星的大小，正负表示行星的移动方向（正表示向右移动，负表示向左移动）。每一颗行星以相同的速度移动。
-
-找出碰撞后剩下的所有行星。碰撞规则：两个行星相互碰撞，较小的行星会爆炸。如果两颗行星大小相同，则两颗行星都会爆炸。两颗移动方向相同的行星，永远不会发生碰撞。
-
+对于数组中的每一个元素，其绝对值表示行星的大小，正负
+表示行星的移动方向（正表示向右移动，负表示向左移动）。
+每一颗行星以相同的速度移动。
+找出碰撞后剩下的所有行星。碰撞规则：两个行星相互碰撞，
+较小的行星会爆炸。如果两颗行星大小相同，则两颗行星都
+会爆炸。两颗移动方向相同的行星，永远不会发生碰撞。
 示例 1:
-
 输入:
 asteroids = [5, 10, -5]
 输出: [5, 10]
 解释:
 10 和 -5 碰撞后只剩下 10。 5 和 10 永远不会发生碰撞。
 示例 2:
-
 输入:
 asteroids = [8, -8]
 输出: []
