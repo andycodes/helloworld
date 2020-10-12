@@ -28,248 +28,6 @@ while queue 非空:
 	出度后置条件
 */
 
-
-/*
-994. 腐烂的橘子
-在给定的网格中，每个单元格可以有以下三个值之一：
-
-值 0 代表空单元格；
-值 1 代表新鲜橘子；
-值 2 代表腐烂的橘子。
-每分钟，任何与腐烂的橘子（在 4 个正方向上）相邻的新鲜橘子都会腐烂。
-
-返回直到单元格中没有新鲜橘子为止所必须经过的最小分钟数。如果不可能，返回 -1。
-
-方法：广度优先搜索
-思路
-
-每一轮，腐烂将会从每一个烂橘子蔓延到与其相邻的新鲜橘子
-上。一开始，腐烂的橘子的深度为 0，
-每一轮腐烂会从腐烂橘子传染到之相邻新鲜橘子上，
-并且设置这些新的腐烂橘子的深度为自己深度 +1，
-我们想知道完成这个过程之后的最大深度值是多少。
-
-算法
-
-我们可以用一个广度优先搜索来建模这一过程。
-因为我们总是选择去使用深度值最小的（且之前未使用过的）
-腐烂橘子去腐化新鲜橘子，
-如此保证每一个橘子腐烂时的深度标号也是最小的。
-
-我们还应该检查最终状态下，是否还有新鲜橘子。
-
-*/
-int orangesRotting(int** grid, int gridSize, int* gridColSize)
-{
-    if (grid == NULL || gridSize == 0 || gridColSize == NULL || gridColSize[0] == 0) {
-        return 0;
-    }
-
-	int row = gridSize;
-	int col = gridColSize[0];
-
-	int queue[row * col];
-	int head = 0;
-	int rear = 0;
-
-    // bfs
-    int count = 0;// count 表示新鲜橘子的数量
-    for (int i = 0; i < row; i++) {
-        for (int j = 0; j < col; j++) {
-            if (grid[i][j] == 2) {
-		 queue[rear++] = i * col + j;//烂橘子入队列
-            } else if (grid[i][j] == 1) {
-                count++;
-            }
-        }
-    }
-
-    int deep = 0;// round 表示腐烂的轮数，或者分钟数
-    while (count > 0 && head != rear) {
-	deep++;
-	int floorSize = rear - head;
-
-	for (int i = 0; i < floorSize; i++) {
-		int pop = queue[head++];// 一定是烂橘子
-		int pop_x = pop / col;
-		int pop_y = pop % col;
-
-		int dir[4][2] = { {0, 1}, {0, -1}, {1, 0}, {-1, 0} };
-	        for (int k = 0; k < 4; k++) {
-	            int dx = pop_x + dir[k][0];
-	            int dy = pop_y + dir[k][1];
-	            if (dx < 0 || dx >= row || dy < 0 || dy >= col) {
-	                continue;
-	            }
-
-	            if (grid[dx][dy] != 1) {
-	                continue;
-	            }
-
-			grid[dx][dy] = 2;
-			count--;
-			queue[rear++] = dx * col + dy;//烂橘子入队列
-	        }
-	}
-    }
-
-    return (count > 0) ? -1: deep;
-}
-
-
-/*
-200. 岛屿数量
-难度中等647
-给你一个由 '1'（陆地）和 '0'（水）组成的的二维网格，
-请你计算网格中岛屿的数量。
-岛屿总是被水包围，并且每座岛屿只能由水平方向或竖直方向
-上相邻的陆地连接形成。
-此外，你可以假设该网格的四条边均被水包围。
-
-示例 1:
-输入:
-[
-['1','1','1','1','0'],
-['1','1','0','1','0'],
-['1','1','0','0','0'],
-['0','0','0','0','0']
-]
-输出: 1
-*/
-void bfs(char** grid, int row, int col, int x, int y)
-{
-	int queue[row * col];
-	int head = 0;
-	int rear = 0;
-
-	queue[rear++] = x * col + y;
-	grid[x][y] = '0'; /*先修改后加入queue，减少入队*/
-
-	int d[4][2] = {{0,1}, {1,0}, {0,-1}, {-1,0}};
-	int deep = 0;
-	while(head != rear) {
-		int floorSize = rear - head;
-		deep++;
-
-		for (int i = 0; i < floorSize; i++) {
-			int pop = queue[head++];
-			int popx = pop / col;
-			int popy = pop % col;
-
-			for (int k = 0; k < 4; k++) {
-				int nx = popx + d[k][0];
-				int ny = popy + d[k][1];
-
-				if (nx < 0 || nx >= row || ny < 0 || ny >= col) {
-					continue;
-				}
-
-				if (grid[nx][ny] != '1') {
-					continue;
-				}
-
-				grid[nx][ny] = '0';
-				queue[rear++] = nx * col +ny;
-			}
-		}
-	}
-}
-
-int numIslands(char** grid, int gridSize, int* gridColSize)
-{
-	int row = gridSize;
-	int col = gridColSize[0];
-
-	if (grid == NULL || gridSize <= 0 || gridColSize == NULL)
-		return 0;
-
-	int num = 0;
-	for (int i = 0; i < row; i++) {
-		for (int j = 0; j < col; j++) {
-			if (grid[i][j] == '1') {
-				num++;
-				bfs(grid, row, col, i, j);
-			}
-		}
-	}
-
-	return num;
-}
-
-/*
-207. 课程表
-现在你总共有 n 门课需要选，记为 0 到 n-1。
-
-在选修某些课程之前需要一些先修课程。 例如，想要学习
-课程 0 ，你需要先完成课程 1 ，我们用一个匹配来表示他
-们: [0,1]
-
-给定课程总量以及它们的先决条件，判断是否可能完成所有
-课程的学习？
-
-示例 1:
-
-输入: 2, [[1,0]]
-输出: true
-解释: 总共有 2 门课程。学习课程 1 之前，
-你需要完成课程 0。所以这是可能的。
-
-1、在开始排序前，扫描对应的存储空间（使用邻接表），
-将入度为 00 的结点放入队列。
-
-2、只要队列非空，就从队首取出入度为 00 的结点，
-将这个结点输出到结果集中，并且将这个结点的所有邻接结
-点（它指向的结点）的入度减 11，在减 11 以后，如果这个被
-减 11 的结点的入度为 00 ，就继续入队。
-
-3、当队列为空的时候，检查结果集中的顶点个数是否和
-课程数相等即可。
-
-也可以用DFS 判断是否存在环
-
-*/
-
-bool canFinish(int numCourses, int** prerequisites,
-int prerequisitesSize, int* prerequisitesColSize)
-{
-	/*某课的入度可以理解为该课同时有多少个前置课*/
-	int inDegree[numCourses];
-	memset(inDegree, 0, sizeof(inDegree));//!!!
-	for (int i = 0; i < prerequisitesSize; i++) {
-		inDegree[prerequisites[i][0]]++;
-	}
-
-	int queue[numCourses];
-	int head = 0;
-	int rear = 0;
-
-	for (int i = 0; i < numCourses; i++) {
-		if (inDegree[i] == 0) {
-			queue[rear++] = i;
-		}
-	}
-
-	int cnt = 0;
-	while(head != rear) {
-		int floorSize = rear - head;
-		for (int k = 0; k < floorSize; k++) {
-			int pop = queue[head++];
-			cnt++;
-			for (int i = 0 ; i < prerequisitesSize; i++) {
-				if (prerequisites[i][1] == pop) {
-					int x = prerequisites[i][0];
-					inDegree[x]--;
-					if (inDegree[x] == 0) {
-						queue[rear++] = x;
-					}
-				}
-			}
-		}
-	}
-
-	return cnt == numCourses;
-}
-
 /*
 279. 完全平方数
 给定正整数 n，找到若干个完全平方数（比如 1, 4, 9, 16, ...）
@@ -1600,4 +1358,477 @@ int shortestBridge(int** A, int ASize, int* AColSize)
 	return 0;
 }
 
+/*
+126. 单词接龙 II
+给定两个单词（beginWord 和 endWord）和一个字典 wordList，找出所有从 beginWord 到 endWord 的最短转换序列。转换需遵循如下规则：
 
+每次转换只能改变一个字母。
+转换后得到的单词必须是字典中的单词。
+说明:
+
+如果不存在这样的转换序列，返回一个空列表。
+所有单词具有相同的长度。
+所有单词只由小写字母组成。
+字典中不存在重复的单词。
+你可以假设 beginWord 和 endWord 是非空的，且二者不相同。
+示例 1:
+
+输入:
+beginWord = "hit",
+endWord = "cog",
+wordList = ["hot","dot","dog","lot","log","cog"]
+
+输出:
+[
+  ["hit","hot","dot","dog","cog"],
+  ["hit","hot","lot","log","cog"]
+]
+示例 2:
+
+输入:
+beginWord = "hit"
+endWord = "cog"
+wordList = ["hot","dot","dog","lot","log"]
+
+输出: []
+
+解释: endWord "cog" 不在字典中，所以不存在符合要求的转换序列。
+*/
+/**
+ * Return an array of arrays of size *returnSize.
+ * The sizes of the arrays are returned as *returnColumnSizes array.
+ * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ */
+
+//学习一篇代码质量很高的C代码，认真学习并重写了一遍
+
+//参见：https://leetcode-cn.com/problems/word-ladder-ii/solution/lai-ge-cde-ti-jie-xie-de-hen-shang-xin-by-hong-65/
+
+//思路：
+//1，构造新的字典,将 beginword 加入字典 为首单词
+//2,获取 endWord 在字典中的下标,找不到则直接返回空
+//3,构造字典中每个单词的相邻关系
+//4,BFS广度优先搜索，获取最短转换序列层数，并且构建搜索关系树
+//5,DFS深度优先搜索，递归遍历搜索关系树，找到最短转换序列
+
+#define     MIN(a, b)       ((a) < (b) ? (a) : (b))
+#define     MAX(a, b)       ((a) > (b) ? (a) : (b))
+#define     INVALID_INDEX   0xffffffff
+#define     PRT_SW          0
+
+//记录每个单词的转换单词信息
+typedef struct {
+    unsigned int    adjNum;         //字典总转换单词的个数
+    unsigned int*   adjIndex;       //转换单词在字典中的索引
+} WordAdj;
+
+//记录每个单词的搜索信息
+typedef struct {
+    unsigned int    isOk;           //记录当前单词是否被搜索过
+    unsigned int    minLen;         //记录当前单词的层数
+    unsigned int    nextNum;        //当前单词的下一层转换单词的数量
+    unsigned int*   nextIndex;      //存储当前单词的下一层转换单词
+} WordSearch;
+
+//记录输出信息
+typedef struct outPut {
+    char**              str;        //存储每个最短转换序列
+    struct outPut*      next;       //指向下一个结果
+} OutPutList;
+
+WordAdj*        g_wordAdjInfo       = NULL;         //用于记录字典中每个单词的转换单词
+WordSearch*     g_wordSearchInfo    = NULL;         //用于BFS搜索记录层次信息
+OutPutList*     g_outPutStr         = NULL;         //用于记录最短转换序列结果
+unsigned int    g_outPutStrNum      = 0;            //最短转换序列数
+
+#if (PRT_SW == 1)
+#define     DebugPrt    printf
+#else
+#define     DebugPrt
+#endif
+
+//函数一：内存申请
+int MallocMem(char*** newWordList, unsigned int totalWordNum){
+    unsigned int    i   = 0;
+
+    *newWordList = (char**)malloc(sizeof(char*) * totalWordNum);
+    if(NULL == (*newWordList)) return -1;
+
+    g_wordAdjInfo = (WordAdj*)malloc(sizeof(WordAdj) * totalWordNum);
+    if(NULL == g_wordAdjInfo) return -1;
+
+    g_wordSearchInfo = (WordSearch*)malloc(sizeof(WordSearch) * totalWordNum);
+    if(NULL == g_wordSearchInfo) return -1;
+
+    g_outPutStr = (OutPutList*)malloc(sizeof(OutPutList));
+    if(NULL == g_outPutStr) return -1;
+    g_outPutStr->next = NULL;
+
+    for(i = 0; i < totalWordNum; i++)
+    {
+        g_wordAdjInfo[i].adjNum = 0;
+        g_wordAdjInfo[i].adjIndex = (unsigned int*)malloc(sizeof(unsigned int) * totalWordNum);
+        if(NULL == g_wordAdjInfo[i].adjIndex) return -1;
+
+        g_wordSearchInfo[i].isOk = 0;
+        g_wordSearchInfo[i].minLen = INVALID_INDEX;
+        g_wordSearchInfo[i].nextNum = 0;
+        g_wordSearchInfo[i].nextIndex = (unsigned int*)malloc(sizeof(unsigned int) * totalWordNum);
+        if(NULL == g_wordSearchInfo[i].nextIndex) return -1;
+    }
+    return 0;
+}
+
+//函数二：内存释放
+void FreeMem(char** newWordList, unsigned int totalWordNum){
+    unsigned int    i       = 0;
+    OutPutList*     pTmp    = NULL;
+    OutPutList*     pRel    = NULL;
+
+    for(i = 0; i < totalWordNum; i++)
+    {
+        free(g_wordAdjInfo[i].adjIndex);
+        g_wordAdjInfo->adjIndex = NULL;
+
+        free(g_wordSearchInfo[i].nextIndex);
+        g_wordSearchInfo->nextIndex = NULL;
+    }
+
+    free(newWordList);
+    newWordList = NULL;
+
+    free(g_wordAdjInfo);
+    g_wordAdjInfo = NULL;
+
+    free(g_wordSearchInfo);
+    g_wordSearchInfo = NULL;
+
+    pTmp = g_outPutStr;
+    while((NULL != pTmp) && (i < g_outPutStrNum + 1))
+    {
+        pRel = pTmp;
+        pTmp = pTmp->next;
+        free(pRel);
+        pRel = NULL;
+        i += 1;
+    }
+
+    free(g_outPutStr);
+    g_outPutStr = NULL;
+    return;
+}
+
+//函数二：重构字典列表，将 beginWord 单词加入字典为首单词
+int RebuildNewWordList(char * beginWord, char ** wordList, int wordListSize, char** newWordList){
+    int     i           = 0;
+    int     iNum        = 0;
+
+    newWordList[0] = beginWord;
+    iNum += 1;
+    for(i = 0; i < wordListSize; i++)
+    {
+        if(0 != strcmp(wordList[i], beginWord))
+        {
+            newWordList[iNum++] = wordList[i];
+        }
+    }
+
+    return iNum;
+}
+
+//函数四：获取 endWord 在字典中的下标，endWord 不在字典中则返回空列表
+int CheckEndWord(char* endWord, char** wordList, int wordListSize, unsigned int* endWordIndex){
+    unsigned int    i   = 0;
+
+    for(i = 0; i < wordListSize; i++)
+    {
+        if(0 == strcmp(endWord, wordList[i]))
+        {
+            *endWordIndex = i;
+            return 0;
+        }
+    }
+    return -1;
+}
+
+//函数五：判断两个单词是否可以转换
+int CheckIsAdjWord(char* word1, char* word2){
+    unsigned int    i           = 0;
+    unsigned int    diffNum     = 0;
+    unsigned int    len         = strlen(word1);
+    while(i < len)
+    {
+        if(word1[i] != word2[i])
+        {
+            diffNum += 1;
+        }
+        i += 1;
+        if(diffNum > 1) return -1;
+    }
+    if(diffNum == 1) return 0;
+    return -1;
+}
+
+//函数六：构造字典中所有单词的转换关系 g_wordAdjInfo
+int CreateWordAdj(char** newWordList, unsigned int totalWordNum){
+    unsigned int    i   = 0;
+    unsigned int    j   = 0;
+    for(i = 0; i < totalWordNum - 1; i++)
+    {
+        for(j = i + 1; j < totalWordNum; j++)
+        {
+            if(0 == CheckIsAdjWord(newWordList[i], newWordList[j]))
+            {
+                g_wordAdjInfo[i].adjIndex[g_wordAdjInfo[i].adjNum++] = j;
+
+                if(0 == i) continue;
+
+                g_wordAdjInfo[j].adjIndex[g_wordAdjInfo[j].adjNum++] = i;
+            }
+        }
+    }
+    return 0;
+}
+
+//函数七：BFS广度优先搜索
+//1,使用队列先进先出实现BFS广度优先搜索，适合大范围寻找
+//2,将当前层元素依次压入队列
+//3,利用队列先进先出，依次取出当前层节点，将当前节点的所有下层节点，依次压入队列
+//4,直到队列为空，遍历完所有节点，可以参照树的层次遍历
+//5,此题可以不用完全遍历，当遍历到 endWord 所在的层便可结束
+int BfsSearch(char** newWordList, unsigned int totalWordNum, unsigned int endWordIndex, unsigned int* minLen){
+    unsigned int        i           = 0;
+    unsigned int        j           = 0;
+    unsigned int        adjIndex    = 0;
+    unsigned int        currIndex   = 0;
+    unsigned int        findFlag    = 0;
+    unsigned int        iHead       = 0;
+    unsigned int        iTail       = 0;
+    unsigned int        iLevelNum   = 0;
+
+    unsigned int*       searchList      = NULL;
+    WordAdj*            wordAdjInfo     = g_wordAdjInfo;
+    WordSearch*         wordSearchInfo  = g_wordSearchInfo;
+
+    searchList = (unsigned int*)malloc(sizeof(unsigned int) * totalWordNum);
+    if(NULL == searchList) return -1;
+
+    //1,将字典首元素 starWord 加入队列
+    searchList[iTail++] = 0;
+    iLevelNum = 1;
+
+    wordSearchInfo[0].isOk = 1;
+    wordSearchInfo[0].minLen = 1;
+
+    while(iHead < iTail)
+    {
+        iLevelNum = iTail - iHead;
+        //2,遍历当前层所有元素
+        for(i = 0; i < iLevelNum; i++)
+        {
+            //3,将当前层所有元素的子节点压入队列
+            currIndex = searchList[iHead++];
+            for(j = 0; j < wordAdjInfo[currIndex].adjNum; j++)
+            {
+                adjIndex = wordAdjInfo[currIndex].adjIndex[j];
+                wordSearchInfo[currIndex].nextIndex[wordSearchInfo[currIndex].nextNum++] = adjIndex;
+
+                if(0 == wordSearchInfo[adjIndex].isOk)
+                {
+                    wordSearchInfo[adjIndex].isOk = 1;
+                    wordSearchInfo[adjIndex].minLen = wordSearchInfo[currIndex].minLen + 1;
+                    searchList[iTail++] = adjIndex;
+                }
+                if(adjIndex == endWordIndex)
+                {
+                    findFlag = 1;
+                }
+            }
+        }
+
+        if(1 == findFlag)
+        {
+            //4,遍历到 endWord 层，即可结束遍历
+            free(searchList);
+            *minLen = wordSearchInfo[endWordIndex].minLen;
+            return 0;
+        }
+    }
+
+    free(searchList);
+    return -1;
+}
+
+//函数八：将一个最短转换序列结果加入输出结果 g_outPutStr 中
+int PushRetToOutList(char** newWordList, unsigned int* oneList, unsigned int oneListNum){
+    unsigned int    i           = 0;
+    char**          OutStr      = NULL;
+    char*           charstr     = NULL;
+    OutPutList*     node        = NULL;
+
+    OutStr = (char**)malloc(sizeof(char*) * oneListNum);
+    if(NULL == OutStr) return -1;
+
+    node = (OutPutList*)malloc(sizeof(OutPutList));
+    if(NULL == node) return -1;
+
+    for(i = 0; i < oneListNum; i++)
+    {
+        charstr = (char*)malloc(sizeof(char) * (strlen(newWordList[oneList[i]]) + 1));
+        if(NULL == charstr) return -1;
+        strcpy(charstr, newWordList[oneList[i]]);
+        OutStr[i] = charstr;
+    }
+
+    node->str = OutStr;
+    node->next = g_outPutStr->next;
+    g_outPutStr->next = node;
+    g_outPutStrNum += 1;
+    return 0;
+}
+
+//函数九：DFS 深度优先遍历算法
+void DfsSearch(char** newWordList, unsigned int endWordIndex, unsigned int* oneList, unsigned int oneListNum, unsigned int minLen){
+    unsigned int    i           = 0;
+    unsigned int    lastIndex   = 0;
+    unsigned int    nextIndex   = 0;
+    WordSearch* wordSearchInfo  = g_wordSearchInfo;
+
+    //1,结束条件一：当前遍历层次大于最小层次即可结束
+    if(oneListNum > minLen) return;
+
+    //2,结束条件二：找到 endWord 得到一个解
+    lastIndex = oneList[oneListNum - 1];
+    if(lastIndex == endWordIndex)
+    {
+        PushRetToOutList(newWordList, oneList, oneListNum);
+        return;
+    }
+
+    //3,在当前节点的有效子节点中递归处理
+    for(i = 0; i < wordSearchInfo[lastIndex].nextNum; i++)
+    {
+        nextIndex = wordSearchInfo[lastIndex].nextIndex[i];
+        if((wordSearchInfo[nextIndex].minLen == oneListNum + 1) && (oneListNum < minLen))
+        {
+            oneList[oneListNum] = nextIndex;
+            DfsSearch(newWordList, endWordIndex, oneList, oneListNum + 1, minLen);
+        }
+    }
+    return;
+}
+
+//函数十：使用 DFS 深度优先遍历寻找最短转换序列
+int CalcResultByDfs(char** newWordList, unsigned int endWordIndex, unsigned int minLen){
+    unsigned int*   oneList     = NULL;
+    unsigned int    oneListNum  = 0;
+
+    oneList = (unsigned int*)malloc(sizeof(unsigned int) * minLen);
+    if(NULL == oneList) return -1;
+
+    oneListNum = 1;
+    oneList[0] = 0;
+    DfsSearch(newWordList, endWordIndex, oneList, oneListNum, minLen);
+
+    free(oneList);
+    oneList = NULL;
+    return 0;
+}
+
+//函数十一：输出处理
+char*** OutPutHandle(unsigned int minLen, int* returnSize, int** returnColumnSizes){
+    unsigned int    i       = 0;
+    unsigned int    j       = 0;
+    char*** outPutAll       = NULL;
+    OutPutList* pTmp        = NULL;
+
+    outPutAll = (char ***)malloc(sizeof(char**) * g_outPutStrNum);
+    if(NULL == outPutAll) return NULL;
+
+    *returnSize = g_outPutStrNum;
+    *returnColumnSizes = (int*)malloc(sizeof(int) * g_outPutStrNum);
+    if(NULL == *returnColumnSizes) return NULL;
+
+    pTmp = g_outPutStr->next;
+
+    for(i = 0; i < g_outPutStrNum; i++)
+    {
+        (*returnColumnSizes)[i] = minLen;
+
+        if(NULL != pTmp)
+        {
+            outPutAll[i] = pTmp->str;
+            pTmp = pTmp->next;
+        }
+    }
+
+/*
+    for(i = 0; i < g_outPutStrNum; i++)
+    {
+        DebugPrt("[%d]:", i);
+        for(j = 0; j < minLen; j++)
+        {
+            DebugPrt(" %s", outPutAll[i][j]);
+        }
+        DebugPrt("\n");
+    }
+*/
+    return outPutAll;
+}
+
+//主函数
+char *** findLadders(char * beginWord, char * endWord, char ** wordList, int wordListSize, int* returnSize, int** returnColumnSizes){
+    int         mallocColumnSizes       = 0;
+    int         totalWordNum            = wordListSize + 1;
+    int         endWordIndex            = 0;
+    char**      newWordList             = NULL;                 //用于记录重新记录字典
+    char***     outPutAll               = NULL;
+
+    *returnSize = 0;
+    g_outPutStrNum = 0;
+
+    //1,初始化
+    if(0 != MallocMem(&newWordList, (wordListSize + 1)))
+    {
+        FreeMem(newWordList, (wordListSize + 1));
+        return NULL;
+    }
+
+    //2，构造新的字典,将 beginword 加入字典 为首单词
+    totalWordNum = RebuildNewWordList(beginWord, wordList, wordListSize, newWordList);
+
+    //3,获取 endWord 在字典中的下标
+    if(0 != CheckEndWord(endWord, newWordList, totalWordNum, &endWordIndex))
+    {
+        FreeMem(newWordList, (wordListSize + 1));
+        return NULL;
+    }
+
+    //4,构造字典中单词的相邻关系
+    if(0 != CreateWordAdj(newWordList, totalWordNum))
+    {
+        FreeMem(newWordList, (wordListSize + 1));
+        return NULL;
+    }
+
+    //5,BFS广度优先搜索，获取最短转换序列层数 mallocColumnSizes
+    if(0 != BfsSearch(newWordList, totalWordNum, endWordIndex, &mallocColumnSizes))
+    {
+        FreeMem(newWordList, (wordListSize + 1));
+        return NULL;
+    }
+
+    //6,DFS深度优先搜索
+    if(0 != CalcResultByDfs(newWordList, endWordIndex, mallocColumnSizes))
+    {
+        FreeMem(newWordList, (wordListSize + 1));
+        return NULL;
+    }
+
+    //7,输出处理
+    outPutAll = OutPutHandle(mallocColumnSizes, returnSize, returnColumnSizes);
+
+    //8,释放空间
+    FreeMem(newWordList, (wordListSize + 1));
+    return outPutAll;
+}
