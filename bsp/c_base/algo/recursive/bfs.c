@@ -28,57 +28,6 @@ while queue 非空:
 	出度后置条件
 */
 
-/*
-279. 完全平方数
-给定正整数 n，找到若干个完全平方数（比如 1, 4, 9, 16, ...）
-使得它们的和等于 n。你需要让组成和的完全平方数的个数
-最少。
-
-示例 1:
-
-输入: n = 12
-输出: 3
-解释: 12 = 4 + 4 + 4.
-示例 2:
-
-输入: n = 13
-输出: 2
-解释: 13 = 4 + 9.
-*/
-int numSquares(int n)
-{
-	int queue[1024 * 1024 * 10];
-	int head = 0;
-	int rear = 0;
-
-	queue[rear++] = n;
-	int deep = 0;
-
-	while(head != rear) {
-		deep++;
-
-		// 每一层的广度遍历
-		int floorSize = rear - head;
-		for (int i = 0; i < floorSize; i++) {
-			int top = queue[head++];
-			for (int j = 1; j <= sqrt(top); j++) {
-				int target = top - pow(j, 2);
-				// 说明已到最大平方数
-				if (target < 0)
-					break;
-				/* 由于是广度遍历，所以当遍历到0时，
-				肯定是最短路径*/
-				if (target == 0)
-					return deep;
-
-				queue[rear++] = target;
-			}
-		}
-	}
-
-	return -1;
-}
-
 
 /*
 752. 打开转盘锁
@@ -1832,3 +1781,174 @@ char *** findLadders(char * beginWord, char * endWord, char ** wordList, int wor
     FreeMem(newWordList, (wordListSize + 1));
     return outPutAll;
 }
+
+/*
+675. 为高尔夫比赛砍树
+你被请来给一个要举办高尔夫比赛的树林砍树. 树林由一个非负的二维数组表示， 在这个数组中：
+
+0 表示障碍，无法触碰到.
+1 表示可以行走的地面.
+比 1 大的数 表示一颗允许走过的树的高度.
+每一步，你都可以向上、下、左、右四个方向之一移动一个单位，如果你站的地方有一棵树，那么你可以决定是否要砍倒它。
+
+你被要求按照树的高度从低向高砍掉所有的树，每砍过一颗树，树的高度变为 1 。
+
+你将从（0，0）点开始工作，你应该返回你砍完所有树需要走的最小步数。 如果你无法砍完所有的树，返回 -1 。
+
+可以保证的是，没有两棵树的高度是相同的，并且你至少需要砍倒一棵树。
+
+
+
+示例 1:
+
+输入:
+[
+ [1,2,3],
+ [0,0,4],
+ [7,6,5]
+]
+输出: 6
+*/
+#include <stdio.h>
+#include <stdlib.h>
+typedef struct strPara_ {
+    int i;
+    int j;
+    int value;
+}strPara;
+#define Q 1000
+typedef struct queuePara_ {
+    int front;
+    int rear;
+    strPara que[Q];
+}queuePara;
+queuePara queue;
+void init(queuePara *q)
+{
+    q->front = 0;
+    q->rear = 0;
+    memset(q, 0, sizeof(q));
+}
+
+int emQueue(queuePara *q, int i, int j)
+{
+    if ((q->rear + 1 + Q) % Q == q->front) {
+        return 0;
+    }
+    q->que[q->rear].j = j;
+    q->que[q->rear].i = i;
+    q->rear = (q->rear + 1) % Q;
+    return 1;
+}
+int isEmpty(queuePara *q)
+{
+    if (q->rear == q->front) {
+        return 1;
+    }
+    return 0;
+}
+
+int getSize(queuePara *q)
+{
+    return (q->rear + Q - q->front) % Q;
+}
+#define M 100
+#define N 100
+strPara arr[M*N];
+int visit[M][N];
+#if 0
+int forest[M][N] = {
+    {2,3,4},
+    {0,0,5},
+    {8,7,6}
+};
+#endif
+int compare(const void * a, const void *b)
+{
+    strPara *aa = (strPara *)a;
+    strPara *bb = (strPara *)b;
+    return (aa->value - bb->value);
+}
+int sort (int ** forest,int forestSize, int* forestColSize)
+{
+    int i, j;
+    int k = 0;
+    for (i = 0; i < forestSize; i++) {
+        for (j = 0 ; j < *forestColSize; j++) {
+            if (forest[i][j] == 0) {
+                continue;
+            }
+            arr[k].i = i;
+            arr[k].j = j;
+            arr[k].value = forest[i][j];
+            k++;
+        }
+    }
+    qsort(arr, k, sizeof(strPara), compare);
+    return k;
+}
+int bfs(strPara *start, strPara *target, int **forest,int forestSize, int forestColSize)
+{
+    int i, j, k;
+    int di[4][2] = {{0, 1}, {0, -1}, {-1, 0}, {1, 0}};
+    int cnt = 0;
+    queuePara *q = &queue;
+    init(q);
+    emQueue(q, start->i, start->j);
+    memset(visit, 0, sizeof(visit));
+    visit[start->i][start->j] = 1;
+    while(!isEmpty(q)) {
+        k = getSize(q);
+        for (i = 0; i < k; i++) {
+            int x = q->que[q->front].i;
+            int y = q->que[q->front].j;
+            q->front = (q->front + 1) % Q;
+            if (x == target->i && y == target->j) {
+                return cnt;
+            }
+            for (j = 0; j < 4; j++) {
+                int nx = x + di[j][0];
+                int ny = y + di[j][1];
+                if (nx >=0 && nx < forestSize && ny >=0 && ny < forestColSize &&
+                    visit[nx][ny] == 0 && forest[nx][ny] != 0) {
+                    emQueue(q, nx, ny);
+                    visit[nx][ny] = 1;
+                }
+            }
+        }
+        cnt++;
+    }
+    return -1;
+}
+int cutOffTree(int **forest,int forestSize, int* forestColSize){
+    int i, j, k;
+    int cnt = 0;
+    int sum = 0;
+    if (forest == NULL || forestSize == 0 || *forestColSize == 0 || forest[0][0] == 0) {
+        return -1;
+    }
+    k = sort(forest, forestSize, forestColSize);
+    strPara start;
+    start.i = 0;
+    start.j = 0;
+    start.value = forest[0][0];
+
+    for (i = 0; i < k; i++) {
+        if (start.i == arr[i].i && start.j == arr[i].j) {
+            continue;
+        }
+        cnt = bfs(&start, &arr[i],forest, forestSize, *forestColSize);
+        if (cnt == -1) {
+            return -1;
+        }
+        start.i = arr[i].i;
+        start.j = arr[i].j;
+        start.value = arr[i].value;
+        sum += cnt;
+    }
+   // printf("%d\n", sum);
+    return sum;
+}
+/*
+比较水的题吧。先遍历一遍图，把是树的点和树的高度记录下来，然后按照树的高度排序一下。那么答案就是从起点(0,0)到第一棵树，第一棵树到第二棵树，第二棵树到第三棵树...的最短距离之和每两点之间的距离用BFS计算即可，如果有任意两点之间无法到达，说明答案就是NO。作者：7QQQQQQQ链接：https://leetcode-cn.com/problems/cut-off-trees-for-golf-event/solution/bfs-by-7qqqqqqq/来源：力扣（LeetCode）著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+*/
