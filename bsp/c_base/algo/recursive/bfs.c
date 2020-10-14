@@ -664,67 +664,6 @@ bool isEscapePossible(int** blocked, int blockedSize, int* blockedColSize, int* 
     return true;
 }
 
-/*
-22. 括号生成dfs
-bfs  left right 为总数减法到0 */
-struct DataEntry {
-	int left;
-	int right;
-	char* path;
-};
-
-/*
-22. 括号生成dfs
-bfs  left right 为总数减法到0 */
-char** generateParenthesis(int n, int* returnSize)
-{
-	*returnSize = 0;
-	if (n == 0) {
-		return NULL;
-	}
-
-	char** res = (char**)calloc(1024 * 1024, sizeof(char*));
-	struct DataEntry queue[1024 * 1024];
-	int head = 0;
-	int rear = 0;
-	queue[rear].left= n;
-	queue[rear].right = n;
-	queue[rear].path = calloc(1, sizeof(char));
-	rear++;
-
-	while(head != rear) {
-		struct DataEntry pop = queue[head++];
-		int popsize = strlen(pop.path);
-
-		if (pop.left == 0 && pop.right == 0) {
-			res[*returnSize] = strdup(pop.path);
-			(*returnSize)++;
-		}
-
-		if (pop.left > 0) {
-			queue[rear].left = pop.left - 1;
-			queue[rear].right = pop.right;
-			queue[rear].path = (char *)calloc(popsize + 2, sizeof(char));
-			strcpy(queue[rear].path, pop.path);
-			strcat(queue[rear].path, "(");
-			rear++;
-		}
-
-		if (pop.right > 0 && pop.left < pop.right) {
-			queue[rear].left = pop.left;
-			queue[rear].right = pop.right - 1;
-			queue[rear].path = (char *)calloc(popsize + 2, sizeof(char));
-			strcpy(queue[rear].path, pop.path);
-			strcat(queue[rear].path, ")");
-			rear++;
-		}
-
-		free(pop.path);
-		pop.path = NULL;
-	}
-
-	return res;
-}
 
 /*
 1293. 网格中的最短路径
