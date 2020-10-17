@@ -886,365 +886,6 @@ int maxDistance(int** grid, int gridSize, int* gridColSize)
 	return deep;
 }
 
-/*
-显然这不是一个「单源」最短路问题（SSSP）。在我们学习过的最短路算法中，求解 SSSP 问题的方法有 Dijkstra 算法和 SPFA算法，而求解任意两点之间的最短路一般使用 Floyd 算法。那我们在这里就应该使用 Floyd 算法吗？要考虑这个问题，我们需要分析一下这里使用 Floyd 算法的时间复杂度。我们知道在网格图中求最短路，作者：LeetCode-Solution链接：https://leetcode-cn.com/problems/as-far-from-land-as-possible/solution/di-tu-fen-xi-by-leetcode-solution/来源：力扣（LeetCode）著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
-*/
-int maxDistance(int** grid, int gridSize, int* gridColSize)
-{
-	int row = gridSize;
-	int col = *gridColSize;
-	int d[row][col];
-	int visited[row][col];
-        for (int i = 0; i < row; ++i) {
-            for (int j = 0; j < col; ++j) {
-                d[i][j] = INT_MAX;
-		visited[i][j] = 0;
-            }
-        }
-
-	int queue[100 * 1000];
-	int head = 0;
-	int rear = 0;
-        for (int i = 0; i < row; ++i) {
-            for (int j = 0; j < col; ++j) {
-                if (grid[i][j]) {
-                    d[i][j] = 0;
-                    //q.push({i, j});
-			queue[rear++] = i * col + j;
-                    visited[i][j] = 1;
-                }
-            }
-        }
-
-	int dir[][2] = {{0,1}, {0, -1}, {1, 0}, {-1, 0}};
-        while (head != rear) {
-            int f = queue[head++];
-		int cx = f / col;
-		int cy = f % col;
-			visited[cx][cy] = 0;
-            for (int i = 0; i < 4; ++i) {
-                int nx = cx + dir[i][0], ny = cy + dir[i][1];
-                if (!(nx >= 0 && nx <= row - 1 && ny >= 0 && ny <= col - 1)) continue;
-                if (d[nx][ny] > d[cx][cy] + 1) {
-                    d[nx][ny] = d[cx][cy] + 1;
-                    if (!visited[nx][ny]) {
-                        queue[rear++] = nx * col + ny;
-                        visited[nx][ny] = 1;
-                    }
-                }
-            }
-        }
-
-        int ans = -1;
-        for (int i = 0; i < row; ++i) {
-            for (int j = 0; j < col; ++j) {
-                if (!grid[i][j]) ans = fmax(ans, d[i][j]);
-            }
-        }
-
-        return (ans == INT_MAX) ? -1 : ans;
-}
-
-
-/*
-DFS
-301
-*/
-#define MAX_QUEUE_SIZE 10000
-#define MAX_WORD_SIZE  50
-#define LEFT_P '('
-#define RIGHT_P ')'
-
-bool IsStringValid(char* pString, int* delta)
-{
-	int leftCount = 0;
-	int rightCount = 0;
-	bool flag = true;
-
-	for (int i = 0; i < strlen(pString); i++) {
-		if (pString[i] == LEFT_P) {
-			leftCount++;
-		} else if (pString[i] == RIGHT_P) {
-			rightCount++;
-		}
-
-		if (leftCount < rightCount) {
-			flag = false;
-		}
-	}
-
-	*delta = leftCount - rightCount;
-	if (flag && *delta == 0) {
-		return true;
-	} else {
-		return false;
-	}
-}
-
-bool IsInQueue(char **queue, int head, int rear, char* pString)
-{
-    for (int i = head; i < rear; i++) {
-        if (strcmp(pString, queue[i]) == 0) {
-            return true;
-        }
-    }
-    return false;
-}
-
-void RemoveChar(char* pString, int index)
-{
-	int len = strlen(pString);
-	if (index < 0 || index >= len) {
-		return;
-	}
-
-	for (int i = index; i < len - 1; i++) {
-		pString[i] = pString[i + 1];
-	}
-	pString[len - 1] = '\0';
-}
-
-char** removeInvalidParentheses(char* s, int* returnSize)
-{
-	char** res = (char**)calloc(MAX_QUEUE_SIZE, sizeof(char*));
-	*returnSize = 0;
-
-	char *queue[MAX_QUEUE_SIZE];
-	int head = 0;
-	int rear = 0;
-	queue[rear++] = strdup(s);
-	char* tmpStr = NULL;
-	bool flag = false;
-	int delta = 0;
-
-	while (head != rear) {
-		int floorSize = rear - head;
-		for (int i = 0; i < floorSize; i++) {
-			tmpStr = queue[head++];
-
-			if (IsStringValid(tmpStr, &delta)) {
-				res[*returnSize] = strdup(tmpStr);
-				(*returnSize)++;
-				flag = true;
-			}
-
-			// drill down and enqueue
-			if (!flag) { // if find result this round
-				for (int k = 0; k < strlen(tmpStr); k++) {
-					if (tmpStr[k] != LEFT_P && tmpStr[k] != RIGHT_P) {
-						continue;
-					}
-
-					if (tmpStr[k] == LEFT_P && delta < 0) {
-						continue;
-					}
-
-					if (tmpStr[k] == RIGHT_P && delta > 0) {
-						continue;
-					}
-
-					char* tmpStr2 = strdup(tmpStr);
-					//strcpy(tmpStr2, tmpStr);
-					RemoveChar(tmpStr2, k);
-					if (!IsInQueue(queue, head, rear, tmpStr2)) {
-						queue[rear++] = tmpStr2;
-					} else {
-						free(tmpStr2);
-					}
-				}
-			}
-		}
-	}
-
-	return res;
-}
-
-/*
-127. 单词接龙
-给定两个单词（beginWord 和 endWord）和一个字典，找到从 beginWord 到 endWord 的最短转换序列的长度。转换需遵循如下规则：
-
-每次转换只能改变一个字母。
-转换过程中的中间单词必须是字典中的单词。
-说明:
-
-如果不存在这样的转换序列，返回 0。
-所有单词具有相同的长度。
-所有单词只由小写字母组成。
-字典中不存在重复的单词。
-你可以假设 beginWord 和 endWord 是非空的，且二者不相同。
-示例 1:
-
-输入:
-beginWord = "hit",
-endWord = "cog",
-wordList = ["hot","dot","dog","lot","log","cog"]
-
-输出: 5
-
-解释: 一个最短转换序列是 "hit" -> "hot" -> "dot" -> "dog" -> "cog",
-     返回它的长度 5。
-*/
-
-#define MAX_QUEUE_SIZE 10000
-
-int isValidString(char *popString, char *dicString)
-{
-    int diffNum = 0;
-    int len = strlen(popString);
-    for (int i = 0; i < len; i++) {
-        if (popString[i] != dicString[i]) {
-            diffNum++;
-        }
-
-        if (diffNum > 1) {
-            return 0;;
-        }
-    }
-    return 1;
-}
-
-int ladderLength(char * beginWord, char * endWord, char ** wordList, int wordListSize){
-	if ((beginWord == NULL) || (strlen(beginWord) <= 0) || (endWord == NULL) || (strlen(endWord) <= 0) || (wordList == NULL) || (wordListSize <= 0)) {
-		return 0;
-	}
-
-	char *queue[MAX_QUEUE_SIZE];
-	int front = 0;
-	int rear = 0;
-	int visited[wordListSize];
-	memset(visited, 0, sizeof(visited));
-
-	queue[rear++] = beginWord;
-	int step = 0;
-
-	while (front != rear) {
-		step++;
-		int floorSize = rear - front;
-		if (floorSize < 0) {
-			floorSize = front - rear + 1;
-		}
-
-		for (int k = 0; k < floorSize; k++) {
-			char *pop = queue[front];
-			front = (front + 1) % MAX_QUEUE_SIZE;
-
-			if (strcmp(pop, endWord) == 0) {
-				return step;
-			}
-
-			for (int i = 0; i < wordListSize; i++) {
-				if ((visited[i] == 0) && (isValidString(pop, wordList[i]))) {
-					queue[rear++] = wordList[i];
-					//rear = (rear + 1) % MAX_QUEUE_SIZE;
-					visited[i] = 1;
-				}
-			}
-		}
-	}
-	//free(visited);
-	return 0;
-}
-
-
-/*
-934. 最短的桥
-难度中等68
-在给定的二维二进制数组 A 中，存在两座岛。（岛是由四面
-相连的 1 形成的一个最大组。）
-现在，我们可以将 0 变为 1，以使两座岛连接起来，变成一
-座岛。
-返回必须翻转的 0 的最小数目。（可以保证答案至少是 1。）
-
-示例 1：
-输入：[[0,1],[1,0]]
-输出：1
-示例 2：
-输入：[[0,1,0],[0,0,0],[0,0,1]]
-输出：2
-示例 3：
-输入：[[1,1,1,1,1],[1,0,0,0,1],[1,0,1,0,1],[1,0,0,0,1],[1,1,1,1,1]]
-输出：1
-
-*/
-
-/*(明确是2座岛)
-第一步：dfs将第一个的岛屿元素全部标记出来，并顺序入队；
-第二步：bfs遍历队内各元素，将未标记元素标记并入队，step++;
-第三步：找到新的元素为1即为新岛屿，step++返回即可。
-*/
-int d[4][2] = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
-void dfs(int** A, int ASize, int* AColSize, int x, int y)
-{
-	if (x < 0 || y < 0 || x >= ASize || y >= AColSize[x]) {
-		return;
-	}
-
-	if (A[x][y] != 1)
-		return;
-
-	A[x][y] = 2;
-
-	for (int i = 0; i < 4; i++) {
-		dfs(A, ASize, AColSize, x + d[i][0], y + d[i][1]);
-	}
-}
-
-void colorFirstIsland(int** A, int ASize, int* AColSize)
-{
-	for (int i = 0; i < ASize; i++) {
-		for (int j = 0; j < AColSize[i]; j++) {
-			if (A[i][j] == 1) {
-				dfs(A, ASize, AColSize, i, j);
-				return;
-			}
-		}
-	}
-}
-
-int shortestBridge(int** A, int ASize, int* AColSize)
-{
-	colorFirstIsland(A, ASize, AColSize);
-	struct List queue;
-	struct List* pqueue = &queue;
-	queue_init(pqueue);
-
-	for (int i = 0; i < ASize; i++) {
-		for (int j = 0; j < AColSize[i]; j++) {
-			if (A[i][j] == 2) {
-				struct DataEntry  *entry = (struct DataEntry  *)calloc(1, sizeof(struct DataEntry ));
-				entry->key = i;
-				entry->value = j;
-				entry->step = 0;
-				ListAddTail(pqueue, &entry->node);
-			}
-		}
-	}
-
-	while(!queue_empty(pqueue)) {
-		struct DataEntry *pop = queue_pop_entry(pqueue);
-		for (int i = 0; i < 4; i++) {
-			int nx = pop->key + d[i][0];
-			int ny = pop->value + d[i][1];
-
-			if (nx < 0 || ny < 0 || nx >= ASize || ny >= AColSize[nx])
-				continue;
-
-			if (A[nx][ny] == 1)
-				return pop->step;
-
-			if (A[nx][ny] == 0) {
-				A[nx][ny] = 2;
-				struct DataEntry  *entry = (struct DataEntry  *)calloc(1, sizeof(struct DataEntry ));
-				entry->key = nx;
-				entry->value = ny;
-				entry->step = pop->step + 1;
-				ListAddTail(pqueue, &entry->node);
-			}
-		}
-	}
-
-	return 0;
-}
 
 /*
 126. 单词接龙 II
@@ -1891,3 +1532,140 @@ int cutOffTree(int **forest,int forestSize, int* forestColSize){
 /*
 比较水的题吧。先遍历一遍图，把是树的点和树的高度记录下来，然后按照树的高度排序一下。那么答案就是从起点(0,0)到第一棵树，第一棵树到第二棵树，第二棵树到第三棵树...的最短距离之和每两点之间的距离用BFS计算即可，如果有任意两点之间无法到达，说明答案就是NO。作者：7QQQQQQQ链接：https://leetcode-cn.com/problems/cut-off-trees-for-golf-event/solution/bfs-by-7qqqqqqq/来源：力扣（LeetCode）著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
 */
+
+/*
+909. 蛇梯棋
+N x N 的棋盘 board 上，按从 1 到 N*N 的数字给方格编号，编号 从左下角开始，每一行交替方向。
+
+例如，一块 6 x 6 大小的棋盘，编号如下：
+
+
+r 行 c 列的棋盘，按前述方法编号，棋盘格中可能存在 “蛇” 或 “梯子”；如果 board[r][c] != -1，那个蛇或梯子的目的地将会是 board[r][c]。
+
+玩家从棋盘上的方格 1 （总是在最后一行、第一列）开始出发。
+
+每一回合，玩家需要从当前方格 x 开始出发，按下述要求前进：
+
+选定目标方格：选择从编号 x+1，x+2，x+3，x+4，x+5，或者 x+6 的方格中选出一个目标方格 s ，目标方格的编号 <= N*N。
+该选择模拟了掷骰子的情景，无论棋盘大小如何，你的目的地范围也只能处于区间 [x+1, x+6] 之间。
+传送玩家：如果目标方格 S 处存在蛇或梯子，那么玩家会传送到蛇或梯子的目的地。否则，玩家传送到目标方格 S。
+注意，玩家在每回合的前进过程中最多只能爬过蛇或梯子一次：就算目的地是另一条蛇或梯子的起点，你也不会继续移动。
+
+返回达到方格 N*N 所需的最少移动次数，如果不可能，则返回 -1。
+
+
+
+示例：
+
+输入：[
+[-1,-1,-1,-1,-1,-1],
+[-1,-1,-1,-1,-1,-1],
+[-1,-1,-1,-1,-1,-1],
+[-1,35,-1,-1,13,-1],
+[-1,-1,-1,-1,-1,-1],
+[-1,15,-1,-1,-1,-1]]
+输出：4
+解释：
+首先，从方格 1 [第 5 行，第 0 列] 开始。
+你决定移动到方格 2，并必须爬过梯子移动到到方格 15。
+然后你决定移动到方格 17 [第 3 行，第 5 列]，必须爬过蛇到方格 13。
+然后你决定移动到方格 14，且必须通过梯子移动到方格 35。
+然后你决定移动到方格 36, 游戏结束。
+可以证明你需要至少 4 次移动才能到达第 N*N 个方格，所以答案是 4。
+*/
+
+/*
+这道题给了一个 NxN 大小的二维数组，从左下角从1开始，蛇形游走，到左上角或者右上角到数字为 NxN，中间某些位置会有梯子，就如同传送门一样，直接可以到达另外一个位置。现在就如同玩大富翁 Big Rich Man 一样，有一个骰子，可以走1到6内的任意一个数字，现在奢侈一把，有无限个遥控骰子，每次都可以走1到6以内指定的步数，问最小能用几步快速到达终点 NxN 位置。开始做这道题的时候，看是求极值，以为是一道动态规划 Dynamic Programming 的题，结果发现木有办法重现子问题，没法写出状态转移方程，只得作罢。但其实忽略了一点，求最小值还有一大神器，广度优先搜索 BFS，最直接的应用就是在迷宫遍历的问题中，求从起点到终点的最少步数，也可以用在更通用的场景，只要是存在确定的状态转移的方式，可能也可以使用。这道题基本就是类似迷宫遍历的问题，可以走的1到6步可以当作六个方向，这样就可以看作是一个迷宫了，唯一要特殊处理的就是遇见梯子的情况，要跳到另一个位置。这道题还有另一个难点，就是数字标号和数组的二维坐标的转换，这里起始点是在二维数组的左下角，且是1，而代码中定义的二维数组的 (0, 0) 点是在左上角，需要转换一下，还有就是这道题的数字是蛇形环绕的，即当行号是奇数的时候，是从右往左遍历的，转换的时候要注意一下。
+
+难点基本都提到了，现在开始写代码吧，既然是 BFS，就需要用队列 queue 来辅助，初始时将数字1放入，然后还需要一个 visited 数组，大小为 nxn+1。在 while 循环中进行层序遍历，取出队首数字，判断若等于 nxn 直接返回结果 minStep。否则就要遍历1到6内的所有数字i，则 num+i 就是下一步要走的距离，需要将其转为数组的二维坐标位置，这个操作放到一个单独的子函数中，后边再讲。有了数组的坐标，就可以看该位置上是否有梯子，有的话，需要换成梯子能到达的位置，没有的话还是用 num+i。有了下一个位置，再看 visited 中的值，若已经访问过了直接跳过，否则标记为 true，并且加入队列 queue 中即可，若 while 循环退出了，表示无法到达终点，返回 -1。将数字标号转为二维坐标位置的子函数也不算难，首先应将数字标号减1，因为这里是从1开始的，而代码中的二维坐标是从0开始的，然后除以n得到横坐标，对n取余得到纵坐标。但这里得到的横纵坐标都还不是正确的，因为前面说了数字标记是蛇形环绕的，当行号是奇数的时候，列数需要翻转一下，即用 n-1 减去当前列数。又因为代码中的二维数组起点位置在左上角，同样需要翻转一样，这样得到的才是正确的横纵坐标，返回即可，
+*/
+
+/*
+    将棋盘数字标号(1,2,3,...,N*N)转为二维坐标位置:
+    (1)首先应将数字标号减1，因为棋盘是从1开始的，而代码中的二维坐标是从0开始的，
+    (2)然后除以n得到横坐标，对n取余得到纵坐标。
+    (3)但这里得到的横纵坐标都还不是正确的，因为前面说了数字标记是蛇形环绕的，
+       当行号是奇数的时候，列数需要翻转一下，即用 n-1 减去当前列数
+*/
+int  getNextBoardValue(int **board,int boardSize,int num)
+{
+    if(board == NULL)
+    {
+        return -1;
+    }
+
+    int n = boardSize;
+
+    int x = (num - 1)/n;
+    int y = (num - 1)%n;
+
+    if(x % 2 != 0)// if x is odd number
+    {
+        y = (n - 1) - y;//只有x位于奇行数(从下往上数),y走向是从右向左，所以y要翻转
+    }
+
+    x = (n - 1) - x;//x是从下往上走的，所以要一直翻转
+
+    return board[x][y];
+}
+
+int snakesAndLadders(int** board, int boardSize, int* boardColSize){
+    if(board == NULL || boardSize == 0 || boardColSize == NULL)
+    {
+        return -1;
+    }
+
+    int n = boardSize;
+    int c = boardColSize[0];
+    int minStep = 0;
+    int q[n*n];//create a queue
+    int visited[n*n+1];
+
+    memset(q,0,sizeof(q));
+    memset(visited,0,sizeof(visited));
+    int cur = 0;
+    int next = 0;
+
+    int front = 0;
+    int rear  = 0;
+
+    /*begin with the left lower corner of the chessboard*/
+    q[rear++] = 1;//enqueue
+    //visited[n - 1][0] = true;//
+    int layerNum = 0;
+
+    while(rear != front)
+    {
+        //printf("cur = %d\n",cur);
+
+
+        layerNum = rear - front;
+
+        for(int l = 0;l<layerNum;l++)
+        {
+            cur = q[front++];//dequeue
+            if(cur == n*n)
+            {
+                return minStep;
+            }
+            for(int i = 1;i <= 6 && cur + i <= n*n ;i++)
+            {
+                next = getNextBoardValue(board,boardSize,cur+i);
+                if(next == -1)
+                {
+                    next = cur + i;
+                }
+
+                if(visited[next])
+                {
+                    continue;
+                }
+                visited[next] = true;
+                q[rear++] = next;
+            }
+        }
+        minStep++;
+
+    }
+    return -1;
+}
