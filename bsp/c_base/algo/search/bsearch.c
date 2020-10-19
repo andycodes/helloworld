@@ -276,37 +276,6 @@ int splitArray(int* nums, int numsSize, int m)
 }
 
 /*
-532. 数组中的K-diff数对
-难度简单90收藏分享切换为英文关注反馈
-给定一个整数数组和一个整数 k, 你需要在数组里找到不同的
-k-diff 数对。这里将 k-diff 数对定义为一个整数对 (i, j), 其中 i 和 j 都
-是数组中的数字，且两数之差的绝对值是 k.
-示例 1:
-输入: [3, 1, 4, 1, 5], k = 2
-输出: 2
-解释: 数组中有两个 2-diff 数对, (1, 3) 和 (3, 5)。
-尽管数组中有两个1，但我们只应返回不同的数对的数量。
-*/
-int findPairs(int* nums, int numsSize, int k)
-{
-	qsort(nums, numsSize, sizeof(nums[0]), cmp_int);
-	int cnt = 0;
-	for (int i = 0; i < numsSize; i++) {
-		if (i != 0 && nums[i] == nums[i - 1]) {
-			continue;
-		}
-		int key = nums[i] + k;
-		int *p = (int *)bsearch(&key, nums + i + 1, numsSize - i - 1, sizeof(int), cmp_int);
-		if (p != NULL) {
-
-			cnt++;
-		}
-	}
-
-	return cnt;
-}
-
-/*
 719. 找出第 k 小的距离对
 给定一个整数数组，返回所有数对之间的第 k 个最小距离。一对 (A, B) 的距离被定义为 A 和 B 之间的绝对差值。
 
@@ -324,73 +293,195 @@ k = 1
 因此第 1 个最小距离的数对是 (1,1)，它们之间的距离为 0。
 */
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdbool.h>
-#include <limits.h>
+/*
+由于第 k 小的距离一定在 [0, W = max(nums) - min(nums)] 中，我们在这个区间上进行二分。
+对于当前二分的位置 guess，统计距离小于等于 guess 的距离对数量，并根据它和 k 的
+关系调整区间的上下界。
+*/
 
-int compare(const void *a, const void *b) {
-    return *(int *)a - *(int *)b;
+int cmp_int( const void *a , const void *b)
+{
+        return *(int *)a > *(int *)b; //*(int *)a - *(int *)b;
 }
 
-//双指针加速
-int helper(int* nums, int numsSize, int diff) {
-    int cnt = 0;
+int cmp(int* nums, int numsSize, int diff)
+{
+            int count = 0, left = 0;
+            for (int right = 0; right < numsSize; ++right) {
+                while (nums[right] - nums[left] > diff) left++;
+                count += right - left;
+            }
+            //count = number of pairs with distance <= mi
+            return count;
+}
 
-    int ll = 0, rr = 0;
-    while(rr < numsSize) {
-        if(nums[rr] - nums[ll] <= diff) {
-            rr++;
-            continue;
+int smallestDistancePair(int* nums, int numsSize, int k)
+{
+	qsort(nums, numsSize, sizeof(int), cmp_int);
+
+	int left = 0;
+	int right = nums[numsSize - 1] - nums[0];//max diff
+	while(left < right) {
+		int mid = left + (right - left >> 1);
+		int cnt = cmp(nums, numsSize, mid);
+		if(cnt >= k) {
+			right = mid;
+		} else {
+			left = mid + 1;
+		}
+	}
+
+	return left;
+}
+
+/*
+81. 搜索旋转排序数组 II
+假设按照升序排序的数组在预先未知的某个点上进行了旋转。
+
+( 例如，数组 [0,0,1,2,2,5,6] 可能变为 [2,5,6,0,0,1,2] )。
+
+编写一个函数来判断给定的目标值是否存在于数组中。若存在返回 true，否则返回 false。
+
+示例 1:
+
+输入: nums = [2,5,6,0,0,1,2], target = 0
+输出: true
+示例 2:
+
+输入: nums = [2,5,6,0,0,1,2], target = 3
+输出: false
+*/
+
+/*
+解题思路：二分法查找，将给定值与最右值比较
+1，如果nums[mid] > nums[right]，说明mid左侧是递增区间
+1）target落在左侧递增区间内，则right = mid - 1;
+2）否则left = mid + 1;
+2，如果nums[mid] < nums[right]，说明mid右侧是递增区间
+1）target落在右侧递增区间内，则left = mid + 1;
+2）否则right = mid - 1;
+3）如果nums[mid] = nums[right]，不能确认递增区间的位置，所以逐步移动右侧指针
+*/
+#define TRUE 1
+#define FALSE 0
+bool search(int* nums, int numsSize, int target){
+    int left = 0;
+    int right = numsSize - 1;
+    int mid;
+
+    while (left <= right) {
+        mid = (left + right) / 2;
+        if (nums[mid] == target) {
+            return TRUE;
         }
 
-        //进行结算
-        cnt += rr - ll - 1;
-        ll++;
-        //printf("hll = %d, hrr = %d, cnt = %d\n", ll, rr, cnt);
+        if (nums[mid] > nums[right]) {
+            if ((target >= nums[left]) && (target < nums[mid])) {
+                right = mid - 1;
+            } else {
+                left = mid + 1;
+            }
+        } else if (nums[mid] < nums[right]) {
+            if ((target > nums[mid]) && (target <= nums[right])) {
+                left = mid + 1;
+            } else {
+                right = mid - 1;
+            }
+        } else {
+            right--;
+        }
     }
 
-    //处理尾部数据
-    for(int i = ll; i < numsSize; i++) {
-        cnt += numsSize - i - 1;
-    }
+    return FALSE;
+}
+
 /*
-    for(int i = 0; i < numsSize - 1; i++) {
-        for(int j = i + 1; j < numsSize; j++) {
-            if(nums[j] - nums[i] <= diff) {
-                cnt++;
+34. 在排序数组中查找元素的第一个和最后一个位置
+给定一个按照升序排列的整数数组 nums，和一个目标值 target。找出给定目标值在数组中的开始位置和结束位置。
+
+你的算法时间复杂度必须是 O(log n) 级别。
+
+如果数组中不存在目标值，返回 [-1, -1]。
+
+示例 1:
+
+输入: nums = [5,7,7,8,8,10], target = 8
+输出: [3,4]
+示例 2:
+
+输入: nums = [5,7,7,8,8,10], target = 6
+输出: [-1,-1]
+*/
+
+int findFirstPosition(int* nums, int numsSize, int target) {
+        int left = 0;
+        int right = numsSize - 1;
+
+        while (left <= right) {
+            int mid = left + (right - left) / 2;
+
+            if (nums[mid] == target) {
+                // ① 不可以直接返回，应该继续向左边找，即 [left, mid - 1] 区间里找
+                right = mid - 1;
+            } else if (nums[mid] < target) {
+                // 应该继续向右边找，即 [mid + 1, right] 区间里找
+                left = mid + 1;
             } else {
-                break;
+                // 此时 nums[mid] > target，应该继续向左边找，即 [left, mid - 1] 区间里找
+                right = mid - 1;
             }
         }
-    }
-*/
-    //printf("diff = %d, cnt = %d\n", diff, cnt);
-    return cnt;
-}
 
-//【算法思路】扩展的二分查找。以二分查找为框架，对于二分值如何判定进行扩展。
-// 1.计算差值存在范围
-// 2.给定差值，查找小于等于差值的对数
-// 3.如果该数值大于K，则rr = mid
-// 4.否则ll = mid + 1;
-int smallestDistancePair(int* nums, int numsSize, int k){
-    //找到最大最小值
-    qsort(nums, numsSize, sizeof(int), compare);
-
-    int ll = 0, rr = nums[numsSize - 1] - nums[0];
-    while(ll < rr) {
-        //printf("ll = %d, rr = %d\n", ll, rr);
-        int mid = (ll + rr) / 2;
-
-        int cnt = helper(nums, numsSize, mid);
-
-        if(cnt >= k) {
-            rr = mid;
-        } else {
-            ll = mid + 1;
+        // 此时 left 和 right 的位置关系是 [right, left]，注意上面的 ①，此时 left 才是第 1 次元素出现的位置
+        // 因此还需要特别做一次判断
+        if (left != numsSize && nums[left] == target) {
+            return left;
         }
+        return -1;
     }
 
-    return ll;
+    int findLastPosition(int* nums, int numsSize, int target) {
+        int left = 0;
+        int right = numsSize - 1;
+
+        while (left <= right) {
+            int mid = left + (right - left) / 2;
+
+            if (nums[mid] == target) {
+                // 只有这里不一样：不可以直接返回，应该继续向右边找，即 [mid + 1, right] 区间里找
+                left = mid + 1;
+            } else if (nums[mid] < target) {
+                // 应该继续向右边找，即 [mid + 1, right] 区间里找
+                left = mid + 1;
+            } else {
+                // 此时 nums[mid] > target，应该继续向左边找，即 [left, mid - 1] 区间里找
+                right = mid - 1;
+            }
+        }
+        // 由于 findFirstPosition 方法可以返回是否找到，这里无需单独再做判断
+        return right;
+    }
+
+
+int* searchRange(int* nums, int numsSize, int target, int* returnSize)
+{
+	int *res = (int *)calloc(2, sizeof(int));
+	*returnSize = 2;
+	res[0] = -1;
+	res[1] = -1;
+
+        if (nums == NULL|| numsSize == 0) {
+            return res;
+        }
+
+        int firstPosition = findFirstPosition(nums, numsSize, target);
+        // 如果第 1 次出现的位置都找不到，肯定不存在最后 1 次出现的位置
+        if (firstPosition == -1) {
+            return res;
+        }
+        int lastPosition = findLastPosition(nums, numsSize, target);
+	res[0] = firstPosition;
+	res[1] = lastPosition;
+
+	return res;
 }
