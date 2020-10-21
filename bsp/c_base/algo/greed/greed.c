@@ -377,47 +377,46 @@ int candy(int* ratings, int ratingsSize)
 /*
 452. 用最少数量的箭引爆气球
 难度中等162收藏分享切换为英文关注反馈
-在二维空间中有许多球形的气球。对于每个气球，提供的输入是水平方向上，气球直径的开始和结束坐标。由于它是水平的，所以y坐标并不重要，因此只要知道开始和结束的x坐标就足够了。开始坐标总是小于结束坐标。平面内最多存在104个气球。
-一支弓箭可以沿着x轴从不同点完全垂直地射出。在坐标x处射出一支箭，若有一个气球的直径的开始和结束坐标为 xstart，xend， 且满足  xstart ≤ x ≤ xend，则该气球会被引爆。可以射出的弓箭的数量没有限制。 弓箭一旦被射出之后，可以无限地前进。我们想找到使得所有气球全部被引爆，所需的弓箭的最小数量。
+在二维空间中有许多球形的气球。对于每个气球，提供的输
+入是水平方向上，气球直径的开始和结束坐标。由于它是水
+平的，所以y坐标并不重要，因此只要知道开始和结束的x坐
+标就足够了。开始坐标总是小于结束坐标。平面内最多存
+在104个气球。
+一支弓箭可以沿着x轴从不同点完全垂直地射出。在坐标x处射
+出一支箭，若有一个气球的直径的开始和结束坐标为 xstart，
+xend， 且满足  xstart ≤ x ≤ xend，则该气球会被引爆。可以射出的
+弓箭的数量没有限制。 弓箭一旦被射出之后，可以无限地前
+进。我们想找到使得所有气球全部被引爆，所需的弓箭的最
+小数量。
 Example:
 输入:
 [[10,16], [2,8], [1,6], [7,12]]
-
 输出:
 2
-
 解释:
-对于该样例，我们可以在x = 6（射爆[2,8],[1,6]两个气球）和 x = 11（射爆另外两个气球）。
-
+对于该样例，我们可以在x = 6（射爆[2,8],[1,6]两个气球）和 x = 11（
+射爆另外两个气球）。
 */
-int cmp_doublePoint(const void *a, const void *b)
-{
-	int * aa = *((int **)a);
-	int * bb = *((int **)b);
-
-	return aa[1] - bb[1];
-}
-
 int findMinArrowShots(int** points, int pointsSize, int* pointsColSize)
 {
-    if (pointsSize == 0) return 0;
+	if (pointsSize == 0)
+		return 0;
 
 	qsort(points, pointsSize, sizeof(points[0]), cmp_doublePoint);
 
-    int arrows = 1;
-    int xStart, xEnd, firstEnd = points[0][1];
-    for (int i = 0; i < pointsSize; i++) {
-      xStart = points[i][0];
-      xEnd = points[i][1];
-      // if the current balloon starts after the end of another one,
-      // one needs one more arrow
-      if (firstEnd < xStart) {
-        arrows++;
-        firstEnd = xEnd;
-      }
-    }
-    return arrows;
-  }
+	int arrows = 1;
+	int curStart, curEnd, lastEnd = points[0][1];
+	for (int i = 0; i < pointsSize; i++) {
+		curStart = points[i][0];
+		curEnd = points[i][1];
+		if (lastEnd < curStart) {
+			arrows++;
+			lastEnd = curEnd;
+		}
+	}
+	return arrows;
+}
+
 
 /*
 56. 合并区间
