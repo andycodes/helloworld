@@ -106,11 +106,11 @@ void str2digit_sscanf(char * str)
 /*
 #include <string.h>
 查找子字符串
-意义为 判断str2是否为str1的子串，
+意义为 判断sub是否为haystack的子串，
 若是则返回str2在str1中首次出现的指针位置，
 若不是返回NULL；
 */
-char *strstr(const char *str1, const char *str2);
+char *strstr(const char *haystack, const char *sub);
 
 
 /*
@@ -125,7 +125,7 @@ strchr() 函数会依次检索字符串 str 中的每一个字符，
 返回值：返回在字符串 str 中第一次出现字符 c 的位置，
 如果未找到该字符 c 则返回 NULL。
 */
-char* strchr(const char* str, int c);
+char* strchr(const char* haystack, int c);
 
 void strreplace(char *text, char *oldsubstr, char *newsubstr)
 {
@@ -497,6 +497,7 @@ isupper
 函数返回: 是返回非0,否则返回0
 */
 int isupper(int ch);
+
 /*
 tolower
 函数名称: tolower
@@ -505,6 +506,7 @@ tolower
 函数返回: 返回ch所代表的字符的小写字母
 */
 int tolower(int ch);
+
 /*
 toupper
 函数名称: toupper
@@ -513,6 +515,7 @@ toupper
 函数返回: 与ch相应的大写字母
 */
 int toupper(int ch);
+
 /*
 isalnum
 函数名称: isalnum
