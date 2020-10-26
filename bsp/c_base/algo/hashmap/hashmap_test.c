@@ -233,27 +233,29 @@ int leastBricks(int** wall, int wallSize, int* wallColSize)
 输入：n = 1
 输出：0
 */
+int countPrimes(int n)
+{
+	int count = 0;
+	if (n == 0) {
+		return 0;
+	}
 
-int countPrimes(int n) {
-    int count = 0;
-    //初始默认所有数为质数
-    //vector<bool> signs(n, true);
-    if (n == 0) {
-            return 0;
-    }
-    bool signs[n];
-    for (int i = 0; i < n; i++) {
-            signs[i] = true;
-    }
-    for (int i = 2; i < n; i++) {
-        if (signs[i]) {
-            count++;
-            for (int j = i + i; j < n; j += i) {
-                //排除不是质数的数
-                signs[j] = false;
-            }
-        }
-    }
-    return count;
+	bool map[n];
+	//初始默认所有数为质数
+	for (int i = 0; i < n; i++) {
+		map[i] = true;
+	}
+
+	for (int i = 2; i < n; i++) {
+		if (map[i]) {
+			count++;
+			for (int j = i + i; j < n; j += i) {
+				//排除不是质数的数
+				map[j] = false;
+			}
+		}
+	}
+
+	return count;
 }
 
