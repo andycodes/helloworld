@@ -259,3 +259,118 @@ int countPrimes(int n)
 	return count;
 }
 
+/*
+290. 单词规律
+给定一种规律 pattern 和一个字符串 str ，判断 str 是否遵循相同的规律。
+
+这里的 遵循 指完全匹配，例如， pattern 里的每个字母和字符串 str 中的每个非空单词之间存在着双向连接的对应规律。
+
+示例1:
+
+输入: pattern = "abba", str = "dog cat cat dog"
+输出: true
+示例 2:
+
+输入:pattern = "abba", str = "dog cat cat fish"
+输出: false
+*/
+#define MAX_WORDS_NUM 1000
+bool wordPattern(char * pattern, char * s){
+    int patternNum = strlen(pattern);
+    char *words[MAX_WORDS_NUM];
+    char *context;
+    int wordsNum = 0;
+    words[wordsNum] = strtok_r(s, " ", &context);
+    while (words[wordsNum] != NULL) {
+        wordsNum++;
+        words[wordsNum] = strtok_r(NULL, " ", &context);
+    }
+    if (patternNum != wordsNum) {
+        return false;
+    }
+    for (int i = 0; i < wordsNum; i++) {
+        for (int j = i + 1; j < wordsNum; j++) {
+            if ((strcmp(words[i], words[j]) == 0 && pattern[i] != pattern[j]) ||
+                (strcmp(words[i], words[j]) != 0 && pattern[i] == pattern[j])) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+/*
+219. 存在重复元素 II
+给定一个整数数组和一个整数 k，判断数组中是否存在两个不同的索引 i 和 j，使得 nums [i] = nums [j]，并且 i 和 j 的差的 绝对值 至多为 k。
+
+
+
+示例 1:
+
+输入: nums = [1,2,3,1], k = 3
+输出: true
+示例 2:
+
+输入: nums = [1,0,1,1], k = 1
+输出: true
+示例 3:
+
+输入: nums = [1,2,3,1,2,3], k = 2
+输出: false
+*/
+typedef struct hash{
+    int key;  // 键
+    int index;  // 索引值
+    UT_hash_handle hh; // 让结构体哈希柄
+} *hash_ptr;
+
+bool containsNearbyDuplicate(int* nums, int numsSize, int k){
+    hash_ptr p=NULL, tables=NULL;
+    for(int i=0;i<numsSize;i++){
+        if(tables) HASH_FIND_INT(tables, &(nums[i]), p);
+        if(p&&(i-p->index)<=k) return true;
+        p=(hash_ptr)malloc(sizeof(*p));
+        p->key=nums[i];
+        p->index=i;
+        HASH_ADD_INT(tables, key, p);
+    }
+    return false;
+}
+
+/*
+594. 最长和谐子序列
+和谐数组是指一个数组里元素的最大值和最小值之间的差别正好是1。
+
+现在，给定一个整数数组，你需要在所有可能的子序列中找到最长的和谐子序列的长度。
+
+示例 1:
+
+输入: [1,3,2,2,5,2,3,7]
+输出: 5
+原因: 最长的和谐数组是：[3,2,2,2,3].
+*/
+
+int comp(const void* a,const void* b)
+{
+    return *(int*)a - *(int*)b;
+}
+
+int findLHS(int* nums, int numsSize){
+    qsort(nums, numsSize, sizeof(int), comp);
+    int max = 0;
+    int temp;
+    int i, j;
+    for(i = 0; i < numsSize; i++) {
+        for(j = i + 1; j < numsSize; j++) {
+            if(nums[j] - nums[i] < 2) {
+                continue;
+            } else {
+                break;
+            }
+        }
+        if(nums[j - 1] - nums[i]) {
+            max = fmax(max, j - i);
+        }
+    }
+    return max;
+}
