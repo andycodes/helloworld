@@ -16,6 +16,7 @@ def dfs(路径, 选择列表):
 	 (注意跟回溯差异:没有反悔撤销而剪枝)
 
 
+组合问题(子序列)
 BFS+DFS问题
 逆向传播
 连通器个数
@@ -251,82 +252,6 @@ int** subsetsWithDup(int* nums, int numsSize, int* returnSize, int** returnColum
 
 
 /*
-1034. 边框着色
-给出一个二维整数网格 grid，网格中的每个值表示该位置处的
-网格块的颜色。
-只有当两个网格块的颜色相同，而且在四个方向中任意一个
-方向上相邻时，它们属于同一连通分量。
-连通分量的边界是指连通分量中的所有与不在分量中的正方
-形相邻（四个方向上）的所有正方形，或者在网格的边界
-上（第一行/列或最后一行/列）的所有正方形。
-给出位于 (r0, c0) 的网格块和颜色 color，使用指定颜色 color 为所
-给网格块的连通分量的边界进行着色，并返回最终的网格
-grid 。
-示例 1：
-输入：grid = [[1,1],[1,2]], r0 = 0, c0 = 0, color = 3
-输出：[[3, 3], [3, 2]]
-示例 3：
-输入：grid = [[1,1,1],[1,1,1],[1,1,1]], r0 = 1, c0 = 1, color = 2
-输出：[[2, 2, 2], [2, 1, 2], [2, 2, 2]]
-*/
-void dfs(int** grid, int row, int col, int cx, int cy, int oldcolor, int newcolor)
-{
-	// 当前节点已经被访问，设置负值
-	grid[cx][cy] = -oldcolor;
-
-	// 判断边界
-	if(cx == 0 || cx+1 >= row || cy == 0 || cy+1 >= col) {
-		// 区域边界
-		grid[cx][cy] = -newcolor;
-	} else {
-		// 连通分量的边界
-		for(int i = 0 ; i < 4 ; i++) {
-			int nextColor = grid[cx + dir[i][0]][cy + dir[i][1]];
-			// 这里是关键点
-			if(nextColor != oldcolor && nextColor != -oldcolor && nextColor != -newcolor) {
-				grid[cx][cy] = -newcolor;
-				break;
-			}
-		}
-	}
-
-	for(int i = 0 ; i < 4 ; i++) {
-		int nx = cx + dir[i][0];
-		int ny = cy + dir[i][1];
-
-		if (nx < 0 || nx >= row || ny < 0 || ny >= col) {
-			continue;
-		}
-
-		if (grid[nx][ny] != oldcolor) {
-			continue;
-		}
-
-		dfs(grid, row, col, nx, ny, oldcolor, newcolor);
-	}
-}
-
-int** colorBorder(int** grid, int gridSize, int* gridColSize, int r0, int c0,
-	int color, int* returnSize, int** returnColumnSizes)
-{
-	dfs(grid, gridSize, *gridColSize, r0, c0, grid[r0][c0], color);
-	// 将负值置为正值
-	for(int i = 0 ; i < gridSize ; i++) {
-		for(int j = 0 ; j < gridColSize[i] ; j++) {
-			grid[i][j] = grid[i][j] > 0 ? grid[i][j] : -grid[i][j];
-		}
-	}
-
-	*returnSize = gridSize;
-	*returnColumnSizes = (int *)calloc(gridSize, sizeof(int));
-	for (int i = 0; i < gridSize; i++) {
-		(*returnColumnSizes)[i] = gridColSize[i];
-	}
-	return grid;
-}
-
-
-/*
 1391. 检查网格中是否存在有效路径
 见UF
 */
@@ -482,62 +407,6 @@ DFS自顶向下
 最大通知时间，即为答案。
 */
 
-/*
-959 unionfind
-*/
-int d[4][2] = { {-1, 0}, {0, 1}, {1, 0}, {0, -1} };
-void dfs(int x, int y, int n, int grid[n][n])
-{
-	grid[x][y] = 1;
-
-	for (int i = 0; i < 4; i++) {
-		int nx = x + d[i][0];
-		int ny = y + d[i][1];
-
-		if (nx < 0 || nx >= n || ny < 0 || ny >= n) {
-			continue;
-		}
-
-		if (grid[nx][ny] == 1)
-			continue;
-
-		dfs(nx, ny, n, grid);
-	}
-}
-
-int regionsBySlashes(char ** grid, int gridSize)
-{
-	int n = gridSize;
-	int newGridSize = 3 * n;
-	int newGrid[newGridSize][newGridSize];
-	memset(newGrid, 0, sizeof(newGrid));
-
-	for (int i = 0; i < n; ++i) {
-		for (int j = 0; j < n; ++j) {
-			if (grid[i][j] == '/') {
-				newGrid[3*i][3*j+2] = 1;
-				newGrid[3*i+1][3*j+1] = 1;
-				newGrid[3*i+2][3*j] = 1;
-			} else if (grid[i][j] == '\\') {
-				newGrid[3*i][3*j] = 1;
-				newGrid[3*i+1][3*j+1] = 1;
-				newGrid[3*i+2][3*j+2] = 1;
-			}
-		}
-	}
-
-	int cnt = 0;
-	for (int i = 0; i < 3*n; ++i) {
-		for (int j = 0; j < 3*n; ++j) {
-			if (newGrid[i][j] == 0) {
-				cnt++;
-				dfs(i, j, newGridSize, newGrid);
-			}
-		}
-	}
-
-	return cnt;
-}
 
 /*
 301. 删除无效的括号
@@ -852,27 +721,20 @@ struct Node* cloneGraph(struct Node* s)
 
 /*
 967. 连续差相同的数字
-返回所有长度为 N 且满足其每两个连续位上的数字之间的差的绝对值为 K 的非负整数。
-
-请注意，除了数字 0 本身之外，答案中的每个数字都不能有前导零。例如，01 因为有一个前导零，所以是无效的；但 0 是有效的。
-
+返回所有长度为 N 且满足其每两个连续位上的数字之间的
+差的绝对值为 K 的非负整数。
+请注意，除了数字 0 本身之外，答案中的每个数字都不能
+有前导零。例如，01 因为有一个前导零，所以是无效的；
+但 0 是有效的。
 你可以按任何顺序返回答案。
-
-
-
 示例 1：
-
 输入：N = 3, K = 7
 输出：[181,292,707,818,929]
 解释：注意，070 不是一个有效的数字，因为它有前导零。
 示例 2：
-
 输入：N = 2, K = 1
 输出：[10,12,21,23,32,34,43,45,54,56,65,67,76,78,87,89,98]
-
-
 提示：
-
 1 <= N <= 9
 0 <= K <= 9
 通过次数3,737提交次数9,891
@@ -880,66 +742,38 @@ struct Node* cloneGraph(struct Node* s)
 #define MAX_SIZE 5000
 void dfs(int N, int K, int *res, int *returnSize, int num, int result)
 {
-    if (result != 0 && abs((result) % 10 - num) != K) { // 不满足连续两位相差K，直接返回
-        return;
-    }
-    if (N == 1) { //当 N== 1 时，N位数满足条件，填到res结果中
-        result = (result) * 10 + num;  //本次匹配的结果
-        res[(*returnSize)++] = result;
-        return;
-    }
+	if (result != 0 && abs((result) % 10 - num) != K) {
+	// 不满足连续两位相差K，直接返回
+		return;
+	}
 
-    for (int i = 0; i < 10; i++) {
-        dfs(N - 1, K, res, returnSize, i, result * 10 + num);
-    }
+	if (N == 1) { //当 N== 1 时，N位数满足条件，填到res结果中
+		result = (result) * 10 + num;  //本次匹配的结果
+		res[(*returnSize)++] = result;
+		return;
+	}
+
+	for (int i = 0; i < 10; i++) {
+		dfs(N - 1, K, res, returnSize, i, result * 10 + num);
+	}
 }
-
-int* numsSameConsecDiff(int N, int K, int* returnSize){
-    *returnSize = 0;
-    if (N == 1) {
-        int *res = (int *)malloc(10 * sizeof(int));
-        for (int i = 0; i < 10; i++) {
-            res[(*returnSize)++] = i;
-        }
-        return res;
-    }
-
-    int *res = (int *)malloc(MAX_SIZE * sizeof(int));
-
-    for (int i = 1; i < 10; i++) {
-        dfs(N, K, res, returnSize, i, 0);
-    }
-    return res;
-}
-
-int *g_arr;
-int g_index;
-
-
-void DFS(int sum, int n, int k)
+//从高位到低位
+int* numsSameConsecDiff(int N, int K, int* returnSize)
 {
-    if (n == 0) {
-        g_arr[g_index++] = sum;
-        return;
-    }
-    int temp = sum % 10;
-    if (k == 0) {
-        if (temp - k >= 0)  DFS(sum * 10 + temp - k, n - 1, k);
-    } else  {
-        if (temp - k >= 0)  DFS(sum * 10 + temp - k, n - 1, k);
-        if (temp + k <= 9)  DFS(sum * 10 + temp + k, n - 1, k);
-    }
-}
+	*returnSize = 0;
+	if (N == 1) {
+		int *res = (int *)malloc(10 * sizeof(int));
+		for (int i = 0; i < 10; i++) {
+			res[(*returnSize)++] = i;
+		}
+		return res;
+	}
 
+	int *res = (int *)malloc(MAX_SIZE * sizeof(int));
 
-int* numsSameConsecDiff(int n, int k, int* returnSize)
-{
-    g_arr = (int*)calloc(10000, sizeof(int));
-    g_index = 0;
-    if (n == 1) g_arr[g_index++] = 0;
-    for (int i = 1; i <= 9; i++) {
-        DFS(i, n - 1, k);
-    }
-    *returnSize = g_index;
-    return g_arr;
+	for (int i = 1; i < 10; i++) {
+		dfs(N, K, res, returnSize, i, 0);
+	}
+
+	return res;
 }
