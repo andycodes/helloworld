@@ -1673,3 +1673,454 @@ int snakesAndLadders(int** board, int boardSize, int* boardColSize){
     }
     return -1;
 }
+
+/*
+1263. 推箱子
+「推箱子」是一款风靡全球的益智小游戏，玩家需要将箱子推到仓库中的目标位置。
+
+游戏地图用大小为 n * m 的网格 grid 表示，其中每个元素可以是墙、地板或者是箱子。
+
+现在你将作为玩家参与游戏，按规则将箱子 'B' 移动到目标位置 'T' ：
+
+玩家用字符 'S' 表示，只要他在地板上，就可以在网格中向上、下、左、右四个方向移动。
+地板用字符 '.' 表示，意味着可以自由行走。
+墙用字符 '#' 表示，意味着障碍物，不能通行。
+箱子仅有一个，用字符 'B' 表示。相应地，网格上有一个目标位置 'T'。
+玩家需要站在箱子旁边，然后沿着箱子的方向进行移动，此时箱子会被移动到相邻的地板单元格。记作一次「推动」。
+玩家无法越过箱子。
+返回将箱子推到目标位置的最小 推动 次数，如果无法做到，请返回 -1。
+*/
+
+#define MAXROW 21
+#define MAXCOL 21
+#define MAXLEN 400
+
+typedef struct {
+    char **status; // 记录地图信息
+    int bX; // 箱子
+    int bY;
+    int sX; // 人
+    int sY;
+    int step;
+} State_t;
+
+typedef State_t *Item;
+
+typedef struct {
+    Item queue[MAXLEN];
+    int max;
+    int head;
+    int tail;
+    int cnt;
+} Queue_t;
+
+Queue_t g_queue;
+
+Queue_t *QueueInit()
+{
+    memset(&g_queue, 0, sizeof(Queue_t));
+    g_queue.max = MAXLEN;
+
+    return &g_queue;
+}
+
+void QueuePush(Queue_t *queue, Item i)
+{
+    if (queue->cnt == queue->max) {
+        return;
+    }
+
+    if (queue->tail == queue->max) {
+        for (int i = queue->head; i < queue->tail; ++i) {
+            queue->queue[i - queue->head] = queue->queue[i];
+        }
+
+        queue->tail -= queue->head;
+        queue->head = 0;
+    }
+
+    queue->queue[queue->tail++] = i;
+    queue->cnt++;
+}
+
+Item QueuePop(Queue_t *queue)
+{
+    queue->cnt--;
+    return queue->queue[queue->head++];
+}
+
+Item CreateItem(char **map, int row, int col, int bx, int by, int sx, int sy, int step)
+{
+    Item item = (Item)malloc(sizeof(State_t));
+    if (item == NULL) {
+        return NULL;
+    }
+
+    item->status = (char **)malloc(sizeof(char *) * row);
+    for (int i = 0; i < row; ++i) {
+        item->status[i] = (char *)malloc(sizeof(char) * col);
+        memset(item->status[i], 0, sizeof(char) * col);
+        for (int j = 0; j < col; ++j) {
+            item->status[i][j] = map[i][j];
+        }
+    }
+
+    item->bX = bx;
+    item->bY = by;
+    item->sX = sx;
+    item->sY = sy;
+    item->step = step;
+
+    return item;
+}
+
+int IsEmpty(Queue_t *queue)
+{
+    if (queue->cnt == 0) {
+        return 1;
+    }
+
+    return 0;
+}
+
+void QueueDestory(Queue_t *queue)
+{
+    for (int i = queue->head; i < queue->tail; ++i) {
+        free(queue->queue[i]);
+        queue->cnt--;
+    }
+}
+
+#define MAXDIRECTIONS 4
+char g_mark[MAXDIRECTIONS][MAXROW][MAXCOL] = {0};
+int g_row;
+int g_col;
+char **g_grid;
+int g_targetx;
+int g_targety;
+#define AXIS 2
+int g_Bdirections[MAXDIRECTIONS][AXIS] = { {1, 0}, {-1, 0}, {0, 1}, {0, -1} }; // 箱子移动
+int g_Sdirections[MAXDIRECTIONS][AXIS] = { {-1, 0}, {1, 0}, {0, -1}, {0, 1} }; // 根据箱子移动点计算人的坐标
+int isConnetedflag = 0;
+
+char g_dfsmark[MAXROW][MAXCOL] = {0}; // 用于计算连通性
+
+void GlobalInit(char** grid, int gridSize, int* gridColSize)
+{
+    memset(g_mark, 0, MAXDIRECTIONS*MAXROW * MAXCOL);
+    g_row = gridSize;
+    g_col = gridColSize[0];
+    g_grid = grid;
+}
+
+int CheckParam(char** grid, int gridSize, int* gridColSize)
+{
+    if (grid == NULL || gridSize <= 0 || gridColSize == NULL || gridColSize[0] <= 0) {
+        return -1;
+    }
+
+    return 0;
+}
+
+void PushBoxInit(Queue_t *queue)
+{
+    int sx = -1;
+    int sy = -1;
+    int bx = -1;
+    int by = -1;
+
+    for (int i = 0; i < g_row; ++i) {
+        for (int j = 0; j < g_col; ++j) {
+            if (g_grid[i][j] == 'S') {
+                sx = i;
+                sy = j;
+            } else if (g_grid[i][j] == 'B') {
+                bx = i;
+                by = j;
+            } else if (g_grid[i][j] == 'T') {
+                g_targetx = i;
+                g_targety = j;
+            }
+        }
+    }
+
+    if (sy == -1 || sx == -1 || bx == -1 || by == -1) {
+        return;
+    }
+
+    g_mark[0][bx][by] = 1;
+    QueuePush(queue, CreateItem(g_grid, g_row, g_col, bx, by, sx, sy, 0));
+}
+
+void dfs(Item item, int sx, int sy, int x, int y) // 计算人当前的坐标是否能够到达新的推箱子位置点
+{
+    if (sx == x && sy == y) {
+        isConnetedflag = 1;
+        return;
+    }
+
+    g_dfsmark[sx][sy] = 1;
+
+    for (int i = 0; i < MAXDIRECTIONS; ++i) {
+        if (isConnetedflag == 1) {
+            return;
+        }
+
+        int newX = sx + g_Bdirections[i][0];
+        int newY = sy + g_Bdirections[i][1];
+        if (newX >= 0 && newX < g_row && newY >= 0 && newY < g_col && g_dfsmark[newX][newY] == 0) {
+            if (item->status[newX][newY] != '#' && item->status[newX][newY] != 'B') {
+                dfs(item, newX, newY, x, y);
+                if (isConnetedflag == 1) {
+                    return;
+                }
+            }
+        }
+    }
+}
+
+int IsConnected(Item item, int x, int y)
+{
+    memset(g_dfsmark, 0, MAXROW * MAXCOL);
+    isConnetedflag = 0;
+
+    dfs(item, item->sX, item->sY, x, y);
+    return isConnetedflag;
+}
+
+void QueueNodeProcess(Queue_t *queue, Item item)
+{
+    for (int i = 0; i < MAXDIRECTIONS; ++i) { // 从4个方向分别搜索
+        int newBI = item->bX + g_Bdirections[i][0]; // 新的箱子地点
+        int newBJ = item->bY + g_Bdirections[i][1];
+
+        int newSI = item->bX + g_Sdirections[i][0]; // 推动箱子到新地点人应该的位置
+        int newSJ = item->bY + g_Sdirections[i][1];
+        // 新的箱子位置是有效的，同时从当前方向到新箱子位置没有访问过
+        if (newBI >= 0 && newBI < g_row && newBJ >= 0 && newBJ < g_col && g_mark[i][newBI][newBJ] != 1) {
+            if (item->status[newBI][newBJ] == '#') { // 可以推动到箱子
+                continue;
+            }
+            if (newSI >= 0 && newSI < g_row && newSJ >= 0 && newSJ < g_col) { // 人的位置有效
+                if (item->status[newSI][newSJ] == '#' || item->status[newSI][newSJ] == 'B') { // 不可以站人的情况
+                    continue;
+                }
+
+                if (IsConnected(item, newSI, newSJ)) { // 当前人的位置可以到达新的推箱子位置。
+                    Item newItem = CreateItem(item->status, g_row, g_col, newBI, newBJ, item->bX, item->bY, item->step + 1);
+                    newItem->status[item->bX][item->bY] = '.'; // 在推动之后修改新的地图信息
+                    newItem->status[item->sX][item->sY] = '.';
+                    newItem->status[newBI][newBJ] = 'B';
+                    g_mark[i][newBI][newBJ] = 1; // 记录从这个方向推箱子已经记录
+                    QueuePush(queue, newItem); // 入队列
+                }
+            }
+        }
+    }
+}
+
+int PushBoxBfs(char** grid, int gridSize, int* gridColSize)
+{
+    Queue_t *queue = QueueInit();
+
+    PushBoxInit(queue);  // 初始化启动点
+    while (!IsEmpty(queue)) {
+        Item node = QueuePop(queue);
+        if (node->bX == g_targetx && node->bY == g_targety) { // 已经到达访问节点
+            int step = node->step;
+            free(node);
+            return step;
+        }
+
+        QueueNodeProcess(queue, node); // 如果未到达，则基于当前点继续搜索节点
+        free(node);
+    }
+
+    QueueDestory(queue);
+    return -1;
+}
+
+int minPushBox(char** grid, int gridSize, int* gridColSize)
+{
+    if (CheckParam(grid, gridSize, gridColSize)) {
+        return 0;
+    }
+
+    GlobalInit(grid, gridSize, gridColSize);
+
+    return PushBoxBfs(grid, gridSize, gridColSize);
+}
+
+
+typedef struct Position_{
+    int row;
+    int col;
+}Position;
+#define EnQueue(x, q) q[tail++] = x
+#define DeQueue(q)    q[head++]
+#define IsQueueEmpty  (head == tail)
+bool IsOutBound(Position size, Position x) {
+    return x.row < 0 || x.row >= size.row || x.col < 0 || x.col >= size.col;
+}
+
+int gManCanArrival = false;
+/*检查人是否可以到达预定位置*/
+void Dfs(char** grid, Position size, Position cur, Position end, bool vister[size.row][size.col], Position block) {
+    if (IsOutBound(size, cur)) {
+        return;
+    }
+    if (gManCanArrival == true) {
+        return;
+    }
+    if (cur.row == end.row && cur.col == end.col) {
+        gManCanArrival = true;
+        return;
+    }
+    if (vister[cur.row][cur.col] == true) {
+        return;
+    }
+    vister[cur.row][cur.col] = true;
+    Position dir[4] = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+    for (int i = 0; i < 4; ++i) {
+        Position next = {cur.row + dir[i].row, cur.col + dir[i].col};
+        if (IsOutBound(size, next)) {
+            continue;
+        }
+        if (grid[next.row][next.col] == '#' || (next.row == block.row && next.col == block.col)) {
+            continue;
+        }
+        Dfs(grid, size, next, end, vister, block);
+    }
+}
+bool IsCanArrivals(char** grid, Position size, Position cur, Position end, Position block) {
+    bool vister[size.row][size.col];
+    memset(vister, false, sizeof(vister));
+    gManCanArrival = false;
+    Dfs(grid, size, cur, end, vister, block);
+    return gManCanArrival;
+}
+bool isValidPos(char** grid, Position size, Position x)
+{
+    if (IsOutBound(size, x)) {
+        return false;
+    }
+    if (grid[x.row][x.col] == '#') {
+        return false;
+    }
+    return true;
+}
+typedef struct BstTabel_{
+    int step;
+    int steps[4];
+    Position manPos;
+}BstTable;
+void InitBstTable(Position size, BstTable bstTbl[size.row][size.col], Position manPos) {
+    for (int i = 0; i < size.row; ++i) {
+        for (int j = 0; j < size.col; ++j) {
+            memset(bstTbl[i][j].steps, 0, sizeof(bstTbl[i][j].steps));
+            bstTbl[i][j].step = -1;
+            bstTbl[i][j].steps[0] = -1;
+            bstTbl[i][j].steps[1] = -1;
+            bstTbl[i][j].steps[2] = -1;
+            bstTbl[i][j].steps[3] = -1;
+            bstTbl[i][j].manPos = manPos;
+        }
+    }
+}
+void GetInitPos(char **grid, Position size, Position *start, Position *block, Position *end)
+{
+    for (int i = 0; i < size.row; ++i) {
+        for (int j = 0; j < size.col; ++j) {
+            if (grid[i][j] == 'B') {
+                block->row = i;
+                block->col = j;
+            } else if (grid[i][j] == 'T') {
+                end->row = i;
+                end->col = j;
+            } else if (grid[i][j] == 'S') {
+                start->row = i;
+                start->col = j;
+            }
+        }
+    }
+}
+int GetDirIndex(Position block, Position next)
+{
+    if (block.row == next.row) {
+        if (block.col > next.col) {
+            return 3;
+        } else {
+            return 1;
+        }
+    } else if (block.col == next.col) {
+        if (block.row > next.row) {
+            return 0;
+        } else {
+            return 2;
+        }
+    }
+    return -1;
+}
+int GetMinSetup(int setps[])
+{
+    int min = INT_MAX;
+    for (int i = 0; i < 4; i++) {
+        min = fmin(setps[i], min);
+    }
+    return min;
+}
+int minPushBox(char** grid, int gridSize, int* gridColSize){
+    Position size = {.row = gridSize, .col = gridColSize[0]};
+    Position start;
+    Position end;
+    Position man;
+    GetInitPos(grid, size, &man, &start, &end);
+    BstTable bstTbl[size.row][size.col];
+    InitBstTable(size, bstTbl, man);
+    Position queue[size.row * size.col*4];
+    int head = 0;
+    int tail = 0;
+    EnQueue(start, queue);
+    //四个方向上下左右
+    bstTbl[start.row][start.col].step = 0;
+    bstTbl[start.row][start.col].steps[0] = 0;
+    bstTbl[start.row][start.col].steps[1] = 0;
+    bstTbl[start.row][start.col].steps[2] = 0;
+    bstTbl[start.row][start.col].steps[3] = 0;
+    while (!IsQueueEmpty) {
+        Position cur = DeQueue(queue);
+        if (cur.row == end.row && cur.col == end.col) {
+            return bstTbl[end.row][end.col].step;
+        }
+        Position dir[4] = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+        Position nDir[4] = {{0, -1}, {0, 1}, {-1, 0}, {1, 0}};
+        for (int i = 0; i < 4; ++i) {
+            Position next = {cur.row + dir[i].row, cur.col + dir[i].col};
+            Position usePos = {cur.row + nDir[i].row, cur.col + nDir[i].col};
+            if (!isValidPos(grid, size, next)) {
+                continue;
+            }
+            if (!isValidPos(grid, size, usePos)) {
+                continue;
+            }
+            //Position curMan = bstTbl[cur.row][cur.col].manPos;
+            if (!IsCanArrivals(grid, size, bstTbl[cur.row][cur.col].manPos, usePos, cur)) {
+                continue;
+            }
+            int dirIndex = GetDirIndex(cur, next);
+            if (dirIndex == -1) {
+                printf("error!!! cur:%d:%d, next :%d:%d\n", cur.row, cur.col, next.row, next.col);
+            }
+            if (bstTbl[next.row][next.col].steps[dirIndex] != -1) {
+                continue;
+            }
+            bstTbl[next.row][next.col].manPos = cur;
+            bstTbl[next.row][next.col].steps[dirIndex] = 1;
+            bstTbl[next.row][next.col].step = bstTbl[cur.row][cur.col].step + 1;
+            //printf("EnQueue:%d:%d-->%d:%d, dirIndex:%d\n", cur.row, cur.col, next.row, next.col, dirIndex);
+            EnQueue(next, queue);
+        }
+    }
+    return -1;
+}
+
