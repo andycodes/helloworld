@@ -1446,3 +1446,127 @@ bool isInterleave(char* s1, char* s2, char* s3) {
     return f[n][m];
 }
 
+/*
+546. 移除盒子
+给出一些不同颜色的盒子，盒子的颜色由数字表示，即不同的数字表示不同的颜色。
+你将经过若干轮操作去去掉盒子，直到所有的盒子都去掉为止。每一轮你可以移除具有相同颜色的连续 k 个盒子（k >= 1），这样一轮之后你将得到 k*k 个积分。
+当你将所有盒子都去掉之后，求你能获得的最大积分和。
+
+
+
+示例：
+
+输入：boxes = [1,3,2,2,2,3,4,3,1]
+输出：23
+解释：
+[1, 3, 2, 2, 2, 3, 4, 3, 1]
+----> [1, 3, 3, 4, 3, 1] (3*3=9 分)
+----> [1, 3, 3, 3, 1] (1*1=1 分)
+----> [1, 1] (3*3=9 分)
+----> [] (2*2=4 分)
+*/
+int dp[100][100][100];
+
+int calculatePoints(int* boxes, int l, int r, int k) {
+    if (l > r) return 0;
+    if (dp[l][r][k] != 0) return dp[l][r][k];
+    while (r > l && boxes[r] == boxes[r - 1]) {
+        r--;
+        k++;
+    }
+    dp[l][r][k] = calculatePoints(boxes, l, r - 1, 0) + (k + 1) * (k + 1);
+    for (int i = l; i < r; i++) {
+        if (boxes[i] == boxes[r]) {
+            dp[l][r][k] = fmax(dp[l][r][k], calculatePoints(boxes, l, i, k + 1) + calculatePoints(boxes, i + 1, r - 1, 0));
+        }
+    }
+    return dp[l][r][k];
+}
+
+int removeBoxes(int* boxes, int boxesSize) {
+    memset(dp, 0, sizeof dp);
+    return calculatePoints(boxes, 0, boxesSize - 1, 0);
+}
+
+
+/*
+664. 奇怪的打印机
+有台奇怪的打印机有以下两个特殊要求：
+
+打印机每次只能打印同一个字符序列。
+每次可以在任意起始和结束位置打印新字符，并且会覆盖掉原来已有的字符。
+给定一个只包含小写英文字母的字符串，你的任务是计算这个打印机打印它需要的最少次数。
+
+示例 1:
+
+输入: "aaabbb"
+输出: 2
+解释: 首先打印 "aaa" 然后打印 "bbb"。
+*/
+#include <stdlib.h>
+#include <stdio.h>
+#include <stdbool.h>
+#include <string.h>
+#include <math.h>
+#include <limits.h>
+
+#define MAX_LEN 101
+
+#define MMAX(a, b)        ((a) > (b)? (a) : (b))
+#define MMIN(a, b)        ((a) < (b)? (a) : (b))
+
+int dp[MAX_LEN][MAX_LEN];
+
+//【算法思路】分组dp。经典的分组dp模型，重点解决的问题，是切割后左半部分的处理方法。
+//          dp[i][j]表示从s[i]到s[j]的打印次数，dp[i][j]可以由k属于i~j中的所有s[i] == s[k]的k点分解
+//          表明s[i]和s[k]由一次打印完成
+// 1.范围从小到大
+// 2.当s[i] == s[k]将问题分解为两部分，分别解决两侧的问题
+// 3.处理切割出的两部分，dp[i][k] = dp[i][k-1]（子问题）；dp[k+1][j]已经求出（子问题）
+int strangePrinter(char * s){
+    int slen = strlen(s);
+    if(slen == 0) {
+        return 0;
+    }
+
+    for(int i = 0; i < slen; i++) {
+        for(int j = 0; j < slen; j++) {
+            dp[i][j] = 0;
+        }
+    }
+
+    for(int gap = 0; gap < slen; gap++) {
+        for(int i = 0; i + gap < slen; i++) {
+            int j = i + gap;
+
+            if(gap == 0) {
+                dp[i][j] = 1;
+                continue;
+            }
+
+            int tmin = INT_MAX;
+
+            for(int k = i; k <= j; k++) {
+                if(k == i) {
+                    tmin = MMIN(tmin, 1 + dp[i + 1][j]);
+                } else if(s[i] == s[k] && k == j) {
+                    tmin = MMIN(tmin, dp[i][j - 1]);
+                } else if(s[i] == s[k]){
+                    tmin = MMIN(tmin, dp[i][k - 1] + dp[k + 1][j]);
+                }
+            }
+
+            dp[i][j] = tmin;
+        }
+    }
+/*
+    for(int i = 0; i < slen; i++) {
+        for(int j = 0; j < slen; j++) {
+            printf("[%d,%d]%d    ", i, j, dp[i][j]);
+        }
+        printf("\n");
+    }
+*/
+    return dp[0][slen - 1];
+}
+

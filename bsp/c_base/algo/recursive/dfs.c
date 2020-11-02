@@ -777,3 +777,69 @@ int* numsSameConsecDiff(int N, int K, int* returnSize)
 
 	return res;
 }
+
+/*
+329. 矩阵中的最长递增路径
+给定一个整数矩阵，找出最长递增路径的长度。
+
+对于每个单元格，你可以往上，下，左，右四个方向移动。 你不能在对角线方向上移动或移动到边界外（即不允许环绕）。
+
+示例 1:
+
+输入: nums =
+[
+  [9,9,4],
+  [6,6,8],
+  [2,1,1]
+]
+输出: 4
+解释: 最长递增路径为 [1, 2, 6, 9]。
+*/
+int dir[4][2] = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+
+int dfs(int** matrix, int row, int col, int visited[row][col][4], int cx, int cy)
+{
+	int max = 0;
+	for (int i = 0; i < 4; i++) {
+		int nx = cx + dir[i][0];
+		int ny = cy + dir[i][1];
+
+		if (nx < 0 || nx >= row ||ny < 0 || ny >= col) {
+			continue;
+		}
+
+		if (matrix[nx][ny] <= matrix[cx][cy]) {
+			continue;
+		}
+
+		if (visited[nx][ny][i] == 1) {
+			continue;
+		}
+
+		visited[nx][ny][i] = 1;
+
+		max = fmax(max, dfs(matrix, row, col, visited, nx, ny));
+	}
+
+	return max + 1;
+}
+
+int longestIncreasingPath(int** matrix, int matrixSize, int* matrixColSize)
+{
+	if (matrix == NULL || matrixSize <= 0 || matrixColSize == NULL)
+		return 0;
+
+	int row = matrixSize;
+	int col = *matrixColSize;
+	int max = 1;
+	int visited[row][col][4];
+
+	for(int i = 0; i < row; i++) {
+		for (int j = 0; j < col; j++) {
+			memset(visited, 0, sizeof(visited));
+			max = fmax(max, dfs(matrix, row, col, visited, i,j));
+		}
+	}
+
+	return max;
+}
