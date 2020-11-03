@@ -31,6 +31,12 @@ struct ListNode {
     struct ListNode *next;
 };
 
+/*
+res[*returnSize] = calloc(1, sizeof(struct ListNode));
+res[*returnSize]->val = pop->val;
+res[*returnSize]->next = NULL;
+prev = res[*returnSize];
+*/
 struct ListNode* slink_init(void)
 {
 	struct ListNode* head = (struct ListNode*)calloc(1, sizeof(struct ListNode));
@@ -76,6 +82,17 @@ int slink_first_pop(struct ListNode * head)
 	free(del);
 	del = NULL;
 	return ret;
+}
+
+struct ListNode *prev = head;//prev维护前指针(指向前面一个对象)
+void slink_last_push(int val)
+{
+	struct ListNode *node = malloc(sizeof(struct ListNode));
+	node->val = val;
+	node->next = NULL;
+
+	prev->next = node;
+	prev = prev->next;
 }
 
 void slink_last_push(struct ListNode* head, int val)
