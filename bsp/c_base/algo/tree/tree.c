@@ -316,3 +316,281 @@ bool  isBalanced(struct TreeNode* root){
 }
 
 
+/*
+面试题 04.08. 首个共同祖先
+难度中等7
+设计并实现一个算法，找出二叉树中某两个节点的第一个共同祖先。不得将其他的节点存储在另外的数据结构中。注意：这不一定是二叉搜索树。
+例如，给定如下二叉树: root = [3,5,1,6,2,0,8,null,null,7,4]
+    3
+   / \
+  5   1
+ / \ / \
+6  2 0  8
+  / \
+ 7   4
+示例 1:
+输入: root = [3,5,1,6,2,0,8,null,null,7,4], p = 5, q = 1
+输入: 3
+解释: 节点 5 和节点 1 的最近公共祖先是节点 3。
+
+*/
+struct TreeNode* lowestCommonAncestor(struct TreeNode* root, struct TreeNode* p, struct TreeNode* q)
+{
+// 到底了还没找到，返回 null
+// 如果找到了 p 或 q，返回它
+	if (root == NULL || p == root || q == root)
+		return root;
+//用left记录在左子树中查找p或q的情况，找到了其中之一立刻结束查找！找不到为null.
+	struct TreeNode* left = lowestCommonAncestor(root->left, p, q);
+//用right记录在右子树中查找p或q的情况，找到了其中之一立刻结束查找！！找不到为null.
+	struct TreeNode* right = lowestCommonAncestor(root->right, p, q);
+//如果left为空，说明这两个节点在cur结点的右子树上，我们只需要返回右子树查找的结果即可
+	if (left == NULL) {
+		return right;
+	}
+
+	if (right == NULL) {
+		return left;
+	}
+//如果left和right都不为空，说明这两个节点一个在cur的左子树上一个在cur的右子树上，
+        // 它们分别在以 root 为根的左右子树中，所以 root 就是它们的最近公共祖先
+	return root;
+}
+
+
+/*
+654. 最大二叉树
+给定一个不含重复元素的整数数组。
+一个以此数组构建的最大二叉树定义如下：
+二叉树的根是数组中的最大元素。
+左子树是通过数组中最大值左边部分构造出的最大二叉树。
+右子树是通过数组中最大值右边部分构造出的最大二叉树。
+通过给定的数组构建最大二叉树，并且输出这个树的根节点。
+*/
+struct TreeNode* constructMaximumBinaryTree(int* nums, int numsSize)
+{
+	if (numsSize <= 0)
+		return NULL;
+
+	struct TreeNode*root = (struct TreeNode*)calloc(1, sizeof(struct TreeNode));
+	int maxidx = 0;
+	for (int i = 0; i < numsSize; i++)
+		if (nums[i] > nums[maxidx])
+			maxidx = i;
+
+	root->val = nums[maxidx];
+	root->left = constructMaximumBinaryTree(nums, maxidx);
+	root->right = constructMaximumBinaryTree(nums + maxidx + 1, numsSize - maxidx - 1);
+	return root;
+}
+
+
+/*
+114. 二叉树展开为链表
+给定一个二叉树，原地将它展开为一个单链表。
+
+
+
+例如，给定二叉树
+
+    1
+   / \
+  2   5
+ / \   \
+3   4   6
+将其展开为：
+
+1
+ \
+  2
+   \
+    3
+     \
+      4
+       \
+        5
+         \
+          6
+*/
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     struct TreeNode *left;
+ *     struct TreeNode *right;
+ * };
+ */
+
+
+int num;
+
+void flatten(struct TreeNode* root) {
+    num = 0;
+    struct TreeNode** l = (struct TreeNode**)malloc(0);
+    preorderTraversal(root, &l);
+    for (int i = 1; i < num; i++) {
+        struct TreeNode *prev = l[i - 1], *curr = l[i];
+        prev->left = NULL;
+        prev->right = curr;
+    }
+    free(l);
+}
+
+void preorderTraversal(struct TreeNode* root, struct TreeNode*** l) {
+    if (root != NULL) {
+        num++;
+        (*l) = (struct TreeNode**)realloc((*l), sizeof(struct TreeNode*) * num);
+        (*l)[num - 1] = root;
+        preorderTraversal(root->left, l);
+        preorderTraversal(root->right, l);
+    }
+}
+
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     struct TreeNode *left;
+ *     struct TreeNode *right;
+ * };
+ */
+
+void flatten(struct TreeNode* root)
+{
+    while (root != NULL) {
+        //左子树为 null，直接考虑下一个节点
+        if (root->left == NULL) {
+            root = root->right;
+        } else {
+            // 找左子树最右边的节点
+            struct TreeNode* pre = root->left;
+            while (pre->right != NULL) {
+                pre = pre->right;
+            }
+            //将原来的右子树接到左子树的最右边节点
+            pre->right = root->right;
+            // 将左子树插入到右子树的地方
+            root->right = root->left;
+            root->left = NULL;
+            // 考虑下一个节点
+            root = root->right;
+        }
+    }
+}
+
+
+/*
+105. 从前序与中序遍历序列构造二叉树
+根据一棵树的前序遍历与中序遍历构造二叉树。
+
+注意:
+你可以假设树中没有重复的元素。
+
+例如，给出
+
+前序遍历 preorder = [3,9,20,15,7]
+中序遍历 inorder = [9,3,15,20,7]
+返回如下的二叉树：
+
+    3
+   / \
+  9  20
+    /  \
+   15   7
+*/
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     struct TreeNode *left;
+ *     struct TreeNode *right;
+ * };
+ */
+
+
+/*
+二叉树前序遍历的顺序为：先遍历根节点；随后递归地遍历左子树；最后递归地遍
+历右子树。二叉树中序遍历的顺序为：先递归地遍历左子树；随后遍历根节点；
+最后递归地遍历右子树。
+对于任意一颗树而言，前序遍历的形式总是[ 根节点, [左子树的前序遍历结果],
+[右子树的前序遍历结果] ]即根节点总是前序遍历中的第一个节点。而中序遍历的形
+式总是[ [左子树的中序遍历结果], 根节点, [右子树的中序遍历结果] ]
+前序遍历的特点是， 根节点 始终出现在数组的第一位，而中序遍历中 根节点 出现
+在数组的中间位置。根据上面给出的两个数组，首先我们就可以拼出 根节点，
+它就是 1。
+*/
+
+struct TreeNode* buildTree(int* preorder, int preorderSize, int* inorder, int inorderSize)
+{
+	if ((preorderSize == 0) || (inorderSize == 0)) {
+		return NULL;
+	}
+
+	struct TreeNode* root = (struct TreeNode*)malloc(sizeof(struct TreeNode));
+	root->val = *preorder;// 前序遍历中的第一个节点就是根节点
+	root->left = NULL;
+	root->right = NULL;
+
+	int posion = 0;// 在中序遍历中定位根节点
+	for (int i = 0; i < preorderSize; i++) {
+		if (*preorder == inorder[i]) {
+			posion = i;
+			break;
+		}
+	}
+
+	root->left = buildTree(preorder + 1, posion, inorder, posion);
+	root->right = buildTree(preorder + posion + 1, inorderSize - posion - 1, inorder + posion + 1, inorderSize - posion - 1);
+	return root;
+}
+
+/*
+106. 从中序与后序遍历序列构造二叉树
+根据一棵树的中序遍历与后序遍历构造二叉树。
+
+注意:
+你可以假设树中没有重复的元素。
+
+例如，给出
+
+中序遍历 inorder = [9,3,15,20,7]
+后序遍历 postorder = [9,15,7,20,3]
+返回如下的二叉树：
+
+    3
+   / \
+  9  20
+    /  \
+   15   7
+*/
+
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     struct TreeNode *left;
+ *     struct TreeNode *right;
+ * };
+ */
+
+
+
+struct TreeNode* buildTree(int* inorder, int inorderSize, int* postorder, int postorderSize){
+    if(postorderSize == 0 || inorderSize == 0)return NULL;      //叶子结点的左右子树为空
+
+    struct TreeNode* root = (struct TreeNode*)malloc(sizeof(struct TreeNode));
+    root->val = postorder[postorderSize-1];                     //根结点值为后序遍历最后一位
+
+    int left;
+    for(left=0;left<inorderSize;left++){
+        if(inorder[left] == root->val)break;                    //找到中序列表中的根结点，其索引为左子树结点个数
+    }
+    int right = inorderSize - left - 1;                         //计算右子树结点个数
+
+    root->left = buildTree(inorder,left,postorder,left);        //递归构建左、右子树
+    root->right = buildTree(inorder+left+1,right,postorder+left,right);
+
+    return root;
+}
+
+

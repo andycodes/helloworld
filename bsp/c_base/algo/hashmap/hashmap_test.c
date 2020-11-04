@@ -374,3 +374,121 @@ int findLHS(int* nums, int numsSize){
     }
     return max;
 }
+
+/*
+652. 寻找重复的子树
+给定一棵二叉树，返回所有重复的子树。对于同一类的重复子树，你只需要返回其中任意一棵的根结点即可。
+
+两棵树重复是指它们具有相同的结构以及相同的结点值。
+
+示例 1：
+
+        1
+       / \
+      2   3
+     /   / \
+    4   2   4
+       /
+      4
+下面是两个重复的子树：
+
+      2
+     /
+    4
+和
+
+    4
+*/
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     struct TreeNode *left;
+ *     struct TreeNode *right;
+ * };
+ */
+
+
+#define MAX_STRING_LEN 20000
+#define DEBUG
+
+typedef struct {
+    char* key;
+    struct TreeNode* data;
+    int cnt;
+    UT_hash_handle hh;
+} Hash;
+
+void AddHash(char* key, struct TreeNode* data, Hash** hashObj)
+{
+    Hash* node;
+    HASH_FIND_STR(*hashObj, key, node);
+    if (node == NULL) {
+        Hash* tmp = calloc(1, sizeof(Hash));
+        tmp->key = key;
+        tmp->data = data;
+        tmp->cnt++;
+        HASH_ADD_KEYPTR(hh, *hashObj, key, strlen(key), tmp);
+        DEBUG("%s is first record\n", key);
+    } else {
+        node->cnt++;
+        DEBUG("%s is repeat\n", key);
+    }
+}
+
+void DelHash(Hash** hashObj)
+{
+    Hash* node;
+    Hash* node2;
+    HASH_ITER(hh, *hashObj, node, node2) {
+        HASH_DEL(*hashObj, node);
+        free(node->key);
+        free(node);
+    }
+}
+
+void OutPut(Hash** hashObj, struct TreeNode** recordData, int* returnSize)
+{
+    Hash* node;
+    Hash* node2;
+    HASH_ITER(hh, *hashObj, node, node2) {
+        if (node->cnt > 1) {
+            recordData[*returnSize] = node->data;
+            DEBUG("Tree[%d] = %d\n", *returnSize, node->data->val);
+            (*returnSize)++;
+        }
+    }
+}
+
+char* Dfs(struct TreeNode* root, Hash** hashObj)
+{
+    if (root == NULL) {
+        return "#";
+    }
+
+    char* string = calloc(MAX_STRING_LEN, sizeof(char));
+    sprintf(string, "%d ", root->val);
+    strcat(string, Dfs(root->left, hashObj));
+    strcat(string, Dfs(root->right, hashObj));
+
+    AddHash(string, root, hashObj);
+    return string;
+}
+
+struct TreeNode** findDuplicateSubtrees(struct TreeNode* root, int* returnSize)
+{
+	if (root == NULL) {
+		*returnSize = 0;
+		return NULL;
+	}
+
+    Hash* hashObj = NULL;
+	Dfs(root, &hashObj);
+
+    *returnSize = 0;
+    struct TreeNode** recordData = calloc(HASH_COUNT(hashObj), sizeof(struct TreeNode*));
+    OutPut(&hashObj, recordData, returnSize);
+
+    DelHash(&hashObj);
+	return recordData;
+}

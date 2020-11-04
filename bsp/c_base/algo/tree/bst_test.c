@@ -786,3 +786,110 @@ struct TreeNode** splitBST(struct TreeNode* root, int V, int* returnSize){
     splitSubBST(root, V, &res[0], &res[1]);
     return res;
 }
+
+/*
+501. 二叉搜索树中的众数
+给定一个有相同值的二叉搜索树（BST），找出 BST 中的所有众数（出现频率最高的元素）。
+
+假定 BST 有如下定义：
+
+结点左子树中所含结点的值小于等于当前结点的值
+结点右子树中所含结点的值大于等于当前结点的值
+左子树和右子树都是二叉搜索树
+例如：
+给定 BST [1,null,2,2],
+
+   1
+    \
+     2
+    /
+   2
+*/
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     struct TreeNode *left;
+ *     struct TreeNode *right;
+ * };
+ */
+
+
+int* answer;
+int answerSize;
+int base, count, maxCount;
+
+void update(int x) {
+    if (x == base) {
+        ++count;
+    } else {
+        count = 1;
+        base = x;
+    }
+    if (count == maxCount) {
+        answer[answerSize++] = base;
+    }
+    if (count > maxCount) {
+        maxCount = count;
+        answerSize = 0;
+        answer[answerSize++] = base;
+    }
+}
+
+void dfs(struct TreeNode* o) {
+    if (!o) {
+        return;
+    }
+    dfs(o->left);
+    update(o->val);
+    dfs(o->right);
+}
+
+int* findMode(struct TreeNode* root, int* returnSize) {
+    base = count = maxCount = 0;
+    answer = malloc(sizeof(int) * 4001);
+    answerSize = 0;
+    dfs(root);
+    *returnSize = answerSize;
+    return answer;
+}
+
+/*
+538. 把二叉搜索树转换为累加树
+给出二叉 搜索 树的根节点，该树的节点值各不相同，请你将其转换为累加树（Greater Sum Tree），使每个节点 node 的新值等于原树中大于或等于 node.val 的值之和。
+
+提醒一下，二叉搜索树满足下列约束条件：
+
+节点的左子树仅包含键 小于 节点键的节点。
+节点的右子树仅包含键 大于 节点键的节点。
+左右子树也必须是二叉搜索树。
+*/
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     struct TreeNode *left;
+ *     struct TreeNode *right;
+ * };
+ */
+
+
+int sum = 0;
+struct TreeNode* backingInOrder(struct TreeNode* root)
+{
+	if (root == NULL) {
+		return NULL;
+	}
+
+	backingInOrder(root->right);
+	sum = sum + root->val;
+	root->val = sum;
+	backingInOrder(root->left);
+	return root;
+}
+
+struct TreeNode* convertBST(struct TreeNode* root)
+{
+	sum = 0;
+	return backingInOrder(root);
+}

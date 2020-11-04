@@ -273,305 +273,6 @@ int pathSum(struct TreeNode* root, int sum)
 	return ret;
 }
 
-
-/*
-面试题 04.08. 首个共同祖先
-难度中等7
-设计并实现一个算法，找出二叉树中某两个节点的第一个共同祖先。不得将其他的节点存储在另外的数据结构中。注意：这不一定是二叉搜索树。
-例如，给定如下二叉树: root = [3,5,1,6,2,0,8,null,null,7,4]
-    3
-   / \
-  5   1
- / \ / \
-6  2 0  8
-  / \
- 7   4
-示例 1:
-输入: root = [3,5,1,6,2,0,8,null,null,7,4], p = 5, q = 1
-输入: 3
-解释: 节点 5 和节点 1 的最近公共祖先是节点 3。
-
-*/
-
-/*
-思路
-分析
-对于当前的根节点root
-若root为空，直接返回root，表示没有找到目标
-若root为p或q
-若左子树或右子树中含有另外一个目标节点，那么root就是最终答案，返回root
-否则，也应当返回root，表示找到了其中一个目标
-否则
-若左子树和右子树分别含有p、q中的一个，那么root就是最终答案，返回root
-否则
-若两子树中含有p或q中的一个，即返回那个节点，表示找到了其中一个目标
-否则返回nullptr，表示没有找到目标
-整理
-经过整理我们发现
-若root为p或q，无论子树是否含有另外一个目标，都应该返回root
-另外，当左右子树的均含有目标节点时，返回root，否则只需返回找到的目标节点或空指针
-算法
-若root为空或root == p或root == q，返回root
-分别将root->left、root->right作为根节点，调用自身，得到返回值left、right
-若left不为空
-若right不为空，返回root
-否则返回left
-否则返回right
-
-*/
-struct TreeNode* lowestCommonAncestor
-	(struct TreeNode* root, struct TreeNode* p, struct TreeNode* q)
-{
-	if (root == NULL)
-		return NULL;
-
-	struct TreeNode* left = lowestCommonAncestor(root->left, p, q);
-	struct TreeNode* right = lowestCommonAncestor(root->right, p, q);
-	if (root == p || root == q)
-		return root;
-	else if (left != NULL && right != NULL)
-		return root;
-	else if (left != NULL)
-		return left;
-	else
-		return right;
-}
-
-/*
-116. 填充每个节点的下一个右侧节点指针
-给定一个完美二叉树，其所有叶子节点都在同一层，每个父节点都有两个子节点。二叉树定义如下：
-
-struct Node {
-  int val;
-  Node *left;
-  Node *right;
-  Node *next;
-}
-填充它的每个 next 指针，让这个指针指向其下一个右侧节点。如果找不到下一个右侧节点，则将 next 指针设置为 NULL。
-
-初始状态下，所有 next 指针都被设置为 NULL。
-*/
-void dfs(struct Node* root, struct Node* next)
-{
-	if (root == NULL)
-		return;
-
-	root->next = next;
-	dfs(root->left, root->right);
-	dfs(root->right, root->next != NULL ? root->next->left : NULL);
-}
-
-struct Node* connect(struct Node* root)
-{
-	dfs(root, NULL);
-	return root;
-}
-
-/*
-654. 最大二叉树
-给定一个不含重复元素的整数数组。一个以此数组构建的最大二叉树定义如下：
-
-二叉树的根是数组中的最大元素。
-左子树是通过数组中最大值左边部分构造出的最大二叉树。
-右子树是通过数组中最大值右边部分构造出的最大二叉树。
-通过给定的数组构建最大二叉树，并且输出这个树的根节点。
-*/
-struct TreeNode* constructMaximumBinaryTree(int* nums, int numsSize)
-{
-	if (numsSize <= 0)
-		return NULL;
-
-	struct TreeNode*root = (struct TreeNode*)calloc(1, sizeof(struct TreeNode));
-	int maxidx = 0;
-	for (int i = 0; i < numsSize; i++)
-		if (nums[i] > nums[maxidx])
-			maxidx = i;
-
-	root->val = nums[maxidx];
-	root->left = constructMaximumBinaryTree(nums, maxidx);
-	root->right = constructMaximumBinaryTree(nums + maxidx + 1, numsSize - maxidx - 1);
-	return root;
-}
-
-/*
-652. 寻找重复的子树
-给定一棵二叉树，返回所有重复的子树。对于同一类的重复子树，你只需要返回其中任意一棵的根结点即可。
-
-两棵树重复是指它们具有相同的结构以及相同的结点值。
-
-示例 1：
-
-        1
-       / \
-      2   3
-     /   / \
-    4   2   4
-       /
-      4
-下面是两个重复的子树：
-
-      2
-     /
-    4
-和
-
-    4
-*/
-
-char* dfs(struct TreeNode* root, struct HashTable *ht)
-{
-	if (root == NULL) {
-		return "#";
-	}
-
-	char* string = calloc(20000, sizeof(char));
-	sprintf(string, "%d ", root->val);
-	strcat(string, dfs(root->left, ht));
-	strcat(string, dfs(root->right, ht));
-
-	struct DataEntry cmpEntry;
-	cmpEntry.key = string;
-	struct DataEntry *find = hashFind(ht, &cmpEntry);
-	if (find == NULL) {
-		struct DataEntry *entry = (struct DataEntry *)calloc(1, sizeof(struct DataEntry));
-		entry->key = string;
-		entry->root = root;
-		entry->value = 1;
-		HashAdd(ht, &entry->node);
-	} else {
-		find->value++;
-	}
-
-	return string;
-}
-
-struct TreeNode** findDuplicateSubtrees(struct TreeNode* root, int* returnSize)
-{
-	*returnSize = 0;
-
-	if (root == NULL) {
-		return NULL;
-	}
-
-	struct HashTable dht;
-	struct HashTable *ht = &dht;
-	HashInit(ht, 40960, hashequal_str, hashcode_str);
-
-	dfs(root, ht);
-    	struct TreeNode** recordData = calloc(40960, sizeof(struct TreeNode*));
-
-	for (size_t i = 0; i < ht->bktSize; i++) {
-		if (!ListEmpty(&ht->bkts[i])) {
-			struct Node *node = NULL;
-			LIST_FOR_EACH(node, &ht->bkts[i]) {
-				struct DataEntry *entry = NODE_ENTRY(node, struct DataEntry, node);
-				if (entry->value > 1) {
-					recordData[*returnSize] = entry->root;
-					(*returnSize)++;
-				}
-			}
-		}
-	}
-
-	return recordData;
-}
-
-/*
-114. 二叉树展开为链表
-给定一个二叉树，原地将它展开为一个单链表。
-
-
-
-例如，给定二叉树
-
-    1
-   / \
-  2   5
- / \   \
-3   4   6
-将其展开为：
-
-1
- \
-  2
-   \
-    3
-     \
-      4
-       \
-        5
-         \
-          6
-*/
-// 递归
-void flatten(struct TreeNode* root)
-{
-	if (root == NULL) {
-		return;
-	}
-	flatten(root->left);
-	flatten(root->right);
-	if (root->left != NULL) {
-		struct TreeNode* lr = root->left;
-		while (lr->right != NULL) {
-			lr = lr->right;
-		}
-		lr->right = root->right;
-		root->right = root->left;
-		root->left = NULL;
-	}
-}
-/*
-105. 从前序与中序遍历序列构造二叉树
-根据一棵树的前序遍历与中序遍历构造二叉树。
-
-注意:
-你可以假设树中没有重复的元素。
-
-例如，给出
-
-前序遍历 preorder = [3,9,20,15,7]
-中序遍历 inorder = [9,3,15,20,7]
-返回如下的二叉树：
-
-    3
-   / \
-  9  20
-    /  \
-   15   7
-*/
-/**
- * Definition for a binary tree node.
- * struct TreeNode {
- *     int val;
- *     struct TreeNode *left;
- *     struct TreeNode *right;
- * };
- */
-
-
-struct TreeNode* buildTree(int* preorder, int preorderSize, int* inorder, int inorderSize)
-{
-    if ((preorderSize == 0) || (inorderSize == 0)) {
-        return NULL;
-    }
-    struct TreeNode* res = (struct TreeNode*)malloc(sizeof(struct TreeNode));
-    res->val = *preorder;
-    res->left = NULL;
-    res->right = NULL;
-    int posion = 0;
-    for (int i = 0; i < preorderSize; i++) {
-        if (*preorder == inorder[i]) {
-            posion = i;
-            break;
-        }
-    }
-    res->left = buildTree(preorder + 1, posion, inorder, posion);
-    res->right = buildTree(preorder + posion + 1, inorderSize - posion - 1,
-                           inorder + posion + 1, inorderSize - posion - 1);
-    return res;
-}
-
 /*
 951. 翻转等价二叉树
 难度中等41
@@ -605,192 +306,118 @@ bool flipEquiv(struct TreeNode* root1, struct TreeNode* root2)
 
 */
 
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     struct TreeNode *left;
+ *     struct TreeNode *right;
+ * };
+ */
+
+
 #define MAX 1000
 struct TreeNode **g_res;
 int resIndex;
 
 bool isDelete(struct TreeNode* root, int* to_delete, int to_deleteSize)
 {
-    for (int i = 0; i < to_deleteSize; i++) {
-        if (root->val == to_delete[i]) {
-            return true;
-        }
-    }
-    return false;
+	for (int i = 0; i < to_deleteSize; i++) {
+		if (root->val == to_delete[i]) {
+			return true;
+		}
+	}
+
+	return false;
 }
 
 void dfs(struct TreeNode* root, int* to_delete, int to_deleteSize)
 {
-    if (root == NULL) {
-        return;
-    }
-    if(isDelete(root, to_delete, to_deleteSize)) {
-        struct TreeNode* deleteNode = root;
-        if (deleteNode->left != NULL) {
-            g_res[resIndex] = deleteNode->left;
-            resIndex++;
-            dfs(deleteNode->left, to_delete, to_deleteSize);
-        }
-        if (deleteNode->right != NULL) {
-            g_res[resIndex] = deleteNode->right;
-            resIndex++;
-            dfs(deleteNode->right, to_delete, to_deleteSize);
-        }
-        return;
-    }
-    if (root->left != NULL) {
-        if(isDelete(root->left, to_delete, to_deleteSize)) {
-            struct TreeNode* deleteNode = root->left;
-            root->left = NULL;
-            if (deleteNode->left != NULL) {
-                g_res[resIndex] = deleteNode->left;
-                resIndex++;
-                dfs(deleteNode->left, to_delete, to_deleteSize);
-            }
-            if (deleteNode->right != NULL) {
-                g_res[resIndex] = deleteNode->right;
-                resIndex++;
-                dfs(deleteNode->right, to_delete, to_deleteSize);
-            }
-        } else {
-            dfs(root->left, to_delete, to_deleteSize);
-        }
-    }
-    if (root->right != NULL) {
-        if(isDelete(root->right, to_delete, to_deleteSize)) {
-            struct TreeNode* deleteNode = root->right;
-            root->right = NULL;
-            if (deleteNode->left != NULL) {
-                g_res[resIndex] = deleteNode->left;
-                resIndex++;
-                dfs(deleteNode->left, to_delete, to_deleteSize);
-            }
-            if (deleteNode->right != NULL) {
-                g_res[resIndex] = deleteNode->right;
-                resIndex++;
-                dfs(deleteNode->right, to_delete, to_deleteSize);
-            }
-        } else {
-            dfs(root->right, to_delete, to_deleteSize);
-        }
-    }
+	if (root == NULL) {
+		return;
+	}
+
+	if(isDelete(root, to_delete, to_deleteSize)) {
+		struct TreeNode* deleteNode = root;
+		if (deleteNode->left != NULL) {
+			g_res[resIndex++] = deleteNode->left;
+			dfs(deleteNode->left, to_delete, to_deleteSize);
+		}
+
+		if (deleteNode->right != NULL) {
+			g_res[resIndex++] = deleteNode->right;
+			dfs(deleteNode->right, to_delete, to_deleteSize);
+		}
+		return;
+	}
+
+	if (root->left != NULL) {
+		if(isDelete(root->left, to_delete, to_deleteSize)) {
+			struct TreeNode* deleteNode = root->left;
+			root->left = NULL;
+			if (deleteNode->left != NULL) {
+				g_res[resIndex++] = deleteNode->left;
+				dfs(deleteNode->left, to_delete, to_deleteSize);
+			}
+			if (deleteNode->right != NULL) {
+				g_res[resIndex++] = deleteNode->right;
+				dfs(deleteNode->right, to_delete, to_deleteSize);
+			}
+		} else {
+			dfs(root->left, to_delete, to_deleteSize);
+		}
+	}
+
+	if (root->right != NULL) {
+		if(isDelete(root->right, to_delete, to_deleteSize)) {
+			struct TreeNode* deleteNode = root->right;
+			root->right = NULL;
+			if (deleteNode->left != NULL) {
+				g_res[resIndex++] = deleteNode->left;
+				dfs(deleteNode->left, to_delete, to_deleteSize);
+			}
+			if (deleteNode->right != NULL) {
+				g_res[resIndex++] = deleteNode->right;
+				dfs(deleteNode->right, to_delete, to_deleteSize);
+			}
+		} else {
+			dfs(root->right, to_delete, to_deleteSize);
+		}
+	}
 }
 
 struct TreeNode** delNodes(struct TreeNode* root, int* to_delete, int to_deleteSize, int* returnSize)
 {
-    resIndex = 0;
-    if (root == NULL) {
-        return NULL;
-    }
-    if (to_delete == NULL) {
-        return root;
-    }
-    g_res = (struct TreeNode** )malloc(sizeof(struct TreeNode *) * MAX);
-    for (int i = 0; i < MAX; i++) {
-        g_res[i] = (struct TreeNode *)malloc(sizeof(struct TreeNode));
-    }
-    g_res[resIndex++] = root;
-    dfs(root, to_delete, to_deleteSize);
-    // printf("right = %d ", g_res[0]->right->val);
-    struct TreeNode **res = (struct TreeNode** )malloc(sizeof(struct TreeNode *) * resIndex);
-    for (int i = 0; i < resIndex; i++) {
-        res[i] = (struct TreeNode *)malloc(sizeof(struct TreeNode));
-    }
-    int fallyNum = 0;
-    for (int i = 0; i < resIndex; i++)
-    {
-        if (isDelete(g_res[i], to_delete, to_deleteSize) == false) {
-            res[fallyNum] = g_res[i];
-            fallyNum++;
-        }
-    }
-    *returnSize = fallyNum;
-    return res;
-}
+	resIndex = 0;
+	if (root == NULL || to_delete == NULL) {
+		return root;
+	}
 
-/*
-199. 二叉树的右视图
-难度中等271
-给定一棵二叉树，想象自己站在它的右侧，按照从顶部到底部的顺序，返回从右侧所能看到的节点值。
-示例:
-输入: [1,2,3,null,5,null,4]
-输出: [1, 3, 4]
-解释:
+	g_res = (struct TreeNode** )malloc(sizeof(struct TreeNode *) * MAX);
+	for (int i = 0; i < MAX; i++) {
+		g_res[i] = (struct TreeNode *)malloc(sizeof(struct TreeNode));
+	}
+	g_res[resIndex++] = root;
 
-   1            <---
- /   \
-2     3         <---
- \     \
-  5     4       <---
+	dfs(root, to_delete, to_deleteSize);
+	// printf("right = %d ", g_res[0]->right->val);
+	struct TreeNode **res = (struct TreeNode** )malloc(sizeof(struct TreeNode *) * resIndex);
+	for (int i = 0; i < resIndex; i++) {
+		res[i] = (struct TreeNode *)malloc(sizeof(struct TreeNode));
+	}
 
-*/
-#define MAX 1024 * 1024
-/**
- * Note: The returned array must be malloced, assume caller calls free().
- */
-int* rightSideView(struct TreeNode* root, int* returnSize)
-{
-	int *res = (int *)calloc(MAX, sizeof(int));
-	*returnSize = 0;
-
-	if (root == NULL)
-		return res;
-
-	struct TreeNode* queue[MAX];
-	int head = 0;
-	int rear = 0;
-
-	queue[rear++] = root;
-
-	while(head != rear) {
-		int floorSize = rear - head;
-		while(floorSize) {
-			struct TreeNode* pop = queue[head++];
-
-			if (floorSize == 1) {
-				res[*returnSize] = pop->val;
-				(*returnSize)++;
-			}
-
-			if (pop->left)
-				queue[rear++] = pop->left;
-
-			if (pop->right)
-				queue[rear++] = pop->right;
-
-			floorSize--;
+	int fallyNum = 0;
+	for (int i = 0; i < resIndex; i++) {
+		if (isDelete(g_res[i], to_delete, to_deleteSize) == false) {
+			res[fallyNum] = g_res[i];
+			fallyNum++;
 		}
 	}
 
+	*returnSize = fallyNum;
 	return res;
 }
 
-#define MAX 1024 * 1024
-void dfs(struct TreeNode* root, int deep, int *res, int* returnSize)
-{
-	if (root == NULL)
-		return;
-
-	if (*returnSize == deep) {// 当数组长度等于当前 深度 时, 把当前的值加入数组
-		res[*returnSize] = root->val;
-		(*returnSize)++;
-	}
-
-	dfs(root->right, deep + 1, res, returnSize); // 先从右边开始, 当右边没了, 再轮到左边
-	dfs(root->left, deep + 1, res, returnSize);
-}
-
-int* rightSideView(struct TreeNode* root, int* returnSize)
-{
-	int *res = (int *)calloc(MAX, sizeof(int));
-	*returnSize = 0;
-
-	if (root == NULL)
-		return res;
-
-	dfs(root, 0, res, returnSize);
-	return res;
-}
 
 /*
 863. 二叉树中所有距离为 K 的结点
@@ -821,126 +448,14 @@ BFS 要保存已访问结点；
 每次都将当前队列中全部元素向外延伸一个结点；
 
  */
-void dfs(struct List *listFather, struct TreeNode* root, struct TreeNode* father)
-{
-	if (root == NULL) {
-		return;
-	}
-
-	struct DataEntry  *entry = (struct DataEntry  *)calloc(1, sizeof(struct DataEntry));
-	entry->cur = root;
-	entry->father = father;
-	entry->visited = 0;
-	ListAddTail(listFather, &entry->node);
-
-	dfs(listFather, root->left, root);
-	dfs(listFather, root->right, root);
-}
-
-void setVisited(struct List *list, struct TreeNode* target)
-{
-	struct Node *node = NULL;
-	struct DataEntry *entry = NULL;
-
-	LIST_FOR_EACH(node, list) {
-		entry = NODE_ENTRY(node, struct DataEntry, node);
-		if (entry->cur == target) {
-			entry->visited = 1;
-		}
-	}
-}
-
-bool checkVisited(struct List *list, struct TreeNode* target)
-{
-	struct Node *node = NULL;
-	struct DataEntry *entry = NULL;
-
-	LIST_FOR_EACH(node, list) {
-		entry = NODE_ENTRY(node, struct DataEntry, node);
-		if (entry->cur == target) {
-			return entry->visited;
-		}
-	}
-
-	return false;
-}
-
-struct TreeNode* getFather(struct List *list, struct TreeNode* target)
-{
-	struct Node *node = NULL;
-	struct DataEntry *entry = NULL;
-
-	LIST_FOR_EACH(node, list) {
-		entry = NODE_ENTRY(node, struct DataEntry, node);
-		if (entry->cur == target) {
-			return entry->father;
-		}
-	}
-
-	return NULL;
-}
-
-
-int* distanceK(struct TreeNode* root, struct TreeNode* target, int K, int* returnSize)
-{
-	struct List dListFather;
-	struct List *listFather = &dListFather;
-
-	ListInit(listFather);
-	dfs(listFather, root, NULL); //记录父结点
-
-	struct List dqueue;
-	struct List *queue = &dqueue;
-
-	queue_init(queue);
-
-	struct DataEntry  *entry = (struct DataEntry  *)calloc(1, sizeof(struct DataEntry ));
-	entry->cur = target;
-	ListAddTail(queue, &entry->node);
-	setVisited(listFather, target);
-
-	while(!queue_empty(queue)) {
-		if (K-- == 0) {
-			*returnSize = 0;
-			int *res = (int *)calloc(2048, sizeof(int));
-			while(!queue_empty(queue)) {
-				struct DataEntry *pop = queue_pop_entry(queue);
-				res[*returnSize] = pop->cur->val;
-				(*returnSize)++;
-			}
-
-			return res;
-		}
-
-		int qSize = queue_size(queue);
-		for (int i = 0; i < qSize; i++) {
-			struct DataEntry *pop = queue_pop_entry(queue);
-			if (pop->cur->left && !checkVisited(listFather, pop->cur->left)) {
-				struct DataEntry  *entry = (struct DataEntry  *)calloc(1, sizeof(struct DataEntry ));
-				entry->cur = pop->cur->left;
-				ListAddTail(queue, &entry->node);
-				setVisited(listFather, pop->cur->left);
-			}
-
-			if (pop->cur->right && !checkVisited(listFather, pop->cur->right)) {
-				struct DataEntry  *entry = (struct DataEntry  *)calloc(1, sizeof(struct DataEntry ));
-				entry->cur = pop->cur->right;
-				ListAddTail(queue, &entry->node);
-				setVisited(listFather, pop->cur->right);
-			}
-
-			struct TreeNode* father = getFather(listFather, pop->cur);
-			if (father != NULL && !checkVisited(listFather, father)) {
-				struct DataEntry  *entry = (struct DataEntry  *)calloc(1, sizeof(struct DataEntry ));
-				entry->cur = father;
-				ListAddTail(queue, &entry->node);
-				setVisited(listFather, father);
-			}
-		}
-	}
-
-	return NULL;
-}
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     struct TreeNode *left;
+ *     struct TreeNode *right;
+ * };
+ */
 
 /**
  * Definition for a binary tree node.
@@ -951,101 +466,170 @@ int* distanceK(struct TreeNode* root, struct TreeNode* target, int K, int* retur
  * };
  */
 
-#define MAXSIZE 510
-struct TreeNode** parent_array;
-int flag[MAXSIZE];
-int count;
-
-void get_parent(struct TreeNode* node, struct TreeNode** parent_array);
-void dfs(struct TreeNode* node, int K, int dis, int* res);
-
 /**
  * Note: The returned array must be malloced, assume caller calls free().
  */
+
+#define MAXSIZE 510
+struct TreeNode** parent;   //用于保存节点的父节点的数组
+int flag[MAXSIZE];          //用于标记是否已访问的数组：值为0表示未访问；值未1表示已访问
+int cnt;                    //用于记录合条件的节点个数
+
+//遍历二叉树，将所有节点的父节点存储在parent数组中
+void get_parent(struct TreeNode* p, struct TreeNode** parent)
+{
+    //如果当前节点p有左孩子
+    if(p->left != NULL)
+    {
+        parent[p->left->val] = p;      //则将左孩子值位置的parent数组值置为p
+        get_parent(p->left, parent);   //递归遍历当前节点的左孩子
+    }
+    //如果当前节点p有右孩子
+    if(p->right != NULL)
+    {
+        parent[p->right->val] = p;    //将右孩子值位置的parent数组值置为p
+        get_parent(p->right, parent); //递归遍历当前节点的右孩子
+    }
+}
+//该函数的结果就是，当前节点值为i，则parent[i]就是当前节点的父节点
+
+
+//深度优先搜索函数：从p的父节点、左孩子、右孩子 三个方向进行搜索
+void dfs(struct TreeNode*p, int K, int curdis, int* res)
+{
+    //如果当前距离为K，则该节点就是要找的节点
+    if(curdis == K)
+    {
+        res[cnt] = p->val;   //将节点值存储在结果数组中
+        cnt++;               //cnt++继续进行下一个节点的寻找
+        return;
+    }
+
+    //如果p的左孩子存在，且左孩子还未被访问过
+    if(p->left!=NULL  &&  flag[p->left->val]!=1)
+    {
+        flag[p->left->val] = 1;            //则标记p的左孩子为已访问
+        dfs(p->left, K, curdis+1, res);    //递归遍历p的左孩子
+    }
+    //如果p的右孩子存在，且右孩子还未被访问过
+    if(p->right!=NULL  &&  flag[p->right->val]!=1)
+    {
+        flag[p->right->val] = 1;           //则标记p的右孩子为已访问
+        dfs(p->right, K, curdis+1, res);   //递归遍历p的右孩子
+    }
+
+    //如果p的父节点存在，且父节点还未被访问过
+    if(parent[p->val]!=0  &&  flag[parent[p->val]->val]!=1)
+    {
+        flag[parent[p->val]->val] = 1;        //则标记p的父节点为已访问
+        dfs(parent[p->val], K, curdis+1, res);//递归遍历p的父节点
+    }
+}
+
+
 int* distanceK(struct TreeNode* root, struct TreeNode* target, int K, int* returnSize)
 {
-    if (root == NULL || target == NULL || K < 0 || K > 500) {
+    //特殊处理
+    if(root==NULL || target==NULL || K<0 || K>100)
+    {
         *returnSize = 0;
         return NULL;
     }
 
-    // 父结点数组申请内存
-    parent_array = (struct TreeNode**)malloc(sizeof(struct TreeNode*) * MAXSIZE);
-    memset(parent_array, 0, MAXSIZE * sizeof(struct TreeNode*));
-    // flag数组初始化，用于标记访问过的结点
-    memset(flag, 0, MAXSIZE * sizeof(int));
-    // 存放满足要求的结点值的结果数组
-    int *res = (int *)malloc(sizeof(int) * MAXSIZE);
-    memset(res, -1, MAXSIZE * sizeof(int));
+    //给parent数组申请动态内存并初始化
+    parent = malloc(sizeof(struct TreeNode*) * MAXSIZE);
+    memset(parent, 0, sizeof(struct TreeNode*)*MAXSIZE);
 
-    // 二叉树遍历找到每个结点的父结点，将该结点的值作为parent_array的索引，在parent_array中存放对应父结点
-    get_parent(root, parent_array);
+    //初始化flag数组
+    memset(flag, 0, sizeof(int)*MAXSIZE);
 
-    // DFS搜索
-    count = 0;
-    flag[target->val] = 1;
-    dfs(target, K, 0, res);
+    //定义一个结果数组并申请动态内存，初始化
+    int* res = malloc(sizeof(int)*MAXSIZE);
+    memset(res, -1, sizeof(int)*MAXSIZE);
 
-    // 返回结果
-    *returnSize = count;
+    //遍历所有的节点，并保存节点们的父节点
+    get_parent(root, parent);
+
+    cnt = 0;
+    flag[target->val] = 1;   //将target节点标记为已访问
+    dfs(target, K, 0, res);  //搜索
+
+    *returnSize = cnt;
     return res;
 }
 
-void get_parent(struct TreeNode* node, struct TreeNode** parent_array)
-{
-    if (node->right != NULL) {
-        parent_array[node->right->val] = node;
-        get_parent(node->right, parent_array);
-    }
-    if (node->left != NULL) {
-        parent_array[node->left->val] = node;
-        get_parent(node->left, parent_array);
+// 创建一个指向当前节点父亲的哈希表 father[5] = 3 C语言怎么搞树节点啊
+void dfs(struct TreeNode* root, struct TreeNode** father, struct TreeNode* pre) {
+    if (root != NULL) {
+        father[root->val] = pre;
+        dfs(root->left, father, root);
+        dfs(root->right, father, root);
     }
 }
+int* distanceK(struct TreeNode* root, struct TreeNode* target, int K, int* returnSize) {
+    struct TreeNode* father[501];
+    int visit[501] = {0};
+    dfs(root, father, NULL);
 
-void dfs(struct TreeNode* node, int K, int dis, int* res)
-{
-    if (dis == K) {
-        res[count] = node->val;
-        count++;
-        return;
-    }
+    struct TreeNode* queue[501];
+    int front = 0;
+    int rear = 1;
+    queue[front] = target;
+    while (front < rear) {
+        if (K-- == 0) {
+            printf("  ");
+            int *res = (int *)malloc(sizeof(int) * 501);
+            *returnSize = 0;
+            for (int i = front; i < rear; i++) {
+                res[*returnSize] = queue[i]->val;
+                (*returnSize)++;
+            }
+            return res;
+        }
+        int len =  rear - front;
+        for (int j = 0; j < len; j++) {
+            if (father[queue[front]->val] != NULL && visit[queue[front]->val] == 0) {
+                queue[rear] = father[queue[front]->val];
+                visit[queue[front]->val] = 1;
+                rear++;
+            }
+            if (queue[front]->left != NULL && visit[queue[front]->left->val] == 0) {
+                queue[rear] = queue[front]->left;
+                visit[queue[front]->left->val] = 1;
+                rear++;
+            }
+            if (queue[front]->right != NULL && visit[queue[front]->right->val] == 0) {
+                queue[rear] = queue[front]->right;
+                visit[queue[front]->right->val] = 1;
+                rear++;
+            }
+            front++;
+        }
 
-    if (node->left != NULL && flag[node->left->val] != 1) {
-        flag[node->left->val] = 1;
-        dfs(node->left, K, dis + 1, res);
     }
-
-    if (node->right != NULL && flag[node->right->val] != 1) {
-        flag[node->right->val] = 1;
-        dfs(node->right, K, dis + 1, res);
-    }
-
-    if (parent_array[node->val] != 0 && flag[parent_array[node->val]->val] != 1) {
-        flag[parent_array[node->val]->val] = 1;
-        dfs(parent_array[node->val], K, dis + 1, res);
-    }
+    *returnSize = 0;
+    return NULL;
 }
 
 
 /*
-106. 从中序与后序遍历序列构造二叉树
-根据一棵树的中序遍历与后序遍历构造二叉树。
+337. 打家劫舍 III
+在上次打劫完一条街道之后和一圈房屋后，小偷又发现了一个新的可行窃的地区。这个地区只有一个入口，我们称之为“根”。 除了“根”之外，每栋房子有且只有一个“父“房子与之相连。一番侦察之后，聪明的小偷意识到“这个地方的所有房屋的排列类似于一棵二叉树”。 如果两个直接相连的房子在同一天晚上被打劫，房屋将自动报警。
 
-注意:
-你可以假设树中没有重复的元素。
+计算在不触动警报的情况下，小偷一晚能够盗取的最高金额。
 
-例如，给出
+示例 1:
 
-中序遍历 inorder = [9,3,15,20,7]
-后序遍历 postorder = [9,15,7,20,3]
-返回如下的二叉树：
+输入: [3,2,3,null,3,null,1]
 
-    3
-   / \
-  9  20
-    /  \
-   15   7
+     3
+    / \
+   2   3
+    \   \
+     3   1
+
+输出: 7
+解释: 小偷一晚能够盗取的最高金额 = 3 + 3 + 1 = 7.
 */
 
 /**
@@ -1058,23 +642,49 @@ void dfs(struct TreeNode* node, int K, int dis, int* res)
  */
 
 
+int rob(struct TreeNode *root)
+{
+    if (root == NULL) return 0;
 
-struct TreeNode* buildTree(int* inorder, int inorderSize, int* postorder, int postorderSize){
-    if(postorderSize == 0 || inorderSize == 0)return NULL;      //叶子结点的左右子树为空
-
-    struct TreeNode* root = (struct TreeNode*)malloc(sizeof(struct TreeNode));
-    root->val = postorder[postorderSize-1];                     //根结点值为后序遍历最后一位
-
-    int left;
-    for(left=0;left<inorderSize;left++){
-        if(inorder[left] == root->val)break;                    //找到中序列表中的根结点，其索引为左子树结点个数
+    int money = root->val;
+    if (root->left != NULL) {
+        money += (rob(root->left->left) + rob(root->left->right));
     }
-    int right = inorderSize - left - 1;                         //计算右子树结点个数
 
-    root->left = buildTree(inorder,left,postorder,left);        //递归构建左、右子树
-    root->right = buildTree(inorder+left+1,right,postorder+left,right);
+    if (root->right != NULL) {
+        money += (rob(root->right->left) + rob(root->right->right));
+    }
 
-    return root;
+    return fmax(money, rob(root->left) + rob(root->right));
 }
 
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     struct TreeNode *left;
+ *     struct TreeNode *right;
+ * };
+ */
 
+
+struct SubtreeStatus {
+    int selected;
+    int notSelected;
+};
+
+struct SubtreeStatus dfs(struct TreeNode *root) {
+    if (!root) {
+        return (struct SubtreeStatus){0, 0};
+    }
+    struct SubtreeStatus l = dfs(root->left);
+    struct SubtreeStatus r = dfs(root->right);
+    int selected = root->val + l.notSelected + r.notSelected;
+    int notSelected = fmax(l.selected, l.notSelected) + fmax(r.selected, r.notSelected);
+    return (struct SubtreeStatus){selected, notSelected};
+}
+
+int rob(struct TreeNode *root) {
+    struct SubtreeStatus rootStatus = dfs(root);
+    return fmax(rootStatus.selected, rootStatus.notSelected);
+}
