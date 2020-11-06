@@ -1,5 +1,3 @@
-
-
 int expandAroundCenter(char *s, int left, int right)
 {
     int L = left, R = right;
@@ -172,298 +170,34 @@ bool isOneEditDistance(char * s, char * t)
 /*
 459. 重复的子字符串
 难度简单243
-给定一个非空的字符串，判断它是否可以由它的一个子串重复多次构成。给定的字符串只含有小写英文字母，并且长度不超过10000。
+给定一个非空的字符串，判断它是否可以由它的一个子串重
+复多次构成。给定的字符串只含有小写英文字母，并且长度
+不超过10000。
 示例 1:
 输入: "abab"
-
 输出: True
-
 解释: 可由子字符串 "ab" 重复两次构成。
 示例 2:
 输入: "aba"
-
 输出: False
-
 */
-
-bool repeatedSubstringPattern(char * s){
-    int len = strlen(s);
-    char * c = (char *) malloc(sizeof(char) * (len * 2));
-    memcpy(c, s + 1, len);
-    strncat(c, s, len - 1);
-    bool ret = strstr(c, s);
-    free(c);
-    return ret;
-}
-
-/*
-1023. 驼峰式匹配
-难度中等17
-如果我们可以将小写字母插入模式串 pattern 得到待查询项 query，那么待查询项与给定模式串匹配。（我们可以在任何位置插入每个字符，也可以插入 0 个字符。）
-给定待查询列表 queries，和模式串 pattern，返回由布尔值组成的答案列表 answer。只有在待查项 queries[i] 与模式串 pattern 匹配时， answer[i] 才为 true，否则为 false。
-
-示例 1：
-输入：queries = ["FooBar","FooBarTest","FootBall","FrameBuffer","ForceFeedBack"], pattern = "FB"
-输出：[true,false,true,true,false]
-示例：
-"FooBar" 可以这样生成："F" + "oo" + "B" + "ar"。
-"FootBall" 可以这样生成："F" + "oot" + "B" + "all".
-"FrameBuffer" 可以这样生成："F" + "rame" + "B" + "uffer".
-*/
-/**
- * Note: The returned array must be malloced, assume caller calls free().
- */
-bool isMatch(const char* query, const char* pattern){
-    while (*pattern != 0) {
-        if (*query == *pattern) {
-            query++;
-            pattern++;
-        } else {
-            if (isupper(*query) || *query == 0)
-                return false;
-            query++;
-        }
-    }
-    while (*query != 0) {
-        if (isupper(*query))
-            return false;
-        query++;
-    }
-    return true;
-}
-
-bool* camelMatch(char ** queries, int queriesSize, char * pattern, int* returnSize){
-    bool* matches = (bool*)calloc(sizeof(bool), queriesSize);
-    for(int i = 0; i < queriesSize; i++){
-        if (isMatch(queries[i], pattern))
-            matches[i] = true;
-    }
-    *returnSize = queriesSize;
-    return matches;
-}
-
-/*
-67. 二进制求和
-难度简单453
-给你两个二进制字符串，返回它们的和（用二进制表示）。
-输入为 非空 字符串且只包含数字 1 和 0。
-
-示例 1:
-输入: a = "11", b = "1"
-输出: "100"
-示例 2:
-输入: a = "1010", b = "1011"
-输
-
-*/
-char * addBinary(char * a, char * b)
+bool repeatedSubstringPattern(char * s)
 {
-	int alen = strlen(a);
-	int blen = strlen(b);
-	int rlen = fmax(alen, blen) + 2;
+	int len = strlen(s);
+	char cmp[len * 2];
+	memset(cmp, 0, sizeof(cmp));
 
-	char *res = (char *)calloc(rlen, sizeof(char));
-	char *aptr = a + alen - 1;
-	char *bptr = b + blen - 1;
-	char *rptr = res + rlen - 2;
-	char high = 0;
-	while (aptr >= a && bptr >= b) {
-		char ia = *aptr - '0';
-		char ib = *bptr - '0';
-		char sum = ia + ib + high;
-		*rptr = sum % 2 + '0';
-		high = sum / 2;
-		aptr--;
-		bptr--;
-		rptr--;
-	}
-
-	if (aptr < a) {
-		while(bptr >= b) {
-			char ib = *bptr - '0';
-			char sum = ib + high;
-			*rptr = sum % 2 + '0';
-			high = sum / 2;
-			bptr--;
-			rptr--;
-		}
-	} else if (bptr < b) {
-		while(aptr >= a) {
-			char ia = *aptr - '0';
-			char sum = ia + high;
-			*rptr = sum % 2 + '0';
-			high = sum / 2;
-			aptr--;
-			rptr--;
-		}
-	}
-
-	if (high) {
-		*rptr = high + '0';
-	}
-
-	while(*res == 0) {
-		res++;
-	}
-
-	return res;
-}
-
-char * addBinary(char * a, char * b)
-{
-	int alen = strlen(a);
-	int blen = strlen(b);
-	int rlen = fmax(alen, blen) + 2;
-
-	char *res = (char *)calloc(rlen, sizeof(char));
-	char *aptr = a + alen - 1;
-	char *bptr = b + blen - 1;
-	char *rptr = res + rlen - 2;
-	char high = 0;
-
-	while (rptr > res) {
-		char ia = aptr >= a ? *aptr - '0' : 0;
-		char ib = bptr >= b ? *bptr - '0' : 0;
-		char sum = ia + ib + high;
-		*rptr = sum % 2 + '0';
-		high = sum / 2;
-		aptr--;
-		bptr--;
-		rptr--;
-	}
-
-	if (high) {
-		*rptr = '1';
-	}
-
-	while(*res == 0) {
-		res++;
-	}
-
-	return res;
-}
-
-void reserve(char* s) {
-    int len = strlen(s);
-    for (int i = 0; i < len / 2; i++) {
-        char t = s[i];
-        s[i] = s[len - i - 1], s[len - i - 1] = t;
-    }
-}
-
-char* addBinary(char* a, char* b) {
-    reserve(a);
-    reserve(b);
-
-    int len_a = strlen(a), len_b = strlen(b);
-    int n = fmax(len_a, len_b), carry = 0, len = 0;
-    char* ans = (char*)malloc(sizeof(char) * (n + 2));
-    for (int i = 0; i < n; ++i) {
-        carry += i < len_a ? (a[i] == '1') : 0;
-        carry += i < len_b ? (b[i] == '1') : 0;
-        ans[len++] = carry % 2 + '0';
-        carry /= 2;
-    }
-
-    if (carry) {
-        ans[len++] = '1';
-    }
-    ans[len] = '\0';
-    reserve(ans);
-
-    return ans;
-}
-
-/*
-415. 字符串相加
-难度简单248
-给定两个字符串形式的非负整数 num1 和num2 ，计算它们的和。
-
-提示：
-1.	num1 和num2 的长度都小于 5100
-2.	num1 和num2 都只包含数字 0-9
-3.	num1 和num2 都不包含任何前导零
-4.	你不能使用任何內建 BigInteger 库， 也不能直接将输入的字符串转换为整数形式
-出: "10101"
-
-
-*/
-
-void strrevSelf_pos(char *s, int begin, int end)
-{
-	char* left = s + begin;
-	char* right = s + end;
-
-	if (begin == end)
-		return;
-
-	while(left < right) {
-		swap(*left, *right);
-		left++;
-		right--;
-	}
-}
-
-void strrevSelf(char *s)
-{
-	strrevSelf_pos(s, 0, strlen(s) - 1);
-}
-
-char * addStrings(char * num1, char * num2)
-{
-	int len1 = strlen(num1);
-	int len2 = strlen(num2);
-	int lenr = fmax(len1, len2);
-	char *res = (char *)calloc(lenr + 2, sizeof(char));
-
-	strrevSelf(num1);
-	strrevSelf(num2);
-	int pos = 0;
-	int i = 0;
-	for (; i < lenr; i++) {
-		int sum = 0;
-		sum += pos;
-		sum += i >= len1 ? 0 : num1[i] - '0';
-		sum += i >= len2 ? 0 : num2[i] - '0';
-
-		res[i] = sum % 10 + '0';
-		pos = sum / 10;
-	}
-
-	 if (pos != 0) {
-		res[i] = pos + '0';
-		pos = 0;
-	 }
-
-	strrevSelf(res);
-	return res;
-}
-
-char* addStrings(char* num1, char* num2) {
-    int i = strlen(num1) - 1, j = strlen(num2) - 1, add = 0;
-    char* ans = (char*)malloc(sizeof(char) * (fmax(i, j) + 3));
-    int len = 0;
-    while (i >= 0 || j >= 0 || add != 0) {
-        int x = i >= 0 ? num1[i] - '0' : 0;
-        int y = j >= 0 ? num2[j] - '0' : 0;
-        int result = x + y + add;
-        ans[len++] = '0' + result % 10;
-        add = result / 10;
-        i--, j--;
-    }
-    // 计算完以后的答案需要翻转过来
-    for (int i = 0; 2 * i < len; i++) {
-        int t = ans[i];
-        ans[i] = ans[len - i - 1], ans[len - i - 1] = t;
-    }
-    ans[len++] = 0;
-    return ans;
+	memcpy(cmp, s + 1, len);
+	strncat(cmp, s, len - 1);
+	bool ret = strstr(cmp, s);
+	return ret;
 }
 
 /*
 214. 最短回文串
 难度困难176
-给定一个字符串 s，你可以通过在字符串前面添加字符将其转换为回文串。找到并返回可以用这种方式转换的最短回文串。
+给定一个字符串 s，你可以通过在字符串前面添加字符将其转
+换为回文串。找到并返回可以用这种方式转换的最短回文串。
 示例 1:
 输入: "aacecaaa"
 输出: "aaacecaaa"
@@ -606,4 +340,320 @@ char *nearestPalindromic(char *n)
 
     snprintf(strbuff, sizeof(strbuff), "%lld", outval);
     return strbuff;
+}
+
+/*
+696. 计数二进制子串
+给定一个字符串 s，计算具有相同数量0和1的非空(连续)子字符串的数量，并且这些子字符串中的所有0和所有1都是组合在一起的。
+
+重复出现的子串要计算它们出现的次数。
+
+示例 1 :
+
+输入: "00110011"
+输出: 6
+解释: 有6个子串具有相同数量的连续1和0：“0011”，“01”，“1100”，“10”，“0011” 和 “01”。
+
+请注意，一些重复出现的子串要计算它们出现的次数。
+
+另外，“00110011”不是有效的子串，因为所有的0（和1）没有组合在一起。
+*/
+int countBinarySubstrings(char* s) {
+    int n = strlen(s);
+    int counts[n], counts_len = 0;
+    memset(counts, 0, sizeof(counts));
+    int ptr = 0;
+    while (ptr < n) {
+        char c = s[ptr];
+        int count = 0;
+        while (ptr < n && s[ptr] == c) {
+            ++ptr;
+            ++count;
+        }
+        counts[counts_len++] = count;
+    }
+    int ans = 0;
+    for (int i = 1; i < counts_len; ++i) {
+        ans += fmin(counts[i], counts[i - 1]);
+    }
+    return ans;
+}
+
+int countBinarySubstrings(char* s) {
+    int ptr = 0, n = strlen(s), last = 0, ans = 0;
+    while (ptr < n) {
+        char c = s[ptr];
+        int count = 0;
+        while (ptr < n && s[ptr] == c) {
+            ++ptr;
+            ++count;
+        }
+        ans += fmin(count, last);
+        last = count;
+    }
+    return ans;
+}
+
+/*
+541. 反转字符串 II
+给定一个字符串 s 和一个整数 k，你需要对从字符串开头算起的每隔 2k 个字符的前 k 个字符进行反转。
+
+如果剩余字符少于 k 个，则将剩余字符全部反转。
+如果剩余字符小于 2k 但大于或等于 k 个，则反转前 k 个字符，其余字符保持原样。
+
+
+示例:
+
+输入: s = "abcdefg", k = 2
+输出: "bacdfeg"
+*/
+char * reverseStr(char * s, int k)
+{
+        for (int start = 0; start < strlen(s); start += 2 * k) {
+            int i = start, j = fmin(start + k - 1, strlen(s) - 1);
+            while (i < j) {
+                char tmp = s[i];
+                s[i++] = s[j];
+                s[j--] = tmp;
+            }
+        }
+        return s;
+}
+
+/*
+38. 外观数列
+给定一个正整数 n ，输出外观数列的第 n 项。
+
+「外观数列」是一个整数序列，从数字 1 开始，序列中的每一项都是对前一项的描述。
+
+你可以将其视作是由递归公式定义的数字字符串序列：
+
+countAndSay(1) = "1"
+countAndSay(n) 是对 countAndSay(n-1) 的描述，然后转换成另一个数字字符串。
+前五项如下：
+
+1.     1
+2.     11
+3.     21
+4.     1211
+5.     111221
+第一项是数字 1
+描述前一项，这个数是 1 即 “ 一 个 1 ”，记作 "11"
+描述前一项，这个数是 11 即 “ 二 个 1 ” ，记作 "21"
+描述前一项，这个数是 21 即 “ 一 个 2 + 一 个 1 ” ，记作 "1211"
+描述前一项，这个数是 1211 即 “ 一 个 1 + 一 个 2 + 二 个 1 ” ，记作 "111221"
+*/
+/* 尾递归 */
+char *countHelper(char *s, int n)
+{
+    if (n == 1)
+        return s;
+    else
+    {
+        //求下一个数
+        int count;
+        char ch[10000];
+        char *p = ch;
+        //一直读数
+        while (*s!='\0')
+        {
+            count = 1;
+            //如果一直是同一个数
+            while (*s==*(s+1))
+            {
+                count++;
+                s++;
+            }
+            //下一个数更新
+            *p++ = (char)(count+'0');
+            *p++ = *s++;
+        }
+        return countHelper(ch, n - 1);
+    }
+}
+
+char *countAndSay(int n)
+{
+    return countHelper("1", n);
+}
+
+/*
+556. 下一个更大元素 III
+给定一个32位正整数 n，你需要找到最小的32位整数，其与 n 中存在的位数完全相同，并且其值大于n。如果不存在这样的32位整数，则返回-1。
+
+示例 1:
+
+输入: 12
+输出: 21
+示例 2:
+
+输入: 21
+输出: -1
+*/
+void Quick_sort(int *p, int left, int right){//快速排序--降序--递归版
+	if(left < right){
+		int l = left;
+		int r = right;
+		int key = p[l];
+		while(l < r){//l == r 相遇时跳出
+			while(l < r && p[r] < key){//从右往左找大于/等于key的数
+				--r;
+			}
+			p[l] = p[r];
+			while(l < r && p[l] >= key){//从左往右找小于key的数
+				++l;
+			}
+			p[r] = p[l];
+		}
+		p[l] = key;
+		Quick_sort(p, left, l - 1);//递归调用
+		Quick_sort(p, r + 1, right);
+    }
+}
+
+int nextGreaterElement(int n){
+    const int over = 2147483647;//2^(31)-1
+    int res = 0;
+    int flag = -1;//反转点
+    int stack[32];//顺序栈
+    int top = -1;
+    for (; n != 0; n /= 10){
+        stack[++top] = n % 10;//按低位->高位依次入栈
+    }
+    for (int i = 0; i < top; ++i){
+        if (stack[i+1] < stack[i]){//寻找是否存在反转点
+            flag = i+1;//反转点
+            break;
+        }
+    }
+    if (flag != -1){//有反转点
+        for (int i = 0; i < flag; ++i){//遍历反转点之前的低位
+            if (stack[i] > stack[flag]){//找到一位大于反转点的最小的数字
+                int tmp = stack[flag];//两者交换
+                stack[flag] = stack[i];
+                stack[i] = tmp;
+                break;
+            }
+        }
+        Quick_sort(stack, 0, flag-1);//将反转点之前的低位->反转点高位按降序排列,组成最小的数字
+        for (; top > -1; --top){//全部出栈组成新的数
+            if ( res > over/10 || (res == over/10 && stack[top] > 7) ){//数值溢出
+                return -1;//不存在这样的32位整数
+            }
+            res = stack[top] + res*10;
+        }
+    }
+    else {//无反转点，该数低位->高位是升序的，不存在有符合题意的数
+        res = -1;
+    }
+    return res;
+}
+
+/*
+385. 迷你语法分析器
+给定一个用字符串表示的整数的嵌套列表，实现一个解析它的语法分析器。
+
+列表中的每个元素只可能是整数或整数嵌套列表
+
+提示：你可以假定这些字符串都是格式良好的：
+
+字符串非空
+字符串不包含空格
+字符串只包含数字0-9、[、-、,、]
+
+
+示例 1：
+
+给定 s = "324",
+
+你应该返回一个 NestedInteger 对象，其中只包含整数值 324。
+*/
+/**
+ * *********************************************************************
+ * // This is the interface that allows for creating nested lists.
+ * // You should not implement it, or speculate about its implementation
+ * *********************************************************************
+ *
+ * // Initializes an empty nested list and return a reference to the nested integer.
+ * struct NestedInteger *NestedIntegerInit();
+ *
+ * // Return true if this NestedInteger holds a single integer, rather than a nested list.
+ * bool NestedIntegerIsInteger(struct NestedInteger *);
+ *
+ * // Return the single integer that this NestedInteger holds, if it holds a single integer
+ * // The result is undefined if this NestedInteger holds a nested list
+ * int NestedIntegerGetInteger(struct NestedInteger *);
+ *
+ * // Set this NestedInteger to hold a single integer.
+ * void NestedIntegerSetInteger(struct NestedInteger *ni, int value);
+ *
+ * // Set this NestedInteger to hold a nested list and adds a nested integer elem to it.
+ * void NestedIntegerAdd(struct NestedInteger *ni, struct NestedInteger *elem);
+ *
+ * // Return the nested list that this NestedInteger holds, if it holds a nested list
+ * // The result is undefined if this NestedInteger holds a single integer
+ * struct NestedInteger **NestedIntegerGetList(struct NestedInteger *);
+ *
+ * // Return the nested list's size that this NestedInteger holds, if it holds a nested list
+ * // The result is undefined if this NestedInteger holds a single integer
+ * int NestedIntegerGetListSize(struct NestedInteger *);
+ * };
+ */
+
+
+// find number and return next char pointer
+char *GetNum(char *s, int *num)
+{
+    *num = 0;
+    int neg = 1;
+    if (*s == '-') {
+        neg = -1;
+        ++s;
+    }
+    while (*s >= '0' && *s <= '9') {
+        *num = *num * 10 + *s++ - '0';
+    }
+    *num *= neg;
+    return s;
+}
+
+// find the corresponding ']' and return next char pointer, s starts with '['
+char *FindBracket(char *s) {
+    ++s;
+    for (int i = 1; i > 0; ++s) {
+        if (*s == '[')
+            ++i;
+        else if (*s == ']')
+            --i;
+    }
+    return s;
+}
+
+struct NestedInteger *deserialize(char *s) {
+    if (*s != '[') {
+        int n;
+        GetNum(s, &n);
+        struct NestedInteger *nestInt = NestedIntegerInit();
+        NestedIntegerSetInteger(nestInt, n);
+        return nestInt;
+    }
+    int bracket = 1;
+    ++s;
+    struct NestedInteger *ret = NestedIntegerInit();
+    while (*s != ']') {
+        if (*s == ',') {
+            ++s;
+        } else if (*s == '-' || (*s >= '0' && *s <= '9')) {
+            int n;
+            s = GetNum(s, &n);
+            struct NestedInteger *nestInt = NestedIntegerInit();
+            NestedIntegerSetInteger(nestInt, n);
+            NestedIntegerAdd(ret, nestInt);
+        } else {
+            struct NestedInteger *nestInt = deserialize(s);
+            NestedIntegerAdd(ret, nestInt);
+            s = FindBracket(s);
+        }
+    }
+    return ret;
 }
