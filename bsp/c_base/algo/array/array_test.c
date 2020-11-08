@@ -1018,3 +1018,24 @@ int** generateMatrix(int n, int* returnSize, int** returnColumnSizes)
         return mat;
 }
 
+/*
+628. 三个数的最大乘积
+给定一个整型数组，在数组中找出由三个数组成的最大乘积，并输出这个乘积。
+
+示例 1:
+
+输入: [1,2,3]
+输出: 6
+示例 2:
+
+输入: [1,2,3,4]
+输出: 24
+*/
+int maximumProduct(int* nums, int numsSize)
+{
+	qsort(nums, numsSize, sizeof(nums[0]), cmp_int);
+
+	return fmax(nums[0] * nums[1] * nums[numsSize - 1], nums[numsSize - 1] * nums[numsSize - 2] * nums[numsSize - 3]);
+
+}
+

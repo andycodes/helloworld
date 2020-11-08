@@ -298,12 +298,6 @@ k = 1
 对于当前二分的位置 guess，统计距离小于等于 guess 的距离对数量，并根据它和 k 的
 关系调整区间的上下界。
 */
-
-int cmp_int( const void *a , const void *b)
-{
-        return *(int *)a > *(int *)b; //*(int *)a - *(int *)b;
-}
-
 int cmp(int* nums, int numsSize, int diff)
 {
             int count = 0, left = 0;
