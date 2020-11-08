@@ -607,3 +607,9 @@ int countNumbersWithUniqueDigits(int n)
         return res;
 }
 
+int randomInt(int min, int max)
+{
+	int ret = rand() % (max - min + 1) + min;
+	return ret;
+}
+

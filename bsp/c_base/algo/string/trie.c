@@ -80,3 +80,4 @@ void trieFree(struct trieNode *root)
 	free(root);
 	root = NULL;
 }
+
