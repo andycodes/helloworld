@@ -1570,3 +1570,118 @@ int strangePrinter(char * s){
     return dp[0][slen - 1];
 }
 
+/*
+689. 三个无重叠子数组的最大和
+给定数组 nums 由正整数组成，找到三个互不重叠的子数组的最大和。
+
+每个子数组的长度为k，我们要使这3*k个项的和最大化。
+
+返回每个区间起始索引的列表（索引从 0 开始）。如果有多个结果，返回字典序最小的一个。
+
+示例:
+
+输入: [1,2,1,2,6,7,5,1], 2
+输出: [0, 3, 5]
+解释: 子数组 [1, 2], [2, 6], [7, 5] 对应的起始索引为 [0, 3, 5]。
+我们也可以取 [2, 1], 但是结果 [1, 3, 5] 在字典序上更大。
+*/
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+#define MAX 20001
+int dp[3][MAX][3];
+int maxSum[3][MAX];
+
+void init(int* nums, int numsSize, int k, int* returnSize)
+{
+    memset(dp, 0, sizeof(dp));
+    memset(maxSum, 0, sizeof(maxSum));
+
+    dp[0][k - 1][0] = 0;
+    maxSum[0][k - 1] = 0;
+    for (int i = 0; i < k; i++) {
+        maxSum[0][k - 1] += nums[i];
+    }
+    dp[1][2 * k - 1][0] = 0;
+    dp[1][2 * k - 1][1] = k;
+    maxSum[1][2 * k - 1] = 0;
+    for (int i = 0; i < 2 * k; i++) {
+        maxSum[1][2 * k - 1] += nums[i];
+    }
+    dp[2][3 * k - 1][0] = 0;
+    dp[2][3 * k - 1][1] = k;
+    dp[2][3 * k - 1][2] = 2 * k;
+    maxSum[2][3 * k - 1] = 0;
+    for (int i = 0; i < 3 * k; i++) {
+        maxSum[2][3 * k - 1] += nums[i];
+    }
+}
+
+int check(int* nums, int numsSize, int k, int* returnSize)
+{
+    if (returnSize == NULL) {
+        return -1;
+    }
+    if (nums == NULL || numsSize < 0 || k < 0 || k > numsSize / 3) {
+        *returnSize = 0;
+        return -1;
+    }
+    return 0;
+}
+
+int* maxSumOfThreeSubarrays(int* nums, int numsSize, int k, int* returnSize)
+{
+    if (check(nums, numsSize, k, returnSize) != 0) {
+        return NULL;
+    }
+
+    init(nums, numsSize, k, returnSize);
+
+    for (int i = 0; i < 3; i++) {
+        for (int j = (i + 1) * k; j < numsSize; j++) {
+            int sum = 0;
+            // 计算包含当前数字的k个数字的和，子数组，必定连续
+            for (int r = 0; r < k; r++) {
+                sum += nums[j - r];
+            }
+            // 多于一组的时候需要降维累加
+            if (i > 0) {
+                sum += maxSum[i - 1][j - k];
+            }
+            if (sum <= maxSum[i][j - 1]) {
+                // 最大的子数组不含当前数字
+                for (int s = 0; s <= i; s++) {
+                    dp[i][j][s] = dp[i][j - 1][s];
+                }
+                maxSum[i][j] = maxSum[i][j - 1];
+            } else {
+                int s;
+                // 当前数字新增后，大于之前的最大情况
+                for (s = 0; s < i; s++) {
+                    dp[i][j][s] = dp[i - 1][j - k][s];
+                }
+                dp[i][j][s] = j - k + 1;
+                maxSum[i][j] = sum;
+            }
+        }
+    }
+    *returnSize = 3;
+    return dp[2][numsSize - 1];
+}
+
+/*
+面试题 17.13. 恢复空格
+哦，不！你不小心把一个长篇文章中的空格、标点都删掉了，并且大写也弄成了小写。像句子"I reset the computer. It still didn’t boot!"已经变成了"iresetthecomputeritstilldidntboot"。在处理标点符号和大小写之前，你得先把它断成词语。当然了，你有一本厚厚的词典dictionary，不过，有些词没在词典里。假设文章用sentence表示，设计一个算法，把文章断开，要求未识别的字符最少，返回未识别的字符数。
+
+注意：本题相对原题稍作改动，只需返回未识别的字符数
+
+
+
+示例：
+
+输入：
+dictionary = ["looked","just","like","her","brother"]
+sentence = "jesslookedjustliketimherbrother"
+输出： 7
+解释： 断句后为"jess looked
+*/

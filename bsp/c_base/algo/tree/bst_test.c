@@ -1,19 +1,4 @@
 /*
-二叉搜索树的性质：
-左子数的所有节点值小于根节点的值
-右子数的所有节点值大于根节点的值
-
-实在不会做的---有序数组
-*/
-
-struct TreeNode {
-	int val;
-	struct TreeNode *left;
-	struct TreeNode *right;
-};
-
-
-/*
 669. 修剪二叉搜索树
 给定一个二叉搜索树，同时给定最小边界L?和
 最大边界?R。通过修剪二叉搜索树，使得所有
@@ -174,76 +159,6 @@ struct TreeNode* ToBST(int nums[],int left,int right)
 struct TreeNode* sortedArrayToBST(int* nums, int numsSize)
 {
     return ToBST(nums,0,numsSize-1);
-}
-
-/*
-给定一个二叉搜索树，
-编写一个函数 kthSmallest 来查找其中第 k 个最小的元素。
-
-说明：
-你可以假设 k 总是有效的，1 ≤ k ≤ 二叉搜索树元素个数。
-
-*/
-/*中序遍历(生成器)+提前终止*/
-void dfs(struct TreeNode* root, int k, int *cnt, int *ret)
-{
-    if(root == NULL)
-        return;
-
-    dfs(root->left, k, cnt, ret);
-    if(++ (*cnt) ==k) {
-        *ret = root->val;
-        return;
-    }
-    dfs(root->right, k, cnt, ret);
-}
-
-int kthSmallest(struct TreeNode* root, int k){
-    int ret = 0;
-    int i = 0;
-    dfs(root,k, &i,&ret);
-    return ret;
-}
-
-/*
-285. 二叉搜索树中的顺序后继
-给你一个二叉搜索树和其中的某一个结点，请你找出该结点在
-树中顺序后继的节点。
-结点 p 的后继是值比 p.val 大的结点中键值最小的结点。
-
-*/
-
-/*
-循环实现
-如果当前值是<=x的，那么根据BST的特性只需要在右子树中
-找：cur=cur.right。
-如果当前值>x，则当前值有可能，它的左子树也有可能有
-更小的但是也>x的。则每次走入这个分支时，当前点是一个
-候选点，记录该节点的值和历史最小节点的值。
-时间O(logN)，空间O(1）
-
-*/
-struct TreeNode* inorderSuccessor(struct TreeNode* root, struct TreeNode* p)
-{
-	if (root == NULL || p == NULL) {
-		return NULL;
-	}
-
-	struct TreeNode* cur = root;
-	struct TreeNode* res = NULL;
-
-	while (cur != NULL) {
-		if (cur->val <= p->val) {
-			cur = cur->right;
-		} else {
-			if (res == NULL || res->val > cur->val) {
-				res = cur;
-			}
-			cur = cur->left;
-		}
-	}
-
-	return res;
 }
 
 /*
