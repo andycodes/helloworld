@@ -138,3 +138,89 @@ last = NULL;
     first->left = last;
     return first;
 }
+
+/*
+98. 验证二叉搜索树
+*/
+bool dfs(struct TreeNode* root, long low, long high)
+{
+	if (root == NULL)
+		return true;
+
+	long num = root->val;
+	if (num <= low || num >= high)
+		return false;
+
+	return dfs(root->left, low, num) && dfs(root->right, num, high);
+}
+
+bool isValidBST(struct TreeNode* root)
+{
+	return dfs(root, LONG_MIN, LONG_MAX);
+}
+
+/*
+ * (递归实现)查找"二叉树x"中键值为key的节点
+ */
+struct TreeNode* bstree_search(struct TreeNode* root, int val)
+{
+	if (root==NULL || root->val==val)
+		return root;
+
+	if (val < root->val)
+		return bstree_search(root->left, val);
+	else
+		return bstree_search(root->right, val);
+}
+
+
+/*
+ * 查找最小结点：返回tree为根结点的二叉树的最小结点。
+ */
+struct TreeNode* bstree_minimum(struct TreeNode* root)
+{
+	if (root == NULL)
+		return NULL;
+
+	while(root->left != NULL)
+		root = root->left;
+	return root;
+}
+
+/*
+ * 查找最大结点：返回tree为根结点的二叉树的最大结点。
+ */
+struct TreeNode* bstree_maximum(struct TreeNode* root)
+{
+	if (root == NULL)
+		return NULL;
+
+	while(root->right != NULL)
+		root = root->right;
+	return root;
+}
+
+/*1382. 将二叉搜索树变平衡*/
+void func(struct TreeNode* root,int *re,int *returnSize){
+    if(root)//中序遍历二叉搜索树得到一个递增数组
+    {
+        func(root->left,re,returnSize);
+        re[(*returnSize)++]=root->val;
+        func(root->right,re,returnSize);
+    }
+}
+struct TreeNode* createTree(int *nums,int numsSize){
+    //利用一个递增数组创建平衡二叉搜索树
+    if(numsSize==0) return NULL;
+    struct TreeNode *node=(struct TreeNode *)malloc(sizeof(struct TreeNode));
+    node->val=nums[numsSize/2];
+    node->left=createTree(nums,numsSize/2);
+    node->right=createTree(&nums[numsSize/2+1],numsSize-1-numsSize/2);
+    return node;
+}
+struct TreeNode* balanceBST(struct TreeNode* root){
+    int numsSize=0,nums[10000]={0};
+    func(root,nums,&numsSize);
+    return createTree(nums,numsSize);
+}
+

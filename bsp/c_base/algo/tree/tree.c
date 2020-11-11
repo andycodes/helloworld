@@ -4,6 +4,43 @@ struct TreeNode {
     struct TreeNode *right;
 };
 
+/* 前序遍历 - 根->左->右*/
+void preorder_bstree(struct TreeNode* root)
+{
+	if (root == NULL) {
+		return;
+	}
+
+	printf("%d ", root->val);
+	preorder_bstree(root->left);
+	preorder_bstree(root->right);
+}
+
+/*中序遍历 - 左->根->右*/
+void inorder_bstree(struct TreeNode* root)
+{
+	if (root == NULL) {
+		return;
+	}
+
+	inorder_bstree(root->left);
+	printf("%d ", root->val);
+	inorder_bstree(root->right);
+}
+
+/*后序遍历 - 左->右->根*/
+void postorder_bstree(struct TreeNode* root)
+{
+	if (root == NULL) {
+		return;
+	}
+
+	postorder_bstree(root->left);
+	postorder_bstree(root->right);
+	printf("%d ", root->val);
+}
+
+
 /*
 给定一个二叉树，找出其最大深度。
 二叉树的深度为根节点到最远叶子节点的距离。

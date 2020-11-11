@@ -161,179 +161,6 @@ struct TreeNode* sortedArrayToBST(int* nums, int numsSize)
     return ToBST(nums,0,numsSize-1);
 }
 
-/*
-98. 验证二叉搜索树
-给定一个二叉树，判断其是否是一个有效的二叉搜索树。
-假设一个二叉搜索树具有如下特征：
-节点的左子树只包含小于当前节点的数。
-节点的右子树只包含大于当前节点的数。
-所有左子树和右子树自身必须也是二叉搜索树。
-*/
-bool dfs(struct TreeNode* root, long low, long high)
-{
-	if (root == NULL)
-		return true;
-
-	long num = root->val;
-	if (num <= low || num >= high)
-		return false;
-
-	return dfs(root->left, low, num) && dfs(root->right, num, high);
-}
-bool isValidBST(struct TreeNode* root)
-{
-	return dfs(root, LONG_MIN, LONG_MAX);
-}
-
-
-/*
- * 前序遍历"二叉树"
- 前序遍历 - 根->左->右
- */
-void preorder_bstree(struct TreeNode* root)
-{
-	if (root == NULL) {
-		return;
-	}
-
-	printf("%d ", root->val);
-	preorder_bstree(root->left);
-	preorder_bstree(root->right);
-}
-
-/*
- * 中序遍历"二叉树"
- 中序遍历 - 左->根->右
- */
-void inorder_bstree(struct TreeNode* root)
-{
-	if (root == NULL) {
-		return;
-	}
-
-	inorder_bstree(root->left);
-	printf("%d ", root->val);
-	inorder_bstree(root->right);
-}
-
-/*
- * 后序遍历"二叉树"
- 后序遍历 - 左->右->根
- */
-void postorder_bstree(struct TreeNode* root)
-{
-	if (root == NULL) {
-		return;
-	}
-
-	postorder_bstree(root->left);
-	postorder_bstree(root->right);
-	printf("%d ", root->val);
-}
-
-/*
- * (递归实现)查找"二叉树x"中键值为key的节点
- */
-struct TreeNode* bstree_search(struct TreeNode* root, int val)
-{
-	if (root==NULL || root->val==val)
-		return root;
-
-	if (val < root->val)
-		return bstree_search(root->left, val);
-	else
-		return bstree_search(root->right, val);
-}
-
-
-/*
- * 查找最小结点：返回tree为根结点的二叉树的最小结点。
- */
-struct TreeNode* bstree_minimum(struct TreeNode* root)
-{
-	if (root == NULL)
-		return NULL;
-
-	while(root->left != NULL)
-		root = root->left;
-	return root;
-}
-
-/*
- * 查找最大结点：返回tree为根结点的二叉树的最大结点。
- */
-struct TreeNode* bstree_maximum(struct TreeNode* root)
-{
-	if (root == NULL)
-		return NULL;
-
-	while(root->right != NULL)
-		root = root->right;
-	return root;
-}
-
-/*
- * 删除结点(z)，并返回根节点
- *
- * 参数说明：
- *     root 二叉树的根结点
- *     z 删除的结点
- * 返回值：
- *     根节点
- */
-static struct TreeNode* bstree_delete(struct TreeNode* root, struct TreeNode *z)
-{
-	struct TreeNode *root=NULL;
-    struct TreeNode *y=NULL;
-
-	if ((z->left == NULL) || (z->right == NULL) )
-		y = z;
-	else
-		y = bstree_successor(z);
-
-	if (y->left != NULL)
-		root = y->left;
-	else
-		root = y->right;
-
-	if (root != NULL)
-		root->parent = y->parent;
-
-	if (y->parent == NULL)
-		root = root;
-	else if (y == y->parent->left)
-		y->parent->left = root;
-	else
-		y->parent->right = root;
-
-	if (y != z)
-		z->val = y->val;
-
-	if (y!=NULL)
-		free(y);
-
-	return root;
-}
-
-/*
- * 删除结点(key为节点的键值)，并返回根节点
- *
- * 参数说明：
- *     root 二叉树的根结点
- *     z 删除的结点
- * 返回值：
- *     根节点
- */
-struct TreeNode* delete_bstree(struct TreeNode* root, Type val)
-{
-	struct TreeNode *z, *node;
-
-	if ((z = bstree_search(root, val)) != NULL)
-		root = bstree_delete(root, z);
-
-	return root;
-}
-
 
  /*
 270. 最接近的二叉搜索树值
@@ -354,22 +181,6 @@ struct TreeNode* delete_bstree(struct TreeNode* root, Type val)
 输出: 4
 
  */
-int closestValue(struct TreeNode* root, double target)
-{
-        int l = root->val, r = root->val;
-        while(root){
-            if(target < root->val){
-                r = root->val;
-                root = root->left;
-            }else if(target > root->val){
-                l = root->val;
-                root = root->right;
-            }else
-                return root->val;
-        }
-        return fabs(target - l) < fabs(r - target) ? l:r;
-}
-
  int closestValue(struct TreeNode* root, double target)
 {
 	int val;
@@ -427,131 +238,6 @@ struct TreeNode* sortedListToBST(struct ListNode* head){
     root->left=sortedListToBST(head);
     root->right=sortedListToBST(mid->next);
     return root;
-}
-
-/*
-面试题 17.12. BiNode
-二叉树数据结构TreeNode可用来表示单向链表（其中left置空，right为下一个链表节点）。实现一个方法，把二叉搜索树转换为单向链表，要求依然符合二叉搜索树的性质，转换操作应是原址的，也就是在原始的二叉搜索树上直接修改。
-
-返回转换后的单向链表的头节点。
-
-注意：本题相对原题稍作改动
-
-
-
-示例：
-
-输入： [4,2,5,1,3,null,6,0]
-输出： [0,null,1,null,2,null,3,null,4,null,5,null,6]
-*/
-/**
- * Definition for a binary root node.
- * struct TreeNode {
- *     int val;
- *     struct TreeNode *left;
- *     struct TreeNode *right;
- * };
- */
-
-
-struct TreeNode *cur;
-    void inOrder(struct TreeNode* node)
-    {
-        if(node==NULL)  return ;
-        inOrder(node->left);
-        node->left=NULL;    //将该节点的左孩子设为NULL
-        cur->right=node;    //将该节点赋给上一个节点的右孩子
-        cur=node;           //更新cur
-        inOrder(node->right);
-    }
-struct TreeNode* convertBiNode(struct TreeNode* root)
-{
-    struct TreeNode *ans = (struct TreeNode *)calloc(1, sizeof(struct TreeNode));
-        cur = ans;
-        inOrder(root);
-        return ans->right;
-}
-
-/*
-1038. 从二叉搜索树到更大和树
-给出二叉 搜索 树的根节点，该二叉树的节点值各不相同，修改二叉树，使每个节点 node 的新值等于原树中大于或等于 node.val 的值之和。
-
-提醒一下，二叉搜索树满足下列约束条件：
-
-节点的左子树仅包含键 小于 节点键的节点。
-节点的右子树仅包含键 大于 节点键的节点。
-左右子树也必须是二叉搜索树。
-*/
-
-/**
- * Definition for a binary root node.
- * struct TreeNode {
- *     int val;
- *     struct TreeNode *left;
- *     struct TreeNode *right;
- * };
- */
-
-int sum = 0;
-struct TreeNode* backingInOrder(struct TreeNode* root)
-{
-	if (root == NULL) {
-		return NULL;
-	}
-
-	backingInOrder(root->right);
-	sum = sum + root->val;
-	root->val = sum;
-	backingInOrder(root->left);
-	return root;
-}
-
-struct TreeNode* bstToGst(struct TreeNode* root)
-{
-	sum = 0;
-	return backingInOrder(root);
-}
-
-/*
-1382. 将二叉搜索树变平衡
-给你一棵二叉搜索树，请你返回一棵 平衡后 的二叉搜索树，新生成的树应该与原来的树有着相同的节点值。
-
-如果一棵二叉搜索树中，每个节点的两棵子树高度差不超过 1 ，我们就称这棵二叉搜索树是 平衡的 。
-
-如果有多种构造方法，请你返回任意一种。
-
-
-*/
-
-/**
- * Definition for a binary root node.
- * struct TreeNode {
- *     int val;
- *     struct TreeNode *left;
- *     struct TreeNode *right;
- * };
- */
-void func(struct TreeNode* root,int *re,int *returnSize){
-    if(root)//中序遍历二叉搜索树得到一个递增数组
-    {
-        func(root->left,re,returnSize);
-        re[(*returnSize)++]=root->val;
-        func(root->right,re,returnSize);
-    }
-}
-struct TreeNode* createTree(int *nums,int numsSize){
-    //利用一个递增数组创建平衡二叉搜索树
-    if(numsSize==0) return NULL;
-    struct TreeNode *node=(struct TreeNode *)malloc(sizeof(struct TreeNode));
-    node->val=nums[numsSize/2];
-    node->left=createTree(nums,numsSize/2);
-    node->right=createTree(&nums[numsSize/2+1],numsSize-1-numsSize/2);
-    return node;
-}
-struct TreeNode* balanceBST(struct TreeNode* root){
-    int numsSize=0,nums[10000]={0};
-    func(root,nums,&numsSize);
-    return createTree(nums,numsSize);
 }
 
 
@@ -623,22 +309,18 @@ int maxSumBST(struct TreeNode* root){
 /*
 776. 拆分二叉搜索树
 给你一棵二叉搜索树（BST）、它的根结点 root 以及目标值 V。
-
-请将该树按要求拆分为两个子树：其中一个子树结点的值都必须小于等于给定的目标值 V；另一个子树结点的值都必须大于目标值 V；树中并非一定要存在值为 V 的结点。
-
-除此之外，树中大部分结构都需要保留，也就是说原始树中父节点 P 的任意子节点 C，假如拆分后它们仍在同一个子树中，那么结点 P 应仍为 C 的子结点。
-
+请将该树按要求拆分为两个子树：其中一个子树结点的值都
+必须小于等于给定的目标值 V；另一个子树结点的值都必须
+大于目标值 V；树中并非一定要存在值为 V 的结点。
+除此之外，树中大部分结构都需要保留，也就是说原始树中
+父节点 P 的任意子节点 C，假如拆分后它们仍在同一个子树中，
+那么结点 P 应仍为 C 的子结点。
 你需要返回拆分后两个子树的根结点 TreeNode，顺序随意。
-
-
-
 示例：
-
 输入：root = [4,2,6,1,3,5,7], V = 2
 输出：[[2,1],[4,3,6,null,null,5,7]]
 解释：
 注意根结点 output[0] 和 output[1] 都是 TreeNode 对象，不是数组。
-
 给定的树 [4,2,6,1,3,5,7] 可化为如下示意图：
 
           4
@@ -661,17 +343,6 @@ int maxSumBST(struct TreeNode* root){
 二叉搜索树节点个数不超过 50
 二叉搜索树始终是有效的，并且每个节点的值都不相同
 */
-
-/**
- * Definition for a binary tree node.
- * struct TreeNode {
- *     int val;
- *     struct TreeNode *left;
- *     struct TreeNode *right;
- * };
- */
-
-
 int splitSubBST(struct TreeNode* root, int V, struct TreeNode** left, struct TreeNode** right){
     *left = NULL;
     *right = NULL;
