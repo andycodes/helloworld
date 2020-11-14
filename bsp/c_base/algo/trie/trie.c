@@ -11,7 +11,7 @@ Trie一般支持两个操作：
 2. Trie.find(S)：第二个操作是查询操作，
 就是查询一个字符串S是不是在集合中。
 */
-struct trieNode{
+struct trieNode {
 	int prefix;
 	int end;
 	struct trieNode* child[26];
@@ -25,18 +25,20 @@ void push(struct trieNode *root, char * str)
 	}
 
 	for(int i = 0;i < slen; i++) {
-		if(root->child[str[i]-'a'] == NULL) {
-			root->child[str[i]-'a'] = (struct trieNode*)calloc(1, sizeof(struct trieNode));
+		int idx = str[i]-'a';
+
+		if(root->child[idx] == NULL) {
+			root->child[idx] = (struct trieNode*)calloc(1, sizeof(struct trieNode));
 		}
-		root = root->child[str[i]-'a'];
+
+		root = root->child[idx];
 		root->prefix++;
 	}
 
 	root->end++;
 }
 
-
-int find(struct trieNode *root, char * str)
+struct trieNode * find(struct trieNode *root, char * str)
 {
 	int slen = strlen(str);
 
@@ -51,23 +53,20 @@ int find(struct trieNode *root, char * str)
 		root = root->child[str[i]-'a'];
 	}
 
-	return root->end;
+	return root;
+}
+
+
+int findStr(struct trieNode *root, char * str)
+{
+	struct trieNode *node = find(root, str);
+	return node->root;
 }
 
 int findPrefix(struct trieNode *root, char * str)
 {
-	int slen = strlen(str);
-	if(root == NULL||slen == 0) {
-		return 0;
-	}
-
-	for(int i = 0; i < slen; i++) {
-		if(root->child[str[i]-'a'] == NULL) {
-			return 0;
-		}
-		root = root->child[str[i]-'a'];
-	}
-	return root->prefix;
+	struct trieNode *node = find(root, str);
+	return node->prefix;
 }
 
 void trieFree(struct trieNode *root)
