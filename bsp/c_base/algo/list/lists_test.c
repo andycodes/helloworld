@@ -1,47 +1,4 @@
 /*
-19. 删除链表的倒数第N个节点
-难度中等780
-给定一个链表，删除链表的倒数第 n 个节点，并且返回链表的头结点。
-示例：
-给定一个链表: 1->2->3->4->5, 和 n = 2.
-
-当删除了倒数第二个节点后，链表变为 1->2->3->5.
-说明：
-给定的 n 保证是有效的。
-进阶：
-你能尝试使用一趟扫描实现吗？
-*/
-/*
-链表中解决带间距的问题，首先想到的也是很常用的就是
-双指针。
-让两个指针间隔 n+1个节点后两者同时后移，当跑得快的指
-针到达尾部时，跑的慢的指针的下一个节点刚好就是要被
-删除的节点，至此，问题迎刃而解。
-然后注意边界问题，当待删除的元素刚好是第一个元素时
-需要特殊处理。
-最后是参数合法，当 head == NULL 或 n 超出了链表长度需要特
-殊处理
-*/
-struct ListNode* removeNthFromEnd(struct ListNode* head, int n)
-{
-	struct ListNode* dummy = calloc(1, sizeof(struct ListNode));
-	dummy->next = head;
-	struct ListNode*fast = dummy;
-	struct ListNode*slow = dummy;
-	for(int i = 0; i <= n; i++) {
-		fast = fast->next;
-	}
-
-	while(fast != NULL) {
-		fast = fast->next;
-		slow = slow->next;
-	}
-
-	slow->next = slow->next->next;
-	return dummy->next;
-}
-
-/*
 141. 环形链表
 给定一个链表，判断链表中是否有环。
 检测链表中是否存在环路有一个方法叫做快慢指针法，
