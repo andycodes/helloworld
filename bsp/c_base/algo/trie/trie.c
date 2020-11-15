@@ -60,7 +60,7 @@ struct trieNode * find(struct trieNode *root, char * str)
 int findStr(struct trieNode *root, char * str)
 {
 	struct trieNode *node = find(root, str);
-	return node->root;
+	return node->end;
 }
 
 int findPrefix(struct trieNode *root, char * str)
