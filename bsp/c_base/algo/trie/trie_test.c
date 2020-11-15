@@ -733,3 +733,336 @@ void streamCheckerFree(StreamChecker* obj) {
     free(obj);
 }
 
+
+/*
+642. 设计搜索自动补全系统
+为搜索引擎设计一个搜索自动补全系统。用户会输入一条语句（最少包含一个字母，以特殊字符 '#' 结尾）。除 '#' 以外用户输入的每个字符，返回历史中热度前三并以当前输入部分为前缀的句子。下面是详细规则：
+
+一条句子的热度定义为历史上用户输入这个句子的总次数。
+返回前三的句子需要按照热度从高到低排序（第一个是最热门的）。如果有多条热度相同的句子，请按照 ASCII 码的顺序输出（ASCII 码越小排名越前）。
+如果满足条件的句子个数少于 3，将它们全部输出。
+如果输入了特殊字符，意味着句子结束了，请返回一个空集合。
+你的工作是实现以下功能：
+
+构造函数：
+
+AutocompleteSystem(String[] sentences, int[] times): 这是构造函数，输入的是历史数据。 Sentences 是之前输入过的所有句子，Times 是每条句子输入的次数，你的系统需要记录这些历史信息。
+
+现在，用户输入一条新的句子，下面的函数会提供用户输入的下一个字符：
+
+List<String> input(char c): 其中 c 是用户输入的下一个字符。字符只会是小写英文字母（'a' 到 'z' ），空格（' '）和特殊字符（'#'）。输出历史热度前三的具有相同前缀的句子。
+
+
+
+样例 ：
+操作 ： AutocompleteSystem(["i love you", "island","ironman", "i love leetcode"], [5,3,2,2])
+系统记录下所有的句子和出现的次数：
+"i love you" : 5 次
+"island" : 3 次
+"ironman" : 2 次
+"i love leetcode" : 2 次
+现在，用户开始新的键入：
+
+
+输入 ： input('i')
+输出 ： ["i love you", "island","i love leetcode"]
+解释 ：
+有四个句子含有前缀 "i"。其中 "ironman" 和 "i love leetcode" 有相同的热度，由于 ' ' 的 ASCII 码是 32 而 'r' 的 ASCII 码是 114，所以 "i love leetcode" 在 "ironman" 前面。同时我们只输出前三的句子，所以 "ironman" 被舍弃。
+
+输入 ： input(' ')
+输出 ： ["i love you","i love leetcode"]
+解释:
+只有两个句子含有前缀 "i "。
+
+输入 ： input('a')
+输出 ： []
+解释 ：
+没有句子有前缀 "i a"。
+
+输入 ： input('#')
+输出 ： []
+解释 ：
+
+用户输入结束，"i a" 被存到系统中，后面的输入被认为是下一次搜索。
+
+
+
+注释 ：
+
+输入的句子以字母开头，以 '#' 结尾，两个字母之间最多只会出现一个空格。
+即将搜索的句子总数不会超过 100。每条句子的长度（包括已经搜索的和即将搜索的）也不会超过 100。
+即使只有一个字母，输出的时候请使用双引号而不是单引号。
+请记住清零 AutocompleteSystem 类中的变量，因为静态变量、类变量会在多组测试数据中保存之前结果。详情请看这里。
+
+*/
+
+struct TrieNode
+{
+    bool isEnd;
+    int hot;
+    struct TrieNode *next[27];
+};
+
+// 获得一个新的前缀树节点
+struct TrieNode *getNode()
+{
+    struct TrieNode *ret = (struct TrieNode *)malloc(sizeof(struct TrieNode));
+    ret->isEnd = false;
+    ret->hot = 0;
+    memset(ret->next, 0, sizeof(ret->next));
+    return ret;
+}
+// 向前缀树中插入键值
+void insert(struct TrieNode *dest, char *val, int hot)
+{
+    if (dest == NULL)
+        return;
+    if (*val == 0)
+    {
+        dest->isEnd = true;
+        dest->hot += hot;
+    }
+    else
+    {
+        int pos = *val == ' ' ? 26 : *val - 'a';
+        if (dest->next[pos] == NULL)
+            dest->next[pos] = getNode();
+        insert(dest->next[pos], val + 1, hot);
+    }
+}
+
+typedef struct {
+    struct TrieNode *master;    // 存储前缀树的根节点
+    struct TrieNode *current;   // 当前查找到的位置
+    int totalCnt;               // 字符串的总数
+    int currentCnt;             // 可能的结果数目
+    int currentPos;             // 已经查找（填入prefix字段）的所有字符数量
+    char prefix[101];           // 查找到的字符串
+} AutocompleteSystem;
+
+AutocompleteSystem* autocompleteSystemCreate(char ** sentences, int sentencesSize, int* times, int timesSize) {
+    AutocompleteSystem *ret = (AutocompleteSystem *)malloc(sizeof(AutocompleteSystem));
+    ret->totalCnt = sentencesSize;
+    ret->currentCnt = ret->totalCnt;
+    ret->master = getNode();
+    ret->current = ret->master;
+    ret->currentPos = 0;
+    memset(ret->prefix, 0, sizeof(ret->prefix));
+    int i = 0;
+    for (i = 0; i < sentencesSize; i++)
+        insert(ret->master, sentences[i], times[i]);
+    return ret;
+}
+
+struct retForm
+{
+    char *str;
+    int hot;
+};
+
+void dfs(struct TrieNode *dest, struct retForm *ret, char *prefix, int *retSize, int curPos)
+{
+    if (dest == NULL)
+        return;
+    for (int i = 0; i < 27; i++)
+    {
+        prefix[curPos] = i == 26 ? ' ' : (char)i + 'a';
+        dfs(dest->next[i], ret, prefix, retSize, curPos + 1);
+    }
+    prefix[curPos] = 0;
+    if (dest->isEnd == true)
+    {
+        ret[*retSize].str = (char *)memset(malloc(sizeof(char) * (strlen(prefix) + 1)), 0, sizeof(char) * (strlen(prefix) + 1));
+        ret[*retSize].hot = dest->hot;
+        strcpy(ret[(*retSize)++].str, prefix);
+    }
+}
+
+#define SIG(x) (x > 0 ? 1 : x == 0 ? 0 : -1)
+
+int comp(struct retForm *a, struct retForm *b)
+{
+    int x = strcmp(a->str, b->str);
+    return -(a->hot - b->hot) * 2 + SIG(x);
+}
+
+void swap(struct retForm **a, struct retForm **b)
+{
+    struct retForm *temp;
+    temp = *a;
+    *a = *b;
+    *b = temp;
+}
+
+char ** autocompleteSystemInput(AutocompleteSystem* obj, char c, int* retSize) {
+    if (obj == NULL)
+    {
+        *retSize = 0;
+        return NULL;
+    }
+    // 非结束字符
+    if (c != '#')
+    {
+        char **ret = (char **)malloc(sizeof(char *) * 3);
+        struct retForm *hotret = (struct retForm *)malloc(sizeof(struct retForm) * obj->currentCnt),
+               *hot3[4] = {NULL};
+        int pos = c == ' ' ? 26 : c - 'a', i = 0, j = 0;
+        obj->prefix[obj->currentPos++] = c;
+        if (obj->current->next[pos] == NULL)
+            obj->current->next[pos] = getNode(); // 插入节点
+        obj->current = obj->current->next[pos];
+        *retSize = 0;
+        if (obj->currentCnt != 0)
+        {
+            dfs(obj->current, hotret, obj->prefix, retSize, obj->currentPos);
+            obj->currentCnt = *retSize;
+            for (i = 0; i < *retSize; i++)
+            {
+                hot3[3] = hotret + i; // 替换最后一个元素，进行冒泡排序
+                for (j = 3; j >= 1; j--)
+                    if (hot3[j - 1] == NULL || comp(hot3[j], hot3[j - 1]) < 0)
+                        swap(hot3 + j, hot3 + j - 1);
+            }
+            *retSize = *retSize >= 3 ? 3 : *retSize;
+            for (i = 0; i < *retSize; i++)
+                ret[i] = hot3[i]->str;
+        }
+        return ret;
+    }
+    // 结束字符
+    else
+    {
+        obj->current->isEnd = true;
+        obj->current->hot++;
+        obj->totalCnt++;
+        memset(obj->prefix, 0, sizeof(obj->prefix));
+        obj->current = obj->master;
+        obj->currentCnt = obj->totalCnt;
+        obj->currentPos = 0;
+        *retSize = 0;
+        return NULL;
+    }
+}
+
+void delTrie(struct TrieNode *dest)
+{
+    if (dest == NULL)
+        return;
+    for (int i = 0; i < 27; i++)
+        delTrie(dest->next[i]);
+    free(dest);
+}
+
+void autocompleteSystemFree(AutocompleteSystem* obj) {
+    free(obj->master);
+    free(obj);
+}
+
+
+/*
+472. 连接词
+给定一个不含重复单词的列表，编写一个程序，返回给定单词列表中所有的连接词。
+
+连接词的定义为：一个字符串完全是由至少两个给定数组中的单词组成的。
+
+示例:
+
+输入: ["cat","cats","catsdogcats","dog","dogcatsdog","hippopotamuses","rat","ratcatdogcat"]
+
+输出: ["catsdogcats","dogcatsdog","ratcatdogcat"]
+
+解释: "catsdogcats"由"cats", "dog" 和 "cats"组成;
+     "dogcatsdog"由"dog", "cats"和"dog"组成;
+     "ratcatdogcat"由"rat", "cat", "dog"和"cat"组成。
+说明:
+
+给定数组的元素总数不超过 10000。
+给定数组中元素的长度总和不超过 600000。
+所有输入字符串只包含小写字母。
+不需要考虑答案输出的顺序。
+*/
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+
+/* 字典树 */
+struct DictTree {
+    struct DictTree *childs[26];    // 当前节点收到一个字母ch后往childs[ch - 'a']走
+    int IsWord; // 当前节点是一个单词？
+};
+
+void InitDictTree(struct DictTree **node)   // 初始化一个节点
+{
+    *node = malloc(sizeof(struct DictTree));
+    for (int i = 0; i < 26; i++) {
+        ((*node)->childs)[i] = NULL;
+    }
+    (*node)->IsWord = 0;
+}
+
+void InsertWord(struct DictTree *root, char *words) // 将一个词插入字典树
+{
+    struct DictTree *p;
+    p = root;
+    for (int i = 0; words[i] != '\0'; i++) {
+        if ((p->childs)[words[i] - 'a'] == NULL) {
+            InitDictTree(&((p->childs)[words[i] - 'a'])); // 不存在字母，新建一个
+        }
+        p = (p->childs)[words[i] - 'a'];
+        if (words[i + 1] == '\0') { // 是单词
+            p->IsWord = 1;
+        }
+    }
+}
+
+
+// 搜索一个单词是否能够分成2个或以上的单词，且都在字典树中
+int SearchWord(struct DictTree *root, char *words, int start, int deep)
+{
+    if (start == strlen(words)) {   // 搜索结束
+        if (deep > 2) {             // 如果deep > 2，说明words被拆成了2份以上，每一份都在字典树中
+            return 1;
+        }
+        return 2;
+    }
+
+    struct DictTree *p =root;
+    for (int i = start; words[i] != '\0'; i++) {
+        p = (p->childs)[words[i] - 'a'];
+        if (p == NULL) {
+            return 0;
+        }
+        if (p->IsWord == 1) {   // 单词的前i个字母可以组成一个单词，且该单词存在字典树中，所以可以拆分
+            int ret = SearchWord(root, words, i + 1, deep + 1);
+            if (ret > 0) { // 将
+                return ret;
+            }
+        }
+    }
+    return 0;
+}
+
+char ** findAllConcatenatedWordsInADict(char ** words, int wordsSize, int* returnSize){
+    struct DictTree *root;
+    InitDictTree(&root);
+    char **ret;
+    ret = malloc(sizeof(char *) * 1000);
+    *returnSize = 0;
+
+    // 初始化字典树
+    for (int i = 0; i < wordsSize; i++) {
+        InsertWord(root, words[i]);
+    }
+
+    // 搜索每一个词
+    for (int i = 0; i < wordsSize; i++) {
+        if (SearchWord(root, words[i], 0, 1) == 1) {
+            ret[*returnSize] = words[i];
+            (*returnSize)++;
+        }
+    }
+
+    return ret;
+}
+
+
