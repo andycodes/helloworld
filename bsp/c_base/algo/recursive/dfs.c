@@ -843,3 +843,387 @@ int longestIncreasingPath(int** matrix, int matrixSize, int* matrixColSize)
 
 	return max;
 }
+
+/*
+面试题 08.06. 汉诺塔问题
+在经典汉诺塔问题中，有 3 根柱子及 N 个不同大小的穿孔圆盘，盘子可以滑入任意一根柱子。一开始，所有盘子自上而下按升序依次套在第一根柱子上(即每一个盘子只能放在更大的盘子上面)。移动圆盘时受到以下限制:
+(1) 每次只能移动一个盘子;
+(2) 盘子只能从柱子顶端滑出移到下一根柱子;
+(3) 盘子只能叠在比它大的盘子上。
+
+请编写程序，用栈将所有盘子从第一根柱子移到最后一根柱子。
+
+你需要原地修改栈。
+
+示例1:
+
+ 输入：A = [2, 1, 0], B = [], C = []
+ 输出：C = [2, 1, 0]
+示例2:
+
+ 输入：A = [1, 0], B = [], C = []
+ 输出：C = [1, 0]
+*/
+#define MAX_LEN 200
+typedef struct {
+    int* data;
+    int size;
+}Stack;
+int cnt = 0;
+void Push(Stack* s, int d)
+{
+    s->data[s->size++] = d;
+}
+int Pop(Stack* s){
+    return s->data[--s->size];
+}
+
+void hannuota(int n, Stack* A, Stack* B, Stack* C){
+    if(n == 1){
+        cnt ++;
+        Push(C, Pop(A));
+        return;
+    }
+    hannuota(n-1, A, C, B);
+    hannuota(1, A, B, C);
+    hannuota(n-1, B, A, C);
+}
+
+void hanota(int* A, int ASize, int* B, int BSize, int** C, int* CSize){
+    if(ASize <= 0) return;
+    Stack X,Y,Z;
+    X.data = A;
+    X.size = ASize;
+    Y.data = (int*)malloc(sizeof(int)*MAX_LEN);
+    Y.size = 0;
+    int *p = (int*)malloc(sizeof(int)*MAX_LEN);
+    Z.data = p;
+    Z.size = 0;
+    hannuota(ASize, &X, &Y, &Z);
+    *C = p;
+    *CSize = Z.size;
+    free(Y.data);
+}
+
+/*
+726. 原子的数量
+给定一个化学式formula（作为字符串），返回每种原子的数量。
+
+原子总是以一个大写字母开始，接着跟随0个或任意个小写字母，表示原子的名字。
+
+如果数量大于 1，原子后会跟着数字表示原子的数量。如果数量等于 1 则不会跟数字。例如，H2O 和 H2O2 是可行的，但 H1O2 这个表达是不可行的。
+
+两个化学式连在一起是新的化学式。例如 H2O2He3Mg4 也是化学式。
+
+一个括号中的化学式和数字（可选择性添加）也是化学式。例如 (H2O2) 和 (H2O2)3 是化学式。
+
+给定一个化学式，输出所有原子的数量。格式为：第一个（按字典序）原子的名子，跟着它的数量（如果数量大于 1），然后是第二个原子的名字（按字典序），跟着它的数量（如果数量大于 1），以此类推。
+
+示例 1:
+
+输入:
+formula = "H2O"
+输出: "H2O"
+解释:
+原子的数量是 {'H': 2, 'O': 1}。
+*/
+typedef struct a {
+    char c[4];
+    int cnt;
+} Name;
+typedef struct b {
+    char c[4];
+    int cnt;
+    UT_hash_handle hh;
+} Node;
+Node *map;
+Name stack[1000];
+Name stack1[1000];
+int top, top1;
+int GetNum(char *formula, int *cnt)
+{
+    int i = 0, sum = 0;
+    while ((formula[i] != '\0') && (formula[i] <= '9') && (formula[i] >= '0')) {
+        sum = sum * 10 + (formula[i] - '0');
+        i++;
+    }
+    if (sum == 0) {
+        sum = 1;  /* 这个地方可能get不到数字，那就是1倍，但长度要返回0 */
+    }
+    *cnt = sum;
+    return i;
+}
+int GetString(char *formula, Name *ch)
+{
+    int i = 0;
+    memset(ch->c, 0, 4);
+    ch->c[i] = formula[i];
+    i++;
+    while ((formula[i] != '\0') && (formula[i] <= 'z') && (formula[i] >= 'a')) {
+        ch->c[i] = formula[i];
+        i++;
+    }
+    i += GetNum(&formula[i], &ch->cnt);
+    return i;
+}
+void Save(Name *ch)
+{
+    Node *s = NULL;
+    HASH_FIND_STR(map, ch->c, s);
+    if (s == NULL) {
+        s = calloc(1, sizeof(Node));
+        strcpy(s->c, ch->c);
+        s->cnt = ch->cnt;
+        HASH_ADD_STR(map, c, s);
+    } else {
+        s->cnt += ch->cnt;
+    }
+}
+int Cmp(void *a, void *b)
+{
+    return strcmp((char*)a, (char*)b);
+}
+char * countOfAtoms(char * formula)
+{
+    map =  NULL;
+    top = 0;
+    top1 = 0;
+    int len = strlen(formula);
+    int i = 0;
+    Name ch = {0};
+    while (i < len) {
+        if (formula[i] == '(') {
+            ch.cnt = 0;
+            stack[top++] = ch;
+            i++;
+            continue;
+        }
+        if ((top > 0) && (formula[i] != ')')) {
+            int len1 = GetString(&formula[i], &ch);
+            stack[top++] = ch;
+            i += len1;
+            continue;
+        }
+        if (formula[i] == ')') {
+            i++;
+            int sum = 0;
+            int len2 = GetNum(&formula[i], &sum);
+            i += len2;
+            ch = stack[--top];
+            while ((top > 0) && (ch.cnt > 0)) {
+                ch.cnt *= sum;
+                stack1[top1++] = ch;  /* push进stack1 */
+                ch = stack[--top];    /* 从stack中继续pop */
+            }
+            Name ch1 = {0};
+            if (top > 0) {
+                while (top1 > 0) {  /* 如果stack中还有字符，继续push进stack */
+                    ch1 = stack1[--top1];
+                    stack[top++] = ch1;
+                }
+            } else {
+                while (top1 > 0) { /* 如果stack没有字符，直接保存 */
+                    ch1 = stack1[--top1];
+                    Save(&ch1);
+                }
+            }
+            continue;
+        }
+        if (i < len) {
+            int len3 = GetString(&formula[i], &ch);
+            Save(&ch);
+            i += len3;
+        }
+    }
+    HASH_SORT(map, Cmp); /* 将hash表排序然后输出 */
+    char *res = calloc(1001, sizeof(char));
+    Node *s, *tmp;
+    HASH_ITER(hh, map, s, tmp) {
+        strcat(res, s->c);
+        if (s->cnt > 1) {
+            char tmp[1000] = {0};
+            sprintf(tmp, "%d", s->cnt);
+            strcat(res, tmp);
+        }
+    }
+    return res;
+}
+
+/*
+248. 中心对称数 III
+中心对称数是指一个数字在旋转了 180 度之后看起来依旧相同的数字（或者上下颠倒地看）。
+
+写一个函数来计算范围在 [low, high] 之间中心对称数的个数。
+
+示例:
+
+输入: low = "50", high = "100"
+输出: 3
+解释: 69，88 和 96 是三个在该范围内的中心对称数
+*/
+
+int g_ret;
+char a[] = {'9', '6', '8', '1', '0'};
+void Dfs(char *low, char *high, int n, int step, char *buff)
+{
+    int m = (n + 1) / 2;
+    if (m < step) {
+        if (strlen(low) == n && strcmp(buff, low) >= 0) {
+            if (strlen(high) > n || strcmp(buff, high) <= 0) {
+                g_ret++;
+            }
+        } else if (strlen(high) == n && strcmp(buff, high) <= 0) {
+            if (strlen(low) < n || strcmp(buff, low) >= 0) {
+                g_ret++;
+            }
+        }
+        return;
+    }
+    if (step == 1 && n % 2 == 1) {
+        for (int i = 2; i < 5; i++) {
+            buff[m - step] = a[i];
+            Dfs(low, high, n, step + 1, buff);
+        }
+        return;
+    }
+    if (m == step) {
+        for (int i = 0; i < 4; i++) {
+            buff[m - step] = a[i];
+            buff[n - m + step - 1] = i < 2 ? a[1 - i] : a[i];
+            Dfs(low, high, n, step + 1, buff);
+        }
+        return;
+    }
+    for (int i = 0; i < 5; i++) {
+        buff[m - step] = a[i];
+        buff[n - m + step - 1] = i < 2 ? a[1 - i] : a[i];
+        Dfs(low, high, n, step + 1, buff);
+    }
+}
+void Calc(char *low, char *high, int n)
+{
+    char *buff = (char*)calloc(n + 1, 1);
+    Dfs(low, high, n, 1, buff);
+    free(buff);
+}
+int Calc1(int n)
+{
+    int count;
+    if (n % 2 == 1) {
+        count = 3;  // 中心位置
+    } else {
+        count = 1;
+    }
+    n -= 2;
+    count *= 4; // 首尾
+    n /= 2;
+    while (n > 0) {
+        count *= 5;
+        n--;
+    }
+    return count;
+}
+int strobogrammaticInRange(char * low, char * high)
+{
+    g_ret = 0;
+    if (strlen(low) == strlen(high)) {
+        if (strcmp(high, low) < 0) {
+            return g_ret;
+        }
+    } else if (strlen(low) > strlen(high)) {
+        return g_ret;
+    }
+
+    if (strlen(high) > strlen(low)) {
+        Calc(low, high, strlen(high));
+        Calc(low, high, strlen(low));
+        int n = strlen(high) - 1;
+        while (n > strlen(low)) {
+            g_ret += Calc1(n);
+            n--;
+        }
+    } else {
+        Calc(low, high, strlen(high));
+    }
+    return g_ret;
+}
+
+/*
+761. 特殊的二进制序列
+特殊的二进制序列是具有以下两个性质的二进制序列：
+
+0 的数量与 1 的数量相等。
+二进制序列的每一个前缀码中 1 的数量要大于等于 0 的数量。
+给定一个特殊的二进制序列 S，以字符串形式表示。定义一个操作 为首先选择 S 的两个连续且非空的特殊的子串，然后将它们交换。（两个子串为连续的当且仅当第一个子串的最后一个字符恰好为第二个子串的第一个字符的前一个字符。)
+
+在任意次数的操作之后，交换后的字符串按照字典序排列的最大的结果是什么？
+
+示例 1:
+
+输入: S = "11011000"
+输出: "11100100"
+解释:
+将子串 "10" （在S[1]出现） 和 "1100" （在S[3]出现）进行交换。
+这是在进行若干次操作后按字典序排列最大的结果。
+*/
+int cmp(const void *a, const void *b) {
+    char *a1 = *(char **)a;
+    char *b1 = *(char **)b;
+
+    int tt = strcmp(a1, b1);
+    return -tt;
+}
+
+char * makeLargestSpecial(char * S){
+
+    if ((NULL == S) || (strlen(S) <= 2)) return S;
+
+    int len = strlen(S);
+
+    int cnt = 0;
+    int substrnum = 0, substrpos[len / 2];
+    for (int i = 0; i < len; i++) {
+        cnt += ('1' == S[i]) ? 1 : -1;
+        if (0 == cnt) substrpos[substrnum++] = i;
+    }
+
+    char *res = (char *) malloc(sizeof(char) * (len + 1));
+    memset(res, '\0', len + 1);
+
+    int tmp = 0;
+    if (1 == substrnum) {
+        res[0] = '1';
+        res[len - 1] = '0';
+        char * substr = (char *) malloc(sizeof(char) * (len - 1));
+        memset(substr, '\0', len - 1);
+        for (int i = 1; i < len - 1; i++) {
+            substr[tmp++] = S[i];
+        }
+        substr = makeLargestSpecial(substr);
+        tmp = 0;
+        for (int j = 1; j < len - 1; j++) res[j] = substr[tmp++];
+    } else {
+
+        char **str = (char **) malloc(sizeof(char*) * substrnum);
+        for (int i = 0; i < substrnum; i++) {
+            str[i] = (char *) malloc(sizeof(char) * (len - 1));
+            memset(str[i], '\0', len - 1);
+            int custrlen = (i > 0) ? (substrpos[i] - substrpos[i - 1]) : (substrpos[i] + 1);
+            for (int j = 0; j < custrlen; j++) {
+                str[i][j] = S[tmp++];
+            }
+            str[i] = makeLargestSpecial(str[i]);
+        }
+
+        qsort(str, substrnum, sizeof(char *), cmp);
+        tmp = 0;
+        for (int i = 0; i < substrnum; i++) {
+            for(int j = 0; j < strlen(str[i]); j++) {
+                res[tmp++] = str[i][j];
+            }
+        }
+    }
+
+    return res;
+
+}

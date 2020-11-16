@@ -111,184 +111,97 @@ int* diffWaysToCompute(char* input, int* returnSize)
 
 */
 /*
-漂亮数组有以下的性质:
-
-（1）A是一个漂亮数组，
-如果对A中所有元素添加一个常数，
-那么Ａ还是一个漂亮数组。
-
-（2）A是一个漂亮数组，
-如果对A中所有元素乘以一个常数，
-那么A还是一个漂亮数组。
-
-（3）A是一个漂亮数组，如果删除一些A中所有元素，
-那么A还是一个漂亮数组。
-
-（4) A是一个奇数构成的漂亮数组，
-B是一个偶数构成的漂亮数组，那么A+B也是一个漂亮数组
-比如:{1,5,3,7}+{2,6,4,8}={1,5,3,7,2,6,4,8}也是一个漂亮数组。
-
-所以我们假设一个{1-m}的数组是漂亮数组，
-可以通过下面的方式构造漂亮数组{1-2m}:
-
-对{1-m}中所有的数乘以2-1，
-构成一个奇数漂亮数组A。如{1,3,2,4},可以得到{1,5,3,7}
-对{1-m}中所有的数乘以2,
-构成一个偶数漂亮数组B,如{1,3,2,4}, 可以得到{2,6,4,8}
-A+B构成了{1-2m}的漂亮数组。{1,5,3,7}+{2,6,4,8}={1,5,3,7,2,6,4,8}
-从中删除不要的数字即可。
-
-首先明确一下，如果一个数组X是漂亮数组
-"	那么2X(每个元素乘以2)，也是漂亮数组
-"	那么2X-1(每个元素乘以2，减一)，也是漂亮数组
-
-满足下面条件的为漂亮数组：
-
 每个 i < j，都不存在 k 满足 i < k < j 使得 A[k] * 2 = A[i] + A[j]
 由于奇数+偶数 = 奇数
 2* [奇数或偶数] = 偶数
 因此，首先奇偶数分开，分成两部分，
 那么这两部分就满足这个条件，奇数部分为X，偶数部分为Y
-然后对X进行拆分，将X的所有位向右移动一位，然后拆分奇偶
-对Y进行拆分，将Y的所有位向右移动一位，然后拆分奇偶s
 */
-
-int* GetBeautifulArray(int num, int** saveArray, int* size)
+void exec(int* arr, int size, int* tmp1, int* tmp2)
 {
-    int* outArray = NULL;
-    int* leftArray = NULL;
-    int* rightArray = NULL;
-    int leftSize = 0;
-    int rightSize = 0;
     int i;
+    int j = 0;
+    int k = 0;
 
-    if (saveArray[num] != NULL) {
-        *size = num;
-        return saveArray[num];
+    // 如果数组长度小于等于2 则无需处理
+    if (size <= 2) {
+        return;
     }
 
-    if (num == 1) {
-        outArray = (int*)malloc(sizeof(int));
-        outArray[0] = 1;
-        *size = 1;
-        saveArray[num] = outArray;
-        return outArray;
+    // 处理数组，把数字1 3 5 7 放在前面，把2 4 6 8...放在后面
+	//不停把偶数序号数往后半部分放
+    for (i = 0; i < size; i++) {
+        if (i % 2 == 0) {
+            tmp1[j++] = arr[i];
+        } else {
+            tmp2[k++] = arr[i];
+        }
     }
 
-    leftArray = GetBeautifulArray((num + 1) / 2, saveArray, &leftSize);
-    rightArray = GetBeautifulArray(num / 2, saveArray, &rightSize);
+    memcpy(arr, tmp1, j * sizeof(int));
+    memcpy(arr + j, tmp2, k * sizeof(int));
 
-    *size = leftSize + rightSize;
-    outArray = (int*)malloc(sizeof(int) * (*size));
-    for (i = 0; i < leftSize; i++) {
-        outArray[i] = leftArray[i] * 2 - 1;
-    }
-    for (i = 0; i < rightSize; i++) {
-        outArray[i + leftSize] = rightArray[i] * 2;
-    }
+    // 对前面的1 3 5 7...重复该处理过程
+    exec(arr, j, tmp1, tmp2);
 
-    saveArray[num] = outArray;
-
-    return outArray;
+    // 对后面的2 4 6 8...重复该处理过程
+    exec(arr + j, k, tmp1, tmp2);
 }
 
-
-/**
-* Note: The returned array must be malloced, assume caller calls free().
-*/
 int* beautifulArray(int N, int* returnSize)
 {
-    int* outArray = NULL;
+    int* arr;
+    int* tmp1;
+    int* tmp2;
     int i;
-    int** saveArray = (int**)malloc(sizeof(int*) * (N + 1));
 
-    (void)memset(saveArray, 0, sizeof(int*) * (N + 1));
-    outArray = GetBeautifulArray(N, saveArray, returnSize);
+
+    *returnSize = N;
+
+    // 返回的数组
+    arr = (int*)malloc(sizeof(int) * N);
+
+    // 两个临时数组用于存放临时数据
+    tmp1 = (int*)malloc(sizeof(int) * N);
+    tmp2 = (int*)malloc(sizeof(int) * N);
+
     for (i = 0; i < N; i++) {
-        if (saveArray[i] != NULL) {
-            free(saveArray[i]);
-        }
+        arr[i] = i + 1;
     }
-    free(saveArray);
-    return outArray;
-}
 
-/*
-50. Pow(x, n)
-难度中等390收藏分享切换为英文关注反馈
-实现 pow(x, n) ，即计算 x 的 n 次幂函数。
-示例 1:
-输入: 2.00000, 10
-输出: 1024.00000
-示例 2:
-输入: 2.10000, 3
-输出: 9.26100
-示例 3:
-输入: 2.00000, -2
-输出: 0.25000
-解释: 2-2 = 1/22 = 1/4 = 0.25
+    exec(arr, N, tmp1, tmp2);
 
-*/
-double dfs(double x, long long N)
-{
-	if (n == 0) {
-		return 1.0;
-	}
+    free(tmp1);
+    free(tmp2);
 
-	double y = dfs(x, N / 2);
-
-	return N % 2 == 0 ? y * y : y * y * x;
-}
-
-double traverse(double x, long long N)
-{
-        double ans = 1.0;
-        // 贡献的初始值为 x
-        double x_contribute = x;
-        // 在对 N 进行二进制拆分的同时计算答案
-        while (N > 0) {
-            if (N % 2 == 1) {
-                // 如果 N 二进制表示的最低位为 1，那么需要计入贡献
-                ans *= x_contribute;
-            }
-            // 将贡献不断地平方
-            x_contribute *= x_contribute;
-            // 舍弃 N 二进制表示的最低位，这样我们每次只要判断最低位即可
-            N /= 2;
-        }
-        return ans;
-}
-
-double myPow(double x, int n)
-{
-	long long N = n;
-	return N >= 0 ? traverse(x, N) : 1.0 / traverse(x, -N);
+    return arr;
 }
 
 /*
 395. 至少有K个重复字符的最长子串
 难度中等152
-找到给定字符串（由小写字符组成）中的最长子串 T ， 要求 T 中的每一字符出现次数都不少于 k 。输出 T 的长度。
+找到给定字符串（由小写字符组成）中的最长子串 T ， 要求
+T 中的每一字符出现次数都不少于 k 。输出 T 的长度。
 示例 1:
 输入:
 s = "aaabb", k = 3
-
 输出:
 3
-
 最长子串为 "aaa" ，其中 'a' 重复了 3 次。
 示例 2:
 输入:
 s = "ababbc", k = 2
-
 输出:
 5
-
 最长子串为 "ababb" ，其中 'a' 重复了 2 次， 'b' 重复了 3 次。
-
 */
 /*
-解题思路：递归拆分子串，分治。先统计出每个字符出现的频次，维护一对双指针，从首尾开始统计，从首尾往中间排除，如果出现次数小于k则不可能出现在最终子串中，排除并挪动指针，然后得到临时子串，依次从头遍历，一旦发现出现频次小于k的字符，以该字符为分割线，分别递归求其最大值返回。
+解题思路：递归拆分子串，分治。先统计出每个字符出现的
+频次，维护一对双指针，从首尾开始统计，从首尾往中间排
+除，如果出现次数小于k则不可能出现在最终子串中，排除并
+挪动指针，然后得到临时子串，依次从头遍历，一旦发现出
+现频次小于k的字符，以该字符为分割线，分别递归求其最大
+值返回。
 */
 
 int divide(char *s, int k, int left, int right)
