@@ -248,3 +248,142 @@ int longestSubstring(char * s, int k)
 
 	return divide(s, k, 0, slen - 1);
 }
+
+/*
+312. 戳气球
+有 n 个气球，编号为0 到 n-1，每个气球上都标有一个数字，这些数字存在数组 nums 中。
+
+现在要求你戳破所有的气球。如果你戳破气球 i ，就可以获得 nums[left] * nums[i] * nums[right] 个硬币。 这里的 left 和 right 代表和 i 相邻的两个气球的序号。注意当你戳破了气球 i 后，气球 left 和气球 right 就变成了相邻的气球。
+
+求所能获得硬币的最大数量。
+
+说明:
+
+你可以假设 nums[-1] = nums[n] = 1，但注意它们不是真实存在的所以并不能被戳破。
+0 ≤ n ≤ 500, 0 ≤ nums[i] ≤ 100
+示例:
+
+输入: [3,1,5,8]
+输出: 167
+解释: nums = [3,1,5,8] --> [3,5,8] -->   [3,8]   -->  [8]  --> []
+     coins =  3*1*5      +  3*5*8    +  1*3*8      + 1*8*1   = 167
+*/
+int rec[502][502];
+int val[502];
+int solve(int left, int right) {
+    if (left >= right - 1) {
+        return 0;
+    }
+    if (rec[left][right] != -1) {
+        return rec[left][right];
+    }
+    for (int i = left + 1; i < right; i++) {
+        int sum = val[left] * val[i] * val[right];
+        sum += solve(left, i) + solve(i, right);
+        rec[left][right] = fmax(rec[left][right], sum);
+    }
+    return rec[left][right];
+}
+
+int maxCoins(int* nums, int numsSize) {
+    memset(rec, -1, sizeof(rec));
+    val[0] = val[numsSize + 1] = 1;
+    for (int i = 1; i <= numsSize; i++) {
+        val[i] = nums[i - 1];
+    }
+
+    return solve(0, numsSize + 1);
+}
+
+/*
+327. 区间和的个数
+给定一个整数数组 nums，返回区间和在 [lower, upper] 之间的个数，包含 lower 和 upper。
+区间和 S(i, j) 表示在 nums 中，位置从 i 到 j 的元素之和，包含 i 和 j (i ≤ j)。
+
+说明:
+最直观的算法复杂度是 O(n2) ，请在此基础上优化你的算法。
+
+示例:
+
+输入: nums = [-2,5,-1], lower = -2, upper = 2,
+输出: 3
+解释: 3个区间分别是: [0,0], [2,2], [0,2]，它们表示的和分别为: -2, -1, 2。
+*/
+
+int countRangeSum(int* nums, int numsSize, int lower, int upper){
+    long sum;
+    int count;
+    int i, j;
+    if (numsSize == 1) {
+        if ((nums[0] >= lower) && (nums[0] <= upper)) { return 1; }
+        if ((nums[0] < lower) || (nums[0] > upper)) { return 0; }
+    }
+
+    count = 0;
+    for (i = 0; i < numsSize; i++) {
+        sum = 0;
+        for (j = i; j < numsSize; j++) {
+            sum += nums[j];
+            if ((sum >= lower) && (sum <= upper)) {
+                count++;
+            }
+        }
+    }
+    return count;
+}
+
+int countRangeSumRecursive(long long* sum, int lower, int upper, int left, int right) {
+    if (left == right) {
+        return 0;
+    } else {
+        int mid = (left + right) / 2;
+        int n1 = countRangeSumRecursive(sum, lower, upper, left, mid);
+        int n2 = countRangeSumRecursive(sum, lower, upper, mid + 1, right);
+        int ret = n1 + n2;
+
+        // 首先统计下标对的数量
+        int i = left;
+        int l = mid + 1;
+        int r = mid + 1;
+        while (i <= mid) {
+            while (l <= right && sum[l] - sum[i] < lower) l++;
+            while (r <= right && sum[r] - sum[i] <= upper) r++;
+            ret += (r - l);
+            i++;
+        }
+
+        // 随后合并两个排序数组
+        int sorted[right - left + 1];
+        memset(sorted, 0, sizeof(sorted));
+        int p1 = left, p2 = mid + 1;
+        int p = 0;
+        while (p1 <= mid || p2 <= right) {
+            if (p1 > mid) {
+                sorted[p++] = sum[p2++];
+            } else if (p2 > right) {
+                sorted[p++] = sum[p1++];
+            } else {
+                if (sum[p1] < sum[p2]) {
+                    sorted[p++] = sum[p1++];
+                } else {
+                    sorted[p++] = sum[p2++];
+                }
+            }
+        }
+        for (int i = 0; i < right - left + 1; i++) {
+            sum[left + i] = sorted[i];
+        }
+        return ret;
+    }
+}
+
+int countRangeSum(int* nums, int numsSize, int lower, int upper) {
+    long long s = 0;
+    long long sum[numsSize + 1];
+    sum[0] = 0;
+    for (int i = 1; i <= numsSize; i++) {
+        sum[i] = sum[i - 1] + nums[i - 1];
+    }
+    return countRangeSumRecursive(sum, lower, upper, 0, numsSize);
+}
+

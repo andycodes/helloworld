@@ -49,44 +49,49 @@ int subarraySum(int* nums, int numsSize, int k)
 }
 
 /*
-1109. 航班预订统计
-这里有 n 个航班，它们分别从 1 到 n 进行编号。
-我们这儿有一份航班预订表，
-表中第 i 条预订记录 bookings[i] = [i, j, k] 意味着我们在从 i 到 j 的
-每个航班上预订了 k 个座位。
-请你返回一个长度为 n 的数组 answer，
-按航班编号顺序返回每个航班上预订的座位数。
-示例：
-
-输入：bookings = [[1,2,10],[2,3,20],[2,5,25]], n = 5
-输出：[10,55,45,25,25]
-
-
-设a[i]表示第i个航班预订的座位数。
-定义一个差分数组diff[]，
-diff[i]表示第i个航班与第i-1个航班预订座位的差，
-即diff[i] = a[i] - a[i - 1]。
-这样，我们每次扫描到[i, j, k]，
-就只需要将diff[i]增加k，diff[j + 1]减少k即可。
-最后，计算a[i] = a[i - 1] + diff[i]，返回a即可。
+有几种 i、j 的组合，满足 prefixSum[j] - prefixSum[i - 1]==k。
+维护一个前缀和hash表，只需遍历一次数组。前缀和数组：数组第i个元素的前缀和就是a[0]+a[1]+......+a[i]记作prefixSum[i]，可以随着迭代遍历过程得到。则任意i，j, a[i]+.......a[j] = prefixSum[j] - prefixSum[i-1];若a[i]+.......a[j] = k; 则prefixSum[j] - prefixSum[i-1] = k;设遍历到元素X时，计算出prefixSum[x], 只需要求出prefixSum[x]-k的值在哈希表中有几个值，就是以x为最后一个元素的子数组的个数。从而在遍历过程中累加得到结果。实现过程包括两部分：手写hash，前缀和的计算。作者：dong-bei-zhang-da-shuai链接：https://leetcode-cn.com/problems/subarray-sum-equals-k/solution/cyu-yan-shou-si-hashqian-zhui-he-tao-lu-si-lu-xian/来源：力扣（LeetCode）著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
 */
-int* corpFlightBookings(int** bookings, int bookingsSize, int* bookingsColSize,
-int n, int* returnSize){
-	int *diff = malloc(20001 * sizeof(int));
-	memset((void*)diff,0,20001*sizeof(int));
-
-	for(int i = 0; i < bookingsSize; i++){
-		//等差开始加上等差值
-		diff[bookings[i][0]-1] += bookings[i][2];
-		diff[bookings[i][1]]   -= bookings[i][2]; //等差结束 减掉等差值
-	}
-
-	for(int i = 1; i < n; i++) {
-		diff[i] += diff[i -1];//推导原始值
-	}
-
-	*returnSize = n;
-	return diff;
+struct hashNode {
+    int key;
+    int val;
+    UT_hash_handle hh;
+};
+struct hashNode *g_users = NULL;
+struct hashNode *findUser(int key) {
+    struct hashNode *s;
+    HASH_FIND_INT(g_users, &key, s);
+    return s;
+}
+int getUserVal(int key) {
+    struct hashNode *s;
+    HASH_FIND_INT(g_users, &key, s);
+    return s->val;
+}
+void addUser(int key) {
+    struct hashNode *s;
+    HASH_FIND_INT(g_users, &key, s);
+    if (s == NULL) {
+        struct hashNode *s = (struct hashNode *)malloc(sizeof(struct hashNode));
+        s->key = key;
+        s->val = 1;
+        HASH_ADD_INT(g_users, key, s);
+    } else {
+        s->val++;
+    }
+}
+int subarraySum(int* nums, int numsSize, int k){
+    int sum = 0, cnt = 0;
+    g_users = NULL;
+    addUser(0);
+    for (int i = 0; i < numsSize; i++) {
+        sum += nums[i];
+        if (findUser(sum - k)) {
+            cnt += getUserVal(sum-k);
+        }
+        addUser(sum);
+    }
+    return cnt;
 }
 
 
