@@ -1,6 +1,7 @@
 /*
 区间的问题几个思路供参考：
-1、滑动窗口（双指针） 2、前缀和的差
+1、滑动窗口（双指针）
+2、前缀和的差
 */
 
 /*
@@ -16,7 +17,10 @@
 滑动窗口一个左指针left，一个右指针right，
 两种窗口滑动方式：
 while(right < slen) {
-	do---
+	do {
+		what
+	}
+
 	right++ or continue;
 
 	满足条件，选最优
@@ -25,60 +29,13 @@ while(right < slen) {
 
 
 for (int right = 0; right < slen; right++) {
-		do--
+		do {
+			what
+		}
 		满足条件选最优
 		left++;
 }
-
-
 */
-
-/*
-3. 无重复字符的最长子串
-难度中等6
-请从字符串中找出一个最长的不包含重复字符的子字符串，
-计算该最长子字符串的长度。
-
-示例 1:
-输入: "abcabcbb"
-输出: 3
-解释: 因为无重复字符的最长子串是 "abc"，所以其长度为 3。
-示例 2:
-输入: "bbbbb"
-输出: 1
-解释: 因为无重复字符的最长子串是 "b"，所以其长度为 1。
-示例 3:
-输入: "pwwkew"
-输出: 3
-解释: 因为无重复字符的最长子串是 "wke"，所以其长度为 3。
-     请注意，你的答案必须是 子串 的长度，
-"pwke" 是一个子序列，不是子串。
-
-*/
-int lengthOfLongestSubstring(char* s)
-{
-	int left = 0;
-	int right = 0;
-	int slen = strlen(s);
-
-	if (s == NULL) {
-		return 0;
-	}
-
-	int map[128] = {0};
-	int ret = 0;
-	while(right < slen) {
-		if (map[s[right]] == 0) {
-			map[s[right++]] = 1;
-			ret = fmax(ret, right - left);
-			continue;
-		}
-
-		map[s[left++]]--;
-	}
-
-	return ret;
-}
 
 
 /*
