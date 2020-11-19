@@ -39,65 +39,6 @@ for (int right = 0; right < slen; right++) {
 
 
 /*
-1004. 最大连续1的个数 III
-难度中等41
-给定一个由若干 0 和 1 组成的数组 A，我们最多可以将 K 个值从
-0 变成 1 。
-返回仅包含 1 的最长（连续）子数组的长度。
-示例 1：
-输入：A = [1,1,1,0,0,0,1,1,1,1,0], K = 2
-输出：6
-解释：
-[1,1,1,0,0,1,1,1,1,1,1]
-粗体数字从 0 翻转到 1，最长的子数组长度为 6。
-*/
-int longestOnes(int* A, int ASize, int K)
-{
-	int left = 0;
-	int right = 0;
-	int res = 0;
-
-	while(right < ASize) {
-		if (A[right] == 1) {
-			right++;
-			res = fmax(res, right - left);
-			continue;
-		}
-
-		if (A[right] == 0 && K > 0) {
-			right++;
-			K--;
-			res = fmax(res, right - left);
-			continue;
-		}
-
-		if(A[left++] == 0) {
-			K++;
-		}
-	}
-
-	return res;
-}
-
-int longestOnes(int* A, int ASize, int K)
-{
-	//cnt用来统计窗口中0的个数
-	int left=0,right=0, cnt=0,res=0,size=ASize;
-	while(right < size) {
-		cnt += (A[right] == 0);
-		while (cnt > K) {////当窗口内0的个数大于K时，需要缩小窗口
-			cnt -= (A[left] == 0);
-			left++;
-		}
-		////窗口内0的个数小于等于k时，也就是可以该窗口内的0都可以替换，根据该窗口长度来确定是否更新res
-		res = fmax(res, right-left+1);
-		right++;
-	}
-
-	return res;
-}
-
-/*
 424. 替换后的最长重复字符
 难度中等73
 给你一个仅由大写英文字母组成的字符串，你可以将任意位
@@ -118,8 +59,12 @@ s = "ABAB", k = 2
 */
 
 /*
-右指针开始右移，扩大窗口，直到窗口内除了出现次数最多的字符以外的其他字符数量达到k
-右指针再移动会超出k时，左指针开始同时移动，此时窗口按照之前的大小开始滑动；然后，右指针继续移动直到其它字符的数量再次超出k的限制，左指针又开始同时移动，如此循环下去直到右指针移动到字符串终点。作者：seerjjj链接：https://leetcode-cn.com/problems/longest-repeating-character-replacement/solution/hua-dong-chuang-kou-suan-fa-cban-by-seerjjj/来源：力扣（LeetCode）著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+右指针开始右移，扩大窗口，直到窗口内除了出现次数最多
+的字符以外的其他字符数量达到k
+右指针再移动会超出k时，左指针开始同时移动，此时窗口
+按照之前的大小开始滑动；然后，右指针继续移动直到其它
+字符的数量再次超出k的限制，左指针又开始同时移动，如此
+循环下去直到右指针移动到字符串终点。
 */
 int characterReplacement(char * s, int k)
 {
@@ -163,6 +108,13 @@ big = [1,2,3]
 small = [4]
 输出: []
 */
+
+struct Hashmap {
+	int key;
+	int cnt;
+	UT_hash_handle hh;
+};
+
 int* shortestSeq(int* big, int bigSize, int* small, int smallSize, int* returnSize)
 {
 	if (big == NULL || small == NULL || bigSize <= 0 || smallSize <= 0 || smallSize > bigSize) {
@@ -170,11 +122,12 @@ int* shortestSeq(int* big, int bigSize, int* small, int smallSize, int* returnSi
 		return NULL;
 	}
 
-	struct HashTable ht;
-	int ret = HashInit(&ht, smallSize, hashequal_int, hashcode_int);
+	struct Hashmap *hashmap = NULL;
 
 	for (int i = 0; i < smallSize; i++) {
-		hashPushKey(&ht, small[i]);
+		struct Hashmap *node = (struct Hashmap *)calloc(1, sizeof(struct Hashmap));
+		node->key = small[i];
+		HASH_ADD_INT(hashmap, key, node);
 	}
 
 	int left = 0, right = 0, winCnt = 0, minLen= INT_MAX;
@@ -182,30 +135,32 @@ int* shortestSeq(int* big, int bigSize, int* small, int smallSize, int* returnSi
 	*returnSize = 2;
 
 	while(right < bigSize) {
-		struct DataEntry *curEntry = hashFindKey(&ht, big[right]);
-		if(curEntry != NULL) {
-			if (curEntry->value == 0) {
+		struct Hashmap *find = NULL;
+		HASH_FIND_INT(hashmap, big + right, find);
+		if(find != NULL) {
+			if (find->cnt == 0) {
 				winCnt++;
 			}
 
-			curEntry->value++;
+			find->cnt++;
 		}
 
 		while(winCnt == smallSize) {
-			struct DataEntry *entry = hashFindKey(&ht, big[left]);
-			if (entry == NULL) {
+			struct Hashmap *findleft = NULL;
+			HASH_FIND_INT(hashmap, big + left, findleft);
+			if (findleft == NULL) {
 				left++;
-			} else if (entry->value > 1) {
-				entry->value--;
+			} else if (findleft->cnt > 1) {
+				findleft->cnt--;
 				left++;
-			} else {//value == 1
+			} else {//cnt == 1
 				if (minLen > right-left + 1) {
 					minLen = right-left + 1;
 					res[0] = left;
 					res[1] = right;
 				}
 
-				entry->value--;
+				findleft->cnt--;
 				left++;
 				winCnt--;
 			}
@@ -220,150 +175,6 @@ int* shortestSeq(int* big, int bigSize, int* small, int smallSize, int* returnSi
 	}
 
 	return res;
-}
-
-
-/*
-159. 至多包含两个不同字符的最长子串
-给定一个字符串 s ，找出 至多 包含两个
-不同字符的最长子串 t 。
-示例 1:
-输入: "eceba"
-输出: 3
-解释: t 是 "ece"，长度为3。
-示例 2:
-输入: "ccaabbb"
-输出: 5
-解释: t 是 "aabbb"，长度为5。
-*/
-int lengthOfLongestSubstringTwoDistinct(char * s)
-{
-	int slen = strlen(s);
-	if (slen <= 2)
-		return slen;
-
-	int left = 0;
-	int max = 0;
-
-	while( left + max < slen) {
-		int tempLeft = left;
-
-		while(left < slen && s[left] == s[tempLeft]) {
-			left++;
-		}
-
-		int right = left;
-		int tempRight = right;
-
-		while(right < slen && (s[right] == s[tempRight] || s[right] == s[tempLeft] )) {
-			right++;
-		}
-
-		max = fmax(max, right - tempLeft);
-		left = tempRight;
-	}
-
-	return max;
-}
-
-
-/*
-658. 找到 K 个最接近的元素
-难度中等84
-给定一个排序好的数组，两个整数 k 和 x，从数组中找到最靠
-近 x（两数之差最小）的 k 个数。返回的结果必须要是按升序
-排好的。如果有两个数与 x 的差值一样，优先选择数值较小
-的那个数。
-示例 1:
-输入: [1,2,3,4,5], k=4, x=3
-输出: [1,2,3,4]
-
-示例 2:
-输入: [1,2,3,4,5], k=4, x=-1
-输出: [1,2,3,4]
-*/
-int gX;
-int cmp_int1(const void *a, const void *b)
-{
-	int aa = *((int *)a);
-	int bb = *((int *)b);
-
-	if (abs(aa - gX) == abs(bb - gX)) {
-		return aa - bb;
-	}
-
-	return abs(aa - gX) > abs(bb - gX);
-}
-
-int* findClosestElements(int* arr, int arrSize, int k, int x, int* returnSize)
-{
-	gX = x;
-	*returnSize = k;
-	qsort(arr, arrSize, sizeof(arr[0]), cmp_int1);
-	qsort(arr, k, sizeof(arr[0]), cmp_int);
-	return arr;
-}
-
-/*
-排除法（双指针）
-如果 x 的值就在长度为 size 区间内（不一定相等），要得到
-size - 1 个符合题意的最接近的元素，此时看左右边界：
-1、如果左边界与 x 的差值的绝对值较小，删除右边界；
-2、如果右边界与 x 的差值的绝对值较小，删除左边界；
-3、如果左、右边界与 x 的差值的绝对值相等，删除右边界。
-*/
-int* findClosestElements(int* arr, int arrSize, int k, int x, int* returnSize)
-{
-	int left = 0;
-	int right = arrSize - 1;
-	*returnSize = k;
-
-	while(right - left >= k) {
-		if (x - arr[left] <= arr[right] - x) {// 2 *x <= arr[left] + arr[right]
-			right--;
-		} else {
-			left++;
-		}
-	}
-
-	return arr + left;
-}
-
-
-/*
-面试题 17.11. 单词距离
-难度中等2
-有个内含单词的超大文本文件，给定任意两个单词，找出在
-这个文件中这两个单词的最短距离(相隔单词数)。如果寻找
-过程在这个文件中会重复多次，而每次寻找的单词不同，
-你能对此优化吗?
-示例：
-输入：words = ["I","am","a","student","from","a","university","in","a","city"], word1 = "a",
-word2 = "student"
-输出：1
-
-*/
-int findClosest(char** words, int wordsSize, char* word1, char* word2)
-{
-	int min = wordsSize;
-	int w1Idx = wordsSize;
-	int w2Idx = wordsSize;
-	for (int i = 0; i < wordsSize; i++) {
-		if (strcmp(words[i], word1) == 0) {
-			w1Idx = i;
-		}
-
-		if (strcmp(words[i], word2) == 0) {
-			w2Idx = i;
-		}
-
-		if (w1Idx != wordsSize && w2Idx != wordsSize) {
-			min = fmin(min, abs(w1Idx - w2Idx));
-		}
-
-	}
-
-	return min;
 }
 
 /*
