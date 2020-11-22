@@ -283,100 +283,6 @@ int numSubarrayProductLessThanK(int* nums, int numsSize, int k)
         return ans;
 }
 
-/*
-632. 最小区间
-难度困难230
-你有 k 个升序排列的整数列表。找到一个最小区间，使得 k 个
-列表中的每个列表至少有一个数包含在其中。
-我们定义如果 b-a < d-c 或者在 b-a == d-c 时 a < c，则区间 [a,b] 比 [c,d] 小。
-
-示例：
-输入：[[4,10,15,24,26], [0,9,12,20], [5,18,22,30]]
-输出：[20,24]
-解释：
-列表 1：[4, 10, 15, 24, 26]，24 在区间 [20,24] 中。
-列表 2：[0, 9, 12, 20]，20 在区间 [20,24] 中。
-列表 3：[5, 18, 22, 30]，22 在区间 [20,24] 中。
-*/
-#define RETURN_SIZE 2
-#define MAX_NUM 3500
-
-typedef struct tagInfo {
-	int value;
-	int group;
-} Info;
-
-int cmpFun(const void *a, const void *b)
-{
-	Info *temp1 = (Info *)a;
-	Info *temp2 = (Info *)b;
-
-	return temp1->value > temp2->value;
-}
-
-int isCover(int *kCount, int k)
-{
-	for (int i = 0; i < k; i++) {
-		if (kCount[i] == 0) {
-			return 0;
-		}
-	}
-	return 1;
-}
-
-void updateIndex(int left, int right, int *resBegin, int *resEnd, Info *allNum)
-{
-	if ((*resBegin == -1) ||
-		(allNum[right].value - allNum[left].value < allNum[*resEnd].value - allNum[*resBegin].value) ||
-		(allNum[right].value - allNum[left].value == allNum[*resEnd].value - allNum[*resBegin].value &&
-		left < *resBegin)) {
-		*resBegin = left;
-		*resEnd = right;
-	}
-}
-
-int* smallestRange(int** nums, int numsSize, int* numsColSize, int* returnSize)
-{
-	int numTotalSize = 0;
-	for (int i = 0; i < numsSize; i++) {
-		numTotalSize += numsColSize[i];
-	}
-
-	Info allNum[numTotalSize];
-
-	int allNumSize = 0;
-	for (int i = 0; i < numsSize; i++) {
-		for (int j = 0; j < numsColSize[i]; j++) {
-			allNum[allNumSize].value = nums[i][j];
-			allNum[allNumSize].group = i;
-			allNumSize++;
-		}
-	}
-
-	int kCount[MAX_NUM] = { 0 };
-	qsort(allNum, numTotalSize, sizeof(Info), cmpFun);
-	int left = 0;
-	int right = 0;
-	int resBegin = -1;
-	int resEnd = -1;
-	while (right < numTotalSize) {
-
-		kCount[allNum[right].group]++;
-
-		while (isCover(kCount, numsSize)) {//满足求最小
-			updateIndex(left, right, &resBegin, &resEnd, allNum);
-			kCount[allNum[left++].group]--;
-		}
-
-		right++;
-	}
-
-	int *res = (int *)malloc(sizeof(int) * RETURN_SIZE);
-	res[0] = allNum[resBegin].value;
-	res[1] = allNum[resEnd].value;
-	*returnSize = RETURN_SIZE;
-	return res;
-}
 
 /*
 80. 删除排序数组中的重复项 II
@@ -536,65 +442,18 @@ int* numMovesStonesII(int* stones, int stonesSize, int* returnSize)
         return res;
 }
 
-
-/*
-1100. 长度为 K 的无重复字符子串
-给你一个字符串 S，找出所有长度为 K 且不含重复字符的子串，
-请你返回全部满足要求的子串的 数目。
-示例 1：
-输入：S = "havefunonleetcode", K = 5
-输出：6
-解释：
-这里有 6 个满足题意的子串，分别是：
-'havef','avefu','vefun','efuno','etcod','tcode'。
-*/
-int numKLenSubstrNoRepeats(char * S, int K)
-{
-    // 存储字符出现频数
-    int fre[128] = {0};
-    // 窗口左右指针
-    int left, right;
-    left = right = 0;
-    // S长度
-    int slen = strlen(S);
-    // 窗口内不同字符个数
-    int count = 0;
-    // 当前窗口宽度
-    int width = 0;
-    // result
-    int res = 0;
-    while(right < slen) {
-
-        if(width < K) {
-			// 一开始先扩展窗口到宽度为K
-		if(fre[S[right++]]++ == 0) count++;
-		width++;
-        }else{
-        	// 宽度为K后固定宽度滑动窗口
-            if(--fre[S[left++]] == 0) count--;
-            if(fre[S[right++]]++ == 0) count++;
-        }
-
-        if(count == K) res++;
-
-    }
-    return res;
-}
-
 /*
 978. 最长湍流子数组
-当 A 的子数组 A[i], A[i+1], ..., A[j] 满足下列条件时，我们称其为湍流子数组：
-
-若 i <= k < j，当 k 为奇数时， A[k] > A[k+1]，且当 k 为偶数时，A[k] < A[k+1]；
-或 若 i <= k < j，当 k 为偶数时，A[k] > A[k+1] ，且当 k 为奇数时， A[k] < A[k+1]。
-也就是说，如果比较符号在子数组中的每个相邻元素对之间翻转，则该子数组是湍流子数组。
-
+当 A 的子数组 A[i], A[i+1], ..., A[j] 满足下列条件时，
+我们称其为湍流子数组：
+若 i <= k < j，当 k 为奇数时， A[k] > A[k+1]，且当 k 为偶数时，
+A[k] < A[k+1]；
+或 若 i <= k < j，当 k 为偶数时，A[k] > A[k+1] ，且当 k 为奇数时，
+A[k] < A[k+1]。
+也就是说，如果比较符号在子数组中的每个相邻元素对之间
+翻转，则该子数组是湍流子数组。
 返回 A 的最大湍流子数组的长度。
-
-
-
 示例 1：
-
 输入：[9,4,2,10,7,8,8,1,9]
 输出：5
 解释：(A[1] > A[2] < A[3] > A[4] < A[5])
@@ -613,15 +472,16 @@ int cmp(int a,int b)
 int maxTurbulenceSize(int* A, int ASize)
 {
 	int ans = 1;
-	int anchor = 0;
+	int left = 0;
 
-	for(int i = 1; i < ASize; i++) {
-		int c = cmp(A[i-1], A[i]);
-		if(i == ASize - 1 || c * cmp(A[i], A[i+1]) != -1) {
+	for(int right = 1; right < ASize; right++) {
+		int c = cmp(A[right-1], A[right]);
+
+		if(right == ASize - 1 || c * cmp(A[right], A[right+1]) != -1) {
 			if(c != 0) {
-				ans = fmax(ans, i - anchor + 1);
+				ans = fmax(ans, right - left + 1);
 			}
-			anchor = i;
+			left = right;
 		}
 	}
 	return ans;
@@ -629,64 +489,18 @@ int maxTurbulenceSize(int* A, int ASize)
 
 /*
 480. 滑动窗口中位数
-中位数是有序序列最中间的那个数。如果序列的大小是偶数，则没有最中间的数；此时中位数是最中间的两个数的平均数。
-
+中位数是有序序列最中间的那个数。如果序列的大小是偶数，
+则没有最中间的数；此时中位数是最中间的两个数的平均数。
 例如：
-
 [2,3,4]，中位数是 3
 [2,3]，中位数是 (2 + 3) / 2 = 2.5
-给你一个数组 nums，有一个大小为 k 的窗口从最左端滑动到最右端。窗口中有 k 个数，每次窗口向右移动 1 位。你的任务是找出每次窗口移动后得到的新窗口中元素的中位数，并输出由它们组成的数组。
-
-
-
+给你一个数组 nums，有一个大小为 k 的窗口从最左端滑动到最
+右端。窗口中有 k 个数，每次窗口向右移动 1 位。你的任务是
+找出每次窗口移动后得到的新窗口中元素的中位数，并输出
+由它们组成的数组。
 示例：
-
 给出 nums = [1,3,-1,-3,5,3,6,7]，以及 k = 3。
 */
-
-#if 1
-void dqueue_push(int *dqueue, int dqueueSize, int data)
-{
-    int i;
-    for (i = 0; i < dqueueSize - 1; i++) {
-        if (data > dqueue[i]) {
-            break;
-        }
-    }
-
-    for (int j = dqueueSize - 1; j > i; j--) {
-        dqueue[j] = dqueue[j - 1];
-    }
-
-    dqueue[i] = data;
-}
-
-void dqueue_del(int *dqueue, int dqueueSize, int data)
-{
-    int i;
-    for (i = 0; i < dqueueSize; i++) {
-        if (data == dqueue[i]) {
-            break;
-        }
-    }
-
-    for (int j = i; j < dqueueSize - 1; j++) {
-        dqueue[j] = dqueue[j + 1];
-    }
-}
-#else
-
-void dqueue_replace(int *dqueue, int dqueueSize, int oldData, int newData)
-{
-	for (int i = 0; i < dqueueSize; i++) {
-		if (dqueue[i] == oldData) {
-			dqueue[i] = newData;
-			return;
-		}
-	}
-}
-#endif
-
 double* medianSlidingWindow(int* nums, int numsSize, int k, int* returnSize)
 {
 	*returnSize = 0;
