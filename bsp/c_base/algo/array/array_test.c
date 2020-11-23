@@ -1039,3 +1039,49 @@ int maximumProduct(int* nums, int numsSize)
 
 }
 
+/*
+1074. 元素和为目标值的子矩阵数量
+给出矩阵 matrix 和目标值 target，返回元素总和等于目标值的非空子矩阵的数量。
+
+子矩阵 x1, y1, x2, y2 是满足 x1 <= x <= x2 且 y1 <= y <= y2 的所有单元 matrix[x][y] 的集合。
+
+如果 (x1, y1, x2, y2) 和 (x1', y1', x2', y2') 两个子矩阵中部分坐标不同（如：x1 != x1'），那么这两个子矩阵也不同。
+
+
+
+示例 1：
+
+输入：matrix = [[0,1,0],[1,1,1],[0,1,0]], target = 0
+输出：4
+解释：四个只含 0 的 1x1 子矩阵。
+*/
+int preSum[301][301];
+int getSum(int x1,int y1,int x2,int y2)//返回指定左上角和右下角的矩阵元素和
+{
+    return preSum[x2][y2]-preSum[x1-1][y2]-preSum[x2][y1-1]+preSum[x1-1][y1-1];
+}
+
+int numSubmatrixSumTarget(int** matrix, int matrixSize, int* matrixColSize, int target){
+    memset(preSum,0,sizeof(preSum));
+    int r=matrixSize;
+    int c=matrixColSize[0];
+    for(int i=1;i<=r;i++)
+        for(int j=1;j<=c;j++)//构造前缀和数组，注意这里和下面的四重循环都是以1为起点而不是0
+            preSum[i][j]=preSum[i-1][j]+preSum[i][j-1]-preSum[i-1][j-1]+matrix[i-1][j-1];
+    int count=0;//记录符合条件的矩阵个数
+    for(int i=1;i<=r;i++)
+    {
+        for(int j=i;j<=r;j++)
+        {
+            for(int k=1;k<=c;k++)
+            {
+                for(int l=k;l<=c;l++)//四重循环冲！
+                {
+                    if(getSum(i,k,j,l)==target)
+                        count++;
+                }
+            }
+        }
+    }
+    return count;
+}
