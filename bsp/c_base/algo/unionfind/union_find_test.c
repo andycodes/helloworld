@@ -19,112 +19,129 @@ synonyms = ["(Jon,John)","(John,Johnny)","(Chris,Kris)","(Chris,Christopher)"]
 */
 #define MAX 101
 typedef struct {
-    char name[MAX];
-    int index;
-    int count;
-    UT_hash_handle hh;
-} ChildName;
+	char name[MAX];
+	int index;
+	int count;
+	UT_hash_handle hh;
+} Hashmap;
 
-int cmp (ChildName *p1, ChildName *p2) {
-    return strcmp(p1->name, p2->name);
+struct UnionFind {
+	int edgeCnt;
+	int *root;
+	int *rank;
+};
+
+void uf_init(struct UnionFind *uf, size_t size)
+{
+	uf->edgeCnt = size;
+	uf->root = (int *)calloc(size, sizeof(int));
+	uf->rank = (int *)calloc(size, sizeof(int));
+	memset(uf->rank, 0, sizeof(int) * size);
+	for (int i = 0; i < size; i++) {
+		uf->root[i] = i;
+	}
 }
 
-int FindRoot(int root, int *pre) {
-    int son, temp;
-    son = root;
-    while (root != pre[root]) {
-        root = pre[root];
-    }
+int uf_findRoot(struct UnionFind* uf, int sun)
+{
+	if (sun == uf->root[sun]) {
+		return sun;
+	}
 
-    while (son != root) {
-        temp = pre[son];
-        pre[son] = root;
-        son = temp;
-    }
-
-    return root;
+        return uf->root[sun] = uf_findRoot(uf, uf->root[sun]);
 }
 
-void UnionWord(ChildName *names1, ChildName *names2, int *pre) {
-    if (names1 == NULL || names2 == NULL) {
-        return;
-    }
-    int root1 = FindRoot(names1->index, pre);
-    int root2 = FindRoot(names2->index, pre);
-    if (root1 == root2) {
-        return;
-    }
-    if (strcmp(names1->name, names2->name) < 0) { //连接边，字典序小的作为根节点
-        pre[root2] = root1;
-    } else {
-        pre[root1] = root2;
-    }
+bool uf_isOneUnion(struct UnionFind* uf, int sun0, int sun1)
+{
+	 return uf_findRoot(uf, sun0) == uf_findRoot(uf, sun1);
 }
 
-char** trulyMostPopular(char** names, int namesSize, char** synonyms, int synonymsSize, int* returnSize){
+void uf_union(struct UnionFind* uf, Hashmap *sun0, Hashmap *sun1)
+{
+	if (sun0 == NULL || sun1 == NULL) {
+		return;
+	}
 
-    ChildName *childrenMap = NULL;
-    ChildName *node;
+	int root1 = uf_findRoot(uf, sun0->index);
+	int root2 = uf_findRoot(uf, sun1->index);
+	if (root1 == root2) {
+		return;
+	}
 
-    for (int i = 0; i < namesSize; i++) {
-        node = malloc(sizeof(ChildName));
-        char *split;
-        split = strtok(names[i], "(");
-        strcpy(node->name, split);
-        split = strtok(NULL, ")");
-        node->count = atoi(split);
-        node->index = i;
-        HASH_ADD_STR(childrenMap, name, node);
-    }
-
-    HASH_SORT(childrenMap, cmp);
-
-    int pre[namesSize];
-    for (int i = 0; i <namesSize; i++) {
-        pre[i] = i;
-    }
-
-    for (int i = 0; i < synonymsSize; i++) {
-        ChildName *names1, *names2;
-        char *split;
-        split = strtok(synonyms[i], "(,");
-        HASH_FIND_STR(childrenMap, split, names1);
-        split = strtok(NULL, ")");
-        HASH_FIND_STR(childrenMap, split, names2);
-        UnionWord(names1, names2, pre);
-    }
-
-    ChildName *newChildMap = NULL;
-    ChildName *newNode, *temp;
-    HASH_ITER(hh, childrenMap, node, temp) {
-        int rootIndex = FindRoot(node->index, pre);
-        HASH_FIND_INT(newChildMap, &rootIndex, newNode); // 以序号为键值，新建哈希表
-        if (newNode == NULL) {
-            newNode = malloc(sizeof(ChildName));
-            newNode->count = node->count;
-            newNode->index = rootIndex;
-            strcpy(newNode->name, node->name);
-            HASH_ADD_INT(newChildMap, index, newNode);
-        } else {
-            newNode->count += node->count;
-        }
-    }
-
-    char **strRes = malloc(HASH_COUNT(newChildMap) * sizeof(char *));
-
-    int index = 0;
-    HASH_ITER(hh, newChildMap, newNode, temp) {
-        strRes[index] = malloc(MAX);
-        sprintf(strRes[index], "%s(%d)", newNode->name, newNode->count);
-        index++;
-    }
-
-    *returnSize = index;
-
-    return strRes;
-
+	if (strcmp(sun0->name, sun1->name) < 0) { //连接边，字典序小的作为根节点
+		uf->root[root2] = root1;
+	} else {
+		uf->root[root1] = root2;
+	}
 }
 
+int cmp_str (Hashmap *p1, Hashmap *p2)
+{
+	return strcmp(p1->name, p2->name);
+}
+
+char** trulyMostPopular(char** names, int namesSize, char** synonyms, int synonymsSize, int* returnSize)
+{
+	Hashmap *hashmap = NULL;
+	Hashmap *node;
+
+	for (int i = 0; i < namesSize; i++) {
+		node = malloc(sizeof(Hashmap));
+		char *split;
+		split = strtok(names[i], "(");
+		strcpy(node->name, split);
+		split = strtok(NULL, ")");
+		node->count = atoi(split);
+		node->index = i;
+		HASH_ADD_STR(hashmap, name, node);
+	}
+
+	HASH_SORT(hashmap, cmp_str);
+
+	struct UnionFind duf;
+	struct UnionFind *uf = &duf;
+	uf_init(uf, namesSize);
+
+	for (int i = 0; i < synonymsSize; i++) {
+		Hashmap *names1, *names2;
+		char *split;
+		split = strtok(synonyms[i], "(,");
+		HASH_FIND_STR(hashmap, split, names1);
+		split = strtok(NULL, ")");
+		HASH_FIND_STR(hashmap, split, names2);
+		uf_union(uf, names1, names2);
+	}
+
+	Hashmap *newChildMap = NULL;
+	Hashmap *newNode, *temp;
+	HASH_ITER(hh, hashmap, node, temp) {
+		int rootIndex = uf_findRoot(uf, node->index);
+
+		HASH_FIND_INT(newChildMap, &rootIndex, newNode); // 以序号为键值，新建哈希表
+		if (newNode == NULL) {
+			newNode = malloc(sizeof(Hashmap));
+			newNode->count = node->count;
+			newNode->index = rootIndex;
+			strcpy(newNode->name, node->name);
+			HASH_ADD_INT(newChildMap, index, newNode);
+		} else {
+			newNode->count += node->count;
+		}
+	}
+
+	char **strRes = malloc(HASH_COUNT(newChildMap) * sizeof(char *));
+
+	int index = 0;
+	HASH_ITER(hh, newChildMap, newNode, temp) {
+		strRes[index] = malloc(MAX);
+		sprintf(strRes[index], "%s(%d)", newNode->name, newNode->count);
+		index++;
+	}
+
+	*returnSize = index;
+
+	return strRes;
+}
 
 /*
 1391. 检查网格中是否存在有效路径

@@ -68,4 +68,30 @@ void uf_union(struct UnionFind* uf, int sun0, int sun1)
 		//OK
 	}
 }
+
+typedef struct {
+	char name[MAX];
+	int index;
+	int count;
+	UT_hash_handle hh;
+} Hashmap;
+void uf_str_union(struct UnionFind* uf, Hashmap *sun0, Hashmap *sun1)
+{
+	if (sun0 == NULL || sun1 == NULL) {
+		return;
+	}
+
+	int root1 = uf_findRoot(uf, sun0->index);
+	int root2 = uf_findRoot(uf, sun1->index);
+	if (root1 == root2) {
+		return;
+	}
+
+	if (strcmp(sun0->name, sun1->name) < 0) { //连接边，字典序小的作为根节点
+		uf->root[root2] = root1;
+	} else {
+		uf->root[root1] = root2;
+	}
+}
+
 #endif
