@@ -1,11 +1,5 @@
 /*
-回溯法的基本思想：
-
-针对所给问题，定义问题的解空间；
-DFS 搜索解空间，并在搜索过程中用剪枝函数避免无效搜索。
-在DFS的过程中发现不是问题的解，
-那么就开始回溯到上一层或者上一个节点。
-
+回溯法
 回溯法的代码套路是使用两个变量： res 和 path，
 res 表示最终的结果，
 path 保存已经走过的路径。
@@ -32,14 +26,11 @@ def backtrack(路径, 选择列表):
 /*
 子集:
 子集问题的选择列表，是上一条选择路径之后的数,
-递归进入下一层，注意i+1，标识下一个选择列表的开始位置，最重要的一步
+递归进入下一层，注意i+1，标识下一个选择列表的开始位置，
+最重要的一步
 
 组合:
-
-
 全排列
-
-
 搜索
 */
 
@@ -54,51 +45,60 @@ def backtrack(路径, 选择列表):
 输入：s = "abc"
 输出：["abc","acb","bac","bca","cab","cba"]
 */
-void backtrack(char* s, int slen, int* returnSize,
-	char **res, char *path, int pathSize, bool *visited)
+
+void backtrack(char* s, int cidx, char** res, int* returnSize)
 {
-	if (pathSize == slen) {
-		res[*returnSize] = strdup(path);
+	int len = strlen(s);
+	if(cidx == len){
+		res[*returnSize] = strdup(s);
 		(*returnSize)++;
 		return;
 	}
 
-	for (int i = 0; i < slen; i++) {
-		if (visited[i] == true) {
-			continue;
-		}
+    for(int i = cidx; i < len; ++i) {
+        // 首先判断当前元素是否重复并已被使用过
+        bool prune = false;
+        for(int j = cidx; j < i; ++j){
+            if(s[j] == s[i]){
+                prune = true;
+                break;
+            }
+        }
 
-		if (i > 0 && visited[i - 1] == true && s[i - 1] == s[i]) {
-			continue;
-		}
+        if(prune == true){
+            continue;
+        }
 
-		path[pathSize++] = s[i];
-		visited[i] = true;
+        char temp = s[cidx];
+        s[cidx] = s[i];
+        s[i] = temp;
 
-		backtrack(s, slen, returnSize, res, path, pathSize, visited);
+        backtrack(s, cidx + 1, res, returnSize);
 
-		pathSize--;
-		visited[i] = false;
-	}
+        temp = s[i];
+        s[i] = s[cidx];
+        s[cidx] = temp;
+    }
+    return;
 }
 
 char** permutation(char* s, int* returnSize)
 {
-	int slen = strlen(s);
-	qsort(s, slen, sizeof(s[0]), cmp_char);
-	int kind = 1;
-	for (int i = 2; i <= slen; i++) {
-		kind *= i;
+	int len = strlen(s);
+	int maxSize = 1;
+
+	while(len > 1) { // maxSize保存最多有多少种排列方法
+		maxSize *= len;
+		len--;
 	}
-	char **res = (char **)calloc(kind, sizeof(char *));
-	char path[slen + 1];
-	memset(path, 0, sizeof(path));
-	bool visited[slen];
-	memset(visited, false, sizeof(visited));
+
+	char** res = (char**)malloc(maxSize * sizeof(char*));
 	*returnSize = 0;
-	backtrack(s, slen, returnSize, res, path, 0, visited);
+	backtrack(s, 0, res, returnSize);
+	res = (char**)realloc(res, (*returnSize) * sizeof(char*)); // 将多余的空间释放
 	return res;
 }
+
 
 /*
 401. 二进制手表
@@ -112,45 +112,31 @@ char** permutation(char* s, int* returnSize)
 输入: n = 1
 返回: ["1:00", "2:00", "4:00", "8:00", "0:01", "0:02", "0:04", "0:08", "0:16", "0:32"]
 */
-
-#define MAX_LEN 1024
 int g_led[10] = { 8, 4, 2, 1, 32, 16, 8, 4, 2, 1 };
-
-void Dft(int num, char **res, int *returnSize, int hour, int min, int pos)
+void dfs(int num, char **res, int *returnSize, int hour, int min, int cidx)
 {
-    if (num == 0) {
-        if (hour > 9) {
-            res[*returnSize] = (char *)malloc(6 * sizeof(char));
-        } else {
-            res[*returnSize] = (char *)malloc(5 * sizeof(char));
-        }
-        if (min > 9) {
-            sprintf(res[*returnSize], "%d:%d", hour, min);
-        } else {
-            sprintf(res[*returnSize], "%d:0%d", hour, min);
-        }
-        (*returnSize)++;
-        return;
-    }
+	if (num == 0) {
+		res[*returnSize] = (char *)malloc(6 * sizeof(char));
+		sprintf(res[*returnSize], "%d:%02d", hour, min);
+		(*returnSize)++;
+		return;
+	}
 
-    for (int i = pos; i < 10; i++) {
-        if ((i < 4) && (hour + g_led[i] < 12)) {
-            Dft(num - 1, res, returnSize, hour + g_led[i], min, i + 1);
-        } else if ((i >= 4) && (min + g_led[i] < 60)) {
-            Dft(num - 1, res, returnSize, hour, min + g_led[i], i + 1);
-        }
-    }
+	for (int i = cidx; i < 10; i++) {
+		if ((i < 4) && (hour + g_led[i] < 12)) {
+			dfs(num - 1, res, returnSize, hour + g_led[i], min, i + 1);
+		} else if ((i >= 4) && (min + g_led[i] < 60)) {
+			dfs(num - 1, res, returnSize, hour, min + g_led[i], i + 1);
+		}
+	}
 }
 
-/**
- * Note: The returned array must be malloced, assume caller calls free().
- */
 char **readBinaryWatch(int num, int *returnSize)
 {
-    char **res = (char **)malloc(MAX_LEN * sizeof(char *));
-    *returnSize = 0;
-    Dft(num, res, returnSize, 0, 0, 0);
-    return res;
+	char **res = (char **)malloc(1024 * sizeof(char *));
+	*returnSize = 0;
+	dfs(num, res, returnSize, 0, 0, 0);
+	return res;
 }
 
 

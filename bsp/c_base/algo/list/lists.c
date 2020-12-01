@@ -158,6 +158,18 @@ struct ListNode* sortList(struct ListNode* head)
 	return merge_sotrlist(sortList(head),sortList(l2));
 }
 
+/*删除当前节点
+狸猫换太子
+将next复制到当前节点
+再将next删除掉*/
+void deleteNode(struct ListNode* node)
+{
+    struct ListNode *del = node->next;
+    *node = *del;
+    free(del);
+}
+
+
 /*
 19. 删除链表的倒数第N个节点
 */
