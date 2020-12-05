@@ -1,17 +1,12 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <string.h>
-#include <math.h>
-
-/**
- * 比较运算子优先级
- * @param op 运算子
- * @return 运算子值
- */
+/*
+224. 基本计算器
+227. 基本计算器 II
+772. 基本计算器 III
+*/
 int priority(char op)
 {
 	int pp;
+
 	switch (op) {
 		case '+':
 		case '-':
@@ -28,146 +23,127 @@ int priority(char op)
 	return pp;
 }
 
-/**
- * 中序式转后序式
- * @param infix 表达式
- */
-void postfix(char *infix)
+void postfix(char *instr, char *postarr)
 {
-	int ii = 0, top = 0;
-	int infixlen = strlen(infix);
-	char stack[infixlen];
-	memset(stack, 0, sizeof(stack));
+	int i = 0, top = -1;
+	int instrlen = strlen(instr);
+	char stack[instrlen];
 	char op;
 
-	while (ii < infixlen) {
-		op = infix[ii];
+	while (i < instrlen) {
+		op = instr[i];
 		switch (op) {
-		case '(': // 运算子入栈
-			if (top < sizeof(stack)) {
-			top++;
-			stack[top] = op;
-			}
-		break;
-		case '+':
-		case '-':
-		case '*':
-		case '/':
-			while (priority(stack[top]) >= priority(op)) {
-				printf("%c", stack[top]);
-				top--;
-			}
-			// 入栈
-			if (top < sizeof(stack)) {
-				top++;
-				stack[top] = op;
-			}
-		break;
-		case ')': // 遇')'则输出至'('
-			while (stack[top] != '(') {
-				printf("%c", stack[top]);
-				top--;
-			}
-			top--; // 不输出(
-		break;
-		default: // 遇运算元直接输出
-			printf("%c", op);
-		break;
-	    }
-	    ii++;
-	  }
+			case ' ':break;
+			case '(':
+				stack[++top] = op;
+				break;
+			case '+':
+			case '-':
+			case '*':
+			case '/':
+				while (top >= 0 && priority(stack[top]) >= priority(op)) {
+					sprintf(postarr + strlen(postarr), "%c", stack[top]);
+					top--;
+				}
 
-	// 当top > 0,继续输出栈中未输出的内容
-	while (top > 0) {
-		printf("%c", stack[top]);
+				stack[++top] = op;
+				break;
+			case ')':
+				while (stack[top] != '(') {
+					sprintf(postarr + strlen(postarr), "%c", stack[top]);
+					top--;
+				}
+				top--;
+				break;
+			default:
+				{	unsigned int num = 0;
+					while(isdigit(instr[i])) {
+						num = num * 10 + instr[i] - '0';
+						i++;
+					}
+
+					sprintf(postarr + strlen(postarr), "#%u", num);
+					i--;
+				}
+			break;
+		}
+		i++;
+	}
+
+	while (top >= 0) {
+		sprintf(postarr + strlen(postarr), "%c", stack[top]);
 		top--;
 	}
 }
 
- int main(void)
+unsigned int math(unsigned int d0, unsigned int d1, int op)
 {
-	char input[80];
-	scanf("%s", input);
-	postfix(input);
+	switch (op) {
+		case '+':
+			return d0 + d1;
+		case '-':
+			return d0 - d1;
+		case '*':
+			return d0 * d1;
+		case '/':
+			return d0 / d1;
+		default: return 0;
+	}
+
 	return 0;
 }
 
- /*
-227. 基本计算器 II
-难度中等173收藏分享切换为英文关注反馈
-实现一个基本的计算器来计算一个简单的字符串表达式的值。
-字符串表达式仅包含非负整数，+， - ，*，/ 四种运算符和空格  。 整数除法仅保留整数部分。
-示例 1:
-输入: "3+2*2"
-输出: 7
- */
+bool checkfuhao(char ch)
+{
+	return ch == '+' || ch == '-' || ch == '*' || ch == '/';
+}
 
- int calculate(char * s){
-    int stack[strlen(s)/2+1];
-    int tail=0;     //堆栈尾部
-    int num=0;
-    int pos=0;      //字符串s中的位置
-    //字符表达式仅含非负数，所以第一个符号设为正
-    char flag='+';
-    //等于号是为了应对最后一个字符是空格的情况
-    while(pos<=strlen(s)){
-        //'('是在运算符后面的
-        if(s[pos]=='('){
-            pos++;  //指向下一个数字再递归
-            num=calculate(&(s[pos]));
-        }
-        while(isdigit(s[pos])){
-            num=num*10+(s[pos]-'0');
-            pos++;
-        }
-        if(s[pos]!=' '){
-            switch (flag) {
-                case '+':
-                    stack[tail]=num;
-                    tail++;
-                    break;
-                case '-':
-                    stack[tail]=-1*num;
-                    tail++;
-                    break;
-                case '*':
-                    stack[tail-1]*=num;
-                    break;
-                case '/':
-                    stack[tail-1]/=num;
-                    break;
-            }
-            //')'在数字字符后面，遇到则跳出循环，计算栈中的结果并返回
-            if(s[pos]==')'){
-                break;
-            }
-            //重置
-            num=0;
-            flag=s[pos];
-        }
-            //是不是空格pos都要++
-            pos++;
-    }
-    //输出结果
-    int ret=0;
-    for(int i=0;i<tail;i++){
-        ret+=stack[i];
-    }
-    return ret;
+int calculate(char * s)
+{
+	char *instr = s;
+        int slen = strlen(s);
+	char posstr[2 * slen + 1];
+        memset(posstr, '\0', sizeof(posstr));
+	postfix(instr, posstr);
+	//printf("%s", posstr);
+
+	unsigned int stack[slen];
+	int top = -1;
+
+	int plen = strlen(posstr);
+	for (int i = 0; i < plen; i++) {
+		if (posstr[i] == '#') {
+			unsigned int num = 0;
+			i++;
+			while(isdigit(posstr[i])) {
+				num = num * 10 + posstr[i] - '0';
+				i++;
+			}
+			i--;
+			stack[++top] = num;
+		} else if (checkfuhao(posstr[i])) {
+			unsigned int d1 = stack[top--];
+			unsigned int d0 = stack[top--];
+
+			stack[++top] = math(d0, d1, posstr[i]);
+		}
+	}
+
+	return (int)stack[0];
 }
 
 /*
 282. 给表达式添加运算符
 难度困难136收藏分享切换为英文关注反馈
-给定一个仅包含数字 0-9 的字符串和一个目标值，在数字之间添加二元运算符（不是一元）+、- 或 * ，返回所有能够得到目标值的表达式。
+给定一个仅包含数字 0-9 的字符串和一个目标值，在数字之间
+添加二元运算符（不是一元）+、- 或 * ，返回所有能够得到
+目标值的表达式。
 示例 1:
 输入: num = "123", target = 6
 输出: ["1+2+3", "1*2*3"]
 示例 2:
 输入: num = "232", target = 8
 输出: ["2*3+2", "2+3*2"]
-
-
 */
 
 #define MAX_COUNT 10000 // 解的个数足够大
@@ -270,146 +246,4 @@ char **addOperators(char *a, int target, int* returnSize)
 	return p;
 }
 
-/*
-772. 基本计算器 III
-难度困难32收藏分享切换为英文关注反馈
-实现一个基本的计算器来计算简单的表达式字符串。
-表达式字符串可以包含左括号 ( 和右括号 )，加号 + 和减号 -，非负 整数和空格 。
-表达式字符串只包含非负整数， +, -, *, / 操作符，左括号 ( ，右括号 )和空格 。整数除法需要向下截断。
-你可以假定给定的字符串总是有效的。所有的中间结果的范围为 [-2147483648, 2147483647]。
 
-一些例子：
-"1 + 1" = 2
-" 6-4 / 2 " = 4
-"2*(5+5*2)/3+(6/2+8)" = 21
-"(2+6* 3+5- (3*14/7+2)*5)+3"=-12
-
-
-*/
-
-int calculate(char* s){
-    int len1 = strlen(s);
-    // 去掉空格
-    int k =0;
-    for(int i= 0; i < len1; i++){
-        if(s[i] != ' '){
-            s[k++] = s[i];
-        }
-    }
-    s[k] = '\0';
-
-    int len = strlen(s);
-    int top = -1;
-    int *stack = calloc(sizeof(int), len);
-
-    long num = 0;
-    char fuhao = '#';
-    for(int i = 0; i< len;i++) {
-        num = 0;
-        if(s[i] == '+' || s[i] == '-' || s[i] == '*' || s[i] == '/') {
-            fuhao = s[i];
-            continue;
-        }
-
-        // 针对括号做递归操作
-        if (s[i] == '(') {
-           int cnt = 0;
-           int index = i;
-           int m = 0;
-           char *temp = calloc(sizeof(char), 2500);
-           for (; i < len; i++) {
-               if (s[i] == '(') {
-                   ++cnt;
-               } else if (s[i] == ')') {
-                   --cnt;
-               }
-               if(i!=index) {
-                   temp[m++] = s[i];
-               }
-               if (cnt == 0) {
-                   temp[m-1] = '\0';
-                   num = calculate(temp);
-                   break;
-               }
-           }
-           free(temp);
-        }
-
-		// 对数字进行处理
-        int flag = 0;
-        while(isdigit(s[i])) {
-            num = (s[i]- '0')+ num*10;
-            i++;
-            flag = 1;
-        }
-        if(flag ==1)i--;
-
-        if(fuhao == '+' || fuhao == '#'){
-            stack[++top] = num;
-        } else if (fuhao == '-') {
-            stack[++top] = num * (-1);
-        } else if (fuhao == '*') {
-           stack[top] = stack[top] * num;
-        } else if (fuhao == '/') {
-           stack[top] = stack[top] / num;
-        }
-    }
-
-    int sum = 0;
-    for(int i = 0; i <= top; i++) {
-        sum += stack[i];
-    }
-    return sum;
-}
-
-/*
-224. 基本计算器
-实现一个基本的计算器来计算一个简单的字符串表达式的值。
-字符串表达式可以包含左括号 ( ，右括号 )，加号 + ，减号 -，非负整数和空格  。
-
-示例 1:
-
-输入: "1 + 1"
-输出: 2
-示例 2:
-
-输入: " 2-1 + 2 "
-输出: 3
-*/
-
-int calculate(char * s)
-{
-	 int stack[1024];
-	 int top = -1;
-
-	int res = 0, n = strlen(s), sign = 1;
-        for(int i=0; i<n; i++) {
-            int num = 0;
-            if(s[i] >= '0') {
-                while(i<n && s[i] >= '0') {
-                    num = num * 10 + (s[i] - '0');
-                    i++;
-                }
-                i--;
-                res += sign * num;
-            }
-            else if(s[i] == '+') sign = 1;
-            else if(s[i] == '-') sign = -1;
-            else if(s[i] == '(') {
-                //st.push(res);
-				stack[++top] = res;
-               // st.push(sign);
-				stack[++top] = sign;
-                res = 0;
-                sign = 1;
-            }
-            else if(s[i] == ')') {
-			res *= stack[top--];
-               // res *= st.top(); st.pop();
-               // res += st.top(); st.pop();
-				res += stack[top--];
-            }
-        }
-        return res;
-
-}
