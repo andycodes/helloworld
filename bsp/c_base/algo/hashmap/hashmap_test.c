@@ -76,22 +76,6 @@ int fourSumCount(int* A, int ASize, int* B, int BSize, int* C, int CSize, int* D
 在b集合中, 在的话即为所求
 交换的两个数的差值一定是2d = (sum(A) - sum(B))
 */
-struct Hashmap {
-    int value;
-    UT_hash_handle hh;
-};
-
-void hash_int_free(struct Hashmap* hashmap)
-{
-	struct Hashmap* pnode = NULL;
-	struct Hashmap* tmp = NULL;
-
-	HASH_ITER(hh, hashmap, pnode, tmp) {
-		HASH_DEL(hashmap, pnode);
-		free(pnode);
-	}
-}
-
 int* findSwapValues(int* array1, int array1Size,
 int* array2, int array2Size, int* returnSize)
 {
@@ -110,9 +94,7 @@ int* array2, int array2Size, int* returnSize)
 
 	for (int i = 0; i < array2Size; i++) {
 		sum2 += array2[i];
-		struct Hashmap *node = (struct Hashmap *)calloc(1, sizeof(struct Hashmap));
-		node->value = array2[i];
-		HASH_ADD_INT(hashmap, value, node);
+		hash_add_int(hashmap, array2[i]);
 	}
 
 	int diff = sum1 - sum2;
@@ -122,7 +104,7 @@ int* array2, int array2Size, int* returnSize)
 
 	for (int i = 0; i < array1Size; i++) {
 		int target = array1[i] - (sum1 - sum2) / 2;
-		HASH_FIND_INT(hashmap, &target, find);
+		find = hash_find_int(hashmap, target);
 		if (find != NULL) {
 			int *res = (int *)calloc(2, sizeof(int));
 			res[0] = array1[i];
@@ -132,11 +114,9 @@ int* array2, int array2Size, int* returnSize)
 		}
 	}
 
-	hash_int_free(hashmap);
-
+	hash_free_int(hashmap);
 	return NULL;
 }
-
 
 /*
 820. 单词的压缩编码
@@ -311,20 +291,16 @@ bool wordPattern(char * pattern, char * s){
 
 /*
 219. 存在重复元素 II
-给定一个整数数组和一个整数 k，判断数组中是否存在两个不同的索引 i 和 j，使得 nums [i] = nums [j]，并且 i 和 j 的差的 绝对值 至多为 k。
-
-
-
+给定一个整数数组和一个整数 k，判断数组中是否存在两个不
+同的索引 i 和 j，使得 nums [i] = nums [j]，并且 i 和 j 的差的 绝对值 至
+多为 k。
 示例 1:
-
 输入: nums = [1,2,3,1], k = 3
 输出: true
 示例 2:
-
 输入: nums = [1,0,1,1], k = 1
 输出: true
 示例 3:
-
 输入: nums = [1,2,3,1,2,3], k = 2
 输出: false
 */
@@ -334,17 +310,23 @@ typedef struct hash{
     UT_hash_handle hh; // 让结构体哈希柄
 } *hash_ptr;
 
-bool containsNearbyDuplicate(int* nums, int numsSize, int k){
-    hash_ptr p=NULL, tables=NULL;
-    for(int i=0;i<numsSize;i++){
-        if(tables) HASH_FIND_INT(tables, &(nums[i]), p);
-        if(p&&(i-p->index)<=k) return true;
-        p=(hash_ptr)malloc(sizeof(*p));
-        p->key=nums[i];
-        p->index=i;
-        HASH_ADD_INT(tables, key, p);
-    }
-    return false;
+bool containsNearbyDuplicate(int* nums, int numsSize, int k)
+{
+	hash_ptr p=NULL, tables=NULL;
+	for(int i=0;i<numsSize;i++) {
+		if(tables)
+			HASH_FIND_INT(tables, &(nums[i]), p);
+
+		if(p&&(i-p->index)<=k)
+			return true;
+
+		p=(hash_ptr)malloc(sizeof(*p));
+		p->key=nums[i];
+		p->index=i;
+		HASH_ADD_INT(tables, key, p);
+	}
+
+	return false;
 }
 
 /*
@@ -495,25 +477,27 @@ struct TreeNode** findDuplicateSubtrees(struct TreeNode* root, int* returnSize)
 /*
 726. 原子的数量
 给定一个化学式formula（作为字符串），返回每种原子的数量。
-
-原子总是以一个大写字母开始，接着跟随0个或任意个小写字母，表示原子的名字。
-
-如果数量大于 1，原子后会跟着数字表示原子的数量。如果数量等于 1 则不会跟数字。例如，H2O 和 H2O2 是可行的，但 H1O2 这个表达是不可行的。
-
-两个化学式连在一起是新的化学式。例如 H2O2He3Mg4 也是化学式。
-
-一个括号中的化学式和数字（可选择性添加）也是化学式。例如 (H2O2) 和 (H2O2)3 是化学式。
-
-给定一个化学式，输出所有原子的数量。格式为：第一个（按字典序）原子的名子，跟着它的数量（如果数量大于 1），然后是第二个原子的名字（按字典序），跟着它的数量（如果数量大于 1），以此类推。
-
+原子总是以一个大写字母开始，接着跟随0个或任意个小写字
+母，表示原子的名字。
+如果数量大于 1，原子后会跟着数字表示原子的数量。如果
+数量等于 1 则不会跟数字。例如，H2O 和 H2O2 是可行的，但
+H1O2 这个表达是不可行的。
+两个化学式连在一起是新的化学式。例如 H2O2He3Mg4 也是化学
+式。
+一个括号中的化学式和数字（可选择性添加）也是化学式。
+例如 (H2O2) 和 (H2O2)3 是化学式。
+给定一个化学式，输出所有原子的数量。格式为：第一个（
+按字典序）原子的名子，跟着它的数量（如果数量大于 1），
+然后是第二个原子的名字（按字典序），跟着它的数量（如
+果数量大于 1），以此类推。
 示例 1:
-
 输入:
 formula = "H2O"
 输出: "H2O"
 解释:
 原子的数量是 {'H': 2, 'O': 1}。
 */
+
 typedef struct a {
     char c[4];
     int cnt;

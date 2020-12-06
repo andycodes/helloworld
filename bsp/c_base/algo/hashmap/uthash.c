@@ -5,12 +5,12 @@ struct Hashmap {
 	UT_hash_handle hh;
 };
 
-void hash_add_int(struct Hashmap* hashmap, int key)
-{
-	struct Hashmap* pnode = (struct Hashmap*)calloc(1, sizeof(struct Hashmap));
-	pnode->key = key;
-	HASH_ADD_INT(hashmap, key, pnode);
-}
+#define hash_add_int(hashmap, ikey)\
+{\
+	struct Hashmap* pnode = (struct Hashmap*)calloc(1, sizeof(struct Hashmap));\
+	pnode->key = ikey;\
+	HASH_ADD_INT(hashmap, key, pnode);\
+}\
 
 struct Hashmap* hash_find_int(struct Hashmap* hashmap, int target)
 {
@@ -36,12 +36,12 @@ struct Hashmap {
 	UT_hash_handle hh;
 };
 
-void hash_add_str(struct Hashmap* hashmap, char* key)
-{
-	struct Hashmap* pnode = (struct Hashmap*)calloc(1, sizeof(struct Hashmap));
-	pnode->key = key;
-	HASH_ADD_STR(hashmap, key, pnode);
-}
+#define hash_add_str(hashmap, skey)\
+{\
+	struct Hashmap* pnode = (struct Hashmap*)calloc(1, sizeof(struct Hashmap));\
+	pnode->key = skey;\
+	HASH_ADD_STR(hashmap, key, pnode);\
+}\
 
 struct Hashmap* hash_find_str(struct Hashmap* hashmap, char* target)
 {
@@ -68,12 +68,12 @@ struct Hashmap {
 	UT_hash_handle hh;
 };
 
-void hash_add_ptr(struct Hashmap* hashmap, void* key)
-{
-	struct Hashmap* pnode = (struct Hashmap*)calloc(1, sizeof(struct Hashmap));
-	pnode->key = key;
-	HASH_ADD_PTR(hashmap, key, pnode);
-}
+#define hash_add_ptr(hashmap, pkey)\
+{\
+	struct Hashmap* pnode = (struct Hashmap*)calloc(1, sizeof(struct Hashmap));\
+	pnode->key = pkey;\
+	HASH_ADD_PTR(hashmap, key, pnode);\
+}\
 
 struct Hashmap* hash_find_ptr(struct Hashmap* hashmap, void* target)
 {
