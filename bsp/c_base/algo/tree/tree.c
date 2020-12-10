@@ -40,44 +40,30 @@ void postorder_bstree(struct TreeNode* root)
 	printf("%d ", root->val);
 }
 
-
-/*
-给定一个二叉树，找出其最大深度。
-二叉树的深度为根节点到最远叶子节点的距离。
-如果二叉树为空，则深度为0
-如果不为空，分别求左子树的深度和右子树的深度，
-取最大的再加1。
-*/
 int maxDepth(struct TreeNode* root)
 {
-    if(root == NULL)
-        return 0;
+	if(root == NULL)
+		return 0;
 
-    int leftDepth = maxDepth(root->left) + 1;
-    int rightDepth = maxDepth(root->right) + 1;
+	int leftDepth = maxDepth(root->left) + 1;
+	int rightDepth = maxDepth(root->right) + 1;
 
-    return fmax(leftDepth, rightDepth);
+	return fmax(leftDepth, rightDepth);
 }
 
-/*
-判断左子树或右子树是否为空，
-若左子树为空，则返回右子树的深度，
-反之返回左子树的深度，如果都不为空，
-则返回左子树和右子树深度的最小值。
-*/
 int minDepth(struct TreeNode *root)
 {
-        if(root == NULL)
-            return 0;
+	if(root == NULL)
+		return 0;
 
-        if(root->left == NULL)
-            return minDepth(root->right) + 1;
-        if(root->right == NULL)
-            return  minDepth(root->left) + 1;
+	if(root->left == NULL)
+		return minDepth(root->right) + 1;
+	if(root->right == NULL)
+		return  minDepth(root->left) + 1;
 
-        int leftDepth = minDepth(root->left) + 1;
-        int rightDepth = minDepth(root->right) + 1;
-        return fmin(leftDepth, rightDepth);
+	int leftDepth = minDepth(root->left) + 1;
+	int rightDepth = minDepth(root->right) + 1;
+	return fmin(leftDepth, rightDepth);
 }
 
 /*
@@ -145,8 +131,10 @@ struct TreeNode* invertTree(struct TreeNode* root)
 		return NULL;
 
 	struct TreeNode * ptmpNode = root->left;
+
 	root->left = invertTree(root->right);
 	root->right = invertTree(ptmpNode);
+
 	return root;
 }
 
@@ -155,12 +143,9 @@ struct TreeNode* invertTree(struct TreeNode* root)
 给定一个二叉树，找到最长的路径，
 这个路径中的每个节点具有相同值。
 这条路径可以经过也可以不经过根节点。
-
 注意：两个节点之间的路径长度由它们
 之间的边数表示。
-
 示例 1:
-
 输入:
 
               5
@@ -196,6 +181,7 @@ int dfs(struct TreeNode* root)
 
 	left = dfs(root->left);
 	right = dfs(root->right);
+
 	if (root->left != NULL && root->left->val == root->val && root->right != NULL && root->right->val == root->val) {
 		result = MAX(result, left + right + 2);
 		return MAX(left + 1, right + 1);
@@ -210,13 +196,14 @@ int dfs(struct TreeNode* root)
 	}
 }
 
-int longestUnivaluePath(struct TreeNode* root){
-    result = 0;
-    if (root == NULL || (root->left == NULL && root->right == NULL))
-        return 0;
+int longestUnivaluePath(struct TreeNode* root)
+{
+	result = 0;
+	if (root == NULL || (root->left == NULL && root->right == NULL))
+		return 0;
 
-    dfs(root);
-    return result;
+	dfs(root);
+	return result;
 }
 
 /*
@@ -283,7 +270,8 @@ bool isMirror(struct TreeNode* t1,struct TreeNode* t2)
 }
 
 
-bool isSymmetric(struct TreeNode* root){
+bool isSymmetric(struct TreeNode* root)
+{
 	return isMirror(root, root);
 }
 
@@ -356,7 +344,9 @@ bool  isBalanced(struct TreeNode* root){
 /*
 面试题 04.08. 首个共同祖先
 难度中等7
-设计并实现一个算法，找出二叉树中某两个节点的第一个共同祖先。不得将其他的节点存储在另外的数据结构中。注意：这不一定是二叉搜索树。
+设计并实现一个算法，找出二叉树中某两个节点的第一个共同
+祖先。不得将其他的节点存储在另外的数据结构中。注意：
+这不一定是二叉搜索树。
 例如，给定如下二叉树: root = [3,5,1,6,2,0,8,null,null,7,4]
     3
    / \

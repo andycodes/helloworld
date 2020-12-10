@@ -839,15 +839,17 @@ int* returnSize, int** returnColumnSizes)
 			}
 		}
 	}
-	// 如果还有需要粉碎的糖果，则再调用一次 candyCrush(board)
-	// 注意，本次 candyCrush 后是不确定存不存在新的要粉碎的糖果，只能再调用一次 candyCrush
-	// 如果多调用的 candyCrush 中两个 for 循环都没有把 tod0 标记为 true，则表示结束了
-	// 因此，本方法都会多调用一次 candyCrush 但不进行粉碎的操作。
-
+/*
+如果还有需要粉碎的糖果，则再调用一次 candyCrush(board)
+注意，本次 candyCrush 后是不确定存不存在新的要粉碎的糖果，
+只能再调用一次 candyCrush
+如果多调用的 candyCrush 中两个 for 循环都没有把 tod0 标记为 true，
+则表示结束了
+因此，本方法都会多调用一次 candyCrush 但不进行粉碎的操作。
+*/
 	*returnColumnSizes = boardColSize;
 	*returnSize = boardSize;
-	return todo ?
-	candyCrush(board, boardSize, boardColSize, returnSize, returnColumnSizes) : board;
+	return todo ? candyCrush(board, boardSize, boardColSize, returnSize, returnColumnSizes) : board;
 }
 
 
@@ -874,28 +876,30 @@ int* returnSize, int** returnColumnSizes)
 */
 
 /*
-先沿右上 - 左下的对角线翻转（270° +270°+ 一次镜像），再沿水平中线上下翻转（-180° +?180°+ 一次镜像），可以实现顺时针 9090 度的旋转效果作者：ChopinXBP链接：https://leetcode-cn.com/problems/rotate-image/solution/zi-wai-xiang-nei-shun-shi-zhen-xun-huan-jiao-huan-/来源：力扣（LeetCode）著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+先沿右上 - 左下的对角线翻转（270° +270°+ 一次镜像），
+再沿水平中线上下翻转（-180° +?180°+ 一次镜像），
+可以实现顺时针 9090 度的旋转效果
 */
 void rotate(int** matrix, int matrixSize, int* matrixColSize)
 {
-	int n = matrixSize;
+    int n = matrixSize;
 
-	// transpose matrix
-	for (int i = 0; i < n; i++) {
-		for (int j = i; j < n; j++) {
-			swap(matrix[i][j],matrix[j][i]);
-		}
-	}
-
-	// reverse each row
-	for (int i = 0; i < n; i++) {
-		for (int j = 0; j < n / 2; j++) {
-			int tmp = matrix[i][j];
-			matrix[i][j] = matrix[i][n - j - 1];
-			matrix[i][n - j - 1] = tmp;
-			swap(matrix[i][j],matrix[i][n - j - 1]);
-		}
-	}
+    // transpose matrix
+    for (int i = 0; i < n; i++) {
+      for (int j = i; j < n; j++) {
+        int tmp = matrix[j][i];
+        matrix[j][i] = matrix[i][j];
+        matrix[i][j] = tmp;
+      }
+    }
+    // reverse each row
+    for (int i = 0; i < n; i++) {
+      for (int j = 0; j < n / 2; j++) {
+        int tmp = matrix[i][j];
+        matrix[i][j] = matrix[i][n - j - 1];
+        matrix[i][n - j - 1] = tmp;
+      }
+    }
 }
 
 

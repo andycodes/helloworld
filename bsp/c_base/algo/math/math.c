@@ -1,3 +1,5 @@
+void swap(int *a, int *b){int temp = *a;*a = *b;*b = temp;}
+
 /*科学计数法
 1e-6
 */
