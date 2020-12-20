@@ -24,6 +24,9 @@ while(top >= 0) {
 	out = stack[top--];
 }
 
+//stack size : top + 1
+
+
 empty:  top == -1
 not empty: top >= 0
 
@@ -100,6 +103,38 @@ void maxqueue_pop(void)
 {
 	if (obj[left] == maxqueue[head]) {
 		head++;
+	}
+}
+
+
+/*维护区间有序数组(递增)*/
+void squeue_push(int *iqueue, int iqueueSize, int data)
+{
+	int i;
+	for (i = 0; i < iqueueSize - 1; i++) {
+		if (data < iqueue[i]) {
+			break;
+		}
+	}
+
+	for (int j = iqueueSize - 1; j > i; j--) {
+		iqueue[j] = iqueue[j - 1];
+	}
+
+	iqueue[i] = data;
+}
+
+void squeue_del(int *iqueue, int iqueueSize, int del)
+{
+	int i;
+	for (i = 0; i < iqueueSize; i++) {
+		if (iqueue[i] == del) {
+			break;
+		}
+	}
+
+	for (int j = i; j < iqueueSize - 1; j++) {
+		iqueue[j] = iqueue[j + 1];
 	}
 }
 
