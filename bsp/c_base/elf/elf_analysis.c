@@ -10,10 +10,13 @@ void func1(int i)
 
 int main(void)
 {
-	static int static_var = 85;
-	static int static_var2;
+	static int static_init_var = 85;
+	static int static_uninit_val;
 	int a = 1;
 	int b;
-	func1(static_var + static_var2 + a + b);
+
+	func1(static_init_var + static_uninit_val + a + b);
+
 	return 0;
 }
+
