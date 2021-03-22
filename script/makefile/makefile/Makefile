@@ -1,32 +1,18 @@
-#!/usr/bin/make
+#语法规则
+# targets...:prerequisites...
+# 目标文件...:先决条件
+# target 这 一 个 或 多 个 的 目 标 文 件 依 赖 于 	prerequisites 中 的 文 件
+#	command
+main:main.c
+	gcc  main.c -o main
 
-OBJ = ma
-
-#第一行将得到一个完整路径名.
-#第二行通过命令dirname 去掉 Makefile部分.
-#第三行得到其父目录.
-pes_parent_dir:=$(shell pwd)/$(lastword $(MAKEFILE_LIST))
-pes_parent_dir:=$(shell dirname $(pes_parent_dir))
-pes_parent_dir:=$(shell dirname $(pes_parent_dir))
-pes_parent_dir:=$(subst script/makefile,,$(pes_parent_dir))
-
-#全部重定向
-#make >/project/log.txt 2>&1
-
-CC=gcc
-
-#-m32
-#apt-get install gcc-multilib  
-
-COMMON_FLAGS= -Wall -ggdb -m32
-
-SRC:= main.c
-SRC += fun.c
-
-all:
-	$(CC) $(COMMON_FLAGS) -o $(OBJ) $(SRC)
-	@echo $(pes_parent_dir)
 .PHONY:clean
 clean:
-	rm -fr $(OBJ) *.o  *.bak
-	
+	-rm main
+
+#.PHONY 意思表示 clean 是一个“伪目标”
+#而在 rm 命令前面加了一个小减号的意思就是,也许某些文件出现问题,但不要管,继续做后面的事。
+#当然，也可以这样
+#clean:
+#	-rm main
+#但这是不推荐的，如果在当前目录下，存在一个clean，那么就不执行clean后面的规则了
