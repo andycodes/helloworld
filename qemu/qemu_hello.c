@@ -3,15 +3,15 @@
 int main()
 {
 	printf("Hello, Qemu!\n");
-	return 0;
 }
 
 /*
 静态链接库
- arm-none-linux-gnueabi-gcc -o hello qemu_hello.c -static
+arm-none-linux-gnueabi-gcc -ggdb  qemu_hello.c -static -o hello
  $ qemu-arm ./hello
  $ file hello
  hello: ELF 32-bit LSB? executable, ARM, EABI5 version 1 (SYSV), \?statically linked, for GNU/Linux 2.6.16, not stripped
+
 
 动态链接库
 不加-static变量的话，运行时则需要使用-L选项链接到相应的运行库
