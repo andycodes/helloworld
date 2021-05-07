@@ -6,6 +6,8 @@ int main()
 }
 
 /*
+	ARMv7
+
 ¾²Ì¬Á´½Ó¿â
 arm-none-linux-gnueabi-gcc -ggdb  qemu_hello.c -static -o hello
  $ qemu-arm ./hello
@@ -28,4 +30,11 @@ total 636
 -rwxr-xr-x 1 root   root      6627 Mar 26 16:18 hello_1
 -rwxr--r-- 1 nobody nogroup     72 Mar 26 16:08 qemu_hello.c
 
+*/
+
+/*
+	ARMv8 AARCH64
+aarch64-linux-gnu-gcc -static -o hello qemu_hello.c
+file hello
+qemu-aarch64 hello
 */
