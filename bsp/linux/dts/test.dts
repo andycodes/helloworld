@@ -1,0 +1,26 @@
+/dts-v1/;
+
+/ {
+	node@0 {
+		a-string-property = "A sttring";
+		a-string-list-property = "first string", "second string";
+		a-byte-data-property = [01 23 45 67 89 AB];
+		
+		child-node@0 {
+			first-child-property;
+			second-child-property = <1>;
+			a-reference-to-something = <&node1>;
+		};
+	};
+	node1: node@1 {
+		an-empty-property;
+		a-string-property = "A new sttring";
+		a-cell-property = <1 2 3 4>;
+		a-reference-to-something = <&node2>;
+		child-node@0 {
+		};
+	};
+	
+	node2: node@2 {
+	};
+};
