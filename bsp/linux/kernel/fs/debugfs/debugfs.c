@@ -82,6 +82,30 @@ struct file_operations d_fops = {
 	.owner = THIS_MODULE,
 };
 
+
+struct s_test_data{
+	int rate;
+};
+
+struct s_test_data g_test_data;
+static int clk_rate_fops_get(void *data, u64 *rate)
+{
+	struct s_test_data *clk = data;
+	*rate = clk->rate;
+
+	return 0;
+};
+
+static int clk_rate_fops_set(void *data, u64 rate)
+{
+	struct s_test_data *clk = data;
+	clk->rate = rate;
+	return 0;
+};
+
+DEFINE_SIMPLE_ATTRIBUTE(clk_rate_fops, clk_rate_fops_get, clk_rate_fops_set, "%llu\n");
+
+
 static int __init mydebugfs_init(void)
 {
 	struct dentry *sub_dir;
@@ -93,7 +117,7 @@ static int __init mydebugfs_init(void)
 
 	/*debugfsĬ�ϸ�Ŀ¼  /sys/kernel/debug */
 	/*struct dentry *debugfs_create_dir(const char *name, struct dentry *parent)*/
-	my_debugfs_root = debugfs_create_dir("mydebug", NULL);
+	my_debugfs_root = debugfs_create_dir("felix_debug", NULL);
 	if (!my_debugfs_root)
 		return -ENOENT;
 	
@@ -117,6 +141,8 @@ static int __init mydebugfs_init(void)
 	if (!s_d)
 		goto Fail;
 
+	s_d = debugfs_create_file("clk_rate", S_IWUSR | S_IRUGO, my_debugfs_root,
+		&g_test_data, &clk_rate_fops);
 	return 0;
 
 Fail:
