@@ -48,6 +48,8 @@ static int __init oopsexam_init(void)
     printk("oopsexam register success\n");
   }
   return ret;
+
+ //module_init 必须要RETURN ;不然INSMOD 的时候报错
 }
 
 static void __exit oopsexam_exit(void)
