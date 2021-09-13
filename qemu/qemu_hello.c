@@ -1,9 +1,16 @@
-#include<stdio.h>
+#include <stdio.h>
 
-int main()
+void print_banner()
 {
-        printf("Hello, Qemu!\n");
+        printf("Welcome to World of PLT and GOT\n");
 }
+
+int main(void)
+{
+        print_banner();
+        return 0;
+}
+
 
 /*
 	ARMv7
@@ -34,8 +41,15 @@ total 636
 */
 
 /*
-	ARMv8 AARCH64
+        ARMv8 AARCH64
 aarch64-linux-gnu-gcc -static -ggdb -o hello qemu_hello.c
 file hello
 qemu-aarch64 hello
 */
+
+/*
+arm-none-linux-gnueabihf-gcc -ggdb -Wall -o hello.o -c qemu_hello.c 
+gcc -o test test.o -m32
+arm-none-linux-gnueabihf-gcc -ggdb -Wall -o hello hello.o 
+*/
+
