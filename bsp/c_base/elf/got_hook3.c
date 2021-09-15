@@ -12,6 +12,9 @@
 #define LOG_TAG "INJECT"
 #define LOGD(fmt, args...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, fmt, ##args)
 
+/*
+前文介绍了导入表hook，现在来说下导出表的hook。导出表的hook的流程如下。
+*/
 
 int (*old_check_signatures)();
 int new_check_signatures(){
@@ -21,7 +24,7 @@ int new_check_signatures(){
     }
     return old_check_signatures();
 }
-
+//1、获取动态库基值 
 void* get_module_base(pid_t pid, const char* module_name){
     FILE* fp;
     long addr = 0;
