@@ -1,3 +1,4 @@
+#include "os_stdio.h"
 void ResetISR(void);
 static void NmiSR(void);
 static void FaultISR(void);
@@ -10,11 +11,11 @@ extern unsigned long _stack_bottom;
 extern unsigned long _stack_top;
 extern void reset_handler(void);
 extern void systick_handler(void);
-extern void main(void);
+
 __attribute__ ((section(".isr_vector")))void (*g_pfnVectors[])(void) =
 {
     0x2000c000,                             // StackPtr, set in RestetISR
-    main,                                    // The reset handler
+    ((unsigned int)reset_handler + 1),      // The reset handler
     NmiSR,                                  // The NMI handler
     FaultISR,                               // The hard fault handler
     IntDefaultHandler,                      // The MPU fault handler
@@ -28,7 +29,7 @@ __attribute__ ((section(".isr_vector")))void (*g_pfnVectors[])(void) =
     IntDefaultHandler,                      // Debug monitor handler
     0,                                      // Reserved
     IntDefaultHandler,                      // The PendSV handler
-    IntDefaultHandler,                      // The SysTick handler
+    systick_handler,                      // The SysTick handler
     IntDefaultHandler,                      // GPIO Port A
     IntDefaultHandler,                      // GPIO Port B
     IntDefaultHandler,                      // GPIO Port C
@@ -179,5 +180,6 @@ static void FaultISR(void){
 }
 
 static void IntDefaultHandler(void){
+    printk("IntDefaultHandler\n");
     while(1);
 }
