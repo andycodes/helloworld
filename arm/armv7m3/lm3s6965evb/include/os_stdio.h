@@ -15,8 +15,8 @@ extern uint32_t strlen(char *str);
 extern int strcpy(char *dst, char *src);
 extern void no_printk(const char *fmt, ...);
 
-#define DEBUG_SUPPORT
-#ifdef DEBUG_SUPPORT
+#define DEBUG
+#ifdef DEBUG
 #define DEBUG printk
 #else
 #define DEBUG no_printk
