@@ -44,7 +44,7 @@ int main()
 
     clear_bss();
 
-    DEBUG("Hello FELIX RTOS C0.6\n");
+    DEBUG("Hello FELIX RTOS C0.7\n");
     DEBUG("psp:0x%x\n", get_psp());
     DEBUG("msp:0x%x\n", get_msp());
 
