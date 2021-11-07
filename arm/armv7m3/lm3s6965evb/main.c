@@ -32,10 +32,12 @@ void task1_cleanup_func(void *param)
 void task1_entry(void *param)
 {
     init_systick(10);
-
+    task_info_t task_info;
     task_set_clean_callbk(g_current_task, task1_cleanup_func, (void *)0);
     for(;;) {
-        printk("%s:before delay\n", __func__);
+       task_get_info(&task1, &task_info);
+
+       dump_task_info(&task_info);
         task_delay_s(1);
         printk("%s:after delay\n", __func__);
     }
@@ -95,7 +97,7 @@ int main()
 
     clear_bss();
 
-    DEBUG("Hello FELIX RTOS C0.10\n");
+    DEBUG("Hello FELIX RTOS C0.11\n");
     DEBUG("psp:0x%x\n", get_psp());
     DEBUG("msp:0x%x\n", get_msp());
 
