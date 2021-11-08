@@ -2,7 +2,8 @@
 #include <stdint.h>
 #include "cm3.h"
 #include "task.h"
-#include "event.h"
+#include "os.h"
+#include "memblock.h"
 
 extern uint32_t _bss;
 extern uint32_t _ebss;
@@ -25,66 +26,53 @@ task_stack_t task2_stk[1024];
 task_stack_t task3_stk[1024];
 task_stack_t task4_stk[1024];
 
-event_t event_wait_timeout;
-event_t event_wait_normal;
-
-void task1_cleanup_func(void *param)
-{
-    printk("%s\n", __func__);
-}
+/*20 block of size 100 bytes*/
+uint8_t mem1[20][100];
+mem_block_t mem_block1;
+typedef uint8_t (*block_t)[100];
 
 void task1_entry(void *param)
 {
+    uint8_t i;
+    block_t block[20];
     init_systick(10);
-    event_init(&event_wait_timeout, EVENT_TYPE_UNKNOWN);
 
+    mem_block_init(&mem_block1, (uint8_t *)mem1, 100, 20);
     for(;;) {
         printk("%s\n", __func__);
-        uint32_t wakeup_count = event_remove_all(&event_wait_normal, (void *)0, 0);
-        if (wakeup_count > 0) {
-            task_sched();
-            printk("wakeup_count:%d\n", wakeup_count);
-            printk("count:%d\n", event_wait_count(&event_wait_normal));
+        for (i = 0; i < 20; i++) {
+            mem_block_alloc(&mem_block1, (uint8_t **)&block[i], 0);
+            printk("block:%x, mem[i]:%x\n", block[i], &mem1[i][0]);
         }
-        task_sched();
-        task_delay_s(1);
-    }
-}
 
-void delay(uint32_t delay)
-{
-    while(delay--);
+        for (i = 0; i < 20; i++) {
+            mem_block_free(&mem_block1, (uint8_t *)block[i]);
+        }
+        task_delay_s(5);
+    }
 }
 
 void task2_entry(void *param)
 {
     for(;;) {
-
-        event_wait(&event_wait_normal, g_current_task, (void *)0, 0, 0);
-        task_sched();
         printk("%s\n", __func__);
-        task_delay_s(1);
     }
 }
 
 void task3_entry(void *param)
 {
-    event_init(&event_wait_normal, EVENT_TYPE_UNKNOWN);
     for(;;) {
-        event_wait(&event_wait_normal, g_current_task, (void *)0, 0, 0);
-        task_sched();
         printk("%s\n", __func__);
         task_delay_s(1);
     }
+
 }
 
 void task4_entry(void *param)
 {
     for(;;) {
         printk("%s\n", __func__);
-        event_wakeup(&event_wait_normal, (void *)0, 0);
         task_delay_s(1);
-        task_sched();
     }
 }
 
@@ -93,16 +81,19 @@ int main()
 
     clear_bss();
 
-    DEBUG("Hello FELIX RTOS C0.12\n");
+    DEBUG("Hello FELIX RTOS C0.15\n");
+
     DEBUG("psp:0x%x\n", get_psp());
     DEBUG("msp:0x%x\n", get_msp());
 
     init_task_module();
 
     task_init(&task1, task1_entry, (void *)0x11111111, 0, &task1_stk[1024]);
+#if 0
     task_init(&task2, task2_entry, (void *)0x22222222, 1, &task2_stk[1024]);
     task_init(&task3, task3_entry, (void *)0x33333333, 0, &task3_stk[1024]);
-    //task_init(&task4, task4_entry, (void *)0x44444444, 1, &task4_stk[1024]);
+    task_init(&task4, task4_entry, (void *)0x44444444, 1, &task4_stk[1024]);
+#endif
     g_next_task = task_highest_ready();
     task_run_first();
 
