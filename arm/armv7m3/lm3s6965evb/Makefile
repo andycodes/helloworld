@@ -2,6 +2,7 @@ TOOL_CHAIN = arm-none-eabi-
 CC = ${TOOL_CHAIN}gcc
 AS = ${TOOL_CHAIN}as
 LD = ${TOOL_CHAIN}ld
+NM = ${TOOL_CHAIN}nm
 OBJCOPY = ${TOOL_CHAIN}objcopy
 OBJDUMP = $(TOOL_CHAIN)objdump
 
@@ -15,6 +16,7 @@ rtos.bin: $(objs)
 	${LD} -T rtos.ld -o rtos.elf $^
 	${OBJCOPY} -O binary -S rtos.elf $@
 	${OBJDUMP} -D -m arm rtos.elf > rtos.dis
+	${NM} rtos.elf > rtos.nm
 
 run: $(objs)
 	${LD} -T rtos.ld -o rtos.elf $^
@@ -35,4 +37,4 @@ debug: $(objs)
 	${CC} $(CFLAGS) -c -o $@ $<
 
 clean:
-	rm -rf *.o *.elf *.bin *.dis
+	rm -rf *.o *.elf *.bin *.dis *.nm
