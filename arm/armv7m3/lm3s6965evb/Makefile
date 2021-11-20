@@ -16,6 +16,8 @@ LDFLAGS		:= -g
 
 objs := src/kernel/int_vector.o src/main.o src/kernel/cm3.o src/kernel/os_stdio.o src/kernel/cm3_s.o src/kernel/task.o src/kernel/lib.o src/kernel/event.o src/kernel/sem.o src/kernel/mailbox.o src/kernel/memblock.o src/kernel/timer.o src/kernel/mutex.o src/kernel/flag_group.o src/testcase/testcase.o
 
+oobjs := obj/int_vector.o obj/main.o obj/cm3.o obj/os_stdio.o obj/cm3_s.o obj/task.o obj/lib.o obj/event.o obj/sem.o obj/mailbox.o obj/memblock.o obj/timer.o obj/mutex.o obj/flag_group.o obj/testcase.o
+
 $(BIN_PATH)/rtos.bin: $(objs)
 	$(shell mkdir $(BIN_PATH))
 	$(shell mkdir $(OBJ_PATH))
@@ -24,7 +26,7 @@ $(BIN_PATH)/rtos.bin: $(objs)
 	${OBJDUMP} -D -m arm $(BIN_PATH)/rtos.elf > $(BIN_PATH)/rtos.dis
 	${NM} $(BIN_PATH)/rtos.elf > $(BIN_PATH)/rtos.nm
 
-run: $(objs)
+run: $(oobjs)
 	${LD} -T src/fan.ld -o $(BIN_PATH)/rtos.elf $^
 	${OBJCOPY} -O binary -S $(BIN_PATH)/rtos.elf $(BIN_PATH)/rtos.bin
 	${OBJDUMP} -D -m arm $(BIN_PATH)/rtos.elf > $(BIN_PATH)/rtos.dis
