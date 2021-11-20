@@ -28,6 +28,7 @@ debug: $(objs)
 	${LD} -T rtos.ld -o rtos.elf $^
 	${OBJCOPY} -O binary -S rtos.elf rtos.bin
 	${OBJDUMP} -D -m arm rtos.elf > rtos.dis
+	${NM} rtos.elf > rtos.nm
 	qemu-system-arm -M lm3s6965evb --kernel rtos.bin -nographic -s -S
 
 %.o:%.c

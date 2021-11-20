@@ -43,4 +43,6 @@ SECTIONS
     _p_stack_top = 0x20008000;
     . = . + 0x4000;          /*Allocate 4K for the Stack.*/
     _stack_top = 0x2000c000;  /*Address of the top of the heap, also end of RAM.*/
+    _heap_bottom = .;        /*Address of the bottom of the heap.*/
+    _heap_top = 0x20040000;  /*Address of the top of the heap, also end of RAM.*/
 }
