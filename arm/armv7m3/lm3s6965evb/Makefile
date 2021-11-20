@@ -1,3 +1,6 @@
+
+BIN_PATH = bin
+
 TOOL_CHAIN = arm-none-eabi-
 CC = ${TOOL_CHAIN}gcc
 AS = ${TOOL_CHAIN}as
@@ -12,7 +15,7 @@ LDFLAGS		:= -g
 
 objs := kernel/int_vector.o main.o kernel/cm3.o kernel/os_stdio.o kernel/cm3_s.o kernel/task.o kernel/lib.o kernel/event.o kernel/sem.o kernel/mailbox.o kernel/memblock.o kernel/timer.o kernel/mutex.o kernel/flag_group.o testcase/testcase.o
 
-rtos.bin: $(objs)
+$(BIN_PATH)/rtos.bin: $(objs)
 	${LD} -T rtos.ld -o rtos.elf $^
 	${OBJCOPY} -O binary -S rtos.elf $@
 	${OBJDUMP} -D -m arm rtos.elf > rtos.dis
@@ -38,4 +41,4 @@ debug: $(objs)
 	${CC} $(CFLAGS) -c -o $@ $<
 
 clean:
-	rm -rf *.o *.elf *.bin *.dis *.nm
+	rm -rf *.o *.elf *.bin *.dis *.nm kernel/*.o testcase/*.o
