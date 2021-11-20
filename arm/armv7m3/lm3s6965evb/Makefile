@@ -11,27 +11,27 @@ OBJCOPY = ${TOOL_CHAIN}objcopy
 OBJDUMP = $(TOOL_CHAIN)objdump
 
 CFLAGS		:= -Wall -g -fno-builtin -gdwarf-2 -gstrict-dwarf -mcpu=cortex-m3 -mthumb -nostartfiles  --specs=nosys.specs -std=c11 \
-				-O0 -Iinclude
+				-O0 -Isrc/include
 LDFLAGS		:= -g
 
-objs := kernel/int_vector.o main.o kernel/cm3.o kernel/os_stdio.o kernel/cm3_s.o kernel/task.o kernel/lib.o kernel/event.o kernel/sem.o kernel/mailbox.o kernel/memblock.o kernel/timer.o kernel/mutex.o kernel/flag_group.o testcase/testcase.o
+objs := src/kernel/int_vector.o src/main.o src/kernel/cm3.o src/kernel/os_stdio.o src/kernel/cm3_s.o src/kernel/task.o src/kernel/lib.o src/kernel/event.o src/kernel/sem.o src/kernel/mailbox.o src/kernel/memblock.o src/kernel/timer.o src/kernel/mutex.o src/kernel/flag_group.o src/testcase/testcase.o
 
 $(BIN_PATH)/rtos.bin: $(objs)
 	$(shell mkdir $(BIN_PATH))
 	$(shell mkdir $(OBJ_PATH))
-	${LD} -T fan.ld -o $(BIN_PATH)/rtos.elf $^
+	${LD} -T src/fan.ld -o $(BIN_PATH)/rtos.elf $^
 	${OBJCOPY} -O binary -S $(BIN_PATH)/rtos.elf $@
 	${OBJDUMP} -D -m arm $(BIN_PATH)/rtos.elf > $(BIN_PATH)/rtos.dis
 	${NM} $(BIN_PATH)/rtos.elf > $(BIN_PATH)/rtos.nm
 
 run: $(objs)
-	${LD} -T fan.ld -o $(BIN_PATH)/rtos.elf $^
+	${LD} -T src/fan.ld -o $(BIN_PATH)/rtos.elf $^
 	${OBJCOPY} -O binary -S $(BIN_PATH)/rtos.elf $(BIN_PATH)/rtos.bin
 	${OBJDUMP} -D -m arm $(BIN_PATH)/rtos.elf > $(BIN_PATH)/rtos.dis
 	qemu-system-arm -M lm3s6965evb --kernel $(BIN_PATH)/rtos.bin -nographic
 
 debug: $(objs)
-	${LD} -T fan.ld -o rtos.elf $^
+	${LD} -T src/fan.ld -o rtos.elf $^
 	${OBJCOPY} -O binary -S rtos.elf rtos.bin
 	${OBJDUMP} -D -m arm rtos.elf > rtos.dis
 	${NM} rtos.elf > rtos.nm
@@ -44,4 +44,4 @@ debug: $(objs)
 	${CC} $(CFLAGS) -c -o $@ $<
 
 clean:
-	rm -rf *.o *.elf *.bin *.dis *.nm kernel/*.o testcase/*.o $(BIN_PATH) $(OBJ_PATH)
+	rm -rf src/*.o *.elf *.bin *.dis *.nm src/kernel/*.o src/testcase/*.o $(BIN_PATH) $(OBJ_PATH)
