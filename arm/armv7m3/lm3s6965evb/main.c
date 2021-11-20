@@ -10,6 +10,7 @@
 
 extern uint32_t _bss;
 extern uint32_t _ebss;
+extern void testcase(void);
 
 static inline void clear_bss(void)
 {
@@ -65,6 +66,8 @@ void task4_entry(void *param)
 {
     for(;;) {
         printk("%s\n", __func__);
+        testcase();
+        printk("%s\n", __func__);
         task_delay_s(1);
     }
 }
@@ -84,7 +87,7 @@ int main()
 
     task_init(&task1, task1_entry, (void *)0x11111111, 0, &task1_stk[1024]);
     task_init(&task2, task2_entry, (void *)0x22222222, 1, &task2_stk[1024]);
-#if 0
+#if 1
     task_init(&task3, task3_entry, (void *)0x33333333, 0, &task3_stk[1024]);
     task_init(&task4, task4_entry, (void *)0x44444444, 1, &task4_stk[1024]);
 #endif
