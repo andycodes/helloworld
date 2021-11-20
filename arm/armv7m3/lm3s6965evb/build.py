@@ -5,9 +5,10 @@ import glob
 import os
 import shutil
 
+
+os.system("make")
+
 g = os.walk("./src")
- 
- 
 for path,d,filelist in g:
 	#print d;
 	for filename in filelist:
