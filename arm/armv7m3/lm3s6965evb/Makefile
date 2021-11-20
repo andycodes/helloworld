@@ -10,7 +10,7 @@ CFLAGS		:= -Wall -g -fno-builtin -gdwarf-2 -gstrict-dwarf -mcpu=cortex-m3 -mthum
 				-O0 -Iinclude
 LDFLAGS		:= -g
 
-objs := int_vector.o main.o cm3.o os_stdio.o cm3_s.o task.o lib.o event.o sem.o mailbox.o memblock.o timer.o mutex.o flag_group.o testcase/testcase.o
+objs := kernel/int_vector.o main.o kernel/cm3.o kernel/os_stdio.o kernel/cm3_s.o kernel/task.o kernel/lib.o kernel/event.o kernel/sem.o kernel/mailbox.o kernel/memblock.o kernel/timer.o kernel/mutex.o kernel/flag_group.o testcase/testcase.o
 
 rtos.bin: $(objs)
 	${LD} -T rtos.ld -o rtos.elf $^
