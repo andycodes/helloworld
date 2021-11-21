@@ -32,12 +32,10 @@ objs := src/kernel/int_vector.o \
 		src/testcase/testcase.o
 
 $(BIN_PATH)/rtos.bin: $(objs)
-	$(shell mkdir $(BIN_PATH))
-	$(shell mkdir $(OBJ_PATH))
-	${LD} -T src/fan.ld -o $(BIN_PATH)/rtos.elf $^
-	${OBJCOPY} -O binary -S $(BIN_PATH)/rtos.elf $@
-	${OBJDUMP} -D -m arm $(BIN_PATH)/rtos.elf > $(BIN_PATH)/rtos.dis
-	${NM} $(BIN_PATH)/rtos.elf > $(BIN_PATH)/rtos.nm
+	@${LD} -T src/fan.ld -o $(BIN_PATH)/rtos.elf $^
+	@${OBJCOPY} -O binary -S $(BIN_PATH)/rtos.elf $@
+	@${OBJDUMP} -D -m arm $(BIN_PATH)/rtos.elf > $(BIN_PATH)/rtos.dis
+	@${NM} $(BIN_PATH)/rtos.elf > $(BIN_PATH)/rtos.nm
 
 run:
 	qemu-system-arm -M lm3s6965evb --kernel $(BIN_PATH)/rtos.bin -nographic
@@ -56,4 +54,4 @@ debug: $(objs)
 	${CC} $(CFLAGS) -c -o $@ $<
 
 clean:
-	rm -rf src/*.o *.elf *.bin *.dis *.nm src/kernel/*.o src/testcase/*.o $(BIN_PATH) $(OBJ_PATH)
+	rm -rf $(BIN_PATH) $(OBJ_PATH)

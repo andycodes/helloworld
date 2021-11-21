@@ -6,6 +6,13 @@ import os
 import shutil
 
 
+if os.path.exists("./obj"):
+	shutil.rmtree("./obj")
+	shutil.rmtree("./bin")
+	
+os.mkdir("obj")
+os.mkdir("bin")	
+
 os.system("make")
 
 g = os.walk("./src")
