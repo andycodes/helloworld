@@ -10,23 +10,24 @@ NM = ${TOOL_CHAIN}nm
 OBJCOPY = ${TOOL_CHAIN}objcopy
 OBJDUMP = $(TOOL_CHAIN)objdump
 
-CFLAGS		:= -Wall -g -fno-builtin -gdwarf-2 -gstrict-dwarf -mcpu=cortex-m3 -mthumb -nostartfiles  --specs=nosys.specs -std=c11 -O0 
+CFLAGS		:= -Wall -g -fno-builtin -gdwarf-2 -gstrict-dwarf -mcpu=cortex-m3 -mthumb -nostartfiles  --specs=nosys.specs -std=c11 \
+				-O0 -Isrc/include
 LDFLAGS		:= -g
 
-objs := main.o \
-		startup_m3.o
+objs := src/kernel/int_vector.o \
+		src/main.o \
 
 $(BIN_PATH)/rtos.bin: $(objs)
-	@${LD} -T m3.ld -o $(BIN_PATH)/rtos.elf $^
+	@${LD} -T src/fan.ld -o $(BIN_PATH)/rtos.elf $^
 	@${OBJCOPY} -O binary -S $(BIN_PATH)/rtos.elf $@
 	@${OBJDUMP} -D -m arm $(BIN_PATH)/rtos.elf > $(BIN_PATH)/rtos.dis
 	@${NM} $(BIN_PATH)/rtos.elf > $(BIN_PATH)/rtos.nm
 
 run:
-	qemu-system-arm -M lm3s6965evb --kernel $(BIN_PATH)/rtos.bin -nographic
+	qemu-system-arm -M netduino2 --kernel $(BIN_PATH)/rtos.bin -nographic
 
 debug: $(objs)
-	${LD} -T m3.ld -o rtos.elf $^
+	${LD} -T src/fan.ld -o rtos.elf $^
 	${OBJCOPY} -O binary -S rtos.elf rtos.bin
 	${OBJDUMP} -D -m arm rtos.elf > rtos.dis
 	${NM} rtos.elf > rtos.nm
