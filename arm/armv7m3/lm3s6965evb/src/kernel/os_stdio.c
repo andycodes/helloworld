@@ -1,11 +1,12 @@
 #include <stdarg.h>
 #include "os_stdio.h"
+#include "board.h"
 
-volatile uint32_t * const UART0DR = (uint32_t *)0x4000C000;
+volatile uint32_t * const DEBUG_UART_DR = (uint32_t *)DEBUG_UART_DR_ADDR;
 
 char send_char(uint8_t *ch)
 {
-    *UART0DR = *ch;
+    *DEBUG_UART_DR = *ch;
     return *ch;
 }
 
