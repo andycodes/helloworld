@@ -1,4 +1,7 @@
 
+$(info "!!!!THE CUR BOARD is $(board)")
+
+
 BIN_PATH = bin
 OBJ_PATH = obj
 

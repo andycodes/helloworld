@@ -4,6 +4,7 @@
 import glob 
 import os
 import shutil
+import sys
 
 
 if os.path.exists("./obj"):
@@ -13,8 +14,10 @@ if os.path.exists("./obj"):
 os.mkdir("obj")
 os.mkdir("bin")	
 
-#board = 'board=net'
-board = 'board=lm3'
+#board = 'board=net'  'board=lm3'
+board = 'board=net'
+if len(sys.argv) > 1:
+    board = 'board=' + sys.argv[1]
 
 os.system("make %s" % (board))
 
