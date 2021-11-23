@@ -13,7 +13,10 @@ if os.path.exists("./obj"):
 os.mkdir("obj")
 os.mkdir("bin")	
 
-os.system("make")
+#board = 'board=net'
+board = 'board=lm3'
+
+os.system("make %s" % (board))
 
 g = os.walk("./src")
 for path,d,filelist in g:
