@@ -8,11 +8,13 @@ SECTIONS
 {
     .text :
     {
+	. = ALIGN(8);
         _text = .;
         KEEP(*(.isr_vector))
         *(.text*)
         *(.rodata*)
         _etext = .;
+	. = ALIGN(8);
     } > FLASH
 
     /DISCARD/ :
@@ -23,18 +25,22 @@ SECTIONS
 
     .data : AT(ADDR(.text) + SIZEOF(.text))
     {
+	. = ALIGN(8);
         _data = .;
         *(vtable)
         *(.data*)
         _edata = .;
+	. = ALIGN(8);
     } > SRAM
 
     .bss :
     {
+    	. = ALIGN(8);
         _bss = .;
         *(.bss*)
         *(COMMON)
         _ebss = .;
+	. = ALIGN(8);
     } > SRAM
 
     . = ALIGN(32);           /*Not sure if this needs to be done, but why not.*/
