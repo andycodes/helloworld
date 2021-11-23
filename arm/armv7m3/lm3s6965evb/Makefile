@@ -12,7 +12,7 @@ OBJDUMP = $(TOOL_CHAIN)objdump
 
 CFLAGS		:= -Wall -g -fno-builtin -gdwarf-2 -gstrict-dwarf -mcpu=cortex-m3 -mthumb -nostartfiles  --specs=nosys.specs -std=c11 -O0 \
 				-Isrc/include\
-				-Isrc/platform/lm3
+				-Isrc/platform/$(board)
 
 LDFLAGS		:= -g
 
