@@ -37,8 +37,11 @@ $(BIN_PATH)/rtos.bin: $(objs)
 	@${OBJDUMP} -D -m arm $(BIN_PATH)/rtos.elf > $(BIN_PATH)/rtos.dis
 	@${NM} $(BIN_PATH)/rtos.elf > $(BIN_PATH)/rtos.nm
 
-run:
+run_lm3:
 	qemu-system-arm -M lm3s6965evb --kernel $(BIN_PATH)/rtos.bin -nographic
+
+run_net:
+	qemu-system-arm -M netduino2 --kernel $(BIN_PATH)/rtos.bin -nographic
 
 debug: $(objs)
 	${LD} -T src/fan.ld -o rtos.elf $^
