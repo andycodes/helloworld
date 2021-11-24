@@ -14,8 +14,8 @@ if os.path.exists("./obj"):
 os.mkdir("obj")
 os.mkdir("bin")	
 
-#board = 'board=net'  'board=lm3'
-board = 'board=net'
+#board = 'board=net' 'board=netp' 'board=lm3'
+board = 'board=netp'
 if len(sys.argv) > 1:
     board = 'board=' + sys.argv[1]
 

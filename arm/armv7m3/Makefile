@@ -1,6 +1,12 @@
 
 $(info "!!!!THE CUR BOARD is $(board)")
 
+CPU_TYPE = cortex-m3
+ifeq ($(board),netp)
+	CPU_TYPE = cortex-m4
+endif
+
+$(info "!!!!THE CUR CPU_TYPE is $(CPU_TYPE)")
 
 BIN_PATH = bin
 OBJ_PATH = obj
@@ -13,9 +19,11 @@ NM = ${TOOL_CHAIN}nm
 OBJCOPY = ${TOOL_CHAIN}objcopy
 OBJDUMP = $(TOOL_CHAIN)objdump
 
-CFLAGS		:= -Wall -g -fno-builtin -gdwarf-2 -gstrict-dwarf -mcpu=cortex-m3 -mthumb -nostartfiles  --specs=nosys.specs -std=c11 -O0 \
+CFLAGS		:= -Wall -g -fno-builtin -gdwarf-2 -gstrict-dwarf -mcpu=$(CPU_TYPE) -mthumb -nostartfiles  --specs=nosys.specs -std=c11 -O0 \
 				-Isrc/include\
 				-Isrc/platform/$(board)
+
+$(info "!!!!THE CUR CFLAGS is $(CFLAGS)")
 
 LDFLAGS		:= -g
 
@@ -47,6 +55,9 @@ run_lm3:
 
 run_net:
 	qemu-system-arm -M netduino2 --kernel $(BIN_PATH)/rtos.bin -nographic
+
+run_netp:
+	qemu-system-arm -M netduinoplus2 --kernel $(BIN_PATH)/rtos.bin -nographic
 
 debug: $(objs)
 	${LD} -T src/fan.ld -o rtos.elf $^
