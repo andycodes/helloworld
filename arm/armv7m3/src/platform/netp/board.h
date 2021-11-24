@@ -1,0 +1,9 @@
+#ifndef BOARD_H
+#define BOARD_H
+
+#define USART1_BASE_ADDR 0x40011000
+#define USART_DR   0x04
+
+#define DEBUG_UART_DR_ADDR (USART1_BASE_ADDR + USART_DR)
+
+#endif 
