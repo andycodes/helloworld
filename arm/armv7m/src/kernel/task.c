@@ -26,8 +26,8 @@ static void idle_task_entry(void *param)
 void task_init (task_t * task, void (*entry)(void *), void *param, uint32_t prio, uint32_t * stack)
 {
     DEBUG("%s\n", __func__);
-    *(--stack) = (uint32_t) (1 << 24);          /*XPSR, Thumb Mode*/
-    *(--stack) = (uint32_t) entry;              /*PC*/
+    *(--stack) = (uint32_t) (1 << 24);      /*XPSR, Thumb Mode*/
+    *(--stack) = (uint32_t) entry;            /*PC*/
     *(--stack) = (uint32_t) 14;                 /*LR*/
     *(--stack) = (uint32_t) 12;                 /*R12*/
     *(--stack) = (uint32_t) 3;                  /*R3*/
@@ -273,7 +273,6 @@ void task_suspend(task_t *task)
                 task_sched();
             }
         }
-
     }
 
     task_exit_critical(status);

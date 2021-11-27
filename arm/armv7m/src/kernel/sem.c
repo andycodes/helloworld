@@ -27,7 +27,6 @@ uint32_t sem_acquire(sem_t *sem, uint32_t wait_ticks)
         task_sched();
         return g_current_task->wait_event_result;
     }
-
 }
 
 uint32_t sem_acquire_no_wait(sem_t *sem)

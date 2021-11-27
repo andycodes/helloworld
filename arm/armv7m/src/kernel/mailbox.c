@@ -16,7 +16,7 @@ uint32_t mbox_get(mbox_t *mbox, void **msg, uint32_t wait_ticks)
 {
     uint32_t status = task_enter_critical();
 
-    if (mbox->count > 0) {
+    if (mbox->count > 0) { /* message in mbox */
 
         mbox->count--;
         *msg = mbox->msg_buffer[mbox->read++];

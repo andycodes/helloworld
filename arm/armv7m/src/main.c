@@ -77,7 +77,7 @@ int main()
 
     clear_bss();
 
-    DEBUG("Hello RTOS C03_Delay_List\n");
+    DEBUG("Hello FAN RTOS \n");
 
     DEBUG("psp:0x%x\n", get_psp());
     DEBUG("msp:0x%x\n", get_msp());
