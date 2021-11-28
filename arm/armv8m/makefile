@@ -1,8 +1,6 @@
 IMAGE := kernel.elf
 
-#PWD_TOOLCHAIN = ./gcc-linaro-7.3.1-2018.04-rc1-x86_64_armv8l-linux-gnueabihf/bin/
 PWD_TOOLCHAIN = /project/gcc/gcc-arm-none-eabi-10.3-2021.10/bin/
-#CROSS_COMPILE = $(PWD_TOOLCHAIN)/armv8l-linux-gnueabihf-
 CROSS_COMPILE = $(PWD_TOOLCHAIN)/arm-none-eabi-
 
 CC = $(CROSS_COMPILE)gcc
@@ -15,7 +13,7 @@ CFLAGS = -mcpu=cortex-m33 -g -nostdlib -nostartfiles -ffreestanding
 
 all: $(IMAGE)
 
-OBJS = main.o
+OBJS = main.o os_stdio.o cmsdk_uart.o
 
 boot.o: boot.s
 	$(CC) -mcpu=cortex-m33 -g -c boot.s -o boot.o
