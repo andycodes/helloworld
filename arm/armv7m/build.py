@@ -7,18 +7,22 @@ import shutil
 import sys
 
 
+board_parm = 'netp'
+if len(sys.argv) > 1:
+    board_parm = sys.argv[1]
+
+bin_obj_dir = './bin/' + board_parm + '/'
+
 if os.path.exists("./obj"):
 	shutil.rmtree("./obj")
-	shutil.rmtree("./bin")
+
+if os.path.exists(bin_obj_dir):
+	shutil.rmtree(bin_obj_dir)
 	
 os.mkdir("obj")
-os.mkdir("bin")	
+os.makedirs(bin_obj_dir)	
 
-#board = 'board=net' 'board=netp' 'board=lm3'
-board = 'board=netp'
-if len(sys.argv) > 1:
-    board = 'board=' + sys.argv[1]
-
+board = 'board=' + board_parm
 os.system("make %s" % (board))
 
 g = os.walk("./src")

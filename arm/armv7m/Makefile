@@ -8,7 +8,7 @@ endif
 
 $(info "!!!!THE CUR CPU_TYPE is $(CPU_TYPE)")
 
-BIN_PATH = bin
+BIN_PATH = bin/$(board)
 OBJ_PATH = obj
 
 TOOL_CHAIN = arm-none-eabi-
@@ -49,15 +49,6 @@ $(BIN_PATH)/rtos.bin: $(objs)
 	@${OBJCOPY} -O binary -S $(BIN_PATH)/rtos.elf $@
 	@${OBJDUMP} -D -m arm $(BIN_PATH)/rtos.elf > $(BIN_PATH)/rtos.dis
 	@${NM} $(BIN_PATH)/rtos.elf > $(BIN_PATH)/rtos.nm
-
-run_lm3:
-	qemu-system-arm -M lm3s6965evb --kernel $(BIN_PATH)/rtos.bin -nographic
-
-run_net:
-	qemu-system-arm -M netduino2 --kernel $(BIN_PATH)/rtos.bin -nographic
-
-run_netp:
-	qemu-system-arm -M netduinoplus2 --kernel $(BIN_PATH)/rtos.bin -nographic
 
 debug: $(objs)
 	${LD} -T src/fan.ld -o rtos.elf $^
