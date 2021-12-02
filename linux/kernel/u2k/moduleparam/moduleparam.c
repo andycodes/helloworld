@@ -7,16 +7,16 @@ static int  times;
 
 static int __init hello_init(void)
 {
-	int i;
+        int i;
 
-	for(i = 1;i <= times;i++)
-		printk("%d  %s!\n",i,who);
+        for(i = 1;i <= times;i++)
+        	printk("%d  %s!\n",i,who);
 
-	return 0;
+        return 0;
 }
 static void __exit hello_exit(void)
 {
-	 printk("Goodbye,%s!\n",who);
+        printk("Goodbye\n");
 }
 
 
@@ -52,17 +52,5 @@ MODULE_LICENSE("GPL");
 /*
 *insmod  moduleparam.ko  who=fansaihua times=8
 *
-*/
-
-/*
-[  588.002049] 1  fansaihua!
-[  588.002059] 2  fansaihua!
-[  588.002066] 3  fansaihua!
-[  588.002073] 4  fansaihua!
-[  588.002080] 5  fansaihua!
-[  588.002087] 6  fansaihua!
-[  588.002094] 7  fansaihua!
-[  588.002101] 8  fansaihua!
-
 */
 
