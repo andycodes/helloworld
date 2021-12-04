@@ -4,6 +4,9 @@ $(info "!!!!THE CUR BOARD is $(board)")
 #   make board=mps3-an547
 # 	make board=mps3-an547 qemu
 
+#   make board=mps2-an505
+# 	make board=mps2-an505 qemu
+
 CPU_TYPE = cortex-m55
 MEM_SIZE = 2048
 ifeq ($(board),mps2-an505)
@@ -13,7 +16,7 @@ endif
 
 IMAGE := kernel.elf
 
-PWD_TOOLCHAIN = /project/gcc/gcc-arm-none-eabi-10.3-2021.10/bin/
+PWD_TOOLCHAIN = /project/gcc/gcc-arm-none-eabi-10.3-2021.10/bin
 CROSS_COMPILE = $(PWD_TOOLCHAIN)/arm-none-eabi-
 
 CC = $(CROSS_COMPILE)gcc
@@ -22,21 +25,22 @@ GDB = $(CROSS_COMPILE)gdb
 OBJDUMP = $(CROSS_COMPILE)objdump
 READELF = $(CROSS_COMPILE)readelf
 
-CFLAGS = -mcpu=$(CPU_TYPE) -g -nostdlib -nostartfiles -ffreestanding
+CFLAGS = -mcpu=$(CPU_TYPE) -g -nostdlib -nostartfiles -ffreestanding -Iinclude
 
 all: $(IMAGE)
 
-ifeq ($(board),mps2-an505)
-OBJS = main.o os_stdio.o cmsdk_uart.o
-else
-OBJS = main.o os_stdio.o
-endif
 
-boot.o: boot.s
-	$(CC) -mcpu=$(CPU_TYPE) -g -c boot.s -o boot.o
+OBJS = src/kernel/main.o \
+		src/kernel/os_stdio.o \
+		src/platform/$(board)/cmsdk_uart.o \
+		src/platform/$(board)/board.o
 
-$(IMAGE): kernel.ld boot.o $(OBJS)
-	$(LD) boot.o $(OBJS) -T kernel.ld -o $(IMAGE)
+
+boot.o: src/kernel/boot.s
+	$(CC) -mcpu=$(CPU_TYPE) -g -c src/kernel/boot.s -o boot.o
+
+$(IMAGE): src/kernel/kernel.ld boot.o $(OBJS)
+	$(LD) boot.o $(OBJS) -T src/kernel/kernel.ld -o $(IMAGE)
 	$(OBJDUMP) -d $(IMAGE) > kernel.list
 	$(OBJDUMP) -t $(IMAGE) | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > kernel.sym
 	$(READELF) -A $(IMAGE)
@@ -70,6 +74,6 @@ gdbqemu:
 
 			    
 clean:
-	rm -f $(IMAGE) *.o *.list *.sym
+	rm -f $(IMAGE) *.o *.list *.sym  src/*.o  src/kernel/*.o  src/platform/*.o  src/platform/mps3-an547/*.o src/platform/mps2-an505/*.o
 
 .PHONY: all qemu clean

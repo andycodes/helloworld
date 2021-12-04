@@ -27,16 +27,16 @@ CFLAGS = -mcpu=$(CPU_TYPE) -g -nostdlib -nostartfiles -ffreestanding
 all: $(IMAGE)
 
 ifeq ($(board),mps2-an505)
-OBJS = main.o os_stdio.o cmsdk_uart.o
+OBJS = src/kernel/main.o src/kernel/os_stdio.o src/kernel/cmsdk_uart.o
 else
-OBJS = main.o os_stdio.o
+OBJS = src/kernel/main.o src/kernel/os_stdio.o
 endif
 
-boot.o: boot.s
-	$(CC) -mcpu=$(CPU_TYPE) -g -c boot.s -o boot.o
+boot.o: src/kernel/boot.s
+	$(CC) -mcpu=$(CPU_TYPE) -g -c src/kernel/boot.s -o boot.o
 
-$(IMAGE): kernel.ld boot.o $(OBJS)
-	$(LD) boot.o $(OBJS) -T kernel.ld -o $(IMAGE)
+$(IMAGE): src/kernel/kernel.ld boot.o $(OBJS)
+	$(LD) boot.o $(OBJS) -T src/kernel/kernel.ld -o $(IMAGE)
 	$(OBJDUMP) -d $(IMAGE) > kernel.list
 	$(OBJDUMP) -t $(IMAGE) | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > kernel.sym
 	$(READELF) -A $(IMAGE)

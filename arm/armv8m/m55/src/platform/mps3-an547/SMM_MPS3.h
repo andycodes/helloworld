@@ -21,6 +21,8 @@
 #ifndef __SMM_MPS3_H
 #define __SMM_MPS3_H
 
+#include <stdint.h>
+
 //#include "cmsis.h"
 #define __IO volatile
 #define __I volatile const
