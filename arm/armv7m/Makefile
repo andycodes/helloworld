@@ -41,6 +41,7 @@ objs := src/kernel/int_vector.o \
 		src/kernel/mutex.o \
 		src/kernel/flag_group.o \
 		src/main.o \
+		src/platform/$(board)/cmsdk_uart.o \
 		\
 		src/testcase/testcase.o
 

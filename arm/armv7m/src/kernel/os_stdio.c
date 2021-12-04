@@ -1,12 +1,10 @@
 #include <stdarg.h>
 #include "os_stdio.h"
-#include "board.h"
-
-volatile uint32_t * const DEBUG_UART_DR = (uint32_t *)DEBUG_UART_DR_ADDR;
+#include "uart.h"
 
 char send_char(uint8_t *ch)
 {
-    *DEBUG_UART_DR = *ch;
+    UartPutc(*ch);
     return *ch;
 }
 
