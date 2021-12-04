@@ -27,19 +27,19 @@ $(info "!!!!THE CUR CFLAGS is $(CFLAGS)")
 
 LDFLAGS		:= -g
 
-objs := src/kernel/int_vector.o \
-		src/kernel/cm3.o \
-		src/kernel/os_stdio.o \
-		src/kernel/cm3_s.o \
-		src/kernel/task.o \
-		src/kernel/lib.o \
-		src/kernel/event.o \
-		src/kernel/sem.o \
-		src/kernel/mailbox.o \
-		src/kernel/memblock.o \
-		src/kernel/timer.o \
-		src/kernel/mutex.o \
-		src/kernel/flag_group.o \
+objs := src/armv7m/int_vector.o \
+		src/armv7m/cm3.o \
+		src/armv7m/os_stdio.o \
+		src/armv7m/cm3_s.o \
+		src/armv7m/task.o \
+		src/armv7m/lib.o \
+		src/armv7m/event.o \
+		src/armv7m/sem.o \
+		src/armv7m/mailbox.o \
+		src/armv7m/memblock.o \
+		src/armv7m/timer.o \
+		src/armv7m/mutex.o \
+		src/armv7m/flag_group.o \
 		src/main.o \
 		src/platform/$(board)/cmsdk_uart.o \
 		\
@@ -56,7 +56,7 @@ debug: $(objs)
 	${OBJCOPY} -O binary -S rtos.elf rtos.bin
 	${OBJDUMP} -D -m arm rtos.elf > rtos.dis
 	${NM} rtos.elf > rtos.nm
-	qemu-system-arm -M lm3s6965evb --kernel rtos.bin -nographic -s -S
+	qemu-system-arm -M lm3s6965evb --armv7m rtos.bin -nographic -s -S
 
 %.o:%.c
 	${CC} $(CFLAGS) -c -o $@ $<

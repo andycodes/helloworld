@@ -17,7 +17,7 @@ ifeq ($(board),mps2-an505)
 	MEM_SIZE = 16
 endif
 
-IMAGE := $(BIN_PATH)/kernel.elf
+IMAGE := $(BIN_PATH)/armv8m.elf
 
 PWD_TOOLCHAIN = /project/gcc/gcc-arm-none-eabi-10.3-2021.10/bin
 CROSS_COMPILE = $(PWD_TOOLCHAIN)/arm-none-eabi-
@@ -33,26 +33,26 @@ CFLAGS = -mcpu=$(CPU_TYPE) -g -nostdlib -nostartfiles -ffreestanding -Isrc/inclu
 all: $(IMAGE)
 
 
-OBJS = src/kernel/main.o \
-		src/kernel/os_stdio.o \
+OBJS = src/armv8m/main.o \
+		src/armv8m/os_stdio.o \
 		src/platform/$(board)/cmsdk_uart.o \
 		src/platform/$(board)/board.o
 
 
-$(OBJ_PATH)/boot.o: src/kernel/boot.s
-	$(CC) -mcpu=$(CPU_TYPE) -g -c src/kernel/boot.s -o $(OBJ_PATH)/boot.o
+$(OBJ_PATH)/boot.o: src/armv8m/boot.s
+	$(CC) -mcpu=$(CPU_TYPE) -g -c src/armv8m/boot.s -o $(OBJ_PATH)/boot.o
 
-$(IMAGE): src/kernel/kernel.ld $(OBJ_PATH)/boot.o $(OBJS)
-	$(LD) $(OBJ_PATH)/boot.o $(OBJS) -T src/kernel/kernel.ld -o $(IMAGE)
-	$(OBJDUMP) -d $(IMAGE) > $(BIN_PATH)/kernel.list
-	$(OBJDUMP) -t $(IMAGE) | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > $(BIN_PATH)/kernel.sym
+$(IMAGE): src/armv8m/armv8m.ld $(OBJ_PATH)/boot.o $(OBJS)
+	$(LD) $(OBJ_PATH)/boot.o $(OBJS) -T src/armv8m/armv8m.ld -o $(IMAGE)
+	$(OBJDUMP) -d $(IMAGE) > $(BIN_PATH)/armv8m.list
+	$(OBJDUMP) -t $(IMAGE) | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > $(BIN_PATH)/armv8m.sym
 	$(READELF) -A $(IMAGE)
 
 dumpvmstate:
 	qemu-system-arm -machine $(board) -cpu $(CPU_TYPE) \
 	                    -m 1024 \
 			    -nographic -serial mon:stdio \
-	                    -kernel $(IMAGE) \
+	                    -armv8m $(IMAGE) \
 			    -dump-vmstate vmstate.json 
 
 qemu:
@@ -60,23 +60,23 @@ qemu:
 	qemu-system-arm -machine $(board) -cpu $(CPU_TYPE) \
 	                    -m $(MEM_SIZE) \
 			    -nographic -serial mon:stdio \
-	                    -kernel $(IMAGE) 
+	                    -armv8m $(IMAGE) 
 			   
 gdbserver:
 	qemu-system-arm -machine $(board) -cpu $(CPU_TYPE) -m $(MEM_SIZE) \
 			    -nographic -serial mon:stdio \
-	                    -kernel $(IMAGE) \
+	                    -armv8m $(IMAGE) \
 			    -S -s 
 gdb: $(IMAGE)
 	$(GDB) $^ -ex "target remote:1234"
 
 
 gdbqemu:
-	gdb --args qemu-system-arm -machine $(board) -cpu $(CPU_TYPE)  -m 4096  -nographic -serial mon:stdio -kernel kernel.elf
+	gdb --args qemu-system-arm -machine $(board) -cpu $(CPU_TYPE)  -m 4096  -nographic -serial mon:stdio -armv8m armv8m.elf
 
 
 			    
 clean:
-	rm -f $(IMAGE) *.o *.list *.sym  src/*.o  src/kernel/*.o  src/platform/*.o  src/platform/mps3-an547/*.o src/platform/mps2-an505/*.o
+	rm -f $(IMAGE) *.o *.list *.sym  src/*.o  src/armv8m/*.o  src/platform/*.o  src/platform/mps3-an547/*.o src/platform/mps2-an505/*.o
 
 .PHONY: all qemu clean

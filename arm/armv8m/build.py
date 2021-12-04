@@ -6,10 +6,20 @@ import os
 import shutil
 import sys
 
+#    python build.py mps2-an505
+
+ARCH = 'armv7m'
+BOARD_LISTS = ['mps3-an547', 'mps2-an505']
 
 board_parm = 'mps3-an547'
 if len(sys.argv) > 1:
     board_parm = sys.argv[1]
+
+if board_parm in BOARD_LISTS:
+    ARCH = 'armv8m'
+
+print ARCH
+
 
 bin_obj_dir = './bin/' + board_parm + '/'
 
@@ -23,7 +33,8 @@ os.mkdir("obj")
 os.makedirs(bin_obj_dir)	
 
 board = 'board=' + board_parm
-os.system("make %s" % (board))
+arch = 'makefile_' + ARCH
+os.system("make -f %s %s" % (arch, board))
 
 #move *.o
 g = os.walk("./src")
