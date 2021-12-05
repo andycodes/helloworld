@@ -1,12 +1,6 @@
 
 $(info "!!!!THE CUR BOARD is $(board)")
 
-#   make board=mps3-an547
-# 	make board=mps3-an547 qemu
-
-#   make board=mps2-an505
-# 	make board=mps2-an505 qemu
-
 BIN_PATH = bin/$(board)
 OBJ_PATH = obj
 
@@ -52,7 +46,7 @@ dumpvmstate:
 	qemu-system-arm -machine $(board) -cpu $(CPU_TYPE) \
 	                    -m 1024 \
 			    -nographic -serial mon:stdio \
-	                    -armv8m $(IMAGE) \
+	                    -kernel $(IMAGE) \
 			    -dump-vmstate vmstate.json 
 
 qemu:
@@ -60,12 +54,12 @@ qemu:
 	qemu-system-arm -machine $(board) -cpu $(CPU_TYPE) \
 	                    -m $(MEM_SIZE) \
 			    -nographic -serial mon:stdio \
-	                    -armv8m $(IMAGE) 
+	                    -kernel $(IMAGE) 
 			   
 gdbserver:
 	qemu-system-arm -machine $(board) -cpu $(CPU_TYPE) -m $(MEM_SIZE) \
 			    -nographic -serial mon:stdio \
-	                    -armv8m $(IMAGE) \
+	                    -kernel $(IMAGE) \
 			    -S -s 
 gdb: $(IMAGE)
 	$(GDB) $^ -ex "target remote:1234"
