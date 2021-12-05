@@ -29,9 +29,11 @@ all: $(IMAGE)
 
 OBJS = src/armv8m/main.o \
 		src/armv8m/os_stdio.o \
+		src/testcase/testcase.o \
+		\
 		src/platform/$(board)/system_SSE300MPS3.o \
 		src/platform/$(board)/cmsdk_uart.o \
-		src/platform/$(board)/board.o
+		src/platform/$(board)/board.o 
 
 
 $(OBJ_PATH)/boot.o: src/armv8m/boot.s
