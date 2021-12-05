@@ -22,13 +22,14 @@ GDB = $(CROSS_COMPILE)gdb
 OBJDUMP = $(CROSS_COMPILE)objdump
 READELF = $(CROSS_COMPILE)readelf
 
-CFLAGS = -mcpu=$(CPU_TYPE) -g -nostdlib -nostartfiles -ffreestanding -Isrc/include
+CFLAGS = -mcpu=$(CPU_TYPE) -g -nostdlib -nostartfiles -ffreestanding -Isrc/include -Isrc/platform/$(board)
 
 all: $(IMAGE)
 
 
 OBJS = src/armv8m/main.o \
 		src/armv8m/os_stdio.o \
+		src/platform/$(board)/system_SSE300MPS3.o \
 		src/platform/$(board)/cmsdk_uart.o \
 		src/platform/$(board)/board.o
 
