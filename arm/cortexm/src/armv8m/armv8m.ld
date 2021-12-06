@@ -9,22 +9,20 @@ MEMORY
 /* Entry Point */
 ENTRY(Reset_Handler)
 
-
-
 SECTIONS
 {
 
     .text : 
     {
+        . = ALIGN(4);
         KEEP(*(.isr_vector))
         *(.text)
         *(.data)
     	*(.bss) 
+        . = ALIGN(4);
     } > S_CODE_BOOT
     /* Set stack top to end of S_CODE_BOOT. */
     __StackTop = ORIGIN(S_CODE_BOOT) + LENGTH(S_CODE_BOOT);
-    
-
 }
 
 

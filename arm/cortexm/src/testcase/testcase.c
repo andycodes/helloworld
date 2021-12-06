@@ -131,8 +131,5 @@ void testcase(void)
 {
         Test_Init();
         test_go();
-
-        while (1){
-                test_result_info();
-        };
+        test_result_info();
 }

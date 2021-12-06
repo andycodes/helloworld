@@ -1,7 +1,8 @@
 
-
-.section .isr_vector
-.globl   __Vectors
+.syntax unified
+.arch armv8-m.main
+.section .isr_vector, "a"
+.globl __Vectors
 __Vectors:	
     .long    __StackTop         /* Initial Top of Stack */
     .long    Reset_Handler      /* Reset Handler */
