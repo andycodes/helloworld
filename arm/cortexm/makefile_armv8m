@@ -31,10 +31,10 @@ OBJS = src/armv8m/main.o \
 		src/armv8m/os_stdio.o \
 		src/testcase/testcase.o \
 		\
-		src/platform/$(board)/system_SSE300MPS3.o \
 		src/platform/$(board)/cmsdk_uart.o \
 		src/platform/$(board)/board.o 
 
+include src/platform/$(board)/platform.mk
 
 $(OBJ_PATH)/boot.o: src/armv8m/boot.s
 	$(CC) -mcpu=$(CPU_TYPE) -g -c src/armv8m/boot.s -o $(OBJ_PATH)/boot.o

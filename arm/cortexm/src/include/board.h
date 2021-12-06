@@ -1,6 +1,6 @@
 #ifndef BOARD_H
 #define BOARD_H
 
-char *get_boardinfo(void);
+char *board_info(void);
 
 #endif /*BOARD_H*/
