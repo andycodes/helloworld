@@ -64,20 +64,28 @@ SECTIONS
     {
         . = ORIGIN(S_RAM);
         *(.data)
-    	*(.bss) 
-
-        . = ALIGN(8);
-        _p_StackLimit = .;
-        . = . + __STACK_SIZE;
-        . = ALIGN(8);
-        _p_StackTop = .;
-
-        . = ALIGN(8);
-        __StackLimit = .;
-        . = . + __STACK_SIZE;
-        . = ALIGN(8);
-        __StackTop = .;
     } > S_RAM
+
+    .bss :
+    {
+    	  . = ALIGN(8);
+        _bss = .;
+        *(.bss*)
+        *(COMMON)
+        _ebss = .;
+	      . = ALIGN(8);
+    } > S_RAM
+
+    _p_StackLimit = .;
+    . = . + __STACK_SIZE;
+    . = ALIGN(8);
+    _p_StackTop = .;
+
+    . = ALIGN(8);
+    __StackLimit = .;
+    . = . + __STACK_SIZE;
+    . = ALIGN(8);
+
     /* Set stack top to end of S_CODE_BOOT. */
     __StackTop = ORIGIN(S_RAM) + LENGTH(S_RAM);
 }
