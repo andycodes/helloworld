@@ -1,7 +1,9 @@
 
 .syntax unified
 .arch armv8-m.main
-.section .isr_vector, "a"
+
+.section .isr_vector
+.align   2
 .globl __Vectors
 __Vectors:	
     .long    __StackTop         /* Initial Top of Stack */

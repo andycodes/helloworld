@@ -57,10 +57,18 @@ SECTIONS
         *(.text)
         *(.data)
     	*(.bss) 
+
+        . = ALIGN(8);
+        _p_StackLimit = .;
+        . = . + __STACK_SIZE;
+        . = ALIGN(8);
+        _p_StackTop = .;
+
         . = ALIGN(8);
         __StackLimit = .;
         . = . + __STACK_SIZE;
         . = ALIGN(8);
+        __StackTop = .;
     } > S_CODE_BOOT
     /* Set stack top to end of S_CODE_BOOT. */
     __StackTop = ORIGIN(S_CODE_BOOT) + LENGTH(S_CODE_BOOT);
