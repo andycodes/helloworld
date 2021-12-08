@@ -1,3 +1,4 @@
+/* Linker script to configure memory regions. */
 MEMORY
 {
     FLASH (rx) : ORIGIN = 0x00000000, LENGTH = 256K

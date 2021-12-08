@@ -24,9 +24,9 @@ READELF = $(CROSS_COMPILE)readelf
 
 CFLAGS = -mcpu=$(CPU_TYPE) -g -nostdlib -nostartfiles -ffreestanding -Isrc/include -Isrc/platform/$(board)
 
+include src/cmsis/cmsis.mk
+
 all: $(IMAGE)
-
-
 OBJS = src/armv8m/main.o \
 		src/armv8m/os_stdio.o \
 		src/testcase/testcase.o \
