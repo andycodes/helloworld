@@ -22,7 +22,8 @@ GDB = $(CROSS_COMPILE)gdb
 OBJDUMP = $(CROSS_COMPILE)objdump
 READELF = $(CROSS_COMPILE)readelf
 
-CFLAGS = -mcpu=$(CPU_TYPE) -g -nostdlib -nostartfiles -ffreestanding -Isrc/include -Isrc/platform/$(board)
+CFLAGS = -mcpu=$(CPU_TYPE) -g -nostdlib -nostartfiles -ffreestanding \
+-Isrc/include -Isrc/platform/$(board) -Isrc/armv8m
 
 all: $(IMAGE)
 OBJS = src/armv8m/main.o \
@@ -33,8 +34,8 @@ OBJS = src/armv8m/main.o \
 		src/platform/$(board)/board.o 
 
 include src/cmsis/cmsis.mk
-
 include src/platform/$(board)/platform.mk
+include src/testcase/testcase.mk
 
 $(OBJ_PATH)/boot.o: src/armv8m/boot.s
 	$(CC) -mcpu=$(CPU_TYPE) -g -c src/armv8m/boot.s -o $(OBJ_PATH)/boot.o

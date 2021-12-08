@@ -20,17 +20,15 @@ typedef struct test
     char        *name;
 }Test_t;
 
-apError apQSPI_TEST()
-{
-    printk("hello apQSPI_TEST OK\n");
-    return apERR_NONE;
-}
 
-// Table of available tests
+
+extern apError mpu_test(void);
 static Test_t tests[] =
 {
-    {&apQSPI_TEST,          0,  "QSPI                   "}
+    {&mpu_test,          0,  "mpu write  "}
 };
+
+
 #define NO_OF_TESTS (sizeof(tests) / sizeof(tests[0]))
 Status_t test_status[NO_OF_TESTS];
 
@@ -69,7 +67,6 @@ void Run_Test (int test)
 {
     apError status;
 
-   // test--;
     printk ("\nTesting %s\n", tests[test].name);
 
     status = (*tests[test].test)();
@@ -115,7 +112,7 @@ void test_go(void)
 {
     int choice;
     choice = Select_Test();
-     if (choice == NO_OF_TESTS + 1) {
+     if (choice == NO_OF_TESTS) {
          Run_All_Tests();
      } else {
          Run_Test(choice);

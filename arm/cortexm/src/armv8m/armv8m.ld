@@ -49,12 +49,20 @@ ENTRY(Reset_Handler)
 
 SECTIONS
 {
-
-    .text : 
+    .text :
     {
-        . = ALIGN(4);
+        . = ALIGN(8);
+        _text = .;
         KEEP(*(.isr_vector))
-        *(.text)
+        *(.text*)
+        *(.rodata*)
+        _etext = .;
+	. = ALIGN(8);
+    } > S_CODE_BOOT
+
+    .data :
+    {
+        . = ORIGIN(S_RAM);
         *(.data)
     	*(.bss) 
 
@@ -69,9 +77,9 @@ SECTIONS
         . = . + __STACK_SIZE;
         . = ALIGN(8);
         __StackTop = .;
-    } > S_CODE_BOOT
+    } > S_RAM
     /* Set stack top to end of S_CODE_BOOT. */
-    __StackTop = ORIGIN(S_CODE_BOOT) + LENGTH(S_CODE_BOOT);
+    __StackTop = ORIGIN(S_RAM) + LENGTH(S_RAM);
 }
 
 
