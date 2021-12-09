@@ -6,9 +6,9 @@
 #include "cmsis_gcc.h"
 
 
-void main(void)
+void __PROGRAM_START(void)
 {
-    system_init();
+    board_init();
     printk("hello %s ^-^^-^^-^^-^\n", board_info());
     testcase();
 }

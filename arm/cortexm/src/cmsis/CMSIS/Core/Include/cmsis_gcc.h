@@ -119,8 +119,8 @@
 
 /* #########################  Startup and Lowlevel Init  ######################## */
 
-#ifndef __PROGRAM_START
-
+//#ifndef __PROGRAM_START
+#if 0
 /**
   \brief   Initializes data and bss sections
   \details This default implementations initialized all data and additional bss

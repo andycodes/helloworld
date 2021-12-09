@@ -6,7 +6,7 @@ char *board_info(void)
     return "CM55,mps3-an547";
 }
 
-void system_init(void)
+void board_init(void)
 {
     unsigned int core_clock = MPS3_SCC->CFG_ACLK;
     if(core_clock != 0)
