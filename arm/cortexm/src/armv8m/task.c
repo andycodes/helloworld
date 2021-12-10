@@ -97,7 +97,6 @@ void task_switch()
 void task_run_first()
 {
     DEBUG("%s\n", __func__);
-    //set_psp(0);
     MEM8(NVIC_SYSPRI2) = NVIC_PENDSV_PRI;
     MEM32(NVIC_INT_CTRL) = NVIC_PENDSVSET;
 }

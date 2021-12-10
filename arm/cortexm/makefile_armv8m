@@ -20,6 +20,7 @@ CC = $(CROSS_COMPILE)gcc
 LD = $(CROSS_COMPILE)ld
 GDB = $(CROSS_COMPILE)gdb
 OBJDUMP = $(CROSS_COMPILE)objdump
+OBJCOPY = ${TOOL_CHAIN}objcopy
 READELF = $(CROSS_COMPILE)readelf
 
 CFLAGS = -mcpu=$(CPU_TYPE) -g -nostdlib -nostartfiles -ffreestanding \

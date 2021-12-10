@@ -57,7 +57,7 @@ SECTIONS
         *(.text*)
         *(.rodata*)
         _etext = .;
-	. = ALIGN(8);
+	      . = ALIGN(8);
     } > S_CODE_BOOT
 
     .data :
