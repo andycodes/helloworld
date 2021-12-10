@@ -38,11 +38,8 @@ include src/cmsis/cmsis.mk
 include src/platform/$(board)/platform.mk
 include src/testcase/testcase.mk
 
-$(OBJ_PATH)/boot.o: src/armv8m/boot.s
-	$(CC) -mcpu=$(CPU_TYPE) -g -c src/armv8m/boot.s -o $(OBJ_PATH)/boot.o
-
-$(IMAGE): src/armv8m/armv8m.ld $(OBJ_PATH)/boot.o  $(OBJS)
-	$(LD) $(OBJ_PATH)/boot.o  $(OBJS) -T src/armv8m/armv8m.ld -o $(IMAGE)
+$(IMAGE): src/armv8m/armv8m.ld   $(OBJS)
+	$(LD)  $(OBJS) -T src/armv8m/armv8m.ld -o $(IMAGE)
 	$(OBJDUMP) -d $(IMAGE) > $(BIN_PATH)/armv8m.list
 	$(OBJDUMP) -t $(IMAGE) | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > $(BIN_PATH)/armv8m.sym
 	$(READELF) -A $(IMAGE)
