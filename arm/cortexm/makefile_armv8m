@@ -28,6 +28,7 @@ CFLAGS = -mcpu=$(CPU_TYPE) -g -nostdlib -nostartfiles -ffreestanding \
 all: $(IMAGE)
 OBJS = src/armv8m/main.o \
 		src/armv8m/os_stdio.o \
+		src/armv8m/testcase_task.o \
 		src/testcase/testcase.o \
 		\
 		src/platform/$(board)/cmsdk_uart.o \
