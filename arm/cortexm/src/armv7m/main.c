@@ -7,18 +7,8 @@
 #include "timer.h"
 #include "mutex.h"
 #include "flag_group.h"
+#include "lib.h"
 
-extern uint32_t _bss;
-extern uint32_t _ebss;
-
-static inline void clear_bss(void)
-{
-    uint8_t *start = (uint8_t *)_bss;
-    while ((uint32_t)start < _ebss) {
-        *start = 0;
-        start++;
-    }
-}
 
 task_t task1;
 task_t task2;

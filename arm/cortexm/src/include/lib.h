@@ -40,4 +40,17 @@ extern void list_append_last(list_t *list, list_node_t *list_node);
 extern list_node_t *list_remove_first(list_t *list);
 extern void list_remove(list_t *list, list_node_t *node);
 
+
+extern uint32_t _bss;
+extern uint32_t _ebss;
+extern void testcase(void);
+static inline void clear_bss(void)
+{
+    uint8_t *start = (uint8_t *)_bss;
+    while ((uint32_t)start < _ebss) {
+        *start = 0;
+        start++;
+    }
+}
+
 #endif /*LIB_H*/
