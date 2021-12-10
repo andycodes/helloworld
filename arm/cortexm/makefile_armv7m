@@ -2,7 +2,7 @@
 $(info "!!!!THE CUR BOARD is $(board)")
 
 CPU_TYPE = cortex-m3
-ifeq ($(board),netp)
+ifeq ($(board),netduinoplus2)
 	CPU_TYPE = cortex-m4
 endif
 
@@ -41,9 +41,7 @@ objs := src/armv7m/int_vector.o \
 		src/armv7m/mutex.o \
 		src/armv7m/flag_group.o \
 		src/armv7m/main.o \
-		src/platform/$(board)/cmsdk_uart.o \
-		\
-		src/testcase/testcase.o
+		src/platform/$(board)/cmsdk_uart.o 
 
 $(BIN_PATH)/rtos.bin: $(objs)
 	@${LD} -T src/armv7m/armv7m.ld -o $(BIN_PATH)/rtos.elf $^

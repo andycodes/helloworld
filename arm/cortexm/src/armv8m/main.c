@@ -21,37 +21,10 @@ static inline void clear_bss(void)
     }
 }
 
-// Secure SysTick handler
-void SysTick_Handler (void) {
-#if 0
-  static unsigned int Milliseconds; 
-  
-  Milliseconds++ ;
-  if (Milliseconds >= 1000) {
-    Seconds++;
-    Milliseconds = 0;
-  }
-  
-  if (Timeout != 0) { 
-    Timeout-- ;
-    if (Timeout == 0) {
-      LogIncident (IR_WDTEXP, 0, IS_SECURE);
-      PerformReset ();
-    }
-  }
-#endif
-printk("hello SysTick_Handler ^-^^-^^-^^-^\n");
-}
-
-extern uint32_t SystemCoreClock;
-
 void __PROGRAM_START(void)
 {
     clear_bss();
     board_init();
     printk("hello %s ^-^^-^^-^^-^\n", board_info());
-    //printk("hello %u \n", SystemCoreClock);
-    SysTick_Config (5000000UL * 5 / 1000); 
-    testcase_task();
     testcase();
 }
