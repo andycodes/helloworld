@@ -3,7 +3,6 @@
 
 #include <stdint.h>
 
-#define NULL    0
 extern void printk(const char *fmt, ...);
 extern int memset(void *mem, uint8_t val, uint32_t sz);
 extern int memcpy(void *dst, const void *src, uint32_t sz);

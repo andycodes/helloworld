@@ -23,14 +23,16 @@ typedef struct test
 
 
 extern apError mpu_test(void);
+extern apError test_systick(void);
 static Test_t tests[] =
 {
-    {&mpu_test,          0,  "mpu write  "}
+    {&mpu_test,          0,  "mpu write  "},
+    {&test_systick,          0,  "systick  "},
 };
 
 
-#define NO_OF_TESTS (sizeof(tests) / sizeof(tests[0]))
-Status_t test_status[NO_OF_TESTS];
+#define SIZE_OF_TESTS (sizeof(tests) / sizeof(tests[0]))
+Status_t test_status[SIZE_OF_TESTS];
 
 // Initialisation routines
 void Test_Init (void)
@@ -45,13 +47,13 @@ void Test_Init (void)
     status_str[TEST_S_SUCCESS] = "PASS";
     status_str[TEST_S_FAILURE] = "FAIL";
 
-    for (i = 0; i < NO_OF_TESTS; i++)
+    for (i = 0; i < SIZE_OF_TESTS; i++)
         test_status[i] = TEST_S_NOTRUN;
 }
 
 int Select_Test (void)
 {
-    return 0;
+    return SIZE_OF_TESTS;
 }
 
 // User interface
@@ -90,7 +92,7 @@ void Print_Results (void)
         printk ("Summary of results\n");
         printk ("====================================\n");
 
-    for (i = 0; i < NO_OF_TESTS; i++) {
+    for (i = 0; i < SIZE_OF_TESTS; i++) {
         printk ("%2d : %-20s : %s\n",(i+1), tests[i].name, Get_Status (test_status[i]));
 
         if (test_status[i] < MAX_STATUS)
@@ -101,8 +103,8 @@ void Print_Results (void)
 
 void Run_All_Tests (void)
 {
-    for (int i = 0; i < NO_OF_TESTS; i++) {
-        Run_Test(i + 1);
+    for (int i = 0; i < SIZE_OF_TESTS; i++) {
+        Run_Test(i);
     }
 
     Print_Results();
@@ -112,7 +114,7 @@ void test_go(void)
 {
     int choice;
     choice = Select_Test();
-     if (choice == NO_OF_TESTS) {
+     if (choice == SIZE_OF_TESTS) {
          Run_All_Tests();
      } else {
          Run_Test(choice);

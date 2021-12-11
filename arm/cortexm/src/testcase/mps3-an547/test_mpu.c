@@ -1,6 +1,7 @@
 #include "cmsdk_uart.h"
 #include "armv8m_mpu.h"
 #include "testcase.h"
+#include "os_stdio.h"
 #include <stdint.h>
 
 void test_armv8m_mpu_write()
