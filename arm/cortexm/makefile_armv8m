@@ -24,7 +24,10 @@ OBJCOPY = ${TOOL_CHAIN}objcopy
 READELF = $(CROSS_COMPILE)readelf
 
 CFLAGS = -mcpu=$(CPU_TYPE) -g -nostdlib -nostartfiles -ffreestanding \
--Isrc/include -Isrc/platform/$(board) -Isrc/armv8m
+			-Isrc/include \
+			-Isrc/platform/$(board)\
+			-Isrc/armv8m\
+			-Isrc/testcase
 
 all: $(IMAGE)
 OBJS = src/armv8m/main.o \

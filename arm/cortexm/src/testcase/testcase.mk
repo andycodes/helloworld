@@ -1,3 +1,3 @@
 
 
-OBJS += src/testcase/mpu_test.o
+OBJS += src/testcase/$(board)/mpu_test.o

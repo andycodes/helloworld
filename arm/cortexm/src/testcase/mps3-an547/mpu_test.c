@@ -1,7 +1,6 @@
 #include "cmsdk_uart.h"
 #include "armv8m_mpu.h"
 #include "testcase.h"
-
 #include <stdint.h>
 
 void test_armv8m_mpu_write()
@@ -12,8 +11,6 @@ void test_armv8m_mpu_write()
     *temp_addr = 0x1;
     printk("0x30001000:%x\n", *temp_addr);
 
-    return;
-
     armv8m_mpu_t *mpu = (armv8m_mpu_t *)0xE000ED90;
     mpu_disable(mpu);
     mpu_select_region(mpu, 0);
@@ -23,12 +20,11 @@ void test_armv8m_mpu_write()
     mpu_hfnmiena_disable(mpu);
     mpu_privdefena_enable(mpu);
     mpu_enable(mpu);
-    printk("%s:mpu setup done\n", __func__);
 
     printk("0x30001000:%x\n", *temp_addr);
     *temp_addr = 0x2;
     printk("0x30001000:%x\n", *temp_addr);
-    printk("%s done\n", __func__);
+    printk("%s:mpu setup done\n", __func__);
 }
 
 void test_armv8m_mpu_overlap()
@@ -46,18 +42,15 @@ void test_armv8m_mpu_overlap()
     mpu_set_region_limit(mpu, 0x30001FFFUL, 0, REGION_EN);
     mpu_set_region_attr(mpu, 0, 0); /*device memory*/
 
-    mpu_select_region(mpu, 1);
-    mpu_set_region_base(mpu, 0x30001000UL, REGION_NON_SHAREABLE, REGION_RW_PRIV_ONLY, REGION_XN);
-    mpu_set_region_limit(mpu, 0x30001FFFUL, 1, REGION_EN);
-    mpu_set_region_attr(mpu, 0, 1); /*device memory*/
-
     mpu_hfnmiena_disable(mpu);
     mpu_privdefena_enable(mpu);
     mpu_enable(mpu);
-    printk("%s:mpu setup done\n", __func__);
 
     printk("0x30001000:%x\n", *temp_addr);
-    printk("%s done\n", __func__);
+    *temp_addr = 0x2;
+    // can not access now
+    printk("0x30001000:%x\n", *temp_addr);
+    printk("%s:mpu setup done\n", __func__);
 }
 
 void test_armv8m_xn()
@@ -88,25 +81,15 @@ typedef void (*test_func_t)(void);
     mpu_privdefena_enable(mpu);
     mpu_enable(mpu);
     printk("%s:mpu setup done\n", __func__);
-
+    //can not access now
     test_f();
 }
 
 apError mpu_test(void)
 {
     printk("void mpu_test(void)\n");
-
-    test_armv8m_mpu_write();
-
-
-#if 0
-    test_armv8m_mpu_overlap();
-    test_armv8m_xn();
-typedef void (*test_func_t)(void);
-    test_func_t test_f = (test_func_t )0x30001001;
-    test_f();
-    while (1);
-#endif
-
+    //test_armv8m_mpu_write();
+    //test_armv8m_mpu_overlap();
+    //test_armv8m_xn();
     return apERR_NONE;
 }
