@@ -60,6 +60,15 @@ SECTIONS
 	      . = ALIGN(8);
     } > S_CODE_BOOT
 
+    .init_fn :
+    {
+        . = ALIGN(8);
+        _init_fn_start = .;
+        KEEP(*(.initcall6.init))
+        _init_fn_end = .;
+	      . = ALIGN(8);
+    } > S_CODE_BOOT
+
     .data :
     {
         . = ORIGIN(S_RAM);

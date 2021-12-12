@@ -39,6 +39,7 @@ OBJS = src/armv8m/main.o \
 
 include src/cmsis/cmsis.mk
 include src/platform/$(board)/platform.mk
+include src/platform/$(board)/menu_config.mk
 include src/testcase/testcase.mk
 
 $(IMAGE): src/armv8m/armv8m.ld   $(OBJS)
