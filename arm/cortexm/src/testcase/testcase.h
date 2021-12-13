@@ -32,31 +32,6 @@
 #define FALSE   0
 #define TRUE    1
 
-
-// For debugging the tests.
-//#define DEBUG
-#ifdef DEBUG
-    #define apDebug(...)      printf(__VA_ARGS__)
-#else
-    #define apDebug(...)
-#endif  // ifdef DEBUG
-
-#ifdef SEMIHOST
-#define printf_err(...)                         \
-    do {                                        \
-        printf(__VA_ARGS__);                    \
-        if (RunAllTests) {                      \
-            logfile = fopen(logfilepath, "a");  \
-            fprintf(logfile, __VA_ARGS__);      \
-            fclose(logfile);                    \
-        }                                       \
-    } while(0)
-#else
-#define printf_err(...)                         \
-    do {                                        \
-        printf(__VA_ARGS__);                    \
-    } while(0)
-#endif
 /*
  * Description:
  * Error codes - each module is assigned space for error codes from apERR_XXXX_START to apERR_XXXX_START+255.
@@ -140,71 +115,12 @@ apERR_END                  // Dummy terminator
 #define NoOfElements(array) (sizeof(array) / sizeof(array[0]))
 #endif
 
-// Declaration of the global variables
-extern unsigned int RunAllTests;    //Used to indicate Run All Tests mode
-
-#include <stdio.h>
-
-extern FILE *logfile;
-extern char logfilepath[];
-
-// Function prototypes
-
-extern int ap_check_peripheral_interrupt(char * const periphName, unsigned int int_id, const int asserted);
-
-unsigned int    register_test(volatile unsigned int *addr, int firstbit,int lastbit);
-void            apSleep(unsigned int msec);
-void            apSleepus(unsigned int usec);
-void            Wait_For_Enter (int always);
-int             Get_OK(void);
-int             GetChars(char *str);
-
-/*
-** System Register Interface
-*/
-
-typedef enum
+typedef struct test
 {
-    SRI_CFG_OSC = 1,
-    SRI_CFG_VOLT,
-    SRI_CFG_AMP,
-    SRI_CFG_TEMP,
-    SRI_CFG_RESET,
-    SRI_CFG_SCC,
-    SRI_CFG_MUXFPGA,
-    SRI_CFG_SHUTDOWN,
-    SRI_CFG_REBOOT,
-    SRI_CFG_BKUPDR,
-    SRI_CFG_DVIMODE,
-    SRI_CFG_POWER,
-    SRI_CFG_ENERGY
-}
-_sri_function_t;
+    apError     (*test)(void);
+    int         auto_run;
+    char        *name;
+}Test_t;
 
-typedef enum
-{
-    SRI_CFG_READ,
-    SRI_CFG_WRITE
-}
-_sri_direction_t;
-
-typedef struct
-{
-    _sri_function_t  function;
-    _sri_direction_t direction;
-    unsigned int     board;
-    unsigned int     fpga;
-    unsigned int     position;
-    unsigned int     dcc;
-    unsigned int     device;
-    unsigned int     data;
-}
-_sri_info_t;
-
-unsigned int sri_transfer( _sri_info_t * sri_info);
-void apSetOsc(unsigned int freq, unsigned int osc);
-void apReadOsc(unsigned int * freq, unsigned int osc);
-void apSetMode(unsigned int mode);
-void apReadTemp(unsigned int * temp);
 
 #endif // _COMMON_H_

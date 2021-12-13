@@ -1,5 +1,6 @@
 #include "os_stdio.h"
 #include "testcase.h"
+#include "test_table.h"
 
 // Return status
 typedef enum sts
@@ -12,30 +13,7 @@ typedef enum sts
 } Status_t;
 
 char    *status_str[MAX_STATUS];
-
-typedef struct test
-{
-    apError     (*test)(void);
-    int         auto_run;
-    char        *name;
-}Test_t;
-
-
-extern apError mpu_test(void);
-extern apError test_systick(void);
-extern apError test_menuconfig(void);
-extern apError test_init(void);
-
-static Test_t tests[] =
-{
-    {&mpu_test,          0,  "mpu write  "},
-    {&test_systick,          0,  "systick  "},
-    {&test_menuconfig,          0,  "test_menuconfig  "},
-    {&test_init,          0,  "test_init  "},
-};
-
-
-#define SIZE_OF_TESTS (sizeof(tests) / sizeof(tests[0]))
+extern Test_t tests[SIZE_OF_TESTS]; 
 Status_t test_status[SIZE_OF_TESTS];
 
 // Initialisation routines
@@ -105,24 +83,13 @@ void Print_Results (void)
     printk("11 : Run All Tests\n");
 }
 
-void Run_All_Tests (void)
+void test_go(void)
 {
     for (int i = 0; i < SIZE_OF_TESTS; i++) {
         Run_Test(i);
     }
 
     Print_Results();
-}
-
-void test_go(void)
-{
-    int choice;
-    choice = Select_Test();
-     if (choice == SIZE_OF_TESTS) {
-         Run_All_Tests();
-     } else {
-         Run_Test(choice);
-     }
 }
 
 void test_result_info(void)

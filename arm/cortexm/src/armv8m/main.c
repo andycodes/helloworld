@@ -4,7 +4,6 @@
 #include "uart.h"
 #include "board.h"
 #include "cmsis_gcc.h"
-#include "core_cm55.h"
 #include "lib.h"
 
 void __PROGRAM_START(void)
