@@ -3,12 +3,11 @@
 #include "os_stdio.h"
 #include <stdint.h>
 
-
 typedef int (*initcall_t)(void);
 
 #define __define_initcall(fn, id) \
-static initcall_t __initcall_##fn##id __used \
-__attribute__((__section__(".initcall" #id ".init"))) = fn;
+static initcall_t __initcall_##fn##id \
+__attribute__((used, __section__(".initcall" #id ".init"))) = fn;
 
 #define device_initcall(fn)		__define_initcall(fn, 6)
 

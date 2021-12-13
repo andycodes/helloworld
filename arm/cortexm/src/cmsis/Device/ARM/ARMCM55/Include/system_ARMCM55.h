@@ -26,6 +26,8 @@
 #ifndef SYSTEM_ARMCM55_H
 #define SYSTEM_ARMCM55_H
 
+#include <stdint.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
