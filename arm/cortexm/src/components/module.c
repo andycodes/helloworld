@@ -24,7 +24,7 @@ device_initcall(its_pmsi_init);
 extern unsigned long _init_fn_start;
 extern unsigned long _init_fn_end;
 
-void rt_components_board_init(void)
+void module_init(void)
 {
     volatile const initcall_t *fn_ptr;
 
@@ -32,11 +32,4 @@ void rt_components_board_init(void)
     {
         (*fn_ptr)();
     }
-}
-
-
-apError test_init(void)
-{
-    rt_components_board_init();
-     return apERR_NONE;
 }

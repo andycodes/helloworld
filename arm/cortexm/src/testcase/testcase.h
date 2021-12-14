@@ -1,28 +1,3 @@
-/*
- * Copyright:
- * ----------------------------------------------------------------
- // The confidential and proprietary information contained in this file may
-// only be used by a person authorised under and to the extent permitted
-// by a subsisting licensing agreement from Arm Limited or its affiliates.
-//
-//        (C) COPYRIGHT 2016-2019 Arm Limited or its affiliates.
-//            ALL RIGHTS RESERVED
-//
-// This entire notice must be reproduced on all copies of this file
-// and copies of this file may only be made by a person if such person is
-// permitted to do so under the terms of a subsisting license agreement
-// from Arm Limited or its affiliates.
- * ----------------------------------------------------------------
- * File:     common.h
- * Release:  Version 2.0
- * ----------------------------------------------------------------
- */
-
-/*
- *            Common Interface
- *            ================
- */
-
 #ifndef _COMMON_H_
 #define _COMMON_H_
 
@@ -111,15 +86,20 @@ apERR_END                  // Dummy terminator
 #define CLEAR_BIT(arg, bit)                 ((arg) &= ~(1 << (bit)))
 #define TEST_BIT(arg, bit)                  ((arg) & (1 << (bit)))
 
-#ifndef NoOfElements
-#define NoOfElements(array) (sizeof(array) / sizeof(array[0]))
-#endif
+typedef enum sts
+{
+    TEST_S_UNKNOWN,
+    TEST_S_NOTRUN,
+    TEST_S_SUCCESS,
+    TEST_S_FAILURE,
+    MAX_STATUS
+} Status_t;
 
 typedef struct test
 {
     apError     (*test)(void);
     int         auto_run;
-    char        *name;
+    Status_t    status;
 }Test_t;
 
 
