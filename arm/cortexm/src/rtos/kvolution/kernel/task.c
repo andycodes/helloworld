@@ -5,6 +5,7 @@
 #include "config.h"
 #include "os.h"
 #include "event.h"
+#include "bitmap.h"
 
 task_t *g_current_task;
 task_t *g_next_task;
