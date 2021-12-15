@@ -10,3 +10,7 @@ make -f makefile_armv8m board=mps2-an505 gdb
 
 
 python build.py netp
+
+
+
+make -f makefile_armv7m board=netduinoplus2 gdbserver

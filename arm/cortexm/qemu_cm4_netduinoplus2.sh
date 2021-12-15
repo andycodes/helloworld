@@ -1,2 +1,2 @@
 #! /bin/bash
-qemu-system-arm -M netduinoplus2 --kernel ./bin/netduinoplus2/rtos.bin -nographic
+make -f makefile_armv7m board=netduinoplus2 qemu

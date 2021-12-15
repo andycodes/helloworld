@@ -1,6 +1,9 @@
 
 $(info "!!!!THE CUR BOARD is $(board)")
 
+
+BIN_PATH = bin/$(board)
+OBJ_PATH = obj
 CPU_TYPE = cortex-m3
 ifeq ($(board),netduinoplus2)
 	CPU_TYPE = cortex-m4
@@ -8,16 +11,17 @@ endif
 
 $(info "!!!!THE CUR CPU_TYPE is $(CPU_TYPE)")
 
-BIN_PATH = bin/$(board)
-OBJ_PATH = obj
+IMAGE := $(BIN_PATH)/armv7m.elf
 
-TOOL_CHAIN = arm-none-eabi-
-CC = ${TOOL_CHAIN}gcc
-AS = ${TOOL_CHAIN}as
-LD = ${TOOL_CHAIN}ld
-NM = ${TOOL_CHAIN}nm
+PWD_TOOLCHAIN = /project/gcc/gcc-arm-none-eabi-10.3-2021.10/bin
+CROSS_COMPILE = $(PWD_TOOLCHAIN)/arm-none-eabi-
+
+CC = $(CROSS_COMPILE)gcc
+LD = $(CROSS_COMPILE)ld
+GDB = $(CROSS_COMPILE)gdb
+OBJDUMP = $(CROSS_COMPILE)objdump
 OBJCOPY = ${TOOL_CHAIN}objcopy
-OBJDUMP = $(TOOL_CHAIN)objdump
+READELF = $(CROSS_COMPILE)readelf
 
 CFLAGS		:= -Wall -g -fno-builtin -gdwarf-2 -gstrict-dwarf -mcpu=$(CPU_TYPE) -mthumb -nostartfiles  --specs=nosys.specs -std=c11 -O0 \
 				-Isrc/include\
@@ -30,6 +34,7 @@ $(info "!!!!THE CUR CFLAGS is $(CFLAGS)")
 
 LDFLAGS		:= -g
 
+all: $(IMAGE)
 OBJS := src/armv7m/int_vector.o \
 		src/armv7m/cm3.o \
 		src/armv7m/os_stdio.o \
@@ -40,18 +45,12 @@ OBJS := src/armv7m/int_vector.o \
 include src/rtos/kvolution/kvolution.mk
 include src/libs/libs.mk
 
-$(BIN_PATH)/rtos.bin: $(OBJS)
-	@${LD} -T src/armv7m/armv7m.ld -o $(BIN_PATH)/rtos.elf $^
-	@${OBJCOPY} -O binary -S $(BIN_PATH)/rtos.elf $@
-	@${OBJDUMP} -D -m arm $(BIN_PATH)/rtos.elf > $(BIN_PATH)/rtos.dis
-	@${NM} $(BIN_PATH)/rtos.elf > $(BIN_PATH)/rtos.nm
 
-debug: $(OBJS)
-	${LD} -T src/armv7m/armv7m.ld -o rtos.elf $^
-	${OBJCOPY} -O binary -S rtos.elf rtos.bin
-	${OBJDUMP} -D -m arm rtos.elf > rtos.dis
-	${NM} rtos.elf > rtos.nm
-	qemu-system-arm -M lm3s6965evb --armv7m rtos.bin -nographic -s -S
+$(IMAGE): src/armv7m/armv7m.ld   $(OBJS)
+	$(LD)  $(OBJS) -T src/armv7m/armv7m.ld -o $(IMAGE)
+	$(OBJDUMP) -d $(IMAGE) > $(BIN_PATH)/armv7m.list
+	$(OBJDUMP) -t $(IMAGE) | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > $(BIN_PATH)/armv7m.sym
+	$(READELF) -A $(IMAGE)
 
 %.o:%.c
 	${CC} $(CFLAGS) -c -o $@ $<
@@ -59,5 +58,33 @@ debug: $(OBJS)
 %.o:%.s
 	${CC} $(CFLAGS) -c -o $@ $<
 
+dumpvmstate:
+	qemu-system-arm -machine $(board) -cpu $(CPU_TYPE) \
+	                    -m 1024 \
+			    -nographic -serial mon:stdio \
+	                    -kernel $(IMAGE) \
+			    -dump-vmstate vmstate.json 
+
+qemu:
+	@qemu-system-arm -M ? | grep $(board) >/dev/null || exit
+	qemu-system-arm -machine $(board) -cpu $(CPU_TYPE) \
+			    -nographic -serial mon:stdio \
+	                    -kernel $(IMAGE) 
+			   
+gdbserver:
+	qemu-system-arm -machine $(board) -cpu $(CPU_TYPE) -m $(MEM_SIZE) \
+			    -nographic -serial mon:stdio \
+	                    -kernel $(IMAGE) \
+			    -S -s 
+gdb: $(IMAGE)
+	$(GDB) $^ -ex "target remote:1234"
+
+
+gdbqemu:
+	gdb --args qemu-system-arm -machine $(board) -cpu $(CPU_TYPE)  -m 4096  -nographic -serial mon:stdio -armv8m armv8m.elf
+
+
+			    
 clean:
 	rm -rf $(BIN_PATH) $(OBJ_PATH)
+.PHONY: all qemu clean

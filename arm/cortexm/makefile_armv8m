@@ -1,6 +1,7 @@
 
 $(info "!!!!THE CUR BOARD is $(board)")
 
+
 BIN_PATH = bin/$(board)
 OBJ_PATH = obj
 
@@ -11,6 +12,7 @@ ifeq ($(board),mps2-an505)
 	MEM_SIZE = 16
 endif
 
+$(info "!!!!THE CUR CPU_TYPE is $(CPU_TYPE)")
 IMAGE := $(BIN_PATH)/armv8m.elf
 
 PWD_TOOLCHAIN = /project/gcc/gcc-arm-none-eabi-10.3-2021.10/bin
@@ -84,6 +86,5 @@ gdbqemu:
 
 			    
 clean:
-	rm -f $(IMAGE) *.o *.list *.sym  src/*.o  src/armv8m/*.o  src/platform/*.o  src/platform/mps3-an547/*.o src/platform/mps2-an505/*.o
-
+	rm -rf $(BIN_PATH) $(OBJ_PATH)
 .PHONY: all qemu clean
