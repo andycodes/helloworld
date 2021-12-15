@@ -58,7 +58,7 @@ Disassembly of section .text:
      27c:	4801      	ldr	r0, [pc, #4]	; (284 <IntDefaultHandler+0xc>)
      27e:	f000 fa8d 	bl	79c <printk>
      282:	e7fe      	b.n	282 <IntDefaultHandler+0xa>
-     284:	00002cf4 	.word	0x00002cf4
+     284:	00002c70 	.word	0x00002c70
 
 00000288 <init_systick>:
      288:	b480      	push	{r7}
@@ -162,7 +162,7 @@ Disassembly of section .text:
      34e:	46bd      	mov	sp, r7
      350:	bc80      	pop	{r7}
      352:	4770      	bx	lr
-     354:	00002d08 	.word	0x00002d08
+     354:	00002c84 	.word	0x00002c84
 
 00000358 <is_asc>:
      358:	b480      	push	{r7}
@@ -331,7 +331,7 @@ Disassembly of section .text:
      49e:	46bd      	mov	sp, r7
      4a0:	bd80      	pop	{r7, pc}
      4a2:	bf00      	nop
-     4a4:	00002d08 	.word	0x00002d08
+     4a4:	00002c84 	.word	0x00002c84
 
 000004a8 <printf_hex_upper>:
      4a8:	b580      	push	{r7, lr}
@@ -387,7 +387,7 @@ Disassembly of section .text:
      512:	46bd      	mov	sp, r7
      514:	bd80      	pop	{r7, pc}
      516:	bf00      	nop
-     518:	00002d18 	.word	0x00002d18
+     518:	00002c94 	.word	0x00002c94
 
 0000051c <printf_dec>:
      51c:	b580      	push	{r7, lr}
@@ -664,8 +664,8 @@ Disassembly of section .text:
      77e:	3718      	adds	r7, #24
      780:	46bd      	mov	sp, r7
      782:	bd80      	pop	{r7, pc}
-     784:	00002d28 	.word	0x00002d28
-     788:	00002d08 	.word	0x00002d08
+     784:	00002ca4 	.word	0x00002ca4
+     788:	00002c84 	.word	0x00002c84
 
 0000078c <no_printk>:
      78c:	b40f      	push	{r0, r1, r2, r3}
@@ -1367,8 +1367,8 @@ Disassembly of section .text:
      d3a:	f001 feb7 	bl	2aac <flag_group_notify>
      d3e:	e7f2      	b.n	d26 <task1_entry+0x16>
      d40:	20004120 	.word	0x20004120
-     d44:	00002d7c 	.word	0x00002d7c
-     d48:	00002d4c 	.word	0x00002d4c
+     d44:	00002cf8 	.word	0x00002cf8
+     d48:	00002cc8 	.word	0x00002cc8
 
 00000d4c <task2_entry>:
      d4c:	b580      	push	{r7, lr}
@@ -1390,8 +1390,8 @@ Disassembly of section .text:
      d74:	e7f0      	b.n	d58 <task2_entry+0xc>
      d76:	bf00      	nop
      d78:	20004120 	.word	0x20004120
-     d7c:	00002d88 	.word	0x00002d88
-     d80:	00002d4c 	.word	0x00002d4c
+     d7c:	00002d04 	.word	0x00002d04
+     d80:	00002cc8 	.word	0x00002cc8
 
 00000d84 <task3_entry>:
      d84:	b580      	push	{r7, lr}
@@ -1404,8 +1404,8 @@ Disassembly of section .text:
      d94:	2001      	movs	r0, #1
      d96:	f000 f999 	bl	10cc <task_delay_s>
      d9a:	e7f7      	b.n	d8c <task3_entry+0x8>
-     d9c:	00002d94 	.word	0x00002d94
-     da0:	00002d4c 	.word	0x00002d4c
+     d9c:	00002d10 	.word	0x00002d10
+     da0:	00002cc8 	.word	0x00002cc8
 
 00000da4 <task4_entry>:
      da4:	b580      	push	{r7, lr}
@@ -1421,8 +1421,8 @@ Disassembly of section .text:
      dbc:	2001      	movs	r0, #1
      dbe:	f000 f985 	bl	10cc <task_delay_s>
      dc2:	e7f3      	b.n	dac <task4_entry+0x8>
-     dc4:	00002da0 	.word	0x00002da0
-     dc8:	00002d4c 	.word	0x00002d4c
+     dc4:	00002d1c 	.word	0x00002d1c
+     dc8:	00002cc8 	.word	0x00002cc8
 
 00000dcc <main>:
      dcc:	b580      	push	{r7, lr}
@@ -1463,9 +1463,9 @@ Disassembly of section .text:
      e2c:	6013      	str	r3, [r2, #0]
      e2e:	f000 f917 	bl	1060 <task_run_first>
      e32:	e7fe      	b.n	e32 <main+0x66>
-     e34:	00002d50 	.word	0x00002d50
-     e38:	00002d64 	.word	0x00002d64
-     e3c:	00002d70 	.word	0x00002d70
+     e34:	00002ccc 	.word	0x00002ccc
+     e38:	00002ce0 	.word	0x00002ce0
+     e3c:	00002cec 	.word	0x00002cec
      e40:	20001120 	.word	0x20001120
      e44:	00000d11 	.word	0x00000d11
      e48:	20000000 	.word	0x20000000
@@ -1669,8 +1669,8 @@ Disassembly of section .text:
      fe2:	46bd      	mov	sp, r7
      fe4:	bd80      	pop	{r7, pc}
      fe6:	bf00      	nop
-     fe8:	00002df8 	.word	0x00002df8
-     fec:	00002db0 	.word	0x00002db0
+     fe8:	00002d74 	.word	0x00002d74
+     fec:	00002d2c 	.word	0x00002d2c
      ff0:	2000413c 	.word	0x2000413c
      ff4:	2000530c 	.word	0x2000530c
 
@@ -1736,8 +1736,8 @@ Disassembly of section .text:
     107a:	bf00      	nop
     107c:	bd80      	pop	{r7, pc}
     107e:	bf00      	nop
-    1080:	00002e04 	.word	0x00002e04
-    1084:	00002db0 	.word	0x00002db0
+    1080:	00002d80 	.word	0x00002d80
+    1084:	00002d2c 	.word	0x00002d2c
     1088:	e000ed22 	.word	0xe000ed22
     108c:	e000ed04 	.word	0xe000ed04
 
@@ -2036,7 +2036,7 @@ Disassembly of section .text:
     130e:	b082      	sub	sp, #8
     1310:	af00      	add	r7, sp, #0
     1312:	480a      	ldr	r0, [pc, #40]	; (133c <task_highest_ready+0x30>)
-    1314:	f001 fc9c 	bl	2c50 <bitmap_get_first_set>
+    1314:	f001 fc92 	bl	2c3c <bitmap_get_first_set>
     1318:	6078      	str	r0, [r7, #4]
     131a:	687a      	ldr	r2, [r7, #4]
     131c:	4613      	mov	r3, r2
@@ -2516,11 +2516,11 @@ Disassembly of section .text:
     1716:	3708      	adds	r7, #8
     1718:	46bd      	mov	sp, r7
     171a:	bd80      	pop	{r7, pc}
-    171c:	00002db4 	.word	0x00002db4
-    1720:	00002dc0 	.word	0x00002dc0
-    1724:	00002dd0 	.word	0x00002dd0
-    1728:	00002ddc 	.word	0x00002ddc
-    172c:	00002de8 	.word	0x00002de8
+    171c:	00002d30 	.word	0x00002d30
+    1720:	00002d3c 	.word	0x00002d3c
+    1724:	00002d4c 	.word	0x00002d4c
+    1728:	00002d58 	.word	0x00002d58
+    172c:	00002d64 	.word	0x00002d64
 
 00001730 <list_node_init>:
     1730:	b480      	push	{r7}
@@ -3175,9 +3175,9 @@ Disassembly of section .text:
     1c3e:	46bd      	mov	sp, r7
     1c40:	bd80      	pop	{r7, pc}
     1c42:	bf00      	nop
-    1c44:	00002e28 	.word	0x00002e28
-    1c48:	00002e14 	.word	0x00002e14
-    1c4c:	00002e1c 	.word	0x00002e1c
+    1c44:	00002da4 	.word	0x00002da4
+    1c48:	00002d90 	.word	0x00002d90
+    1c4c:	00002d98 	.word	0x00002d98
 
 00001c50 <event_wait_count>:
     1c50:	b580      	push	{r7, lr}
@@ -5064,8 +5064,8 @@ Disassembly of section .text:
     2c12:	4770      	bx	lr
 
 00002c14 <bitmap_clear>:
-    2c14:	b580      	push	{r7, lr}
-    2c16:	b082      	sub	sp, #8
+    2c14:	b480      	push	{r7}
+    2c16:	b083      	sub	sp, #12
     2c18:	af00      	add	r7, sp, #0
     2c1a:	6078      	str	r0, [r7, #4]
     2c1c:	6039      	str	r1, [r7, #0]
@@ -5078,171 +5078,87 @@ Disassembly of section .text:
     2c2c:	401a      	ands	r2, r3
     2c2e:	687b      	ldr	r3, [r7, #4]
     2c30:	601a      	str	r2, [r3, #0]
-    2c32:	687b      	ldr	r3, [r7, #4]
-    2c34:	681b      	ldr	r3, [r3, #0]
-    2c36:	683a      	ldr	r2, [r7, #0]
-    2c38:	4903      	ldr	r1, [pc, #12]	; (2c48 <bitmap_clear+0x34>)
-    2c3a:	4804      	ldr	r0, [pc, #16]	; (2c4c <bitmap_clear+0x38>)
-    2c3c:	f7fd fdae 	bl	79c <printk>
-    2c40:	bf00      	nop
-    2c42:	3708      	adds	r7, #8
-    2c44:	46bd      	mov	sp, r7
-    2c46:	bd80      	pop	{r7, pc}
-    2c48:	00002e50 	.word	0x00002e50
-    2c4c:	00002e3c 	.word	0x00002e3c
+    2c32:	bf00      	nop
+    2c34:	370c      	adds	r7, #12
+    2c36:	46bd      	mov	sp, r7
+    2c38:	bc80      	pop	{r7}
+    2c3a:	4770      	bx	lr
 
-00002c50 <bitmap_get_first_set>:
-    2c50:	b580      	push	{r7, lr}
-    2c52:	b084      	sub	sp, #16
-    2c54:	af00      	add	r7, sp, #0
-    2c56:	6078      	str	r0, [r7, #4]
-    2c58:	2320      	movs	r3, #32
-    2c5a:	60fb      	str	r3, [r7, #12]
-    2c5c:	687b      	ldr	r3, [r7, #4]
-    2c5e:	681b      	ldr	r3, [r3, #0]
-    2c60:	b2db      	uxtb	r3, r3
-    2c62:	2b00      	cmp	r3, #0
-    2c64:	d006      	beq.n	2c74 <bitmap_get_first_set+0x24>
-    2c66:	687b      	ldr	r3, [r7, #4]
-    2c68:	681b      	ldr	r3, [r3, #0]
-    2c6a:	b2db      	uxtb	r3, r3
-    2c6c:	4a1e      	ldr	r2, [pc, #120]	; (2ce8 <bitmap_get_first_set+0x98>)
-    2c6e:	5cd3      	ldrb	r3, [r2, r3]
-    2c70:	60fb      	str	r3, [r7, #12]
-    2c72:	e02e      	b.n	2cd2 <bitmap_get_first_set+0x82>
-    2c74:	687b      	ldr	r3, [r7, #4]
-    2c76:	681b      	ldr	r3, [r3, #0]
-    2c78:	f403 437f 	and.w	r3, r3, #65280	; 0xff00
-    2c7c:	2b00      	cmp	r3, #0
-    2c7e:	d008      	beq.n	2c92 <bitmap_get_first_set+0x42>
-    2c80:	687b      	ldr	r3, [r7, #4]
-    2c82:	681b      	ldr	r3, [r3, #0]
-    2c84:	0a1b      	lsrs	r3, r3, #8
-    2c86:	b2db      	uxtb	r3, r3
-    2c88:	4a17      	ldr	r2, [pc, #92]	; (2ce8 <bitmap_get_first_set+0x98>)
-    2c8a:	5cd3      	ldrb	r3, [r2, r3]
-    2c8c:	3308      	adds	r3, #8
-    2c8e:	60fb      	str	r3, [r7, #12]
-    2c90:	e01f      	b.n	2cd2 <bitmap_get_first_set+0x82>
-    2c92:	687b      	ldr	r3, [r7, #4]
-    2c94:	681b      	ldr	r3, [r3, #0]
-    2c96:	f403 037f 	and.w	r3, r3, #16711680	; 0xff0000
-    2c9a:	2b00      	cmp	r3, #0
-    2c9c:	d008      	beq.n	2cb0 <bitmap_get_first_set+0x60>
-    2c9e:	687b      	ldr	r3, [r7, #4]
-    2ca0:	681b      	ldr	r3, [r3, #0]
-    2ca2:	0c1b      	lsrs	r3, r3, #16
-    2ca4:	b2db      	uxtb	r3, r3
-    2ca6:	4a10      	ldr	r2, [pc, #64]	; (2ce8 <bitmap_get_first_set+0x98>)
-    2ca8:	5cd3      	ldrb	r3, [r2, r3]
-    2caa:	3310      	adds	r3, #16
-    2cac:	60fb      	str	r3, [r7, #12]
-    2cae:	e010      	b.n	2cd2 <bitmap_get_first_set+0x82>
-    2cb0:	687b      	ldr	r3, [r7, #4]
-    2cb2:	681b      	ldr	r3, [r3, #0]
-    2cb4:	f003 437f 	and.w	r3, r3, #4278190080	; 0xff000000
-    2cb8:	2b00      	cmp	r3, #0
-    2cba:	d007      	beq.n	2ccc <bitmap_get_first_set+0x7c>
-    2cbc:	687b      	ldr	r3, [r7, #4]
-    2cbe:	681b      	ldr	r3, [r3, #0]
-    2cc0:	0e1b      	lsrs	r3, r3, #24
-    2cc2:	4a09      	ldr	r2, [pc, #36]	; (2ce8 <bitmap_get_first_set+0x98>)
-    2cc4:	5cd3      	ldrb	r3, [r2, r3]
-    2cc6:	3318      	adds	r3, #24
-    2cc8:	60fb      	str	r3, [r7, #12]
-    2cca:	e002      	b.n	2cd2 <bitmap_get_first_set+0x82>
-    2ccc:	f7ff ff88 	bl	2be0 <bitmap_count>
-    2cd0:	60f8      	str	r0, [r7, #12]
-    2cd2:	68fa      	ldr	r2, [r7, #12]
-    2cd4:	4905      	ldr	r1, [pc, #20]	; (2cec <bitmap_get_first_set+0x9c>)
-    2cd6:	4806      	ldr	r0, [pc, #24]	; (2cf0 <bitmap_get_first_set+0xa0>)
-    2cd8:	f7fd fd60 	bl	79c <printk>
-    2cdc:	68fb      	ldr	r3, [r7, #12]
-    2cde:	4618      	mov	r0, r3
-    2ce0:	3710      	adds	r7, #16
-    2ce2:	46bd      	mov	sp, r7
-    2ce4:	bd80      	pop	{r7, pc}
-    2ce6:	bf00      	nop
-    2ce8:	00002e60 	.word	0x00002e60
-    2cec:	00002f60 	.word	0x00002f60
-    2cf0:	00002e48 	.word	0x00002e48
-    2cf4:	44746e49 	.word	0x44746e49
-    2cf8:	75616665 	.word	0x75616665
-    2cfc:	6148746c 	.word	0x6148746c
-    2d00:	656c646e 	.word	0x656c646e
-    2d04:	00000a72 	.word	0x00000a72
+00002c3c <bitmap_get_first_set>:
+    2c3c:	b480      	push	{r7}
+    2c3e:	b085      	sub	sp, #20
+    2c40:	af00      	add	r7, sp, #0
+    2c42:	6078      	str	r0, [r7, #4]
+    2c44:	2320      	movs	r3, #32
+    2c46:	60fb      	str	r3, [r7, #12]
+    2c48:	687b      	ldr	r3, [r7, #4]
+    2c4a:	681b      	ldr	r3, [r3, #0]
+    2c4c:	461a      	mov	r2, r3
+    2c4e:	fa92 f3a2 	rbit	r3, r2
+    2c52:	fab3 f383 	clz	r3, r3
+    2c56:	2a00      	cmp	r2, #0
+    2c58:	d101      	bne.n	2c5e <bitmap_get_first_set+0x22>
+    2c5a:	f04f 33ff 	mov.w	r3, #4294967295	; 0xffffffff
+    2c5e:	3301      	adds	r3, #1
+    2c60:	3b01      	subs	r3, #1
+    2c62:	60fb      	str	r3, [r7, #12]
+    2c64:	68fb      	ldr	r3, [r7, #12]
+    2c66:	4618      	mov	r0, r3
+    2c68:	3714      	adds	r7, #20
+    2c6a:	46bd      	mov	sp, r7
+    2c6c:	bc80      	pop	{r7}
+    2c6e:	4770      	bx	lr
+    2c70:	44746e49 	.word	0x44746e49
+    2c74:	75616665 	.word	0x75616665
+    2c78:	6148746c 	.word	0x6148746c
+    2c7c:	656c646e 	.word	0x656c646e
+    2c80:	00000a72 	.word	0x00000a72
 
-00002d08 <hex_asc_table>:
-    2d08:	33323130 37363534 62613938 66656463     0123456789abcdef
+00002c84 <hex_asc_table>:
+    2c84:	33323130 37363534 62613938 66656463     0123456789abcdef
 
-00002d18 <upper_hex_asc_table>:
-    2d18:	33323130 37363534 42413938 46454443     0123456789ABCDEF
+00002c94 <upper_hex_asc_table>:
+    2c94:	33323130 37363534 42413938 46454443     0123456789ABCDEF
 
-00002d28 <hex_weight_value_table>:
-    2d28:	00000001 0000000a 00000064 000003e8     ........d.......
-    2d38:	00002710 000186a0 000f4240 00989680     .'......@B......
-    2d48:	05f5e100 000a7325 6c6c6548 4146206f     ....%s..Hello FA
-    2d58:	5452204e 0a20534f 00000000 3a707370     N RTOS .....psp:
-    2d68:	78257830 0000000a 3a70736d 78257830     0x%x....msp:0x%x
-    2d78:	0000000a                                ....
+00002ca4 <hex_weight_value_table>:
+    2ca4:	00000001 0000000a 00000064 000003e8     ........d.......
+    2cb4:	00002710 000186a0 000f4240 00989680     .'......@B......
+    2cc4:	05f5e100 000a7325 6c6c6548 4146206f     ....%s..Hello FA
+    2cd4:	5452204e 0a20534f 00000000 3a707370     N RTOS .....psp:
+    2ce4:	78257830 0000000a 3a70736d 78257830     0x%x....msp:0x%x
+    2cf4:	0000000a                                ....
 
-00002d7c <__func__.3>:
-    2d7c:	6b736174 6e655f31 00797274              task1_entry.
+00002cf8 <__func__.3>:
+    2cf8:	6b736174 6e655f31 00797274              task1_entry.
 
-00002d88 <__func__.2>:
-    2d88:	6b736174 6e655f32 00797274              task2_entry.
+00002d04 <__func__.2>:
+    2d04:	6b736174 6e655f32 00797274              task2_entry.
 
-00002d94 <__func__.1>:
-    2d94:	6b736174 6e655f33 00797274              task3_entry.
+00002d10 <__func__.1>:
+    2d10:	6b736174 6e655f33 00797274              task3_entry.
 
-00002da0 <__func__.0>:
-    2da0:	6b736174 6e655f34 00797274              task4_entry.
+00002d1c <__func__.0>:
+    2d1c:	6b736174 6e655f34 00797274              task4_entry.
 
-00002dac <DEBUG_UART_DR>:
-    2dac:	40011004 000a7325 6b736154 666e6920     ...@%s..Task inf
-    2dbc:	000a3a6f 616c6564 69745f79 3a736b63     o:..delay_ticks:
-    2dcc:	000a6425 6f697270 0a64253a 00000000     %d..prio:%d.....
-    2ddc:	63696c73 64253a65 0000000a 70737573     slice:%d....susp
-    2dec:	5f646e65 3a746e63 000a6425              end_cnt:%d..
+00002d28 <DEBUG_UART_DR>:
+    2d28:	40011004 000a7325 6b736154 666e6920     ...@%s..Task inf
+    2d38:	000a3a6f 616c6564 69745f79 3a736b63     o:..delay_ticks:
+    2d48:	000a6425 6f697270 0a64253a 00000000     %d..prio:%d.....
+    2d58:	63696c73 64253a65 0000000a 70737573     slice:%d....susp
+    2d68:	5f646e65 3a746e63 000a6425              end_cnt:%d..
 
-00002df8 <__func__.1>:
-    2df8:	6b736174 696e695f 00000074              task_init...
+00002d74 <__func__.1>:
+    2d74:	6b736174 696e695f 00000074              task_init...
 
-00002e04 <__func__.0>:
-    2e04:	6b736174 6e75725f 7269665f 00007473     task_run_first..
-    2e14:	0a3a7325 00000000 23232323 23232323     %s:.....########
-    2e24:	0000000a                                ....
+00002d80 <__func__.0>:
+    2d80:	6b736174 6e75725f 7269665f 00007473     task_run_first..
+    2d90:	0a3a7325 00000000 23232323 23232323     %s:.....########
+    2da0:	0000000a                                ....
 
-00002e28 <__func__.0>:
-    2e28:	6e657665 65725f74 65766f6d 6c6c615f     event_remove_all
-    2e38:	00000000 25207325 75252075 00000a20     ....%s %u %u ...
-    2e48:	25207325 000a2075                       %s %u ..
+00002da4 <__func__.0>:
+    2da4:	6e657665 65725f74 65766f6d 6c6c615f     event_remove_all
+	...
 
-00002e50 <__func__.2>:
-    2e50:	6d746962 635f7061 7261656c 00000000     bitmap_clear....
-
-00002e60 <quick_table.1>:
-    2e60:	000100ff 00010002 00010003 00010002     ................
-    2e70:	00010004 00010002 00010003 00010002     ................
-    2e80:	00010005 00010002 00010003 00010002     ................
-    2e90:	00010004 00010002 00010003 00010002     ................
-    2ea0:	00010006 00010002 00010003 00010002     ................
-    2eb0:	00010004 00010002 00010003 00010002     ................
-    2ec0:	00010005 00010002 00010003 00010002     ................
-    2ed0:	00010004 00010002 00010003 00010002     ................
-    2ee0:	00010007 00010002 00010003 00010002     ................
-    2ef0:	00010004 00010002 00010003 00010002     ................
-    2f00:	00010005 00010002 00010003 00010002     ................
-    2f10:	00010004 00010002 00010003 00010002     ................
-    2f20:	00010006 00010002 00010003 00010002     ................
-    2f30:	00010004 00010002 00010003 00010002     ................
-    2f40:	00010005 00010002 00010003 00010002     ................
-    2f50:	00010004 00010002 00010003 00010002     ................
-
-00002f60 <__func__.0>:
-    2f60:	6d746962 675f7061 665f7465 74737269     bitmap_get_first
-    2f70:	7465735f                                 _set.
-
-00002f75 <_etext>:
-    2f75:	00          	.byte	0x00
+00002db5 <_etext>:
+    2db5:	00          	.byte	0x00
 	...

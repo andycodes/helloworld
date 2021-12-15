@@ -20,9 +20,23 @@ void bitmap_clear(bitmap_t *bitmap, uint32_t pos)
     bitmap->bitmap &= ~(1 << pos);
 }
 
+/**
+ * This function finds the first bit set (beginning with the least significant bit)
+ * in value and return the index of that bit.
+ *
+ * Bits are numbered starting at 1 (the least significant bit).  A return value of
+ * zero from any of these functions means that the argument was zero.
+ *
+ * @return return the index of the first bit set. If value is 0, then this function
+ * shall return 0.
+ */
 uint32_t bitmap_get_first_set(bitmap_t *bitmap)
 {
     uint32_t pos = 32;
+
+#if defined(__GNUC__)
+    pos = __builtin_ffs(bitmap->bitmap) - 1;
+#else
     static const uint8_t quick_table[] =
     {
         /* 00 */ 0xff, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
@@ -54,6 +68,6 @@ uint32_t bitmap_get_first_set(bitmap_t *bitmap)
     } else {
         pos = bitmap_count();
     }
-
+#endif
     return pos;
 }
