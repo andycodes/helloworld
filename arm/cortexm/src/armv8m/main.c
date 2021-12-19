@@ -6,6 +6,24 @@
 #include "lib.h"
 #include "module.h"
 
+
+typedef unsigned long                   rt_ubase_t;     /**< Nbit unsigned CPU related data type */
+
+rt_ubase_t rt_trustzone_current_context;
+
+void rt_trustzone_context_store(unsigned long context)
+{
+
+}
+
+int rt_secure_svc_handle(int svc_id, rt_ubase_t arg0, rt_ubase_t arg1, rt_ubase_t arg2)
+{
+
+}
+
+void rt_trustzone_context_load(rt_ubase_t context)
+{}
+
 void __PROGRAM_START(void)
 {
     clear_bss();
