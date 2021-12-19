@@ -72,7 +72,7 @@ qemu:
 	                    -kernel $(IMAGE) 
 			   
 gdbserver:
-	qemu-system-arm -machine $(board) -cpu $(CPU_TYPE) -m $(MEM_SIZE) \
+	qemu-system-arm -machine $(board) -cpu $(CPU_TYPE) \
 			    -nographic -serial mon:stdio \
 	                    -kernel $(IMAGE) \
 			    -S -s 
