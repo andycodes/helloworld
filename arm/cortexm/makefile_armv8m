@@ -24,6 +24,7 @@ GDB = $(CROSS_COMPILE)gdb
 OBJDUMP = $(CROSS_COMPILE)objdump
 OBJCOPY = ${TOOL_CHAIN}objcopy
 READELF = $(CROSS_COMPILE)readelf
+LDFILE = src/platform/$(board)/armv8m.ld
 
 CFLAGS = -mcpu=$(CPU_TYPE) -g -nostdlib -nostartfiles -ffreestanding \
 			-Isrc/include \
@@ -45,8 +46,8 @@ include src/platform/$(board)/menu_config.mk
 include src/components/components.mk
 
 
-$(IMAGE): src/armv8m/armv8m.ld   $(OBJS)
-	$(LD)  $(OBJS) -T src/armv8m/armv8m.ld -o $(IMAGE)
+$(IMAGE): $(LDFILE)  $(OBJS)
+	$(LD)  $(OBJS) -T $(LDFILE) -o $(IMAGE)
 	$(OBJDUMP) -d $(IMAGE) > $(BIN_PATH)/armv8m.list
 	$(OBJDUMP) -t $(IMAGE) | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > $(BIN_PATH)/armv8m.sym
 	$(READELF) -A $(IMAGE)
