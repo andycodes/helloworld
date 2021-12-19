@@ -27,7 +27,7 @@ CFLAGS		:= -Wall -g -fno-builtin -gdwarf-2 -gstrict-dwarf -mcpu=$(CPU_TYPE) -mth
 				-Isrc/include\
 				-Isrc/armv7m\
 				-Isrc/platform/$(board)\
-				-Isrc/rtos/kvolution/include \
+				-Isrc/rtos/evolution/include \
 				-Isrc/libs
 
 $(info "!!!!THE CUR CFLAGS is $(CFLAGS)")
@@ -42,7 +42,7 @@ OBJS := src/armv7m/int_vector.o \
 		src/armv7m/main.o \
 		src/platform/$(board)/cmsdk_uart.o 
 
-include src/rtos/kvolution/kvolution.mk
+include src/rtos/evolution/evolution.mk
 include src/libs/libs.mk
 
 
