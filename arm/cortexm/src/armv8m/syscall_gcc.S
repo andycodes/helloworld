@@ -8,10 +8,21 @@
  * 2019-10-25     tyx          first version
  */
 
-.cpu cortex-m4
+.cpu cortex-m33
 .syntax unified
 .thumb
 .text
+
+.global SVC1_Handler
+
+/*
+ */
+.global svcall
+.type svcall, %function
+svcall:
+	SVC     0                       /* call SVC 0 */
+    BX      LR
+
 
 /*
  * int tzcall(int id, rt_ubase_t arg0, rt_ubase_t arg1, rt_ubase_t arg2);
@@ -33,7 +44,7 @@ tzcall_entry:
     BX      LR                      /* return to thread */
 
 syscall_entry:
-    BX      LR                      /* return to user app */
+    B      SVC1_Handler                      /* return to user app */
 
 .global SVC_Handler
 .type SVC_Handler, %function
