@@ -29,6 +29,8 @@ void SVC1_Handler(void)
     printk("hello %s ^-^^-^^-^^-^\n", __func__);
 }
 
+extern void rt_hw_show_memory(uint32_t addr, uint32_t size);
+
 void __PROGRAM_START(void)
 {
     clear_bss();
@@ -36,6 +38,8 @@ void __PROGRAM_START(void)
     printk("hello %s ^-^^-^^-^^-^\n", board_info());
 
  //int tzcall(int id, rt_ubase_t arg0, rt_ubase_t arg1, rt_ubase_t arg2);
+
+    rt_hw_show_memory(0x0, 128);
 
     svcall();
 

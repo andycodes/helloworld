@@ -38,6 +38,7 @@ OBJS = src/armv8m/main.o \
 		src/armv8m/cpuport.o \
 		src/armv8m/context_gcc.o \
 		src/armv8m/syscall_gcc.o \
+		src/armv8m/showmem.o \
 		\
 		src/platform/$(board)/cmsdk_uart.o \
 		src/platform/$(board)/board.o \

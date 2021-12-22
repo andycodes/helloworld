@@ -15,11 +15,11 @@
 #define  EINTR                        9               /**< Interrupted system call */
 #define  EINVAL                       10              /**< Invalid argument */
 
-    #define SECTION(x)                  __attribute__((section(x)))
-    #define RT_UNUSED                   __attribute__((unused))
-    #define RT_USED                     __attribute__((used))
-    #define ALIGN(n)                    __attribute__((aligned(n)))
-    #define RT_WEAK                     __attribute__((weak))
+#define SECTION(x)                  __attribute__((section(x)))
+#define RT_UNUSED                   __attribute__((unused))
+#define RT_USED                     __attribute__((used))
+#define ALIGN(n)                    __attribute__((aligned(n)))
+#define RT_WEAK                     __attribute__((weak))
 
 
 #define RT_ASSERT(EX)  
