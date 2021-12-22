@@ -1,5 +1,5 @@
-#ifndef OS_STDIO_H
-#define OS_STDIO_H
+#ifndef OS_STDIO_H_TMP
+#define OS_STDIO_H_TMP
 
 #include <stdint.h>
 
@@ -71,4 +71,4 @@ extern void no_printk(const char *fmt, ...);
 #define DEBUG no_printk
 #endif /*DEBUG*/
 
-#endif /*OS_STDIO_H*/
+#endif /*OS_STDIO_H_TMP*/

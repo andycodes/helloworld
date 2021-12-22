@@ -27,7 +27,6 @@ CFLAGS		:= -Wall -g -fno-builtin -gdwarf-2 -gstrict-dwarf -mcpu=$(CPU_TYPE) -mth
 				-Isrc/include\
 				-Isrc/armv7m\
 				-Isrc/platform/$(board)\
-				-Isrc/rtos/evolution/include \
 				-Isrc/libs
 
 $(info "!!!!THE CUR CFLAGS is $(CFLAGS)")

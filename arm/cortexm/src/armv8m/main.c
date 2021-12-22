@@ -6,6 +6,8 @@
 #include "lib.h"
 #include "module.h"
 
+#include "system_ARMCM55.h"
+#include "core_cm55.h"
 
 typedef unsigned long                   rt_ubase_t;     /**< Nbit unsigned CPU related data type */
 
@@ -36,6 +38,30 @@ void pendsv_show_Handler(void)
 
 extern void rt_hw_show_memory(uint32_t addr, uint32_t size);
 
+uint32_t Seconds = 0;
+
+volatile uint32_t g_eventTimeMilliseconds = 0;
+
+void SysTick_Handler (void) {
+  static unsigned int Milliseconds; 
+  
+  Milliseconds++ ;
+  if (Milliseconds >= 1000) {
+    Seconds++;
+    Milliseconds = 0;
+  }
+
+  printk("SysTick_Handler \n");
+}
+
+#define SystemCoreClock     12000000UL
+
+ void test_systick(void)
+{
+    //printk("SystemCoreClock %u \n", SystemCoreClock);
+    SysTick_Config (SystemCoreClock / 1000);    /* 1 ms interval */
+}
+
 
 void __PROGRAM_START(void)
 {
@@ -43,13 +69,31 @@ void __PROGRAM_START(void)
     board_init();
     printk("hello %s ^-^^-^^-^^-^\n", board_info());
 
+    test_systick();
+
  //int tzcall(int id, rt_ubase_t arg0, rt_ubase_t arg1, rt_ubase_t arg2);
 
-    rt_hw_show_memory(0x0, 128);
+  //  rt_hw_show_memory(0x0, 128);
 
-    PendSV_set();
+   // PendSV_set();
 
-    svcall();
+  //  svcall();
 
     module_init();
 }
+
+
+
+void disable_irq(void)
+{}
+
+void enable_irq(void)
+{}
+
+uint32_t get_primask(void)
+{}
+
+
+void set_primask(uint32_t primask)
+{}
+

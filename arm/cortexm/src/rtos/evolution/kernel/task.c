@@ -1,5 +1,5 @@
 #include "task.h"
-#include "cm3.h"
+#include "arch.h"
 #include "os_stdio.h"
 #include "lib.h"
 #include "config.h"

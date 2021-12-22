@@ -1,6 +1,5 @@
 #include "lib.h"
-#include "os_stdio.h"
-
+#include <stddef.h>
 
 void list_node_init(list_node_t *node)
 {

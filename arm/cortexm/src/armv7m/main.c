@@ -1,6 +1,6 @@
 #include "os_stdio.h"
 #include <stdint.h>
-#include "cm3.h"
+#include "arch.h"
 #include "task.h"
 #include "os.h"
 #include "memblock.h"
