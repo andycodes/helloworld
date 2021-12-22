@@ -22,6 +22,8 @@
 .thumb
 .text
 
+.global pendsv_show_Handler
+
 .equ    SCB_VTOR,           0xE000ED08              /* Vector Table Offset Register */
 .equ    NVIC_INT_CTRL,      0xE000ED04              /* interrupt control state register */
 .equ    NVIC_SYSPRI2,       0xE000ED20              /* system priority register (2) */
@@ -94,7 +96,7 @@ PendSV_Handler:
     LDR     r0, =rt_thread_switch_interrupt_flag    /* r0 = &rt_thread_switch_interrupt_flag */
     LDR     r1, [r0]                                /* r1 = *r1 */
     CMP     r1, #0x00                               /* compare r1 == 0x00 */
-    BNE     schedule
+    B     pendsv_show_Handler
     MSR     PRIMASK, r2                             /* if r1 == 0x00, do msr PRIMASK, r2 */
     BX      lr                                      /* if r1 == 0x00, do bx lr */
 
@@ -290,4 +292,20 @@ update_done:
     POP     {LR}
 
     ORR     lr, lr, #0x04
+    BX      lr
+
+
+.global PendSV_set
+.type PendSV_set, %function
+PendSV_set:
+    /* set the PendSV and SysTick exception priority */
+    LDR r0, =NVIC_SYSPRI2
+    LDR r1, =NVIC_PENDSV_PRI
+    LDR.W   r2, [r0,#0x00]       /* read       */
+    ORR     r1,r1,r2             /* modify     */
+    STR     r1, [r0]             /* write-back */
+
+    LDR r0, =NVIC_INT_CTRL      /* trigger the PendSV exception (causes context switch) */
+    LDR r1, =NVIC_PENDSVSET
+    STR r1, [r0]
     BX      lr
