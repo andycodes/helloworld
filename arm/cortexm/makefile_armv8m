@@ -42,15 +42,15 @@ OBJS = src/armv8m/main.o \
 		src/armv8m/backtrace.o \
 		\
 		src/platform/$(board)/cmsdk_uart.o \
-		src/platform/$(board)/board.o \
+		src/platform/$(board)/board.o
 
-include src/rtos/evolution/evolution.mk
-include src/cmsis/cmsis.mk
 include src/platform/$(board)/platform.mk
 include src/platform/$(board)/menu_config.mk
+include src/testcase/$(board)/platform.mk
+include src/rtos/evolution/evolution.mk
+include src/cmsis/cmsis.mk
 include src/components/components.mk
 include src/libs/libs.mk
-
 
 $(IMAGE): $(LDFILE)  $(OBJS)
 	$(LD)  $(OBJS) -T $(LDFILE) -o $(IMAGE)

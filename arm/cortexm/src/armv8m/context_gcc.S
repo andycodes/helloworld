@@ -12,12 +12,10 @@
  * 2018-07-24     aozima       enhancement hard fault exception handler.
  */
 
-/**
- * @addtogroup cortex-m4
- */
+
 /*@{*/
 
-.cpu cortex-m4
+.cpu cortex-m33
 .syntax unified
 .thumb
 .text

@@ -1,5 +1,4 @@
 #include "cmsdk_uart.h"
-#include "testcase.h"
 #include "system_ARMCM55.h"
 #include "core_cm55.h"
 #include "os_stdio.h"
@@ -19,9 +18,8 @@ void SysTick_Handler (void) {
   printk("SysTick_Handler \n");
 }
 
-apError test_systick(void)
+void test_systick(void)
 {
     //printk("SystemCoreClock %u \n", SystemCoreClock);
     SysTick_Config (SystemCoreClock / 1000);    /* 1 ms interval */
-    return apERR_NONE;
 }

@@ -1,6 +1,6 @@
 #include "cmsdk_uart.h"
 #include "armv8m_mpu.h"
-#include "testcase.h"
+
 #include "os_stdio.h"
 #include <stdint.h>
 
@@ -86,11 +86,10 @@ typedef void (*test_func_t)(void);
     test_f();
 }
 
-apError mpu_test(void)
+void mpu_test(void)
 {
     printk("void mpu_test(void)\n");
     //test_armv8m_mpu_write();
     //test_armv8m_mpu_overlap();
     //test_armv8m_xn();
-    return apERR_NONE;
 }

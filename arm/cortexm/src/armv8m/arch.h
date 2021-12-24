@@ -1,5 +1,6 @@
-#ifndef CM3_H
-#define CM3_H
+#ifndef __ARCH_H__
+#define __ARCH_H__
+
 #include <stdint.h>
 
 #define SCS_BASE            (0xE000E000)                 /*System Control Space Base Address */
