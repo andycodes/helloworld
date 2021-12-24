@@ -90,7 +90,7 @@ no_need_sched:
     return;
 }
 
-void task_switch()
+void task_switch(void)
 {
     MEM32(NVIC_INT_CTRL) = NVIC_PENDSVSET;
 }

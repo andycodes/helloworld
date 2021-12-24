@@ -36,4 +36,4 @@ extern void enable_irq(void);
 extern void init_systick(uint32_t ms);
 extern void trigger_pend_sv(void);
 extern void pendsv_handler(void);
-#endif /*CM3_H*/
+#endif /*__ARCH_H__*/

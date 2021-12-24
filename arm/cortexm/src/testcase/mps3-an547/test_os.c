@@ -1,10 +1,10 @@
 
 #include "module.h"
 
-static int test_os(void)
+extern void task_switch(void);
+static int test_os_task_switch(void)
 {
-    printk("fansaihua init %s\n", __func__);
-    return 0;
+    printk("%s\n", __func__);
+    task_switch();
 }
-
-device_initcall(test_os);
+device_initcall(test_os_task_switch);
