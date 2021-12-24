@@ -44,10 +44,10 @@ SECTIONS
 	. = ALIGN(8);
     } > SRAM
 
-    . = ALIGN(32);           /*Not sure if this needs to be done, but why not.*/
-    _p_stack_bottom = .;
+    . = ALIGN(32);
+    _p_StackLimit = .;
     . = . + 0x4000;
-    _p_stack_top = 0x20008000;
+    _p_StackTop = .;
     . = . + 0x4000;          /*Allocate 4K for the Stack.*/
     _stack_top = 0x2000c000;  /*Address of the top of the heap, also end of RAM.*/
     _heap_bottom = .;        /*Address of the bottom of the heap.*/

@@ -3,7 +3,7 @@
 .syntax unified
 /*Export*/
 .global reset_handler
-.global _p_stack_top
+.global _p_StackTop
 .global get_psp
 .global set_psp
 .global get_msp
@@ -28,7 +28,7 @@ reset_handler:
     orr     r0, r1
     msr     CONTROL, r0
 
-    ldr     r0, =_p_stack_top
+    ldr     r0, =_p_StackTop
     mov     sp, r0
 
     ldr     r0, =main
