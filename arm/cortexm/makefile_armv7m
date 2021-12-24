@@ -22,6 +22,7 @@ GDB = $(CROSS_COMPILE)gdb
 OBJDUMP = $(CROSS_COMPILE)objdump
 OBJCOPY = ${TOOL_CHAIN}objcopy
 READELF = $(CROSS_COMPILE)readelf
+LDFILE = src/platform/$(board)/plat.ld
 
 CFLAGS		:= -Wall -g -fno-builtin -gdwarf-2 -gstrict-dwarf -mcpu=$(CPU_TYPE) -mthumb -nostartfiles  --specs=nosys.specs -std=c11 -O0 \
 				-Isrc/include\
@@ -45,8 +46,8 @@ include src/rtos/evolution/evolution.mk
 include src/libs/libs.mk
 
 
-$(IMAGE): src/armv7m/armv7m.ld   $(OBJS)
-	$(LD)  $(OBJS) -T src/armv7m/armv7m.ld -o $(IMAGE)
+$(IMAGE): $(LDFILE)  $(OBJS)
+	$(LD)  $(OBJS) -T $(LDFILE) -o $(IMAGE)
 	$(OBJDUMP) -d $(IMAGE) > $(BIN_PATH)/armv7m.list
 	$(OBJDUMP) -t $(IMAGE) | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > $(BIN_PATH)/armv7m.sym
 	$(READELF) -A $(IMAGE)

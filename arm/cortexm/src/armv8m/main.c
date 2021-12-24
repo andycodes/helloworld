@@ -31,11 +31,6 @@ void SVC1_Handler(void)
     printk("hello %s ^-^^-^^-^^-^\n", __func__);
 }
 
-void pendsv_show_Handler(void)
-{
-    printk("hello %s ^-^^-^^-^^-^\n", __func__);
-}
-
 extern void rt_hw_show_memory(uint32_t addr, uint32_t size);
 
 

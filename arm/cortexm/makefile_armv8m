@@ -24,7 +24,7 @@ GDB = $(CROSS_COMPILE)gdb
 OBJDUMP = $(CROSS_COMPILE)objdump
 OBJCOPY = ${TOOL_CHAIN}objcopy
 READELF = $(CROSS_COMPILE)readelf
-LDFILE = src/platform/$(board)/armv8m.ld
+LDFILE = src/platform/$(board)/plat.ld
 
 CFLAGS = -mcpu=$(CPU_TYPE) -g -nostdlib -nostartfiles -ffreestanding \
 			-Isrc/include \
