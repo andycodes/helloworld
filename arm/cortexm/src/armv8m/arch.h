@@ -12,7 +12,7 @@
 #define NVIC_INT_CTRL       0xE000ED04
 #define NVIC_PENDSVSET      0x10000000
 #define NVIC_SYSPRI2        0xE000ED20
-#define NVIC_PENDSV_PRI     0xFFFF0000
+#define NVIC_PENDSV_PRI     0x000000FF
 
 
 #define MEM32(addr)         *(volatile uint32_t *)(addr)
