@@ -93,5 +93,5 @@ gdbqemu:
 
 			    
 clean:
-	rm -rf $(BIN_PATH) $(OBJ_PATH)
+	rm -rf $(BIN_PATH) $(OBJ_PATH) *.o
 .PHONY: all qemu clean

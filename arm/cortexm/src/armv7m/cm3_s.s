@@ -54,7 +54,7 @@ get_control_reg:
 pendsv_handler:
     /*CM3 will push the r0-r3, r12, r14, r15, xpsr by hardware*/
     mrs     r0, psp
-    cbz     r0, pendsv_handler_nosave
+    cbz     r0, switch_to_thread             /* if r1 == 0, goto switch_to_thread */
 
     /* g_current_task->psp-- = r11;
      * ...
@@ -66,7 +66,7 @@ pendsv_handler:
     ldr     r1, [r1]
     str     r0, [r1]
 
-pendsv_handler_nosave:
+switch_to_thread:
 
     /* *g_current_task = *g_next_task */
     ldr     r0, =g_current_task

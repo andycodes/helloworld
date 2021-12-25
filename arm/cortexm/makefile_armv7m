@@ -42,8 +42,11 @@ OBJS := src/armv7m/int_vector.o \
 		src/armv7m/main.o \
 		src/platform/$(board)/cmsdk_uart.o 
 
+include src/platform/$(board)/menu_config.mk
+include src/platform/$(board)/platform.mk
 include src/rtos/evolution/evolution.mk
 include src/libs/libs.mk
+include src/cmsis/cmsis.mk
 
 
 $(IMAGE): $(LDFILE)  $(OBJS)

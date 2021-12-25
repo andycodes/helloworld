@@ -1,5 +1,6 @@
 
 #include <stdint.h>
+#include "os_stdio.h"
 
 /*
 -->High Address,Stack Top

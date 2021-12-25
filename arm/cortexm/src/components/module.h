@@ -1,6 +1,8 @@
 #ifndef __MODULE_H__
 #define __MODULE_H__
 
+void module_init(void);
+
 typedef int (*initcall_t)(void);
 
 #define __define_initcall(fn, id) \
