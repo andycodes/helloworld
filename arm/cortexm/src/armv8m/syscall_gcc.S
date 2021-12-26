@@ -38,7 +38,7 @@ tzcall_entry:
     MOV     R4, R1                  /* copy thread SP to R4 */
     LDMFD   R4!, {r0 - r3}          /* pop user stack, get input arg0, arg1, arg2 */
     STMFD   R4!, {r0 - r3}          /* push stack, user stack recovery */
-    BL      rt_secure_svc_handle    /* call fun */
+    BL      SVC1_Handler    /* call fun */
     POP     {R1, R4, LR}
     STR     R0, [R1]                /* update return value */
     BX      LR                      /* return to thread */
@@ -67,4 +67,4 @@ get_sp_done:
 
     /* if svc == 1, do TrustZone call */
     CMP     R0, #0x1
-    BEQ    tzcall_entry
+    BEQ    syscall_entry

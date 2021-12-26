@@ -1,5 +1,5 @@
-#ifndef OS_STDIO_H_TMP
-#define OS_STDIO_H_TMP
+#ifndef __BASE__TYPE__H__
+#define __BASE__TYPE__H__
 
 #include <stdint.h>
 
@@ -44,13 +44,9 @@
  */
 #define RT_ALIGN_DOWN(size, align)      ((size) & ~((align) - 1))
 
-/**
- * @ingroup BasicDef
- *
- * @def RT_NULL
- * Similar as the \c NULL in C library.
- */
-#define RT_NULL                         (0)
+#ifndef NULL
+#define NULL                         (0)
+#endif
 
 extern void printk(const char *fmt, ...);
 extern int memset(void *mem, uint8_t val, uint32_t sz);
@@ -71,4 +67,4 @@ extern void no_printk(const char *fmt, ...);
 #define DEBUG no_printk
 #endif /*DEBUG*/
 
-#endif /*OS_STDIO_H_TMP*/
+#endif /*__BASE__TYPE__H__*/

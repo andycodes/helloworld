@@ -33,12 +33,10 @@ CFLAGS = -mcpu=$(CPU_TYPE) -g -nostdlib -nostartfiles -ffreestanding \
 			-Isrc/testcase
 
 all: $(IMAGE)
-OBJS = src/armv8m/main.o \
-		src/armv8m/os_stdio.o \
+OBJS = src/main.o \
 		src/armv8m/cpuport.o \
 		src/armv8m/context_gcc.o \
 		src/armv8m/syscall_gcc.o \
-		src/armv8m/showmem.o \
 		src/armv8m/backtrace.o \
 		\
 		src/platform/$(board)/cmsdk_uart.o \

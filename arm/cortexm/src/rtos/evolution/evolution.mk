@@ -1,6 +1,7 @@
 
 
-CFLAGS += -Isrc/rtos/evolution/include
+CFLAGS += -Isrc/include \
+		-Isrc/rtos/evolution/include
 
 OBJS += src/rtos/evolution/kernel/task.o \
 		src/rtos/evolution/kernel/lib.o \

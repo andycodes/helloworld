@@ -37,7 +37,6 @@ LDFLAGS		:= -g
 all: $(IMAGE)
 OBJS := src/armv7m/int_vector.o \
 		src/armv7m/cm3.o \
-		src/armv7m/os_stdio.o \
 		src/armv7m/cm3_s.o \
 		src/armv7m/main.o \
 		src/platform/$(board)/cmsdk_uart.o 

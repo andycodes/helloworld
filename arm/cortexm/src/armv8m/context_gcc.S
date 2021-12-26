@@ -1,16 +1,7 @@
-/*
- * Copyright (c) 2006-2018, RT-Thread Development Team
- *
- * SPDX-License-Identifier: Apache-2.0
- *
- * Change Logs:
- * Date           Author       Notes
- * 2009-10-11     Bernard      first version
- * 2012-01-01     aozima       support context switch load/store FPU register.
- * 2013-06-18     aozima       add restore MSP feature.
- * 2013-06-23     aozima       support lazy stack optimized.
- * 2018-07-24     aozima       enhancement hard fault exception handler.
- */
+.global set_primask
+.global get_primask
+.global disable_irq
+.global enable_irq
 
 
 /*@{*/
@@ -74,3 +65,18 @@ update_done:
     BX      lr
 
 
+get_primask:
+    mrs     r0, PRIMASK
+    blx     lr
+
+set_primask:
+    msr     PRIMASK, r0
+    blx     lr
+
+disable_irq:
+    cpsid   i
+    blx     lr
+
+enable_irq:
+    cpsie   i
+    blx     lr
