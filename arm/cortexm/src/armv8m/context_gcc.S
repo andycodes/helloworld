@@ -51,12 +51,10 @@ get_sp_done:
 
     STMFD   r0!, {r4 - r11}                         /* push r4 - r11 register */
 
-    LDR     r2,  =rt_trustzone_current_context      /* r2 = &rt_secure_current_context */
-    LDR     r2, [r2]                                /* r2 = *r2 */
     MOV     r3, lr                                  /* r3 = lr */
     MRS     r4, psplim                              /* r4 = psplim */
     MRS     r5, control                             /* r5 = control */
-    STMFD   r0!, {r2-r5}                            /* push to thread stack */
+    STMFD   r0!, {r3-r5}                            /* push to thread stack */
 
     STMFD   r0!, {lr}                               /* push exec_return register */
 

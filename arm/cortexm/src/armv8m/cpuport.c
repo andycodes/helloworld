@@ -21,15 +21,6 @@
 #include <stdio.h>
 #include "os_stdio.h"
 
-#if               /* ARMCC */ (  (defined ( __CC_ARM ) && defined ( __TARGET_FPU_VFP ))    \
-                  /* Clang */ || (defined ( __CLANG_ARM ) && defined ( __VFP_FP__ ) && !defined(__SOFTFP__)) \
-                  /* IAR */   || (defined ( __ICCARM__ ) && defined ( __ARMVFP__ ))        \
-                  /* GNU */   || (defined ( __GNUC__ ) && defined ( __VFP_FP__ ) && !defined(__SOFTFP__)) )
-#define USE_FPU   1
-#else
-#define USE_FPU   0
-#endif
-
 /* exception and interrupt handler table */
 uint32_t  rt_interrupt_from_thread;
 uint32_t  rt_interrupt_to_thread;
@@ -201,7 +192,7 @@ void rt_hw_exception_install(int (*exception_handle)(void *context))
 #define SCB_CFSR_BFSR   (*(volatile const unsigned char*)0xE000ED29)  /* Bus Fault Status Register */
 #define SCB_CFSR_UFSR   (*(volatile const unsigned short*)0xE000ED2A) /* Usage Fault Status Register */
 
-#ifdef RT_USING_FINSH
+
 static void usage_fault_track(void)
 {
     printk("usage fault:\n");
@@ -365,7 +356,6 @@ static void hard_fault_track(void)
         printk("debug event\n");
     }
 }
-#endif /* RT_USING_FINSH */
 
 struct exception_info
 {
@@ -424,10 +414,7 @@ void rt_hw_hard_fault_exception(struct exception_info *exception_info)
         printk("FPU active!\r\n");
     }
 
-#ifdef RT_USING_FINSH
     hard_fault_track();
-#endif /* RT_USING_FINSH */
-
     while (1);
 }
 

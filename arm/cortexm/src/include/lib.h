@@ -32,7 +32,6 @@ extern void list_remove(list_t *list, list_node_t *node);
 
 extern uint32_t _bss;
 extern uint32_t _ebss;
-extern void testcase(void);
 static inline void clear_bss(void)
 {
     uint8_t *start = (uint8_t *)_bss;
