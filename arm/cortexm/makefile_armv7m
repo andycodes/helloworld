@@ -4,6 +4,8 @@ $(info "!!!!THE CUR BOARD is $(board)")
 
 BIN_PATH = bin/$(board)
 OBJ_PATH = obj
+OBJECT = felix
+
 CPU_TYPE = cortex-m3
 ifeq ($(board),netduinoplus2)
 	CPU_TYPE = cortex-m4
@@ -11,7 +13,9 @@ endif
 
 $(info "!!!!THE CUR CPU_TYPE is $(CPU_TYPE)")
 
-IMAGE := $(BIN_PATH)/armv7m.elf
+IMAGE := $(BIN_PATH)/$(OBJECT).elf
+LIST_FILE := $(BIN_PATH)/$(OBJECT).list
+SYM_FILE := $(BIN_PATH)/$(OBJECT).sym
 
 PWD_TOOLCHAIN = /project/gcc/gcc-arm-none-eabi-10.3-2021.10/bin
 CROSS_COMPILE = $(PWD_TOOLCHAIN)/arm-none-eabi-
@@ -30,7 +34,7 @@ CFLAGS		:= -Wall -g -fno-builtin -gdwarf-2 -gstrict-dwarf -mcpu=$(CPU_TYPE) -mth
 				-Isrc/platform/$(board)\
 				-Isrc/libs
 
-$(info "!!!!THE CUR CFLAGS is $(CFLAGS)")
+
 
 LDFLAGS		:= -g
 
@@ -50,8 +54,8 @@ include src/cmsis/cmsis.mk
 
 $(IMAGE): $(LDFILE)  $(OBJS)
 	$(LD)  $(OBJS) -T $(LDFILE) -o $(IMAGE)
-	$(OBJDUMP) -d $(IMAGE) > $(BIN_PATH)/armv7m.list
-	$(OBJDUMP) -t $(IMAGE) | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > $(BIN_PATH)/armv7m.sym
+	$(OBJDUMP) -d $(IMAGE) > $(LIST_FILE)
+	$(OBJDUMP) -t $(IMAGE) | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > $(SYM_FILE)
 	$(READELF) -A $(IMAGE)
 
 %.o:%.c
@@ -83,10 +87,10 @@ gdb: $(IMAGE)
 
 
 gdbqemu:
-	gdb --args qemu-system-arm -machine $(board) -cpu $(CPU_TYPE)  -m 4096  -nographic -serial mon:stdio -armv8m armv8m.elf
+	gdb --args qemu-system-arm -machine $(board) -cpu $(CPU_TYPE)  -m 4096  -nographic -serial mon:stdio -armv7m $(IMAGE)
 
 
 			    
 clean:
-	rm -rf $(BIN_PATH) $(OBJ_PATH)
+	rm -rf $(BIN_PATH) $(OBJ_PATH) *.o
 .PHONY: all qemu clean
