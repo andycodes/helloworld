@@ -26,7 +26,7 @@ set(DEFINITIONS "${DEFINITIONS} -DUSE_STDPERIPH_DRIVER")
 #}}}
 
 # Compiler settings {{{
-
+    set(CPU "cortex-m33")
 # Prepend the cross-compiler prefix to the used tools.
 set(CMAKE_C_COMPILER "${CROSS_TARGET_TRIPLET}gcc")
 set(CMAKE_CXX_COMPILER "${CROSS_TARGET_TRIPLET}g++")
@@ -53,21 +53,8 @@ set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS "" )
 #}}}
 
 # Source files  {{{
-
-# Fill in your source files here (duh).
-set(SOURCES
+    set(SOURCES
     "${BASE_DIR}/src/main.c"
-    "${BASE_DIR}/src/armv8m/cpuport.c"
-    "${BASE_DIR}/src/armv8m/context_gcc.S"
-    "${BASE_DIR}/src/armv8m/syscall_gcc.S"
-    "${BASE_DIR}/src/armv8m/backtrace.c"
-    "${BASE_DIR}/src/platform/mps3-an547/cmsdk_uart.c"
-    "${BASE_DIR}/src/platform/mps3-an547/board.c"
-    "${BASE_DIR}/src/cmsis/Device/ARM/ARMCM55/Source/system_ARMCM55.c"
-    "${BASE_DIR}/src/cmsis/Device/ARM/ARMCM55/Source/startup_ARMCM55.c"
-    "${BASE_DIR}/src/libs/printk.c"
-    "${BASE_DIR}/src/components/module.c"
-    "${BASE_DIR}/src/testcase/mps3-an547/test_svc.c"
 )
 
 #}}}
@@ -100,6 +87,10 @@ include_directories(
 
 # Compile the sources to an .elf
 add_executable(${TARGET}.elf ${SOURCES} ${HEADERS})
+
+# 添加链接库
+target_link_libraries(${TARGET}.elf MathFunctions)
+
 
 # Create a binary from the elf
 add_custom_command(TARGET ${TARGET}.elf POST_BUILD

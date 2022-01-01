@@ -12,3 +12,7 @@ python build.py netp
 
 make -f makefile_armv7m board=netduinoplus2 gdbserver
 make -f makefile_armv7m board=netduinoplus2 gdb
+
+
+
+cmake .. -DCUR_PLAT=mps3-an547
