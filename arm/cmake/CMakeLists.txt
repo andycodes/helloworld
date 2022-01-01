@@ -7,12 +7,10 @@ set(TARGET felix)
 
 set(CROSS_TARGET_TRIPLET "arm-none-eabi-")
 set(BASE_DIR ${CMAKE_CURRENT_LIST_DIR}/)
+set(PLAT_PATH "${BASE_DIR}/src/platform/${CUR_PLAT}")
 
-# Fill in the target CPU here
-set(CPU "cortex-m33")
-
-# Fill in the linker script to use here
-set(LINKER_SCRIPT "${BASE_DIR}/src/platform/mps3-an547/plat.ld")
+add_subdirectory("${PLAT_PATH}")
+set(LINKER_SCRIPT "${PLAT_PATH}/plat.ld")
 
 # Fill in the config for openocd to use.
 # E.g. for an felixF4-Discovery dev-board:
