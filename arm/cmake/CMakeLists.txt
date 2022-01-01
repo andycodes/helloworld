@@ -79,9 +79,9 @@ set(SOURCES
 # Fill in your header files here. Not actually required for compiling, but
 # some IDEs (e.g. QtCreator) won't list the header files in the project tree
 # if they are not explicitly listed.
-set(HEADERS
-    "${BASE_DIR}include/main.h"
-)
+#set(HEADERS
+#    "${BASE_DIR}include/main.h"
+#)
 
 #}}}
 
