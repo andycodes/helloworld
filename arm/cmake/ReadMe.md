@@ -15,4 +15,6 @@ make -f makefile_armv7m board=netduinoplus2 gdb
 
 
 
-cmake .. -DCUR_PLAT=mps3-an547
+cmake .. -DCUR_PLAT=mps3-an547 -DCPU=cortex-m33
+
+cmake .. -DCUR_PLAT=netduinoplus2 -DCPU=cortex-m4

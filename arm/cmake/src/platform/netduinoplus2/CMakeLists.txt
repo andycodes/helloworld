@@ -1,5 +1,6 @@
-set(CPU "cortex-m33")
+set(CPU "cortex-m4")
 # Prepend the cross-compiler prefix to the used tools.
+set(CROSS_TARGET_TRIPLET "/project/gcc/gcc-arm-none-eabi-10.3-2021.10/bin/arm-none-eabi-")
 set(CMAKE_C_COMPILER "${CROSS_TARGET_TRIPLET}gcc")
 set(CMAKE_CXX_COMPILER "${CROSS_TARGET_TRIPLET}g++")
 set(CMAKE_ASM_COMPILER "${CROSS_TARGET_TRIPLET}as")
@@ -8,42 +9,34 @@ set(CMAKE_ASM_COMPILER "${CROSS_TARGET_TRIPLET}as")
 set(WARNING_FLAGS "-Wall -Wextra -Wpedantic")
 
 # Flags which are required for gcc, g++ and as.
-set(COMMON_COMPILE_FLAGS "-mcpu=${CPU} -nostdlib -nostartfiles -ffreestanding")
+set(COMMON_COMPILE_FLAGS "-Wall -g -fno-builtin -gdwarf-2 -gstrict-dwarf -mthumb -nostartfiles  --specs=nosys.specs -std=c11 -O0  -mcpu=${CPU}")
 set(ASM_COMPILE_FLAGS "-mcpu=${CPU} ")
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COMMON_COMPILE_FLAGS} ${WARNING_FLAGS} ${DEFINITIONS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMMON_COMPILE_FLAGS} ${WARNING_FLAGS} ${DEFINITIONS}")
 set(CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS} ${ASM_COMPILE_FLAGS}")
-
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -T ${LINKER_SCRIPT}")
-
+set(LINKER_SCRIPT "${PLAT_PATH}/plat.ld")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -g -T ${LINKER_SCRIPT}")
+MESSAGE("${LINKER_SCRIPT}")
 # The following is required to get rid of the (not supported) -rdynamic flag
 # when linking the final binary.
 set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "" )
 set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS "" )
 
 # Fill in your source files here (duh).
-set(SOURCES
-    "${BASE_DIR}/src/main.c"
-    "${BASE_DIR}/src/armv8m/cpuport.c"
-    "${BASE_DIR}/src/armv8m/context_gcc.S"
-    "${BASE_DIR}/src/armv8m/syscall_gcc.S"
-    "${BASE_DIR}/src/armv8m/backtrace.c"
-    "${BASE_DIR}/src/platform/mps3-an547/cmsdk_uart.c"
-    "${BASE_DIR}/src/platform/mps3-an547/board.c"
-    "${BASE_DIR}/src/cmsis/Device/ARM/ARMCM55/Source/system_ARMCM55.c"
-    "${BASE_DIR}/src/cmsis/Device/ARM/ARMCM55/Source/startup_ARMCM55.c"
-    "${BASE_DIR}/src/libs/printk.c"
-    "${BASE_DIR}/src/components/module.c"
-    "${BASE_DIR}/src/testcase/mps3-an547/test_svc.c"
+set(DIR_LIB_SRCS
+    "${BASE_DIR}/src/armv7m/int_vector.c"
+    "${BASE_DIR}/src/armv7m/cm3.c"
+    "${BASE_DIR}/src/armv7m/cm3_s.s"
+    "${BASE_DIR}/src/armv7m/main.c"
+    "${BASE_DIR}/src/platform/netduinoplus2/cmsdk_uart.c"
 )
 
 include_directories(
     "${BASE_DIR}/src/include"
-    "${BASE_DIR}/src/components"
-    "${BASE_DIR}/src/cmsis"
-    "${BASE_DIR}/src/cmsis/CMSIS/Core/Include"
-    "${BASE_DIR}/src/cmsis/Device/ARM/ARMCM55/Include"
+    "${BASE_DIR}/src/armv7m"
+    "${BASE_DIR}/src/libs"
+    "${BASE_DIR}/src/rtos/evolution/include"
 )
 
 # 查找当前目录下的所有源文件
@@ -51,4 +44,4 @@ include_directories(
 #aux_source_directory(. DIR_LIB_SRCS)
 
 # 生成链接库
-add_library (MathFunctions ${SOURCES})
+add_library (MathFunctions ${DIR_LIB_SRCS})

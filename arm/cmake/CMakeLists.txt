@@ -5,10 +5,10 @@ set(TARGET felix)
 
 # General settings {{{
 
-set(CROSS_TARGET_TRIPLET "arm-none-eabi-")
-set(BASE_DIR ${CMAKE_CURRENT_LIST_DIR}/)
+set(CROSS_TARGET_TRIPLET "/project/gcc/gcc-arm-none-eabi-10.3-2021.10/bin/arm-none-eabi-")
+set(BASE_DIR ${CMAKE_CURRENT_LIST_DIR})
 set(PLAT_PATH "${BASE_DIR}/src/platform/${CUR_PLAT}")
-
+MESSAGE("${PLAT_PATH}")
 add_subdirectory("${PLAT_PATH}")
 set(LINKER_SCRIPT "${PLAT_PATH}/plat.ld")
 
@@ -26,7 +26,7 @@ set(DEFINITIONS "${DEFINITIONS} -DUSE_STDPERIPH_DRIVER")
 #}}}
 
 # Compiler settings {{{
-    set(CPU "cortex-m33")
+
 # Prepend the cross-compiler prefix to the used tools.
 set(CMAKE_C_COMPILER "${CROSS_TARGET_TRIPLET}gcc")
 set(CMAKE_CXX_COMPILER "${CROSS_TARGET_TRIPLET}g++")
@@ -36,14 +36,14 @@ set(CMAKE_ASM_COMPILER "${CROSS_TARGET_TRIPLET}as")
 set(WARNING_FLAGS "-Wall -Wextra -Wpedantic")
 
 # Flags which are required for gcc, g++ and as.
-set(COMMON_COMPILE_FLAGS "-mcpu=${CPU} -nostdlib -nostartfiles -ffreestanding")
-set(ASM_COMPILE_FLAGS "-mcpu=${CPU} ")
+set(COMMON_COMPILE_FLAGS "-Wall -g -fno-builtin -gdwarf-2 -gstrict-dwarf -mthumb -nostartfiles  --specs=nosys.specs -std=c11 -O0 -mcpu=${CPU}")
+set(ASM_COMPILE_FLAGS "-mcpu=${CPU} -Wall -g -fno-builtin -gdwarf-2 -gstrict-dwarf -mthumb -nostartfiles  --specs=nosys.specs -std=c11 -O0")
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COMMON_COMPILE_FLAGS} ${WARNING_FLAGS} ${DEFINITIONS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMMON_COMPILE_FLAGS} ${WARNING_FLAGS} ${DEFINITIONS}")
 set(CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS} ${ASM_COMPILE_FLAGS}")
 
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -T ${LINKER_SCRIPT}")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -g -T ${LINKER_SCRIPT}")
 
 # The following is required to get rid of the (not supported) -rdynamic flag
 # when linking the final binary.
@@ -54,7 +54,7 @@ set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS "" )
 
 # Source files  {{{
     set(SOURCES
-    "${BASE_DIR}/src/main.c"
+    "${BASE_DIR}/src/stub.c"
 )
 
 #}}}
@@ -78,7 +78,6 @@ include_directories(
     "${BASE_DIR}/src/components"
     "${BASE_DIR}/src/cmsis"
     "${BASE_DIR}/src/cmsis/CMSIS/Core/Include"
-    "${BASE_DIR}/src/cmsis/Device/ARM/ARMCM55/Include"
 )
 
 #}}}
