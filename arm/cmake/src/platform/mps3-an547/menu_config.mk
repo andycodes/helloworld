@@ -1,3 +1,0 @@
-
-
-CFLAGS += -DCONFIG_MEMU
