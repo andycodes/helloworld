@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8.12)
 
-project(felix-Template C CXX ASM)
+project(felix C CXX ASM)
 set(TARGET felix)
 
 # General settings {{{
@@ -73,12 +73,12 @@ set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS "" )
 # Include dirs  {{{
 
 # Fill in the directories of your header files here.
-include_directories(
-    "${BASE_DIR}/src/include"
-    "${BASE_DIR}/src/components"
-    "${BASE_DIR}/src/cmsis"
-    "${BASE_DIR}/src/cmsis/CMSIS/Core/Include"
-)
+#include_directories(
+#    "${BASE_DIR}/src/include"
+#    "${BASE_DIR}/src/components"
+#    "${BASE_DIR}/src/cmsis"
+#    "${BASE_DIR}/src/cmsis/CMSIS/Core/Include"
+#)
 
 #}}}
 
