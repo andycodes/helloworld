@@ -1,24 +1,7 @@
-# A CMake-template for cross-compiling for STM32 (or other) ARM Cortex-M MCUs.
-# Copyright (C) 2016  Andreas Hofmann
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-
 cmake_minimum_required(VERSION 2.8.12)
 
-project(STM32-Template C CXX ASM)
-set(TARGET stm32)
+project(felix-Template C CXX ASM)
+set(TARGET felix)
 
 # General settings {{{
 
@@ -32,14 +15,14 @@ set(CPU "cortex-m33")
 set(LINKER_SCRIPT "${BASE_DIR}/src/platform/mps3-an547/plat.ld")
 
 # Fill in the config for openocd to use.
-# E.g. for an STM32F4-Discovery dev-board:
-set(OPENOCD_CFG "/usr/share/openocd/scripts/board/stm32f4discovery.cfg")
+# E.g. for an felixF4-Discovery dev-board:
+#set(OPENOCD_CFG "/usr/share/openocd/scripts/board/felixf4discovery.cfg")
 
 # Definitions {{{
 
 # We're not using add_definitions() here, since this would break the calls to the assembler.
 # Some examples:
-set(DEFINITIONS "${DEFINITIONS} -DSTM32F40_41xxx")
+#set(DEFINITIONS "${DEFINITIONS} -DfelixF40_41xxx")
 set(DEFINITIONS "${DEFINITIONS} -DUSE_STDPERIPH_DRIVER")
 
 #}}}
@@ -55,8 +38,8 @@ set(CMAKE_ASM_COMPILER "${CROSS_TARGET_TRIPLET}as")
 set(WARNING_FLAGS "-Wall -Wextra -Wpedantic")
 
 # Flags which are required for gcc, g++ and as.
-set(COMMON_COMPILE_FLAGS "-mcpu=${CPU} -mthumb -nostdlib -nostartfiles -ffreestanding")
-set(ASM_COMPILE_FLAGS "-mcpu=${CPU} -mthumb")
+set(COMMON_COMPILE_FLAGS "-mcpu=${CPU} -nostdlib -nostartfiles -ffreestanding")
+set(ASM_COMPILE_FLAGS "-mcpu=${CPU} ")
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COMMON_COMPILE_FLAGS} ${WARNING_FLAGS} ${DEFINITIONS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMMON_COMPILE_FLAGS} ${WARNING_FLAGS} ${DEFINITIONS}")
