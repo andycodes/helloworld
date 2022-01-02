@@ -22,21 +22,9 @@ set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -T ${LINKER_SCRIPT}")
 set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "" )
 set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS "" )
 
-# Fill in your source files here (duh).
-set(SOURCES
-    "${BASE_DIR}/src/main.c"
-    "${BASE_DIR}/src/armv8m/cpuport.c"
-    "${BASE_DIR}/src/armv8m/context_gcc.S"
-    "${BASE_DIR}/src/armv8m/syscall_gcc.S"
-    "${BASE_DIR}/src/armv8m/backtrace.c"
-    "${BASE_DIR}/src/platform/mps3-an547/cmsdk_uart.c"
-    "${BASE_DIR}/src/platform/mps3-an547/board.c"
-    "${BASE_DIR}/src/cmsis/Device/ARM/ARMCM55/Source/system_ARMCM55.c"
-    "${BASE_DIR}/src/cmsis/Device/ARM/ARMCM55/Source/startup_ARMCM55.c"
-    "${BASE_DIR}/src/libs/printk.c"
-    "${BASE_DIR}/src/components/module.c"
-    "${BASE_DIR}/src/testcase/mps3-an547/test_svc.c"
-)
+# 查找当前目录下的所有源文件
+# 并将名称保存到 DIR_SRCS 变量
+aux_source_directory(. DIR_ARCH)
 
 include_directories(
     "${BASE_DIR}/src/include"
@@ -45,9 +33,3 @@ include_directories(
     "${BASE_DIR}/src/cmsis/CMSIS/Core/Include"
     "${BASE_DIR}/src/cmsis/Device/ARM/ARMCM55/Include"
 )
-
-
-
-
-# 生成链接库
-add_library (PlatformFunctions ${SOURCES})

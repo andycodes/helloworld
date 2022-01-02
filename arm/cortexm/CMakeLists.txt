@@ -7,14 +7,13 @@ set(TARGET felix)
 
 set(CROSS_TARGET_TRIPLET "/project/gcc/gcc-arm-none-eabi-10.3-2021.10/bin/arm-none-eabi-")
 set(BASE_DIR ${CMAKE_CURRENT_LIST_DIR})
-set(PLAT_PATH "${BASE_DIR}/src/platform/${CUR_PLAT}")
-MESSAGE("${PLAT_PATH}")
-add_subdirectory("${PLAT_PATH}")
-set(LINKER_SCRIPT "${PLAT_PATH}/plat.ld")
+set(DIR_PLAT "${BASE_DIR}/src/platform/${CUR_PLAT}")
+set(DIR_TEST "${BASE_DIR}/src/testcase/${CUR_PLAT}")
+MESSAGE("${DIR_PLAT}")
+set(LINKER_SCRIPT "${DIR_PLAT}/plat.ld")
 
-# Fill in the config for openocd to use.
-# E.g. for an felixF4-Discovery dev-board:
-#set(OPENOCD_CFG "/usr/share/openocd/scripts/board/felixf4discovery.cfg")
+add_subdirectory("${DIR_PLAT}")
+add_subdirectory("${DIR_TEST}")
 
 # Definitions {{{
 
@@ -53,42 +52,18 @@ set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS "" )
 #}}}
 
 # Source files  {{{
-    set(SOURCES
+   set(SOURCES
     "${BASE_DIR}/src/stub.c"
 )
 
 #}}}
 
-# Header files  {{{
-
-# Fill in your header files here. Not actually required for compiling, but
-# some IDEs (e.g. QtCreator) won't list the header files in the project tree
-# if they are not explicitly listed.
-#set(HEADERS
-#    "${BASE_DIR}include/main.h"
-#)
-
-#}}}
-
-# Include dirs  {{{
-
-# Fill in the directories of your header files here.
-#include_directories(
-#    "${BASE_DIR}/src/include"
-#    "${BASE_DIR}/src/components"
-#    "${BASE_DIR}/src/cmsis"
-#    "${BASE_DIR}/src/cmsis/CMSIS/Core/Include"
-#)
-
-#}}}
-
 # Build the image {{{
-
 # Compile the sources to an .elf
-add_executable(${TARGET}.elf ${SOURCES} ${HEADERS})
+add_executable(${TARGET}.elf ${SOURCES} ${HEADERS} ${DIR_ARCH})
 
 # 添加链接库
-target_link_libraries(${TARGET}.elf MathFunctions)
+target_link_libraries(${TARGET}.elf PlatformFunctions TestFunctions)
 
 
 # Create a binary from the elf
@@ -111,13 +86,6 @@ add_custom_target(gdb
 # Flash the previously built firmware to the target (openocd needs to run in background)
 add_custom_target(flash
     COMMAND ${CROSS_TARGET_TRIPLET}gdb --batch -x ${BASE_DIR}/gdb/gdb.cfg -ex 'monitor program ${TARGET}.hex verify reset'
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-    DEPENDS ${TARGET}.elf
-)
-
-# Flash the previously built firmware to the target (openocd needs to run in background)
-add_custom_target(openocd
-    COMMAND openocd -f ${OPENOCD_CFG}
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     DEPENDS ${TARGET}.elf
 )
