@@ -48,7 +48,6 @@ OBJS = src/main.o \
 include src/platform/$(board)/platform.mk
 include src/platform/$(board)/menu_config.mk
 include src/testcase/$(board)/platform.mk
-#include src/rtos/evolution/evolution.mk
 include src/cmsis/cmsis.mk
 include src/components/components.mk
 include src/libs/libs.mk

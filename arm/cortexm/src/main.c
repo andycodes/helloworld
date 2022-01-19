@@ -1,6 +1,7 @@
 #include "board.h"
 #include "lib.h"
 #include "module.h"
+#include "os_stdio.h"
 
 void __PROGRAM_START(void)
 {

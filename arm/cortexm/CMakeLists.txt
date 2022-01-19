@@ -39,7 +39,6 @@ set(COMMON_COMPILE_FLAGS "-Wall -g -fno-builtin -gdwarf-2 -gstrict-dwarf -mthumb
 set(ASM_COMPILE_FLAGS "-mcpu=${CPU} -Wall -g -fno-builtin -gdwarf-2 -gstrict-dwarf -mthumb -nostartfiles  --specs=nosys.specs -std=c11 -O0")
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COMMON_COMPILE_FLAGS} ${WARNING_FLAGS} ${DEFINITIONS}")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMMON_COMPILE_FLAGS} ${WARNING_FLAGS} ${DEFINITIONS}")
 set(CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS} ${ASM_COMPILE_FLAGS}")
 
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -g -T ${LINKER_SCRIPT}")
@@ -47,13 +46,17 @@ set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -g -T ${LINKER_SCRIPT}")
 # The following is required to get rid of the (not supported) -rdynamic flag
 # when linking the final binary.
 set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "" )
-set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS "" )
 
 #}}}
 
+include_directories(
+    "${BASE_DIR}/src/include"
+    "${BASE_DIR}/src/components"
+)
+
 # Source files  {{{
    set(SOURCES
-    "${BASE_DIR}/src/stub.c"
+    "${BASE_DIR}/src/main.c"
 )
 
 #}}}

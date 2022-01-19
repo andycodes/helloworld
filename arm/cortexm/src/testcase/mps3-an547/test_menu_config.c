@@ -1,8 +1,7 @@
-//#include "cmsdk_uart.h"
+#include "module.h"
 #include "os_stdio.h"
-#include <stdint.h>
+//#include <stdint.h>
 #include "config.h"
-
 
 static void test_menuconfig(void)
 {
