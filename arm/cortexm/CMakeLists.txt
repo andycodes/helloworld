@@ -13,7 +13,6 @@ MESSAGE("${DIR_PLAT}")
 set(LINKER_SCRIPT "${DIR_PLAT}/plat.ld")
 
 add_subdirectory("${DIR_PLAT}")
-add_subdirectory("${DIR_TEST}")
 
 # Definitions {{{
 
@@ -54,45 +53,14 @@ include_directories(
     "${BASE_DIR}/src/components"
 )
 
-# Source files  {{{
-   set(SOURCES
+set(SOURCES
     "${BASE_DIR}/src/main.c"
+    "${DIR_TEST}/test_menu_config.c"
 )
-
-#}}}
 
 # Build the image {{{
 # Compile the sources to an .elf
 add_executable(${TARGET}.elf ${SOURCES} ${HEADERS} ${DIR_ARCH})
 
 # 添加链接库
-target_link_libraries(${TARGET}.elf PlatformFunctions TestFunctions)
-
-
-# Create a binary from the elf
-add_custom_command(TARGET ${TARGET}.elf POST_BUILD
-    COMMAND ${CROSS_TARGET_TRIPLET}objcopy -Oihex ${TARGET}.elf ${TARGET}.hex
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-)
-
-#}}}
-
-# Targets for debugging/flashing {{{
-
-# Start debugging with GDB (openocd needs to run in background)
-add_custom_target(gdb
-    COMMAND ${CROSS_TARGET_TRIPLET}gdb -x ${BASE_DIR}/gdb/gdb.cfg ${TARGET}.elf
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-    DEPENDS ${TARGET}.elf
-)
-
-# Flash the previously built firmware to the target (openocd needs to run in background)
-add_custom_target(flash
-    COMMAND ${CROSS_TARGET_TRIPLET}gdb --batch -x ${BASE_DIR}/gdb/gdb.cfg -ex 'monitor program ${TARGET}.hex verify reset'
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-    DEPENDS ${TARGET}.elf
-)
-
-#}}}
-
-# vim: set ts=4 sw=4 sts=4 et smarttab :
+target_link_libraries(${TARGET}.elf PlatformFunctions)
