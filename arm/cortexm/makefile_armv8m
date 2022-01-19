@@ -37,6 +37,7 @@ CFLAGS = -mcpu=$(CPU_TYPE) -g -nostdlib -nostartfiles -ffreestanding \
 
 all: $(IMAGE)
 OBJS = src/main.o \
+		src/armv8m/cpu.o \
 		src/armv8m/cpuport.o \
 		src/armv8m/context_gcc.o \
 		src/armv8m/syscall_gcc.o \
