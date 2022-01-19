@@ -1,6 +1,5 @@
 #include "module.h"
 
-
 extern unsigned long _init_fn_start;
 extern unsigned long _init_fn_end;
 

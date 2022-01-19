@@ -35,7 +35,7 @@ configure_file (
 
 # Fill in your source files here (duh).
 set(SOURCES_TEST
-    "${DIR_TEST}/test_svc.c"
+    "${DIR_TEST}/test_menu_config.c"
 )
 
 # 是否加入 MathFunctions 库
