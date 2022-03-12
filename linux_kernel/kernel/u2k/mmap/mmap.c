@@ -26,7 +26,8 @@ unsigned long kernel_memsize= 0;
 
 static int  phymem_phyaddr_single_show(struct seq_file *s, void *p)
 {
-    return seq_printf(s, "%08lx\n", __pa(kernel_memaddr));
+    seq_printf(s, "%08lx\n", __pa(kernel_memaddr));
+    return 0;
 }
 
 static int phymem_phyaddr_seq_open(struct inode *inode, struct file *file)
@@ -34,17 +35,18 @@ static int phymem_phyaddr_seq_open(struct inode *inode, struct file *file)
     return single_open(file,phymem_phyaddr_single_show, NULL);
 }
 
-static struct file_operations phymem_phyaddr_ops =
+static struct proc_ops phymem_phyaddr_ops =
 {
-    .open = phymem_phyaddr_seq_open,
-    .read = seq_read,
-    .llseek = seq_lseek,
-    .release = single_release,
+    .proc_open = phymem_phyaddr_seq_open,
+    .proc_read = seq_read,
+    .proc_lseek = seq_lseek,
+    .proc_release = single_release,
 };
 
 static int  phymem_size_single_show(struct seq_file *s, void *p)
 {
-    return seq_printf(s, "%lu\n", kernel_memsize);
+    seq_printf(s, "%lu\n", kernel_memsize);
+    return 0;
 }
 
 static int phymem_size_seq_open(struct inode *inode, struct file *file)
@@ -52,12 +54,12 @@ static int phymem_size_seq_open(struct inode *inode, struct file *file)
     return single_open(file,phymem_size_single_show, NULL);
 }
 
-static struct file_operations phymem_size_ops =
+static struct proc_ops phymem_size_ops =
 {
-    .open = phymem_size_seq_open,
-    .read = seq_read,
-    .llseek = seq_lseek,
-    .release = single_release,
+    .proc_open = phymem_size_seq_open,
+    .proc_read = seq_read,
+    .proc_lseek = seq_lseek,
+    .proc_release = single_release,
 };
 
 static int __init memshare_init(void)
