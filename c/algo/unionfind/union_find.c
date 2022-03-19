@@ -35,17 +35,19 @@ bool uf_isOneUnion(struct UnionFind* uf, int sun0, int sun1)
 	 return uf_findRoot(uf, sun0) == uf_findRoot(uf, sun1);
 }
 
-/*Rank[i]表示以 i 为根节点的集合的层数，即树的高度。*/
-/*
+/*Rank[i]表示以 i 为根节点的集合的层数，即树的高度。
 对于两个集合来说，如果两个集合的层数不一样，
-我们只需要把层数小的集合的根元素的父亲节点指向另一个
-集合的根元素就好了，而且最后合并出来的集合的层数是不变的。
-合并后集合层数唯一会变的情况，就是两个集合的层数一模一样时。
-我们可以这样去理解，假设两个集合都只有一个元素，
-那么这两个集合的层数都为一层，层数相同时，
-此时谁的根节点的父亲节点指向另一个根节点都无所谓了，
+我们只需要把层数小的集合的根元素的父亲节点指
+向另一个集合的根元素就好了，而且最后合并出
+来的集合的层数是不变的。
+合并后集合层数唯一会变的情况，就是两个集合的
+层数一模一样时。我们可以这样去理解，假设两个
+集合都只有一个元素，那么这两个集合的层数
+都为一层，层数相同时，此时谁的根节点的父亲
+节点指向另一个根节点都无所谓了，
 但是这样合并后的集合层数要比原来多了一层。
-（原来两个集合都为一层，合并后的集合就变成两层了）
+（原来两个集合都为一层，合并后的集合就变
+成两层了）
 */
 void uf_union(struct UnionFind* uf, int sun0, int sun1)
 {
@@ -86,8 +88,8 @@ void uf_str_union(struct UnionFind* uf, Hashmap *sun0, Hashmap *sun1)
 	if (root1 == root2) {
 		return;
 	}
-
-	if (strcmp(sun0->name, sun1->name) < 0) { //连接边，字典序小的作为根节点
+//连接边，字典序小的作为根节点
+	if (strcmp(sun0->name, sun1->name) < 0) { 
 		uf->root[root2] = root1;
 	} else {
 		uf->root[root1] = root2;
