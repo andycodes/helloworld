@@ -89,7 +89,11 @@ int test_thread1(void *data)
 
      /*注册blocking事件*/
     blocking_notifier_chain_register(&test_blocking_notifier_list,&test_blocking_blk);
-    
+
+/*
+SRCU notifier chains
+可阻塞通知链的一种变体
+*/
      return 0;
 }
 

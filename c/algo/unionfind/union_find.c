@@ -12,13 +12,12 @@ struct UnionFind {
 
 void uf_init(struct UnionFind *uf, size_t size)
 {
-	uf->edgeCnt = size;
-	uf->root = (int *)calloc(size, sizeof(int));
-	uf->rank = (int *)calloc(size, sizeof(int));
-	memset(uf->rank, 0, sizeof(int) * size);
-	for (int i = 0; i < size; i++) {
-		uf->root[i] = i;
-	}
+        uf->edgeCnt = size;
+        uf->root = (int *)calloc(size, sizeof(int));
+        uf->rank = (int *)calloc(size, sizeof(int));
+        for (int i = 0; i < size; i++) {
+        	uf->root[i] = i;
+        }
 }
 
 int uf_findRoot(struct UnionFind* uf, int sun)
