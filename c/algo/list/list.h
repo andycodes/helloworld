@@ -1,5 +1,5 @@
-#ifndef HLIST_H
-#define HLIST_H
+#ifndef LIST_H
+#define LIST_H
 
 #include <stddef.h>
 #include <stdbool.h>
@@ -194,5 +194,5 @@ static inline void ListDeinit(struct List *list, NodeFunc nodeDeinit)
          &(entry)->member != &(list)->base; \
          entry = tmp, tmp = NODE_ENTRY((entry)->member.prev, type, member))
 
-#endif /* HLIST_H */
+#endif /* LIST_H */
 
