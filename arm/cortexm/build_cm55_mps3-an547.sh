@@ -1,2 +1,2 @@
 #! /bin/bash
-python ./build/build.py mps3-an547
+python3 ./build/build.py mps3-an547

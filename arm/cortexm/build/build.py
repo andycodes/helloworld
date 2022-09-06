@@ -7,7 +7,7 @@ import shutil
 import sys
 
 ARCH = 'armv7m'
-BOARD_LISTS = ['mps3-an547', 'mps2-an505']
+BOARD_LISTS = ['mps3-an547', 'mps2-an505', 'cm85']
 
 board_parm = 'mps3-an547'
 if len(sys.argv) > 1:
@@ -16,7 +16,7 @@ if len(sys.argv) > 1:
 if board_parm in BOARD_LISTS:
     ARCH = 'armv8m'
 
-print ARCH
+print (ARCH)
 
 
 bin_obj_dir = './bin/' + board_parm + '/'
@@ -43,5 +43,5 @@ for path,d,filelist in g:
                 if filename.endswith(".o"):
                     #print filename
                     file_path = os.path.join(path, filename)
-                    print file_path
+                    print (file_path)
                     shutil.move(file_path, "./obj")
