@@ -20,7 +20,6 @@ IMAGE := $(BIN_PATH)/$(OBJECT).elf
 LIST_FILE := $(BIN_PATH)/$(OBJECT).list
 SYM_FILE := $(BIN_PATH)/$(OBJECT).sym
 
-#PWD_TOOLCHAIN = /project/gcc/gcc-arm-none-eabi-10.3-2021.10/bin
 PWD_TOOLCHAIN = /project/gcc/arm-gnu-toolchain-11.3.rel1-x86_64-arm-none-eabi/bin
 CROSS_COMPILE = $(PWD_TOOLCHAIN)/arm-none-eabi-
 

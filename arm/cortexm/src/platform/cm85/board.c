@@ -1,7 +1,7 @@
 #include "SMM_MPS3.h"
 #include "core_cm55.h"
 #include "os_stdio.h"
-#include "system_ARMCM55.h"
+#include "system_ARMCM85.h"
 #include "uart.h"
 
 char *board_info(void)

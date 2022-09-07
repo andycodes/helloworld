@@ -22,11 +22,11 @@
  * limitations under the License.
  */
 
-#if defined (ARMCM85)
+//#if defined (ARMCM85)
   #include "ARMCM85.h"
-#else
-  #error device not specified!
-#endif
+//#else
+//  #error device not specified!
+//#endif
 
 /*----------------------------------------------------------------------------
   External References

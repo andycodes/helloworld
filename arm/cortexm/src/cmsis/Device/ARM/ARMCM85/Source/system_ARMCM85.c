@@ -22,15 +22,15 @@
  * limitations under the License.
  */
 
-#if defined (ARMCM85)
+//#if defined (ARMCM85)
   #include "ARMCM85.h"
 
   #if defined (__ARM_FEATURE_CMSE) &&  (__ARM_FEATURE_CMSE == 3U)
     #include "partition_ARMCM85.h"
   #endif
-#else
-  #error device not specified!
-#endif
+//#else
+ // #error device not specified!
+//#endif
 
 
 /*----------------------------------------------------------------------------

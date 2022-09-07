@@ -1,5 +1,5 @@
 
-CFLAGS += -Isrc/cmsis/Device/ARM/ARMCM55/Include
+CFLAGS += -Isrc/cmsis/Device/ARM/ARMCM85/Include
 
-OBJS += src/cmsis/Device/ARM/ARMCM55/Source/system_ARMCM55.o 
-OBJS += src/cmsis/Device/ARM/ARMCM55/Source/startup_ARMCM55.o
+OBJS += src/cmsis/Device/ARM/ARMCM85/Source/system_ARMCM85.o 
+OBJS += src/cmsis/Device/ARM/ARMCM85/Source/startup_ARMCM85.o
