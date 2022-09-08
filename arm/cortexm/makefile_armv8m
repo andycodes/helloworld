@@ -19,6 +19,7 @@ $(info "!!!!THE CUR CPU_TYPE is $(CPU_TYPE)")
 IMAGE := $(BIN_PATH)/$(OBJECT).elf
 LIST_FILE := $(BIN_PATH)/$(OBJECT).list
 SYM_FILE := $(BIN_PATH)/$(OBJECT).sym
+BIN_FILE := $(BIN_PATH)/$(OBJECT).bin
 
 PWD_TOOLCHAIN = /project/gcc/arm-gnu-toolchain-11.3.rel1-x86_64-arm-none-eabi/bin
 CROSS_COMPILE = $(PWD_TOOLCHAIN)/arm-none-eabi-
@@ -27,7 +28,7 @@ CC = $(CROSS_COMPILE)gcc
 LD = $(CROSS_COMPILE)ld
 GDB = $(CROSS_COMPILE)gdb
 OBJDUMP = $(CROSS_COMPILE)objdump
-OBJCOPY = ${TOOL_CHAIN}objcopy
+OBJCOPY = ${CROSS_COMPILE}objcopy
 READELF = $(CROSS_COMPILE)readelf
 LDFILE = src/platform/$(board)/plat.ld
 
@@ -60,6 +61,7 @@ $(IMAGE): $(LDFILE)  $(OBJS)
 	$(OBJDUMP) -d $(IMAGE) > $(LIST_FILE)
 	$(OBJDUMP) -t $(IMAGE) | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > $(SYM_FILE)
 	$(READELF) -A $(IMAGE)
+	$(OBJCOPY) -O binary $(IMAGE) $(BIN_FILE)
 
 %.o:%.c
 	${CC} $(CFLAGS) -c -o $@ $<
