@@ -1,5 +1,5 @@
 #include <stdint.h>
-#include "os_stdio.h"
+#include "os.h"
 
 void rt_hw_show_memory(uint32_t addr, uint32_t size)
 {

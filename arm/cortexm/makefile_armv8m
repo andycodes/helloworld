@@ -55,6 +55,7 @@ include src/testcase/$(board)/platform.mk
 include src/cmsis/cmsis.mk
 include src/components/components.mk
 include src/libs/libs.mk
+include src/utest/utest.mk
 
 $(IMAGE): $(LDFILE)  $(OBJS)
 	$(LD)  $(OBJS) -T $(LDFILE) -o $(IMAGE)

@@ -1,5 +1,5 @@
 #include "module.h"
-#include "os_stdio.h"
+#include "os.h"
 #include "io.h"
 
 void SVC1_Handler(void)

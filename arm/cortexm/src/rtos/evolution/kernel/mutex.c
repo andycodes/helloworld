@@ -1,5 +1,5 @@
 #include "mutex.h"
-#include "os_stdio.h"
+#include "os.h"
 #include "os.h"
 
 void mutex_init(mutex_t *mutex)

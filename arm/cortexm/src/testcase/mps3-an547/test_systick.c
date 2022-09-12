@@ -1,7 +1,7 @@
 #include "cmsdk_uart.h"
 #include "system_ARMCM55.h"
 #include "core_cm55.h"
-#include "os_stdio.h"
+#include "os.h"
 #include <stdint.h>
 
 uint32_t Seconds = 0;

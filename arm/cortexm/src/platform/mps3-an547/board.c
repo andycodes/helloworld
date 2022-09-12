@@ -1,6 +1,6 @@
 #include "SMM_MPS3.h"
 #include "core_cm55.h"
-#include "os_stdio.h"
+#include "os.h"
 #include "system_ARMCM55.h"
 #include "uart.h"
 

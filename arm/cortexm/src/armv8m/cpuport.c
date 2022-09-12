@@ -19,7 +19,7 @@
 
 #include <stdint.h>
 #include <stdio.h>
-#include "os_stdio.h"
+#include "os.h"
 
 /* exception and interrupt handler table */
 uint32_t  rt_interrupt_from_thread;

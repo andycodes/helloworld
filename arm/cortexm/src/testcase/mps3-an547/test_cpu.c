@@ -1,5 +1,5 @@
 #include "module.h"
-#include "os_stdio.h"
+#include "os.h"
 #include "cpu.h"
 
 static void test_cpu(void)

@@ -1,6 +1,6 @@
 #include "flag_group.h"
 #include "os.h"
-#include "os_stdio.h"
+#include "os.h"
 
 void flag_group_init(flag_group_t *flag_group, uint32_t flags)
 {

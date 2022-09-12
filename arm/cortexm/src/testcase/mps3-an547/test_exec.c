@@ -1,5 +1,5 @@
 #include "module.h"
-#include "os_stdio.h"
+#include "os.h"
 #include "io.h"
 
 static int test_exec(void)

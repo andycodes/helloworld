@@ -9,7 +9,7 @@
 #define _ARCH_CPU_H
 
 #include <stdint.h>
-#include "type.h"
+#include "typedef.h"
 
 #ifdef __cplusplus
 #if __cplusplus

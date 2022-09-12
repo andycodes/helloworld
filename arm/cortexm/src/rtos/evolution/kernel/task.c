@@ -1,6 +1,6 @@
 #include "task.h"
 #include "arch.h"
-#include "os_stdio.h"
+#include "os.h"
 #include "lib.h"
 #include "config.h"
 #include "os.h"

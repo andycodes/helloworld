@@ -2,7 +2,7 @@
 #define EVENT_H
 
 #include <stdint.h>
-#include "os_stdio.h"
+#include "os.h"
 #include "lib.h"
 #include "task.h"
 
