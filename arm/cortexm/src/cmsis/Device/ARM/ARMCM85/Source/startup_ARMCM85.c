@@ -49,6 +49,8 @@ __NO_RETURN void Reset_Handler  (void);
   Exception / Interrupt Handler
  *----------------------------------------------------------------------------*/
 /* Exceptions */
+extern void HardFault_Handler(void);
+
 void NMI_Handler            (void) __attribute__ ((weak, alias("Default_Handler")));
 void HardFault_Handler      (void) __attribute__ ((weak));
 void MemManage_Handler      (void) __attribute__ ((weak, alias("Default_Handler")));
@@ -87,10 +89,17 @@ extern const VECTOR_TABLE_Type __VECTOR_TABLE[496];
   Reset_Handler,                            /*     Reset Handler */
   NMI_Handler,                              /* -14 NMI Handler */
   HardFault_Handler,                        /* -13 Hard Fault Handler */
+#if 0
   MemManage_Handler,                        /* -12 MPU Fault Handler */
   BusFault_Handler,                         /* -11 Bus Fault Handler */
   UsageFault_Handler,                       /* -10 Usage Fault Handler */
   SecureFault_Handler,                      /*  -9 Secure Fault Handler */
+#else
+  HardFault_Handler,
+  HardFault_Handler,
+  HardFault_Handler,
+  HardFault_Handler,
+#endif
   0,                                        /*     Reserved */
   0,                                        /*     Reserved */
   0,                                        /*     Reserved */
@@ -141,7 +150,7 @@ __NO_RETURN void Reset_Handler(void)
   #pragma clang diagnostic push
   #pragma clang diagnostic ignored "-Wmissing-noreturn"
 #endif
-
+#if 0
 /*----------------------------------------------------------------------------
   Hard Fault Handler
  *----------------------------------------------------------------------------*/
@@ -149,7 +158,7 @@ void HardFault_Handler(void)
 {
   while(1);
 }
-
+#endif
 /*----------------------------------------------------------------------------
   Default Handler for Exceptions / Interrupts
  *----------------------------------------------------------------------------*/
