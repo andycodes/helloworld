@@ -43,7 +43,6 @@ OBJS = src/main.o \
 		src/armv8m/cpu.o \
 		src/armv8m/cpuport.o \
 		src/armv8m/context_gcc.o \
-		src/armv8m/backtrace.o \
 		src/platform/$(board)/cmsdk_uart.o \
 		src/platform/$(board)/board.o
 
