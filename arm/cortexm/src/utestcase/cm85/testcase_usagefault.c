@@ -26,7 +26,6 @@ void div_by_zero( void )
   c = a / b;
 }  
 
-
 void testcase_usagefault_tc(void)
 {
     div_by_zero();

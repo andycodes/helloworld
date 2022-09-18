@@ -109,7 +109,7 @@
     #if defined(__DSP_PRESENT) && (__DSP_PRESENT == 1U)
       #define __DSP_USED       1U
     #else
-      #error "Compiler generates DSP (SIMD) instructions for a devices without DSP extensions (check __DSP_PRESENT)"
+      //#error "Compiler generates DSP (SIMD) instructions for a devices without DSP extensions (check __DSP_PRESENT)"
       #define __DSP_USED         0U
     #endif
   #else

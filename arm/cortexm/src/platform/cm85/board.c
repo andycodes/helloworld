@@ -1,5 +1,6 @@
 #include "SMM_MPS3.h"
-#include "core_cm55.h"
+#include <ARMCM85.h>
+#include <core_cm85.h>
 #include "os.h"
 #include "system_ARMCM85.h"
 #include "uart.h"
