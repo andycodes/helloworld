@@ -3,18 +3,24 @@
 
 #include "os.h"
 #include <stdint.h>
+#include "clib.h"
+#include "utest.h"
+#include <utest_log.h>
+#include <ARMCM85.h>
+#include <core_cm85.h>
 
-void test_armv8m_mpu_write()
+/* write trigger fault*/
+void testcase_mpu_readonly_tc(void)
 {
     volatile uint32_t *temp_addr = (volatile uint32_t *)0x30001000UL;
-    printk("0x30001000:%x\n", *temp_addr);
-
+    uint32_t old_value = *temp_addr;
     *temp_addr = 0x1;
-    printk("0x30001000:%x\n", *temp_addr);
+    printk("0x30001000: old %x new %x\n", old_value, *temp_addr);
 
     armv8m_mpu_t *mpu = (armv8m_mpu_t *)0xE000ED90;
     mpu_disable(mpu);
     mpu_select_region(mpu, 0);
+    /*REGION_RO_PRIV_ONLY  trigger fault*/
     mpu_set_region_base(mpu, 0x30000000UL, REGION_NON_SHAREABLE, REGION_RO_PRIV_ONLY, REGION_XN);
     mpu_set_region_limit(mpu, 0x30001FFFUL, 0, REGION_EN);
     mpu_set_region_attr(mpu, 0, 0); /*device memory*/
@@ -93,3 +99,5 @@ void mpu_test(void)
     //test_armv8m_mpu_overlap();
     //test_armv8m_xn();
 }
+
+UTEST_TC_EXPORT(testcase_mpu_readonly_tc, "testcase_mpu_readonly_tc", NULL, NULL, 2);
