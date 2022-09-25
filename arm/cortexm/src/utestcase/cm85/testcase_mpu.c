@@ -9,7 +9,7 @@
 #include <ARMCM85.h>
 #include <core_cm85.h>
 
-/* write trigger fault*/
+/* test read write function*/
 void testcase_mpu_readonly_tc(void)
 {
     volatile uint32_t *temp_addr = (volatile uint32_t *)0x30001000UL;
@@ -21,6 +21,7 @@ void testcase_mpu_readonly_tc(void)
     mpu_disable(mpu);
     mpu_select_region(mpu, 0);
     /*REGION_RO_PRIV_ONLY  trigger fault*/
+    /*REGION_RW_PRIV_ONLY access ok*/
     mpu_set_region_base(mpu, 0x30000000UL, REGION_NON_SHAREABLE, REGION_RO_PRIV_ONLY, REGION_XN);
     mpu_set_region_limit(mpu, 0x30001FFFUL, 0, REGION_EN);
     mpu_set_region_attr(mpu, 0, 0); /*device memory*/
@@ -34,36 +35,11 @@ void testcase_mpu_readonly_tc(void)
     printk("%s:mpu setup done\n", __func__);
 }
 
-void test_armv8m_mpu_overlap()
-{
-    volatile uint32_t *temp_addr = (volatile uint32_t *)0x30001000UL;
-    printk("0x30001000:%x\n", *temp_addr);
-    *temp_addr = 0x1;
-    printk("0x30001000:%x\n", *temp_addr);
-
-    armv8m_mpu_t *mpu = (armv8m_mpu_t *)0xE000ED90;
-    mpu_disable(mpu);
-
-    mpu_select_region(mpu, 0);
-    mpu_set_region_base(mpu, 0x30000000UL, REGION_NON_SHAREABLE, REGION_RW_PRIV_ONLY, REGION_XN);
-    mpu_set_region_limit(mpu, 0x30001FFFUL, 0, REGION_EN);
-    mpu_set_region_attr(mpu, 0, 0); /*device memory*/
-
-    mpu_hfnmiena_disable(mpu);
-    mpu_privdefena_enable(mpu);
-    mpu_enable(mpu);
-
-    printk("0x30001000:%x\n", *temp_addr);
-    *temp_addr = 0x2;
-    // can not access now
-    printk("0x30001000:%x\n", *temp_addr);
-    printk("%s:mpu setup done\n", __func__);
-}
-
-void test_armv8m_xn()
+/* test ext function*/
+void testcase_mpu_xn_tc(void)
 {
     /* Inject code at 0x30001000 */
-typedef void (*test_func_t)(void);
+    typedef void (*test_func_t)(void);
     volatile uint32_t *temp_addr = (volatile uint32_t *)0x30001000UL;
     test_func_t test_f = (test_func_t )0x30001001;
     /*  1000041c <test_func>:
@@ -81,6 +57,9 @@ typedef void (*test_func_t)(void);
     armv8m_mpu_t *mpu = (armv8m_mpu_t *)0xE000ED90;
     mpu_disable(mpu);
     mpu_select_region(mpu, 0);
+    /* REGION_X access ok 
+       REGION_NX trigger fault
+    */
     mpu_set_region_base(mpu, 0x30000100UL, REGION_NON_SHAREABLE, REGION_RO_PRIV_ONLY, REGION_XN);
     mpu_set_region_limit(mpu, 0x30001FFFUL, 0, REGION_EN);
     mpu_set_region_attr(mpu, 0, 0); /*device memory*/
@@ -88,16 +67,8 @@ typedef void (*test_func_t)(void);
     mpu_privdefena_enable(mpu);
     mpu_enable(mpu);
     printk("%s:mpu setup done\n", __func__);
-    //can not access now
     test_f();
 }
 
-void mpu_test(void)
-{
-    printk("void mpu_test(void)\n");
-    //test_armv8m_mpu_write();
-    //test_armv8m_mpu_overlap();
-    //test_armv8m_xn();
-}
-
-UTEST_TC_EXPORT(testcase_mpu_readonly_tc, "testcase_mpu_readonly_tc", NULL, NULL, 2);
+//UTEST_TC_EXPORT(testcase_mpu_readonly_tc, "testcase_mpu_readonly_tc", NULL, NULL, 2);
+UTEST_TC_EXPORT(testcase_mpu_xn_tc, "testcase_mpu_xn_tc", NULL, NULL, 2);
