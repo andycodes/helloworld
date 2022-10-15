@@ -32,7 +32,8 @@ os.makedirs(bin_obj_dir)
 
 board = 'board=' + board_parm
 arch = 'makefile_' + ARCH
-os.system("make -f %s %s" % (arch, board))
+toolchain = 'PWD_TOOLCHAIN=/project/gcc/arm-gnu-toolchain-12.2.mpacbti-bet1-x86_64-arm-none-eabi/bin'
+os.system("make -f %s %s %s" % (arch, board, toolchain))
 
 #move *.o
 g = os.walk("./src")

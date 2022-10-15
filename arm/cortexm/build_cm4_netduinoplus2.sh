@@ -1,2 +1,2 @@
 #! /bin/bash
-python ./build/build.py netduinoplus2
+python3 ./build/build.py netduinoplus2

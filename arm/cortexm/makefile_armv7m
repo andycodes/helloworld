@@ -1,7 +1,6 @@
 
 $(info "!!!!THE CUR BOARD is $(board)")
 
-
 BIN_PATH = bin/$(board)
 OBJ_PATH = obj
 OBJECT = felix
@@ -17,7 +16,6 @@ IMAGE := $(BIN_PATH)/$(OBJECT).elf
 LIST_FILE := $(BIN_PATH)/$(OBJECT).list
 SYM_FILE := $(BIN_PATH)/$(OBJECT).sym
 
-PWD_TOOLCHAIN = /project/gcc/gcc-arm-none-eabi-10.3-2021.10/bin
 CROSS_COMPILE = $(PWD_TOOLCHAIN)/arm-none-eabi-
 
 CC = $(CROSS_COMPILE)gcc
