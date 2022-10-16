@@ -1,20 +1,17 @@
 
 $(info "!!!!THE CUR BOARD is $(board)")
 
+include src/platform/$(board)/board_config.mk
+
 BIN_PATH = bin/$(board)
 OBJ_PATH = obj
 OBJECT = felix
 
-CPU_TYPE = cortex-m3
-ifeq ($(board),netduinoplus2)
-	CPU_TYPE = cortex-m4
-endif
-
 $(info "!!!!THE CUR CPU_TYPE is $(CPU_TYPE)")
-
 IMAGE := $(BIN_PATH)/$(OBJECT).elf
 LIST_FILE := $(BIN_PATH)/$(OBJECT).list
 SYM_FILE := $(BIN_PATH)/$(OBJECT).sym
+BIN_FILE := $(BIN_PATH)/$(OBJECT).bin
 
 CROSS_COMPILE = $(PWD_TOOLCHAIN)/arm-none-eabi-
 
@@ -22,39 +19,27 @@ CC = $(CROSS_COMPILE)gcc
 LD = $(CROSS_COMPILE)ld
 GDB = $(CROSS_COMPILE)gdb
 OBJDUMP = $(CROSS_COMPILE)objdump
-OBJCOPY = ${TOOL_CHAIN}objcopy
+OBJCOPY = ${CROSS_COMPILE}objcopy
 READELF = $(CROSS_COMPILE)readelf
 LDFILE = src/platform/$(board)/plat.ld
 
-CFLAGS		:= -Wall -g -fno-builtin -gdwarf-2 -gstrict-dwarf -mcpu=$(CPU_TYPE) -mthumb -nostartfiles  --specs=nosys.specs -std=c11 -O0 \
-				-Isrc/include\
-				-Isrc/armv7m\
-				-Isrc/platform/$(board)\
-				-Isrc/libs
-
-
-
-LDFLAGS		:= -g
+CFLAGS =  -fno-builtin -nostdlib -nostartfiles -ffreestanding \
+			-Wall -g\
+			-mcpu=$(CPU_TYPE)\
+			-Isrc/include \
+			-Isrc/$(ARCH)\
+			-Isrc/libs\
+			-Isrc/platform/$(board)
 
 all: $(IMAGE)
-OBJS := src/armv7m/int_vector.o \
-		src/armv7m/cm3.o \
-		src/armv7m/cm3_s.o \
-		src/armv7m/main.o \
-		src/platform/$(board)/cmsdk_uart.o 
-
-include src/platform/$(board)/menu_config.mk
-include src/platform/$(board)/platform.mk
-include src/rtos/evolution/evolution.mk
-include src/libs/libs.mk
-include src/cmsis/cmsis.mk
-
+include build/gcc_$(ARCH).mk
 
 $(IMAGE): $(LDFILE)  $(OBJS)
 	$(LD)  $(OBJS) -T $(LDFILE) -o $(IMAGE)
 	$(OBJDUMP) -d $(IMAGE) > $(LIST_FILE)
 	$(OBJDUMP) -t $(IMAGE) | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > $(SYM_FILE)
 	$(READELF) -A $(IMAGE)
+	$(OBJCOPY) -O binary $(IMAGE) $(BIN_FILE)
 
 %.o:%.c
 	${CC} $(CFLAGS) -c -o $@ $<
@@ -72,11 +57,12 @@ dumpvmstate:
 qemu:
 	@qemu-system-arm -M ? | grep $(board) >/dev/null || exit
 	qemu-system-arm -machine $(board) -cpu $(CPU_TYPE) \
+	                    -m $(MEM_SIZE) \
 			    -nographic -serial mon:stdio \
 	                    -kernel $(IMAGE) 
 			   
 gdbserver:
-	qemu-system-arm -machine $(board) -cpu $(CPU_TYPE) \
+	qemu-system-arm -machine $(board) -cpu $(CPU_TYPE) -m $(MEM_SIZE) \
 			    -nographic -serial mon:stdio \
 	                    -kernel $(IMAGE) \
 			    -S -s 
@@ -85,7 +71,7 @@ gdb: $(IMAGE)
 
 
 gdbqemu:
-	gdb --args qemu-system-arm -machine $(board) -cpu $(CPU_TYPE)  -m 4096  -nographic -serial mon:stdio -armv7m $(IMAGE)
+	gdb --args qemu-system-arm -machine $(board) -cpu $(CPU_TYPE)  -m 4096  -nographic -serial mon:stdio -$(ARCH) $(IMAGE)
 
 
 			    

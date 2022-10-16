@@ -6,19 +6,7 @@ import os
 import shutil
 import sys
 
-ARCH = 'armv7m'
-BOARD_LISTS = ['mps3-an547', 'mps2-an505', 'cm85']
-
-board_parm = 'mps3-an547'
-if len(sys.argv) > 1:
-    board_parm = sys.argv[1]
-
-if board_parm in BOARD_LISTS:
-    ARCH = 'armv8m'
-
-print (ARCH)
-
-
+board_parm = sys.argv[1]
 bin_obj_dir = './bin/' + board_parm + '/'
 
 if os.path.exists("./obj"):
@@ -31,9 +19,8 @@ os.mkdir("obj")
 os.makedirs(bin_obj_dir)	
 
 board = 'board=' + board_parm
-arch = 'makefile_' + ARCH
 toolchain = 'PWD_TOOLCHAIN=/project/gcc/arm-gnu-toolchain-12.2.mpacbti-bet1-x86_64-arm-none-eabi/bin'
-os.system("make -f %s %s %s" % (arch, board, toolchain))
+os.system("make  %s %s" % (board, toolchain))
 
 #move *.o
 g = os.walk("./src")

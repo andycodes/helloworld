@@ -1,0 +1,2 @@
+CPU_TYPE = cortex-m33
+MEM_SIZE = 16
