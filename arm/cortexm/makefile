@@ -4,8 +4,7 @@ $(info "!!!!THE CUR BOARD is $(board)")
 include src/platform/$(board)/board_config.mk
 
 ifeq ($(CC),gcc)
-include gcc.mk
+include build/gcc.mk
 else
-include clang.mk
+include build/clang.mk
 endif
-

@@ -1,2 +1,2 @@
 #! /bin/bash
-make -f makefile_armv7m board=netduinoplus2 qemu
+make board=netduinoplus2 qemu
