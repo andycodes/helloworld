@@ -83,12 +83,12 @@ SECTIONS
 
     .bss :
     {
-    	  . = ALIGN(8);
+    	. = ALIGN(8);
         _bss = .;
         *(.bss*)
         *(COMMON)
         _ebss = .;
-	      . = ALIGN(8);
+	. = ALIGN(8);
     } > S_RAM
 
     _p_StackLimit = .;

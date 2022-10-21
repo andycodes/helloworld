@@ -1,4 +1,4 @@
-set(CPU "cortex-m4")
+set(CPU "cortex-m3")
 # Prepend the cross-compiler prefix to the used tools.
 set(CROSS_TARGET_TRIPLET "/project/gcc/gcc-arm-none-eabi-10.3-2021.10/bin/arm-none-eabi-")
 set(CMAKE_C_COMPILER "${CROSS_TARGET_TRIPLET}gcc")

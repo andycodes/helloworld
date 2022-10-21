@@ -1,4 +1,6 @@
 #include "os.h"
+#include "system_ARMCM3.h"
+
 void ResetISR(void);
 static void NmiSR(void);
 static void FaultISR(void);
@@ -8,14 +10,14 @@ extern unsigned long _etext;
 extern unsigned long _data;
 extern unsigned long _edata;
 extern unsigned long _stack_bottom;
-extern unsigned long _stack_top;
+extern unsigned int _p_StackTop;
 extern void reset_handler(void);
 extern void systick_handler(void);
 extern void pendsv_handler(void);
 
-__attribute__ ((section(".isr_vector")))void (*g_pfnVectors[])(void) =
+__attribute__ ((section(".vectors")))void (*g_pfnVectors[])(void) =
 {
-    0x2000c000,                             // StackPtr, set in RestetISR
+    (VECTOR_TABLE_Type)(&_p_StackTop),               // StackPtr, set in RestetISR
     ((unsigned int)reset_handler + 1),      // The reset handler
     NmiSR,                                  // The NMI handler
     FaultISR,                               // The hard fault handler
