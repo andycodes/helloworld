@@ -6,7 +6,6 @@ OBJS = src/main.o \
 		src/platform/$(board)/board.o
 
 include src/platform/$(board)/platform.mk
-include src/platform/$(board)/menu_config.mk
 include src/cmsis/cmsis.mk
 include src/components/components.mk
 include src/libs/libs.mk

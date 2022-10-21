@@ -21,12 +21,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <stdint.h>
 
-#if defined (ARMCM3)
+//#if defined (ARMCM3)
   #include "ARMCM3.h"
-#else
-  #error device not specified!
-#endif
+//#else
+ // #error device not specified!
+//#endif
 
 /*----------------------------------------------------------------------------
   External References
@@ -133,6 +134,7 @@ __NO_RETURN void Reset_Handler(void)
  *----------------------------------------------------------------------------*/
 void HardFault_Handler(void)
 {
+  printk("IntDefaultHandler\n");
   while(1);
 }
 
@@ -141,6 +143,7 @@ void HardFault_Handler(void)
  *----------------------------------------------------------------------------*/
 void Default_Handler(void)
 {
+  printk("IntDefaultHandler\n");
   while(1);
 }
 
