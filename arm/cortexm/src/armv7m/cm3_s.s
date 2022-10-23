@@ -2,7 +2,6 @@
 .code 16
 .syntax unified
 /*Export*/
-.global reset_handler
 .global _p_StackTop
 .global get_psp
 .global set_psp
@@ -18,22 +17,6 @@
 .global g_current_task
 .global g_next_task
 .global main
-
-reset_handler:
-
-    /*Set the stack as process stack*/
-    mov     r0, #33
-    mrs     r0, CONTROL
-    mov     r1, #2
-    orr     r0, r1
-    msr     CONTROL, r0
-
-    ldr     r0, =_p_StackTop
-    mov     sp, r0
-
-    ldr     r0, =main
-    blx     r0
-    b .
 
 get_psp:
     mrs     r0, PSP

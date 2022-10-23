@@ -9,6 +9,7 @@
 #include "flag_group.h"
 #include "lib.h"
 
+extern unsigned int _p_StackTop;
 
 task_t task1;
 task_t task2;
@@ -60,13 +61,14 @@ void task4_entry(void *param)
     }
 }
 
-int main()
+int main(void)
 {
 
     clear_bss();
 
     DEBUG("Hello FAN RTOS \n");
 
+    DEBUG("_p_StackTop addr and data is :0x%x, 0x%x\n", &_p_StackTop, _p_StackTop);
     DEBUG("psp:0x%x\n", get_psp());
     DEBUG("msp:0x%x\n", get_msp());
 
