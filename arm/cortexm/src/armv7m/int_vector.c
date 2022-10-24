@@ -1,7 +1,3 @@
-
-#include "ARMCM3.h"
-#include "core_cm3.h"
-
 #include "os.h"
 #include "system_ARMCM3.h"
 
@@ -17,22 +13,18 @@ extern unsigned long _stack_bottom;
 extern unsigned int _p_StackTop;
 extern void systick_handler(void);
 extern void pendsv_handler(void);
-extern int main(void);
 /*----------------------------------------------------------------------------
   Reset Handler called on controller reset
  *----------------------------------------------------------------------------*/
 
+
+
 VECTOR_TABLE_Type Reset_Handler(void)
 {
-    uint32_t ctrl;
-
-    __set_PSP((uint32_t)(&_p_StackTop));
-
-    ctrl = __get_CONTROL();
-    __set_CONTROL(ctrl | CONTROL_SPSEL_Msk); // switch to PSP
-
-    main();
+    __PROGRAM_START();
 }
+
+
 
 __attribute__ ((section(".vectors")))void (*g_pfnVectors[])(void) =
 {

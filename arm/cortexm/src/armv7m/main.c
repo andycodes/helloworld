@@ -63,9 +63,6 @@ void task4_entry(void *param)
 
 int main(void)
 {
-
-    clear_bss();
-
     DEBUG("Hello FAN RTOS \n");
 
     DEBUG("_p_StackTop addr and data is :0x%x, 0x%x\n", &_p_StackTop, _p_StackTop);

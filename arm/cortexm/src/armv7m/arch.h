@@ -6,7 +6,7 @@
 #define SCS_BASE            (0xE000E000)                 /*System Control Space Base Address */
 #define SYSTICK_BASE        (SCS_BASE +  0x0010)         /*SysTick Base Address*/
 #define SCB_BASE            (SCS_BASE +  0x0D00)
-#define SystemCoreClock     12000000UL
+//#define SystemCoreClock     12000000UL
 #define SYSTICK_PRIO_REG    (0xE000ED23)
 
 #define NVIC_INT_CTRL       0xE000ED04
