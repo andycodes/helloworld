@@ -1,5 +1,5 @@
 #instll clang llvm lld
-include build/cortex-m4.mk
+include build/cortex-m3.mk
 
 ########
 # Project name
@@ -10,28 +10,20 @@ DBG_LEVEL := 3
 LDSCRIPT  := build/link.ld
 ########
 
-#CSRC := src/$(ARCH)/int_vector.c \
-#		src/$(ARCH)/cm3.c \
-#		src/$(ARCH)/main.c \
-#		src/platform/$(board)/cmsdk_uart.c
+CSRC := src/$(ARCH)/cm3.c \
+		src/$(ARCH)/main.c \
+		src/platform/$(board)/cmsdk_uart.c
 
-#SSRC := src/$(ARCH)/cm3_s.s
-
-CSRC := src/$(ARCH)/clang/main.c \
-		src/$(ARCH)/clang/start.c
-
-
+SSRC := src/$(ARCH)/cm3_s.s
 
 CFLAGS := $(ARCH_FLAGS)
 
-include src/platform/$(board)/menu_config.mk
-include src/platform/$(board)/platform.mk
+include src/platform/$(board)/platform_clang.mk
 include src/rtos/evolution/evolution_clang.mk
 include src/libs/libs_clang.mk
 include src/cmsis/cmsis.mk
 
-OUT := out
-#CSRC:= $(wildcard src/*.c)
+OUT := bin/$(board)
 OBJ := $(addprefix $(OUT)/, $(CSRC:.c=.o))
 OBJ += $(addprefix $(OUT)/, $(SSRC:.s=.o))
 

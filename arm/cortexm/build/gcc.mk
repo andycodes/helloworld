@@ -3,15 +3,15 @@ $(info "!!!!THE CUR BOARD is $(board)")
 
 include src/platform/$(board)/board_config.mk
 
-BIN_PATH = bin/$(board)
+OUT = bin/$(board)
 OBJ_PATH = obj
-OBJECT = felix
+PRJ = felix
 
 $(info "!!!!THE CUR CPU_TYPE is $(CPU_TYPE)")
-IMAGE := $(BIN_PATH)/$(OBJECT).elf
-LIST_FILE := $(BIN_PATH)/$(OBJECT).list
-SYM_FILE := $(BIN_PATH)/$(OBJECT).sym
-BIN_FILE := $(BIN_PATH)/$(OBJECT).bin
+TARGET := $(OUT)/$(PRJ).elf
+TARGET_LST := $(OUT)/$(PRJ).list
+TARGET_SYM := $(OUT)/$(PRJ).sym
+TARGET_BIN := $(OUT)/$(PRJ).bin
 
 CROSS_COMPILE = $(PWD_TOOLCHAIN)/arm-none-eabi-
 
@@ -31,15 +31,8 @@ CFLAGS =  -fno-builtin -nostdlib -nostartfiles -ffreestanding \
 			-Isrc/libs\
 			-Isrc/platform/$(board)
 
-all: $(IMAGE)
+all: $(TARGET)
 include build/gcc_$(ARCH).mk
-
-$(IMAGE): $(LDFILE)  $(OBJS)
-	$(LD)  $(OBJS) -T $(LDFILE) -o $(IMAGE)
-	$(OBJDUMP) -d $(IMAGE) > $(LIST_FILE)
-	$(OBJDUMP) -t $(IMAGE) | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > $(SYM_FILE)
-	$(READELF) -A $(IMAGE)
-	$(OBJCOPY) -O binary $(IMAGE) $(BIN_FILE)
 
 %.o:%.c
 	${CC} $(CFLAGS) -c -o $@ $<
@@ -47,11 +40,18 @@ $(IMAGE): $(LDFILE)  $(OBJS)
 %.o:%.s
 	${CC} $(CFLAGS) -c -o $@ $<
 
+$(TARGET): $(LDFILE)  $(OBJS)
+	$(LD)  $(OBJS) -T $(LDFILE) -o $(TARGET)
+	$(OBJDUMP) -d $(TARGET) > $(TARGET_LST)
+	$(OBJDUMP) -t $(TARGET) | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > $(TARGET_SYM)
+	$(READELF) -A $(TARGET)
+	$(OBJCOPY) -O binary $(TARGET) $(TARGET_BIN)
+
 dumpvmstate:
 	qemu-system-arm -machine $(board) -cpu $(CPU_TYPE) \
 	                    -m 1024 \
 			    -nographic -serial mon:stdio \
-	                    -kernel $(IMAGE) \
+	                    -kernel $(TARGET) \
 			    -dump-vmstate vmstate.json 
 
 qemu:
@@ -59,21 +59,21 @@ qemu:
 	qemu-system-arm -machine $(board) -cpu $(CPU_TYPE) \
 	                    -m $(MEM_SIZE) \
 			    -nographic -serial mon:stdio \
-	                    -kernel $(IMAGE) 
+	                    -kernel $(TARGET) 
 			   
 gdbserver:
 	qemu-system-arm -machine $(board) -cpu $(CPU_TYPE) -m $(MEM_SIZE) \
 			    -nographic -serial mon:stdio \
-	                    -kernel $(IMAGE) \
+	                    -kernel $(TARGET) \
 			    -S -s 
-gdb: $(IMAGE)
+gdb: $(TARGET)
 	$(GDB) $^ -ex "target remote:1234"
 
 
 gdbqemu:
-	gdb --args qemu-system-arm -machine $(board) -cpu $(CPU_TYPE)  -m 4096  -nographic -serial mon:stdio -$(ARCH) $(IMAGE)
+	gdb --args qemu-system-arm -machine $(board) -cpu $(CPU_TYPE)  -m 4096  -nographic -serial mon:stdio -$(ARCH) $(TARGET)
 
 	    
 clean:
-	rm -rf $(BIN_PATH) $(OBJ_PATH) *.o
+	rm -rf $(OUT) $(OBJ_PATH) *.o
 .PHONY: all qemu clean
