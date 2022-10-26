@@ -19,9 +19,9 @@ void init_systick(uint32_t ms)
     systick_p->ctrl = 0x7;
 }
 
-void systick_handler(void)
+void SysTick_Handler(void)
 {
-    /*DEBUG("systick_handler\n");*/
+    /*DEBUG("SysTick_Handler\n");*/
     task_system_tick_handler();
 }
 

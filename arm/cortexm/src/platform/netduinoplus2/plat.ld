@@ -11,18 +11,12 @@ SECTIONS
     {
 	. = ALIGN(8);
         _text = .;
-        KEEP(*(.isr_vector))
+        KEEP(*(.vectors))
         *(.text*)
         *(.rodata*)
         _etext = .;
 	. = ALIGN(8);
     } > FLASH
-
-    /DISCARD/ :
-    {
-        *(.ARM.exidx*)
-        *(.gnu.linkonce.armexidx.*)
-    }
 
     .data : AT(ADDR(.text) + SIZEOF(.text))
     {

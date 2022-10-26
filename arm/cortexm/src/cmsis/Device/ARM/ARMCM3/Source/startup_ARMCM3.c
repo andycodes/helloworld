@@ -77,6 +77,8 @@ void Interrupt9_Handler     (void) __attribute__ ((weak, alias("Default_Handler"
 #pragma GCC diagnostic ignored "-Wpedantic"
 #endif
 
+extern void pendsv_handler(void);
+
 extern const VECTOR_TABLE_Type __VECTOR_TABLE[240];
        const VECTOR_TABLE_Type __VECTOR_TABLE[240] __VECTOR_TABLE_ATTRIBUTE = {
   (VECTOR_TABLE_Type)(&__INITIAL_SP),       /*     Initial Stack Pointer */
@@ -93,7 +95,7 @@ extern const VECTOR_TABLE_Type __VECTOR_TABLE[240];
   SVC_Handler,                              /*  -5 SVC Handler */
   DebugMon_Handler,                         /*  -4 Debug Monitor Handler */
   0,                                        /*     Reserved */
-  PendSV_Handler,                           /*  -2 PendSV Handler */
+  ((unsigned int)pendsv_handler + 1),                           /*  -2 PendSV Handler */
   SysTick_Handler,                          /*  -1 SysTick Handler */
 
   /* Interrupts */

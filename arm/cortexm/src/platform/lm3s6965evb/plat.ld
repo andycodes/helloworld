@@ -42,4 +42,6 @@ SECTIONS
     _p_StackLimit = .;
     . = . + 0x4000;
     _p_StackTop = .;
+    . = . + 0x4000;
+    __StackTop = .;
 }

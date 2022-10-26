@@ -1,5 +1,5 @@
-OBJS := src/$(ARCH)/int_vector.o \
-		src/$(ARCH)/cm3.o \
+
+OBJS := src/$(ARCH)/cm3.o \
 		src/$(ARCH)/cm3_s.o \
 		src/$(ARCH)/main.o \
 		src/platform/$(board)/cmsdk_uart.o 
