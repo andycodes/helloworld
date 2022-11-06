@@ -11,12 +11,6 @@
 #include <stdint.h>
 #include "typedef.h"
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-#endif /* __cplusplus */
-
 #define CPUID_BASE              0xE000ED00    /* Main ID Register */
 #define ARM_SYSREG_READ(addr)   (*(volatile unsigned *)(uintptr_t)(addr))
 
@@ -36,11 +30,5 @@ static inline uint32_t  ArchCurrCpuid(void)
 {
     return 0;
 }
-
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cplusplus */
-#endif /* __cplusplus */
 
 #endif /* _ARCH_CPU_H */

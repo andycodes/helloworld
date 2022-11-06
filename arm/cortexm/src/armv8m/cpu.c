@@ -24,7 +24,7 @@ uint64_t  g_cpuMap[LOSCFG_KERNEL_CORE_NUM] = {
     [0 ... LOSCFG_KERNEL_CORE_NUM - 1] = (uint64_t )(-1)
 };
 
-const char *ArchCpuInfo(VOID)
+const char *ArchCpuInfo(void)
 {
     uint32_t  midr = OsMainIDGet();
     /* [15:4] is the primary part number */

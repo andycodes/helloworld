@@ -30,11 +30,11 @@
 
 #include "chip.h"
 
-//#if defined(CONFIG_STM32L5_STM32L562XX)
+#if defined(CONFIG_STM32L5_STM32L562XX)
 #  include "hardware/stm32l5_uart.h"
-//#else
-//#  error "Unsupported STM32L5 chip"
-//#endif
+#else
+#  error "Unsupported STM32L5 chip"
+#endif
 
 /****************************************************************************
  * Pre-processor Definitions

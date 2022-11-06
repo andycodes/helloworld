@@ -29,6 +29,8 @@ else
 Q:=@
 endif
 
+.PHONY: all clean list size rebuild qemu
+
 all: $(TARGET_BIN) $(TARGET_LST) 
 
 $(OUT)/%.o: %.c
@@ -60,8 +62,6 @@ clean:
 
 rebuild: clean all
 
-.PHONY: all clean list size rebuild
-
 dumpvmstate:
 	qemu-system-arm -machine $(board) -cpu $(CPU_TYPE) \
 	                    -m 1024 \
@@ -87,8 +87,3 @@ gdb: $(TARGET)
 
 gdbqemu:
 	gdb --args qemu-system-arm -machine $(board) -cpu $(CPU_TYPE)  -m 4096  -nographic -serial mon:stdio -$(ARCH) $(TARGET)
-
-	    
-clean:
-	rm -rf $(OUT) $(OBJ_PATH) *.o
-.PHONY: all qemu clean
