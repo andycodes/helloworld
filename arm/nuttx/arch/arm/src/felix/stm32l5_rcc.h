@@ -93,10 +93,10 @@ static inline void stm32l5_mcoconfig(uint32_t source)
 
   /* Set MCO source */
 
-  regval = getreg32(STM32L5_RCC_CFGR);
-  regval &= ~(RCC_CFGR_MCOSEL_MASK);
-  regval |= (source & RCC_CFGR_MCOSEL_MASK);
-  putreg32(regval, STM32L5_RCC_CFGR);
+  regval = getreg32(0);
+  regval &= ~(0);
+  regval |= (source & 0);
+  putreg32(regval, 0);
 }
 
 /****************************************************************************

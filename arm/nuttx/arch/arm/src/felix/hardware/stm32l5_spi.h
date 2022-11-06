@@ -34,11 +34,11 @@
 
 /* Maximum allowed speed as per specifications for all SPIs */
 
-#if defined(CONFIG_STM32L5_STM32L562XX)
+////#if defined(CONFIG_STM32L5_STM32L562XX)
 #  define STM32L5_SPI_CLK_MAX     55000000UL
-#else
-#  error "Unsupported STM32 L5 chip"
-#endif
+//#else
+//#  error "Unsupported STM32 L5 chip"
+//#endif
 
 /* Register Offsets *********************************************************/
 

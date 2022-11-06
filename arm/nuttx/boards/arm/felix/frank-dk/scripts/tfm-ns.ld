@@ -39,7 +39,7 @@
 MEMORY
 {
   flash (rx) : ORIGIN = 0x90000400, LENGTH = 0xFDC00
-  sram (rwx) : ORIGIN = 0x20000000, LENGTH = 192K
+  sram (rwx) : ORIGIN = 0x10000000, LENGTH = 192K
 }
 
 OUTPUT_ARCH(arm)
@@ -60,22 +60,22 @@ SECTIONS
         *(.gcc_except_table)
         *(.gnu.linkonce.r.*)
         _etext = ABSOLUTE(.);
-    } > flash
+    } > sram
 
     .init_section : {
         _sinit = ABSOLUTE(.);
         *(.init_array .init_array.*)
         _einit = ABSOLUTE(.);
-    } > flash
+    } > sram
 
     .ARM.extab : {
         *(.ARM.extab*)
-    } > flash
+    } > sram
 
     __exidx_start = ABSOLUTE(.);
     .ARM.exidx : {
         *(.ARM.exidx*)
-    } > flash
+    } > sram
     __exidx_end = ABSOLUTE(.);
 
     _eronly = ABSOLUTE(.);
@@ -87,7 +87,7 @@ SECTIONS
         CONSTRUCTORS
         . = ALIGN(4);
         _edata = ABSOLUTE(.);
-    } > sram AT > flash
+    } > sram
 
     .bss : {
         _sbss = ABSOLUTE(.);

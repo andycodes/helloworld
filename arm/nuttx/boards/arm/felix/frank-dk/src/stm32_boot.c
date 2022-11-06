@@ -51,19 +51,7 @@
 
 void stm32l5_board_initialize(void)
 {
-  /* On the STM32L562E-DK Vddio2 is supplied by Vdd_mcu.  Thus, when the MCU
-   * is running Vddio2 is guaranteed to be valid.  LED LD10 is driven by
-   * PG12, whose power is supplied by Vddio2.  Thus, its important to report
-   * Vddio2 to be valid here.
-   */
 
-  stm32l5_pwr_vddio2_valid(true);
-
-#ifdef CONFIG_ARCH_LEDS
-  /* Configure on-board LEDs if LED support has been selected. */
-
-  board_autoled_initialize();
-#endif
 }
 
 /****************************************************************************

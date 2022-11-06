@@ -29,10 +29,10 @@
 
 #include "chip.h"
 
-#if defined(CONFIG_STM32L5_STM32L562XX)
+//#if defined(CONFIG_STM32L5_STM32L562XX)
 #  include "hardware/stm32l562xx_dbgmcu.h"
-#else
-#  error "Unsupported STM32L5 chip"
-#endif
+//#else
+//#  error "Unsupported STM32L5 chip"
+//#endif
 
 #endif /* __ARCH_ARM_SRC_STM32L5_STM32L5_DBGMCU_H */

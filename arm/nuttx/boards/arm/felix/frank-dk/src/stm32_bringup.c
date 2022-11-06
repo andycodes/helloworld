@@ -60,46 +60,5 @@
 
 int stm32_bringup(void)
 {
-  int ret;
-
-#ifdef CONFIG_FS_PROCFS
-  /* Mount the procfs file system */
-
-  ret = mount(NULL, "/proc", "procfs", 0, NULL);
-  if (ret < 0)
-    {
-      ferr("ERROR: Failed to mount procfs at /proc: %d\n", ret);
-    }
-#endif
-
-#if !defined(CONFIG_ARCH_LEDS) && defined(CONFIG_USERLED_LOWER)
-  /* Register the LED driver */
-
-  ret = userled_lower_initialize("/dev/userleds");
-  if (ret < 0)
-    {
-      syslog(LOG_ERR, "ERROR: userled_lower_initialize() failed: %d\n", ret);
-    }
-#endif
-
-#ifdef CONFIG_INPUT_BUTTONS
-#ifdef CONFIG_INPUT_BUTTONS_LOWER
-  iinfo("Initializing button driver\n");
-
-  /* Register the BUTTON driver */
-
-  ret = btn_lower_initialize("/dev/buttons");
-  if (ret < 0)
-    {
-      ierr("ERROR: btn_lower_initialize() failed: %d\n", ret);
-    }
-#else
-  /* Enable BUTTON support for some other purpose */
-
-  board_button_initialize();
-#endif
-#endif /* CONFIG_INPUT_BUTTONS */
-
-  UNUSED(ret);
   return OK;
 }

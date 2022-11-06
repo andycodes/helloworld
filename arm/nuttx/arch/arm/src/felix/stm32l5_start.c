@@ -116,7 +116,6 @@ void __start(void) noinstrument_function;
  *   This is the reset entry point.
  *
  ****************************************************************************/
-
 void __start(void)
 {
   const uint32_t *src;
@@ -129,7 +128,7 @@ void __start(void)
     ("sub r10, sp, %0" : : "r" (CONFIG_IDLETHREAD_STACKSIZE - 64) :);
 #endif
 
-#ifdef CONFIG_STM32L5_SRAM2_INIT
+#if 0
   /* The SRAM2 region is parity checked, but upon power up, it will be in
    * a random state and probably invalid with respect to parity, potentially
    * generating faults if accessed.  If elected, we will write zeros to the
@@ -149,10 +148,12 @@ void __start(void)
 
   /* Configure the UART so that we can get debug output as soon as possible */
 
+#if 0
   stm32l5_clockconfig();
   arm_fpuconfig();
   stm32l5_lowsetup();
   stm32l5_gpioinit();
+#endif
   showprogress('A');
 
   /* Clear .bss.  We'll do this inline (vs. calling memset) just to be
@@ -182,7 +183,7 @@ void __start(void)
   /* Perform early serial initialization */
 
 #ifdef USE_EARLYSERIALINIT
-  arm_earlyserialinit();
+ // arm_earlyserialinit();
 #endif
   showprogress('D');
 
@@ -193,13 +194,13 @@ void __start(void)
    */
 
 #ifdef CONFIG_BUILD_PROTECTED
-  stm32l5_userspace();
-  showprogress('E');
+ // stm32l5_userspace();
+ // showprogress('E');
 #endif
 
   /* Initialize onboard resources */
 
-  stm32l5_board_initialize();
+ // stm32l5_board_initialize();
   showprogress('F');
 
   /* Then start NuttX */
@@ -213,3 +214,11 @@ void __start(void)
 
   for (; ; );
 }
+
+
+volatile uint32_t *g_current_regs[CONFIG_SMP_NCPUS];
+int main(int argc, char *argv[]){};
+void board_autoled_on(void){};
+void board_autoled_off(void){};
+void up_timer_initialize(void){};
+void arm_serialinit(void){};
