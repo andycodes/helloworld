@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include "typedef.h"
+#include "clib.h"
 
 int memset(void *mem, uint8_t val, uint32_t sz)
 {
