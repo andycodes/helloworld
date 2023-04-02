@@ -1,4 +1,4 @@
-set(CPU "cortex-m33")
+set(CPU "cortex-m85")
 # Prepend the cross-compiler prefix to the used tools.
 set(CMAKE_C_COMPILER "${CROSS_TARGET_TRIPLET}gcc")
 set(CMAKE_ASM_COMPILER "${CROSS_TARGET_TRIPLET}as")
