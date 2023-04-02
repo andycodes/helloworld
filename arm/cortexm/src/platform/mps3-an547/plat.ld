@@ -57,7 +57,13 @@ SECTIONS
         *(.text*)
         *(.rodata*)
         _etext = .;
-	      . = ALIGN(8);
+
+        /* section information for utest */
+        . = ALIGN(4);
+        __rt_utest_tc_tab_start = .;
+        KEEP(*(UtestTcTab))
+        __rt_utest_tc_tab_end = .;
+
     } > S_CODE_BOOT
 
     .init_fn :
@@ -77,12 +83,12 @@ SECTIONS
 
     .bss :
     {
-    	  . = ALIGN(8);
+    	. = ALIGN(8);
         _bss = .;
         *(.bss*)
         *(COMMON)
         _ebss = .;
-	      . = ALIGN(8);
+	. = ALIGN(8);
     } > S_RAM
 
     _p_StackLimit = .;
