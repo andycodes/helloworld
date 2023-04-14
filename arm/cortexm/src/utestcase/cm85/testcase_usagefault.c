@@ -5,32 +5,31 @@
 #include <ARMCM85.h>
 #include <core_cm85.h>
 
-
-rt_err_t testcase_usagefault_init(void)
-{
-    printk("%s\n", __func__);
-}
-
-rt_err_t testcase_usagefault_cleanup(void)
-{
-    printk("%s\n", __func__);
-}
-
 void div_by_zero( void )
 {
   volatile unsigned int a, b, c;
-  
-  SCB->CCR |= SCB_CCR_DIV_0_TRP_Msk;
+
   a = 1;
   b = 0;
   c = a / b;
+
+  printk("c is %u\n", c);
 }  
+
+void fault_unalign(void)
+{
+    volatile unsigned int a = 0xff;
+    unsigned int unalign_addr = &a + 1;
+
+    unsigned int b = *((unsigned int *)unalign_addr);
+    printk("b is %u\n", b);
+}
 
 void testcase_usagefault_tc(void)
 {
     div_by_zero();
+    fault_unalign();
     printk("%s\n", __func__);
 }
 
-UTEST_TC_EXPORT(testcase_usagefault_tc, "testcase_usagefault", 
-testcase_usagefault_init, testcase_usagefault_cleanup, 2);
+UTEST_TC_EXPORT(testcase_usagefault_tc, "testcase_usagefault", RT_NULL, RT_NULL, 2);
