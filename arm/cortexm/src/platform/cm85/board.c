@@ -18,6 +18,11 @@ void fault_init(void)
     SCB->CCR |= SCB_CCR_UNALIGN_TRP_Msk | SCB_CCR_DIV_0_TRP_Msk;
 }
 
+static void Core_Debug(void)
+{
+    CoreDebug->DHCSR |= CoreDebug_DHCSR_C_DEBUGEN_Msk;
+}
+
 void board_init(void)
 {
     unsigned int core_clock = MPS3_SCC->CFG_ACLK;
@@ -39,4 +44,7 @@ void board_init(void)
     fault_init();
 
     printk ("Version 1.1.0" " Build date: " __DATE__ "\n");
+
+    extern void cpuidle(void);
+    cpuidle();
 }

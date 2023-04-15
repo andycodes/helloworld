@@ -11,5 +11,7 @@ static int utest_entry(void)
 
     extern void utest_testcase_run(int argc, char** argv);
     utest_testcase_run(1, NULL);
+
+    return 0;
 }
 device_initcall(utest_entry);

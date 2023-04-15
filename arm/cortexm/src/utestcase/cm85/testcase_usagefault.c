@@ -25,11 +25,20 @@ void fault_unalign(void)
     printk("b is %u\n", b);
 }
 
+
+static void  testcase_core_debug_tc(void)
+{
+    __asm("BKPT 0");
+}
+
 void testcase_usagefault_tc(void)
 {
-    div_by_zero();
-    fault_unalign();
+    //div_by_zero();
+   // fault_unalign();
+   testcase_core_debug_tc();
     printk("%s\n", __func__);
 }
+
+
 
 UTEST_TC_EXPORT(testcase_usagefault_tc, "testcase_usagefault", RT_NULL, RT_NULL, 2);

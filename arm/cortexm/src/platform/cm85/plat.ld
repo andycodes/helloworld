@@ -39,7 +39,8 @@ __STACKSEAL_SIZE = 0;
 MEMORY
 {
    NS_CODE (rx)     : ORIGIN = 0x00000000, LENGTH = 512K
-   S_CODE_BOOT (rx) : ORIGIN = 0x10000000, LENGTH = 512k
+   NORMAL_S_TEXT_SEC (rx) : ORIGIN = 0x10000000, LENGTH = 256k
+   CPUIDLE_S_TEXT_SEC (rx) : ORIGIN = 0x10040000, LENGTH = 256k
    RAM   (rwx) : ORIGIN = 0x20000000, LENGTH = 512k
    S_RAM   (rwx) : ORIGIN = 0x30000000, LENGTH = 512k
 }
@@ -54,7 +55,8 @@ SECTIONS
         . = ALIGN(8);
         _text = .;
         KEEP(*(.vectors))
-        *(.text*)
+        *(EXCLUDE_FILE(*cpuidle.o) .text)    
+        *(EXCLUDE_FILE(*cpuidle.o) .text*)    
         *(.rodata*)
         _etext = .;
 
@@ -64,7 +66,15 @@ SECTIONS
         KEEP(*(UtestTcTab))
         __rt_utest_tc_tab_end = .;
 
-    } > S_CODE_BOOT
+    } > NORMAL_S_TEXT_SEC
+
+    .cpuidle_fn :
+    {
+        . = ALIGN(8);
+          *cpuidle.o(.text)    
+          *cpuidle.o(.text*)   
+	      . = ALIGN(8);
+    } > CPUIDLE_S_TEXT_SEC
 
     .init_fn :
     {
@@ -73,7 +83,7 @@ SECTIONS
         KEEP(*(.initcall6.init))
         _init_fn_end = .;
 	      . = ALIGN(8);
-    } > S_CODE_BOOT
+    } > NORMAL_S_TEXT_SEC
 
     .data :
     {
@@ -101,7 +111,7 @@ SECTIONS
     . = . + __STACK_SIZE;
     . = ALIGN(8);
 
-    /* Set stack top to end of S_CODE_BOOT. */
+    /* Set stack top to end of NORMAL_S_TEXT_SEC. */
     __StackTop = ORIGIN(S_RAM) + LENGTH(S_RAM);
 }
 
