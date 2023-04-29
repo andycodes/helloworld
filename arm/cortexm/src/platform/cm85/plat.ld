@@ -44,8 +44,11 @@ SECTIONS
     .data :
     {
         . = ORIGIN(S_RAM);
+        __data_vdm_start = .;
+        __data_ldm_start = ORIGIN(S_ROM);
         *(.data)
-    } > S_RAM
+        __data_vdm__end = .;
+    } > S_RAM AT> S_ROM
 
     .bss :
     {
