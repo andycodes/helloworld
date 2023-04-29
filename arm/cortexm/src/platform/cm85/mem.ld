@@ -38,9 +38,7 @@ __STACKSEAL_SIZE = 0;
 /* Linker script to configure memory regions. */
 MEMORY
 {
-   NS_CODE (rx)     : ORIGIN = 0x00000000, LENGTH = 512K
    NORMAL_S_TEXT_SEC (rx) : ORIGIN = 0x10000000, LENGTH = 256k
    CPUIDLE_S_TEXT_SEC (rx) : ORIGIN = 0x10040000, LENGTH = 256k
-   RAM   (rwx) : ORIGIN = 0x20000000, LENGTH = 512k
    S_RAM   (rwx) : ORIGIN = 0x30000000, LENGTH = 512k
 }
