@@ -1,15 +1,5 @@
-/*
- * Copyright (c) 2006-2018, RT-Thread Development Team
- *
- * SPDX-License-Identifier: Apache-2.0
- *
- * Change Logs:
- * Date           Author       Notes
- * 2018-11-19     MurphyZhao   the first version
- */
 
 #include "os.h"
-//#include <rtthread.h>
 #include "clib.h"
 #include "utest.h"
 #include <utest_log.h>
@@ -23,11 +13,7 @@
 #else
 #define DBG_LVL          DBG_INFO
 #endif
-//#include <rtdbg.h>
 
-//#if RT_CONSOLEBUF_SIZE < 256
-//#error "RT_CONSOLEBUF_SIZE is less than 256!"
-//#endif
 
 #ifdef UTEST_THR_STACK_SIZE
 #define UTEST_THREAD_STACK_SIZE UTEST_THR_STACK_SIZE

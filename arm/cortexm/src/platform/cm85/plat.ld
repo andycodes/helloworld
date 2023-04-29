@@ -41,6 +41,8 @@ SECTIONS
 	      . = ALIGN(8);
     } > NORMAL_S_TEXT_SEC
 
+
+
     .data :
     {
         . = ORIGIN(S_RAM);

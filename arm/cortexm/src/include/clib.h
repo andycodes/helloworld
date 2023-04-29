@@ -7,7 +7,7 @@ int is_dec_asc(char ch);
 int is_hex_asc(char ch);
 int memset(void *mem, uint8_t val, uint32_t sz);
 int memcpy(void *dst, const void *src, uint32_t sz);
-int memcmp(void *mem1, void *mem2, uint32_t sz);
+int memcmp(const void *mem1, const void *mem2, uint32_t sz);
 int strcmp(char *str1, char *str2);
 int strncmp(char *str1, char *str2, uint32_t sz);
 int strtoul(char *str, uint32_t *val);

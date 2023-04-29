@@ -23,7 +23,7 @@ int memcpy(void *dst, const void *src, uint32_t sz)
     return 0;
 }
 
-int memcmp(void *mem1, void *mem2, uint32_t sz)
+int memcmp(const void *mem1, const void *mem2, uint32_t sz)
 {
     uint8_t *p_mem1 = (uint8_t *)mem1;
     uint8_t *p_mem2 = (uint8_t *)mem2;
