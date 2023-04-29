@@ -83,19 +83,6 @@ int utest_init(void)
 }
 //INIT_COMPONENT_EXPORT(utest_init);
 
-static void utest_tc_list(void)
-{
-    rt_size_t i = 0;
-
-    LOG_I("Commands list : ");
-
-    for (i = 0; i < tc_num; i++)
-    {
-        LOG_I("[testcase name]:%s; [run timeout]:%d", tc_table[i].name, tc_table[i].run_timeout);
-    }
-}
-//MSH_CMD_EXPORT_ALIAS(utest_tc_list, utest_list, output all utest testcase);
-
 static const char *file_basename(const char *file)
 {
     char *end_ptr = RT_NULL;
