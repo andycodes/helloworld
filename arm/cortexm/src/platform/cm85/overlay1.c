@@ -1,6 +1,8 @@
 #include "uart.h"
 
+int g_oly1_cnt = 10;
+
 void overlay_function2()
 {
-    printk("Written by overlay_function2 !\r\n");
+    printk("Written by overlay_function2 %d \n", g_oly1_cnt);
 }
