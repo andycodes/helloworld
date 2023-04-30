@@ -41,7 +41,7 @@ MEMORY
    NS_CODE (rx)     : ORIGIN = 0x00000000, LENGTH = 512K
    S_CODE_BOOT (rx) : ORIGIN = 0x10000000, LENGTH = 512k
    RAM   (rwx) : ORIGIN = 0x20000000, LENGTH = 512k
-   S_RAM   (rwx) : ORIGIN = 0x30000000, LENGTH = 512k
+   DATA_RAM_SECTION   (rwx) : ORIGIN = 0x30000000, LENGTH = 512k
 }
 
 /* Entry Point */
@@ -71,9 +71,9 @@ SECTIONS
 
     .data :
     {
-        . = ORIGIN(S_RAM);
+        . = ORIGIN(DATA_RAM_SECTION);
         *(.data)
-    } > S_RAM
+    } > DATA_RAM_SECTION
 
     .bss :
     {
@@ -83,7 +83,7 @@ SECTIONS
         *(COMMON)
         _ebss = .;
 	      . = ALIGN(8);
-    } > S_RAM
+    } > DATA_RAM_SECTION
 
     _p_StackLimit = .;
     . = . + __STACK_SIZE;
@@ -96,7 +96,7 @@ SECTIONS
     . = ALIGN(8);
 
     /* Set stack top to end of S_CODE_BOOT. */
-    __StackTop = ORIGIN(S_RAM) + LENGTH(S_RAM);
+    __StackTop = ORIGIN(DATA_RAM_SECTION) + LENGTH(DATA_RAM_SECTION);
 }
 
 

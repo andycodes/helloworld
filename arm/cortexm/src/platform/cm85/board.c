@@ -47,4 +47,7 @@ void board_init(void)
 
     extern void cpuidle(void);
     cpuidle();
+
+    extern void overlay_main(void);
+    overlay_main();
 }
