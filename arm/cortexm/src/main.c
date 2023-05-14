@@ -22,8 +22,10 @@ void move_data(void)
 
 void clear_bss(void)
 {
-    uint8_t *start = (uint8_t *)_bss;
-    while ((uint32_t)start < _ebss) {
+    char *start = &_bss;
+    char *dst = &_ebss;
+    
+    while (start < dst) {
         *start = 0;
         start++;
     }
