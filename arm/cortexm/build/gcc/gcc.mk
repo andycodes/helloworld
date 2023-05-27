@@ -9,3 +9,4 @@ CC = $(PREFIX)gcc
 LD = $(PREFIX)ld
 COPY = $(PREFIX)objcopy
 DUMP = $(PREFIX)objdump
+READELF = readelf

@@ -1,1 +1,0 @@
-include src/testcase/$(board)/platform.mk
