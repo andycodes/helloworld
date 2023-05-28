@@ -19,7 +19,7 @@ OBJ += $(addprefix $(OUT)/, $(SSRC:.s=.o))
 TARGET:=$(OUT)/$(PRJ).elf
 TARGET_LST:=$(OUT)/$(PRJ).lst
 TARGET_BIN:=$(OUT)/$(PRJ).bin
-TARGET_ELFHEADER:=$(OUT)/$(PRJ).elfheader
+TARGET_ELFHEADER:=$(OUT)/$(PRJ).readelf
 
 LDFLAGS := -T $(LDSCRIPT)
 
@@ -31,7 +31,7 @@ endif
 
 .PHONY: all clean list size rebuild qemu
 
-all: $(TARGET_BIN) $(TARGET_LST) $(TARGET_ELFHEADER)
+all: $(TARGET) $(TARGET_BIN) $(TARGET_LST) $(TARGET_ELFHEADER)
 
 $(OUT)/%.o: %.c
 	@echo CC $^
@@ -43,14 +43,14 @@ $(OUT)/%.o: %.s
 
 $(TARGET): $(OBJ)
 	@echo LD $@
-	$(Q)$(LD) -o $@ $(LDFLAGS) $(OBJ)
+	$(Q)$(LD) $(LDFLAGS) -o $@ $(OBJ)
 
 $(TARGET_LST): $(TARGET)
 	@echo LIST on $@
 	$(Q)$(DUMP) -x -s -S $< > $@
 
 $(TARGET_ELFHEADER): $(TARGET)
-	$(Q)$(READELF) -h $< > $@
+	$(Q)$(READELF) -a $< > $@
 
 $(TARGET_BIN): $(TARGET)
 	@echo COPY to $@
