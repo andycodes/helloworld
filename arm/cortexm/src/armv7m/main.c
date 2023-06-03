@@ -8,6 +8,7 @@
 #include "mutex.h"
 #include "flag_group.h"
 #include "lib.h"
+#include <ARMCM3.h>
 
 extern unsigned int _p_StackTop;
 
@@ -56,14 +57,24 @@ void task4_entry(void *param)
 {
     for(;;) {
         printk("%s\n", __func__);
-        printk("%s\n", __func__);
+        testcase_usagefault_tc();
         task_delay_s(1);
     }
+}
+
+void fault_init(void)
+{
+    SCB->SHCSR |=  SCB_SHCSR_USGFAULTENA_Msk
+    | SCB_SHCSR_BUSFAULTENA_Msk | SCB_SHCSR_MEMFAULTENA_Msk;
+
+    SCB->CCR |= SCB_CCR_UNALIGN_TRP_Msk | SCB_CCR_DIV_0_TRP_Msk;
 }
 
 int main(void)
 {
     DEBUG("Hello FAN RTOS \n");
+
+    fault_init();
 
     DEBUG("_p_StackTop addr and data is :0x%x, 0x%x\n", &_p_StackTop, _p_StackTop);
     DEBUG("psp:0x%x\n", get_psp());
@@ -73,11 +84,9 @@ int main(void)
     timer_module_init();
 
     task_init(&task1, task1_entry, (void *)0x11111111, 0, &task1_stk[1024]);
-//    task_init(&task2, task2_entry, (void *)0x22222222, 1, &task2_stk[1024]);
-#if 1
-//    task_init(&task3, task3_entry, (void *)0x33333333, 0, &task3_stk[1024]);
+//  task_init(&task2, task2_entry, (void *)0x22222222, 1, &task2_stk[1024]);
+//  task_init(&task3, task3_entry, (void *)0x33333333, 0, &task3_stk[1024]);
     task_init(&task4, task4_entry, (void *)0x44444444, 1, &task4_stk[1024]);
-#endif
     g_next_task = task_highest_ready();
     task_run_first();
 

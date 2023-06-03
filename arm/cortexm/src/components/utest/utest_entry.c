@@ -2,7 +2,7 @@
 #include "os.h"
 #include "io.h"
 
-static int utest_entry(void)
+int utest_entry(void)
 {
     printk("%s\n", __func__);
 

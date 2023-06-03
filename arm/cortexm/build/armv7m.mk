@@ -9,6 +9,7 @@ include src/platform/$(board)/board.mk
 include src/rtos/evolution/evolution.mk
 include src/libs/libs.mk
 include src/cmsis/cmsis.mk
+include src/testcase/$(board)/testcase_plat.mk
 
 CFLAGS += 	-Isrc/include \
 			-Isrc/$(ARCH)\

@@ -9,6 +9,18 @@ char *board_info(void)
     return "CM55,mps3-an547";
 }
 
+void fault_init(void)
+{
+    SCB->SHCSR |=  SCB_SHCSR_SECUREFAULTENA_Msk | SCB_SHCSR_USGFAULTENA_Msk
+    | SCB_SHCSR_BUSFAULTENA_Msk | SCB_SHCSR_MEMFAULTENA_Msk;
+
+    SCB->CCR |= SCB_CCR_UNALIGN_TRP_Msk | SCB_CCR_DIV_0_TRP_Msk;
+}
+
+static void Core_Debug(void)
+{
+    CoreDebug->DHCSR |= CoreDebug_DHCSR_C_DEBUGEN_Msk;
+}
 void board_init(void)
 {
     unsigned int core_clock = MPS3_SCC->CFG_ACLK;
@@ -27,5 +39,6 @@ void board_init(void)
     NVIC->ICPR[6] = 0xFFFFFFFF;         /* Clear all pending interrupts */
     NVIC->ICPR[7] = 0xFFFFFFFF;         /* Clear all pending interrupts */
 
+    fault_init();
     printk ("Version 1.1.0" " Build date: " __DATE__ "\n");
 }

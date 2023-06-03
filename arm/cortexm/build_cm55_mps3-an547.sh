@@ -1,2 +1,12 @@
 #! /bin/bash
-python3 ./build/build.py mps3-an547
+
+function main()
+{    
+    parm="$0"
+    board=${parm##*_}
+    boadr_str='board='${board%.*}
+    echo $boadr_str
+    make $boadr_str
+}
+
+main $@

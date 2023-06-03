@@ -87,7 +87,7 @@ extern const VECTOR_TABLE_Type __VECTOR_TABLE[240];
   HardFault_Handler,                        /* -13 Hard Fault Handler */
   MemManage_Handler,                        /* -12 MPU Fault Handler */
   BusFault_Handler,                         /* -11 Bus Fault Handler */
-  UsageFault_Handler,                       /* -10 Usage Fault Handler */
+  HardFault_Handler,                       /* -10 Usage Fault Handler */
   0,                                        /*     Reserved */
   0,                                        /*     Reserved */
   0,                                        /*     Reserved */
@@ -134,12 +134,13 @@ __NO_RETURN void Reset_Handler(void)
 /*----------------------------------------------------------------------------
   Hard Fault Handler
  *----------------------------------------------------------------------------*/
+#if 0
 void HardFault_Handler(void)
 {
-  printk("IntDefaultHandler\n");
+  printk("HardFault_Handler\n");
   while(1);
 }
-
+#endif
 /*----------------------------------------------------------------------------
   Default Handler for Exceptions / Interrupts
  *----------------------------------------------------------------------------*/

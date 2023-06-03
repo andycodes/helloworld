@@ -1,48 +1,5 @@
-/*---------------------- Flash Configuration ----------------------------------
-  <h> Flash Configuration
-    <o0> Flash Base Address <0x0-0xFFFFFFFF:8>
-    <o1> Flash Size (in Bytes) <0x0-0xFFFFFFFF:8>
-  </h>
-  -----------------------------------------------------------------------------*/
-__ROM_BASE = 0x00000000;
-__ROM_SIZE = 0x00040000;
 
-/*--------------------- Embedded RAM Configuration ----------------------------
-  <h> RAM Configuration
-    <o0> RAM Base Address    <0x0-0xFFFFFFFF:8>
-    <o1> RAM Size (in Bytes) <0x0-0xFFFFFFFF:8>
-  </h>
- -----------------------------------------------------------------------------*/
-__RAM_BASE = 0x20000000;
-__RAM_SIZE = 0x00020000;
-
-/*--------------------- Stack / Heap Configuration ----------------------------
-  <h> Stack / Heap Configuration
-    <o0> Stack Size (in Bytes) <0x0-0xFFFFFFFF:8>
-    <o1> Heap Size (in Bytes) <0x0-0xFFFFFFFF:8>
-  </h>
-  -----------------------------------------------------------------------------*/
-__STACK_SIZE = 0x00001000;
-__HEAP_SIZE  = 0x00000C00;
-
-/*
- *-------------------- <<< end of configuration section >>> -------------------
- */
-
-/* ARMv8-M stack sealing:
-   to use ARMv8-M stack sealing set __STACKSEAL_SIZE to 8 otherwise keep 0
- */
-__STACKSEAL_SIZE = 0;
-
-
-/* Linker script to configure memory regions. */
-MEMORY
-{
-   NS_CODE (rx)     : ORIGIN = 0x00000000, LENGTH = 512K
-   S_CODE_BOOT (rx) : ORIGIN = 0x10000000, LENGTH = 512k
-   RAM   (rwx) : ORIGIN = 0x20000000, LENGTH = 512k
-   DATA_RAM_VDM_SECTION   (rwx) : ORIGIN = 0x30000000, LENGTH = 512k
-}
+INCLUDE src/platform/cm85/mem.ld
 
 /* Entry Point */
 ENTRY(Reset_Handler)
@@ -54,7 +11,8 @@ SECTIONS
         . = ALIGN(8);
         _text = .;
         KEEP(*(.vectors))
-        *(.text*)
+        *(EXCLUDE_FILE(*cpuidle.o *overlay*.o) .text)    
+        *(EXCLUDE_FILE(*cpuidle.o *overlay*.o) .text*)   
         *(.rodata*)
         _etext = .;
 
@@ -64,7 +22,39 @@ SECTIONS
         KEEP(*(UtestTcTab))
         __rt_utest_tc_tab_end = .;
 
-    } > S_CODE_BOOT
+    } > TEXT_1_SECTION
+
+    .cpuidle_fn :
+    {
+        . = ALIGN(8);
+          *cpuidle.o(.text)    
+          *cpuidle.o(.text*)      
+	      . = ALIGN(8);
+    } > TEXT_2_SECTION
+
+    OVERLAY : NOCROSSREFS
+    {
+      .dyn_fn0  {
+          . = ALIGN(8);
+          __dny0_vdm_start = ORIGIN(TEXT_RAM_DYN_SECTION);
+          __dny0_ldm_start = ORIGIN(TEXT_ROM_DYN_SECTION);
+            *overlay0.o(.text)    
+            *overlay0.o(.text*)  
+          __dny0_vdm_end = .;
+          . = ALIGN(8);
+      }
+
+      .dyn_fn1  {
+          . = ALIGN(8);
+          __dny1_vdm_start = ORIGIN(TEXT_RAM_DYN_SECTION);
+          __dny1_ldm_start = __dny0_ldm_start + __dny0_vdm_end - __dny0_vdm_start;
+            *overlay1.o(.text)    
+            *overlay1.o(.text*) 
+          __dny1_vdm_end = .; 
+
+          . = ALIGN(8);
+      }
+    } > TEXT_RAM_DYN_SECTION AT> TEXT_ROM_DYN_SECTION
 
     .init_fn :
     {
@@ -73,23 +63,36 @@ SECTIONS
         KEEP(*(.initcall6.init))
         _init_fn_end = .;
 	      . = ALIGN(8);
-    } > S_CODE_BOOT
+    } > TEXT_1_SECTION
 
     .data :
     {
         . = ORIGIN(DATA_RAM_VDM_SECTION);
+        __data_vdm_start = .;
+        __data_ldm_start = ORIGIN(DATA_ROM_LDM_SECTION);
         *(.data)
-    } > DATA_RAM_VDM_SECTION
+        __data_vdm__end = .;
+    } > DATA_RAM_VDM_SECTION AT> DATA_ROM_LDM_SECTION
 
+/*
+    .ovlytable_sec :
+    {
+      . = ALIGN(8);
+      __ovly_table = .; 
+      LONG(ABSOLUTE(ADDR(.dyn_fn0))); LONG(SIZEOF(.dyn_fn0)); LONG(LOADADDR(.dyn_fn0));
+      LONG(ABSOLUTE(ADDR(.dyn_fn1))); LONG(SIZEOF(.dyn_fn1)); LONG(LOADADDR(.dyn_fn1));
+      . = ALIGN(8);
+    }  >DATA_RAM_SECTION 
+*/
     .bss :
     {
-    	. = ALIGN(8);
+        . = ALIGN(8);
         _bss = .;
         *(.bss*)
         *(COMMON)
         _ebss = .;
-	. = ALIGN(8);
-    } > DATA_RAM_VDM_SECTION
+        . = ALIGN(8);
+    } > DATA_RAM_SECTION
 
     _p_StackLimit = .;
     . = . + __STACK_SIZE;
@@ -101,8 +104,8 @@ SECTIONS
     . = . + __STACK_SIZE;
     . = ALIGN(8);
 
-    /* Set stack top to end of S_CODE_BOOT. */
-    __StackTop = ORIGIN(DATA_RAM_VDM_SECTION) + LENGTH(DATA_RAM_VDM_SECTION);
+    /* Set stack top to end of TEXT_1_SECTION. */
+    __StackTop = ORIGIN(DATA_RAM_SECTION) + LENGTH(DATA_RAM_SECTION);
 }
 
 

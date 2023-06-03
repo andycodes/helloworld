@@ -1,7 +1,6 @@
+#include <stdint.h>
 #include "uart.h"
-#include "ARMCM85.h"
-#include "core_cm85.h"
-
+#include "ARMCM3.h"
 
 void debugHardfault(unsigned int *sp)
 {
@@ -42,6 +41,7 @@ void debugHardfault(unsigned int *sp)
 __attribute__( (naked) )
 void HardFault_Handler(void)
 {
+#if 0
     __asm volatile
     (
         "tst lr, #4                                    \n"
@@ -52,4 +52,7 @@ void HardFault_Handler(void)
         "bx r1                                         \n"
         "debugHardfault_address: .word debugHardfault  \n"
     );
+#endif
+printk("HardFault:\n");
+ while(1);
 }

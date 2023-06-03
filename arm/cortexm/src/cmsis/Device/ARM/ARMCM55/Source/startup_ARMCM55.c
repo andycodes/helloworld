@@ -91,10 +91,10 @@ extern const VECTOR_TABLE_Type __VECTOR_TABLE[496];
   Reset_Handler,                            /*     Reset Handler */
   NMI_Handler,                              /* -14 NMI Handler */
   HardFault_Handler,                        /* -13 Hard Fault Handler */
-  MemManage_Handler,                        /* -12 MPU Fault Handler */
-  BusFault_Handler,                         /* -11 Bus Fault Handler */
-  UsageFault_Handler,                       /* -10 Usage Fault Handler */
-  SecureFault_Handler,                      /*  -9 Secure Fault Handler */
+  HardFault_Handler,                        /* -12 MPU Fault Handler */
+  HardFault_Handler,                         /* -11 Bus Fault Handler */
+  HardFault_Handler,                       /* -10 Usage Fault Handler */
+  HardFault_Handler,                      /*  -9 Secure Fault Handler */
   0,                                        /*     Reserved */
   0,                                        /*     Reserved */
   0,                                        /*     Reserved */
@@ -146,13 +146,6 @@ __NO_RETURN void Reset_Handler(void)
   #pragma clang diagnostic ignored "-Wmissing-noreturn"
 #endif
 
-/*----------------------------------------------------------------------------
-  Hard Fault Handler
- *----------------------------------------------------------------------------*/
-void HardFault_Handler(void)
-{
-  while(1);
-}
 
 /*----------------------------------------------------------------------------
   Default Handler for Exceptions / Interrupts
