@@ -1,7 +1,6 @@
 CSRC := src/main.c \
 		src/$(ARCH)/cpu.c \
-		src/$(ARCH)/cpuport.c \
-		src/$(ARCH)/context_gcc.c \
+		src/$(ARCH)/dfx.c \
 		src/platform/$(board)/cmsdk_uart.c \
 		src/platform/$(board)/board.c \
 		src/platform/$(board)/cpuidle.c \
