@@ -1,5 +1,5 @@
 
-INCLUDE src/platform/cm85/mem.ld
+INCLUDE src/platform/mps3-an547/mem.ld
 
 /* Entry Point */
 ENTRY(Reset_Handler)
@@ -93,11 +93,6 @@ SECTIONS
         _ebss = .;
         . = ALIGN(8);
     } > DATA_RAM_SECTION
-
-    _p_StackLimit = .;
-    . = . + __STACK_SIZE;
-    . = ALIGN(8);
-    _p_StackTop = .;
 
     . = ALIGN(8);
     __StackLimit = .;

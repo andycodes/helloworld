@@ -14,7 +14,14 @@ void fault_init(void)
     SCB->SHCSR |=  SCB_SHCSR_SECUREFAULTENA_Msk | SCB_SHCSR_USGFAULTENA_Msk
     | SCB_SHCSR_BUSFAULTENA_Msk | SCB_SHCSR_MEMFAULTENA_Msk;
 
-    SCB->CCR |= SCB_CCR_UNALIGN_TRP_Msk | SCB_CCR_DIV_0_TRP_Msk;
+    SCB->CCR |= SCB_CCR_UNALIGN_TRP_Msk | SCB_CCR_DIV_0_TRP_Msk |
+    SCB_CCR_BFHFNMIGN_Msk;
+}
+
+void mpu_init(void)
+{
+    MPU->CTRL &= ~MPU_CTRL_HFNMIENA_Msk;
+    MPU->CTRL &= ~MPU_CTRL_PRIVDEFENA_Msk;
 }
 
 static void Core_Debug(void)
@@ -39,6 +46,7 @@ void board_init(void)
     NVIC->ICPR[6] = 0xFFFFFFFF;         /* Clear all pending interrupts */
     NVIC->ICPR[7] = 0xFFFFFFFF;         /* Clear all pending interrupts */
 
+    mpu_init();
     fault_init();
     printk ("Version 1.1.0" " Build date: " __DATE__ "\n");
 }
