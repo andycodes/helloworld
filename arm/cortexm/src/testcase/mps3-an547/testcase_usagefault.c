@@ -15,15 +15,6 @@ void div_by_zero( void )
   printk("c is %u\n", c);
 }  
 
-void fault_unalign(void)
-{
-    volatile unsigned int a = 0xff;
-    unsigned int unalign_addr = &a + 1;
-
-    unsigned int b = *((unsigned int *)unalign_addr);
-    printk("b is %u\n", b);
-}
-
 void testcase_usagefault_tc(void)
 {
   printk("start %s\n", __func__);

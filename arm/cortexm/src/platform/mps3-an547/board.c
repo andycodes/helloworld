@@ -4,6 +4,17 @@
 #include "system_ARMCM55.h"
 #include "uart.h"
 
+uint32_t __stack_chk_guard = 0xDEADBEEF;
+
+void __stack_chk_fail(void) { /* will be called if guard/canary gets corrupted */
+
+    __ASM volatile ("cpsid i" : : : "memory");
+
+    printk ("__stack_chk_fail \n");
+    while(1){}
+}
+
+
 char *board_info(void)
 {
     return "CM55,mps3-an547";
