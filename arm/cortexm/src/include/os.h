@@ -49,7 +49,7 @@
 #endif
 
 extern void no_printk(const char *fmt, ...);
-extern void printk(const char *fmt, ...);
+void printk(const char *fmt, ...);
 
 #define NEED_DEBUG
 #ifdef NEED_DEBUG

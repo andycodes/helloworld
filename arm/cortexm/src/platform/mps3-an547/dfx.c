@@ -2,6 +2,8 @@
 #include <stdbool.h>
 #include "uart.h"
 #include "ARMCM55.h"
+#include "clib.h"
+#include "os.h"
 
 typedef struct __attribute__((packed)) ContextStateFrame {
   uint32_t r0;

@@ -12,18 +12,18 @@ extern uint32_t __data_ldm_start;
 
 void move_data(void)
 {
-    char *src = &__data_ldm_start;
-    char *dst = &__data_vdm_start;
+    char *src = (char *)&__data_ldm_start;
+    char *dst = (char *)&__data_vdm_start;
 
-    while (dst < &__data_vdm__end) {
+    while (dst < (char *)&__data_vdm__end) {
         *dst++ = *src++;
     }
 }
 
 void clear_bss(void)
 {
-    char *start = &_bss;
-    char *dst = &_ebss;
+    char *start = (char *)&_bss;
+    char *dst = (char *)&_ebss;
     
     while (start < dst) {
         *start = 0;

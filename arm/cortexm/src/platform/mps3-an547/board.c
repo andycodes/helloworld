@@ -35,10 +35,6 @@ void mpu_init(void)
     MPU->CTRL &= ~MPU_CTRL_PRIVDEFENA_Msk;
 }
 
-static void Core_Debug(void)
-{
-    CoreDebug->DHCSR |= CoreDebug_DHCSR_C_DEBUGEN_Msk;
-}
 void board_init(void)
 {
     unsigned int core_clock = MPS3_SCC->CFG_ACLK;

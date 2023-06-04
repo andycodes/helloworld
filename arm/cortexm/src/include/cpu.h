@@ -19,9 +19,9 @@ typedef struct {
     const char *cpuName;
 } CpuVendor;
 
-extern const char *ArchCpuInfo(VOID);
+extern const char *ArchCpuInfo(void);
 
-static inline uint32_t  OsMainIDGet(VOID)
+static inline uint32_t  OsMainIDGet(void)
 {
     return ARM_SYSREG_READ(CPUID_BASE);
 }

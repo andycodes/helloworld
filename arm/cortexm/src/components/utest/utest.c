@@ -201,8 +201,6 @@ static void utest_run(const char *utest_name)
 //static void utest_testcase_run(int argc, char** argv)
 void utest_testcase_run(int argc, char** argv)
 {
-    void *thr_param = RT_NULL;
-
     static char utest_name[UTEST_NAME_MAX_LEN];
     rt_memset(utest_name, 0x0, sizeof(utest_name));
 
@@ -215,27 +213,9 @@ void utest_testcase_run(int argc, char** argv)
     }
     else if (argc == 2 || argc == 3 || argc == 4)
     {
-        if (rt_strcmp(argv[1], "-thread") == 0)
-        {
-#if 0
-            rt_thread_t tid = RT_NULL;
-            if (argc == 3 || argc == 4)
-            {
-                rt_strncpy(utest_name, argv[2], sizeof(utest_name) -1);
-                thr_param = (void*)utest_name;
-
-                if (argc == 4) tc_loop = atoi(argv[3]);
-            }
-            tid = rt_thread_create("utest",
-                                    (void (*)(void *))utest_run, thr_param,
-                                    UTEST_THREAD_STACK_SIZE, UTEST_THREAD_PRIORITY, 10);
-            if (tid != NULL)
-            {
-                rt_thread_startup(tid);
-            }
-#endif
+        if (strcmp(argv[1], "-thread") == 0) {
         }
-        else if (rt_strcmp(argv[1], "-help") == 0)
+        else if (strcmp(argv[1], "-help") == 0)
         {
             utest_help();
         }
@@ -298,9 +278,8 @@ void utest_assert_string(const char *a, const char *b, rt_bool_t equal, const ch
         utest_assert(0, file, line, func, msg);
     }
 
-    if (equal)
-    {
-        if (rt_strcmp(a, b) == 0)
+    if (equal) {
+        if (strcmp(a, b) == 0)
         {
             utest_assert(1, file, line, func, msg);
         }
@@ -308,10 +287,8 @@ void utest_assert_string(const char *a, const char *b, rt_bool_t equal, const ch
         {
             utest_assert(0, file, line, func, msg);
         }
-    }
-    else
-    {
-        if (rt_strcmp(a, b) == 0)
+    } else {
+        if (strcmp(a, b) == 0)
         {
             utest_assert(0, file, line, func, msg);
         }

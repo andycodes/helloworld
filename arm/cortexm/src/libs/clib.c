@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <stddef.h>
 #include "typedef.h"
 #include "clib.h"
 
@@ -42,9 +43,9 @@ int memcmp(const void *mem1, const void *mem2, uint32_t sz)
     }
 }
 
-int strcmp(char *str1, char *str2)
+int strcmp(const char *str1, const char *str2)
 {
-    char *p1 = str1, *p2 = str2;
+    char *p1 = (char *)str1, *p2 = (char *)str2;
 
     while ((*p1 != 0) && (*p2 != 0) && (*p1 == *p2)) {
         p1++;
@@ -126,9 +127,9 @@ int strtol(char *str, int *val)
 
 }
 
-uint32_t strlen(char *str)
+size_t strlen(const char *str)
 {
-    char *p = str;
+    char *p = (char *)str;
 
     while (*p++ != '\0') ;
 
