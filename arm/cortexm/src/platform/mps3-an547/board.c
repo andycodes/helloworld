@@ -45,4 +45,7 @@ void board_init(void)
     mpu_init();
     fault_init();
     printk ("Version 1.1.0" " Build date: " __DATE__ "\n");
+
+    extern void overlay_main(void);
+    overlay_main();
 }
