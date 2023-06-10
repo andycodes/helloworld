@@ -74,15 +74,12 @@ dumpvmstate:
 
 qemu:
 	@qemu-system-arm -M ? | grep $(board) >/dev/null || exit
-	qemu-system-arm -machine $(board) -cpu $(CPU_TYPE) \
-	                    -m $(MEM_SIZE) \
-			    -nographic -serial mon:stdio \
-	                    -kernel $(TARGET) 
+	qemu-system-arm -machine $(board) -cpu $(CPU_TYPE) -m $(MEM_SIZE) \
+			    -nographic -serial mon:stdio -kernel $(TARGET) 
 			   
 gdbserver:
 	qemu-system-arm -machine $(board) -cpu $(CPU_TYPE) -m $(MEM_SIZE) \
-			    -nographic -serial mon:stdio \
-	                    -kernel $(TARGET) \
+			    -nographic -serial mon:stdio -kernel $(TARGET) \
 			    -S -s 
 gdb: $(TARGET)
 	$(GDB) $^ -ex "target remote:1234"
