@@ -57,7 +57,7 @@ void task4_entry(void *param)
 {
     for(;;) {
         printk("%s\n", __func__);
-        testcase_usagefault_tc();
+        //testcase_usagefault_tc();
         task_delay_s(1);
     }
 }

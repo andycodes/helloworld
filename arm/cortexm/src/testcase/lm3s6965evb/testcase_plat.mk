@@ -1,1 +1,1 @@
-CSRC +=	src/testcase/$(board)/testcase_usagefault.c
+#CSRC +=	src/testcase/$(board)/testcase_usagefault.c

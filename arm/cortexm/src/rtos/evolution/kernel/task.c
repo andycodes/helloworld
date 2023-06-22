@@ -3,12 +3,11 @@
 #include "os.h"
 #include "lib.h"
 #include "config.h"
-#include "os.h"
 #include "event.h"
 #include "bitmap.h"
 
-task_t *g_current_task;
-task_t *g_next_task;
+task_t *g_current_task = NULL;
+task_t *g_next_task = NULL;
 list_t g_task_table[OS_PRIO_COUNT];
 static task_t g_idle_task_obj;
 static task_t *g_idle_task;
@@ -16,6 +15,8 @@ static task_stack_t g_idle_task_stk[1024];
 static uint8_t g_sched_lock;
 static bitmap_t g_task_prio_bitmap;
 static list_t g_task_delay_list;
+
+unsigned int g_os_first_switch = 0;
 
 extern void timer_module_tick_notify(void);
 
@@ -70,7 +71,7 @@ void task_init (task_t * task, void (*entry)(void *), void *param, uint32_t prio
 
 }
 
-void task_sched()
+void task_sched(void)
 {
     uint32_t status = task_enter_critical();
     task_t *temp_task_p;
@@ -92,14 +93,15 @@ no_need_sched:
 
 void task_switch(void)
 {
-    MEM32(NVIC_INT_CTRL) = NVIC_PENDSVSET;
+    SCB->ICSR = SCB_ICSR_PENDSVSET_Msk;
 }
 
-void task_run_first()
+void task_run_first(void)
 {
     DEBUG("%s\n", __func__);
-    MEM8(NVIC_SYSPRI2) = NVIC_PENDSV_PRI;
-    MEM32(NVIC_INT_CTRL) = NVIC_PENDSVSET;
+    NVIC_SetPriority(PendSV_IRQn, NVIC_PENDSV_PRI);
+    asm __volatile__ ("mov r0,0");
+    SCB->ICSR = SCB_ICSR_PENDSVSET_Msk;
 }
 
 void task_delay(uint32_t ticks)

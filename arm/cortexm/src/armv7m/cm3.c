@@ -10,6 +10,7 @@ extern uint32_t SystemCoreClock;
 
 void init_systick(uint32_t ms)
 {
+#if 0
     systick_t *systick_p = (systick_t *)SYSTICK_BASE;
     uint8_t *sys_prio_p = (uint8_t *)SYSTICK_PRIO_REG;
     *sys_prio_p = 0xf0;
@@ -17,18 +18,15 @@ void init_systick(uint32_t ms)
     systick_p->load = ms * (12000000UL / 1000) - 1;
     systick_p->val = 0;
     systick_p->ctrl = 0x7;
+#else
+SysTick_Config(ms * (12000000UL / 1000) - 1);
+#endif
 }
 
 void SysTick_Handler(void)
 {
     /*DEBUG("SysTick_Handler\n");*/
     task_system_tick_handler();
-}
-
-void trigger_pend_sv(void)
-{
-    MEM8(NVIC_SYSPRI2) = NVIC_PENDSV_PRI; /*Set PENDSVC loweset priority*/
-    MEM32(NVIC_INT_CTRL) = NVIC_PENDSVSET; /*Trigger PendSV*/
 }
 
 void switch_to_psp(void)

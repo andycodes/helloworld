@@ -61,7 +61,7 @@ void UsageFault_Handler     (void) __attribute__ ((weak, alias("Default_Handler"
 void SecureFault_Handler    (void) __attribute__ ((weak, alias("Default_Handler")));
 void SVC_Handler            (void) __attribute__ ((weak, alias("Default_Handler")));
 void DebugMon_Handler       (void) __attribute__ ((weak, alias("Default_Handler")));
-void PendSV_Handler         (void) __attribute__ ((weak, alias("Default_Handler")));
+void pendsv_handler         (void) __attribute__ ((weak, alias("Default_Handler")));
 void SysTick_Handler        (void) __attribute__ ((weak, alias("Default_Handler")));
 
 void Interrupt0_Handler     (void) __attribute__ ((weak, alias("Default_Handler")));
@@ -101,7 +101,7 @@ extern const VECTOR_TABLE_Type __VECTOR_TABLE[496];
   SVC_Handler,                              /*  -5 SVC Handler */
   DebugMon_Handler,                         /*  -4 Debug Monitor Handler */
   0,                                        /*     Reserved */
-  PendSV_Handler,                           /*  -2 PendSV Handler */
+  ((unsigned int)pendsv_handler + 1),                          /*  -2 PendSV Handler */
   SysTick_Handler,                          /*  -1 SysTick Handler */
 
   /* Interrupts */
@@ -127,10 +127,10 @@ extern const VECTOR_TABLE_Type __VECTOR_TABLE[496];
  *----------------------------------------------------------------------------*/
 __NO_RETURN void Reset_Handler(void)
 {
-  __set_PSP((uint32_t)(&__INITIAL_SP));
+ // __set_PSP((uint32_t)(&__INITIAL_SP));
 
-  __set_MSPLIM((uint32_t)(&__STACK_LIMIT));
-  __set_PSPLIM((uint32_t)(&__STACK_LIMIT));
+  //__set_MSPLIM((uint32_t)(&__STACK_LIMIT));
+ // __set_PSPLIM((uint32_t)(&__STACK_LIMIT));
 
 #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
   __TZ_set_STACKSEAL_S((uint32_t *)(&__STACK_SEAL));

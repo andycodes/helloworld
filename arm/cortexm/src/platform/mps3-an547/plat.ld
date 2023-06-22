@@ -60,12 +60,8 @@ SECTIONS
 
     .data :
     {
-        . = ORIGIN(DATA_RAM_VDM_SECTION);
-        __data_vdm_start = .;
-        __data_ldm_start = ORIGIN(DATA_ROM_LDM_SECTION);
         *(.data)
-        __data_vdm__end = .;
-    } > DATA_RAM_VDM_SECTION AT> DATA_ROM_LDM_SECTION
+    } > DATA_RAM_VDM_SECTION
 
     .ovlytable_sec :
     {
@@ -86,13 +82,20 @@ SECTIONS
         . = ALIGN(8);
     } > DATA_RAM_SECTION
 
-    . = ALIGN(8);
-    __StackLimit = .;
-    . = . + __STACK_SIZE;
-    . = ALIGN(8);
+    .stack : {
+        . = ALIGN(8);
+        __StackLimit = .;
+        . = . + __STACK_SIZE;
+        __PspStart = .;
+        . = . + __STACK_SIZE;
+         __PspTop = .;
+        . = . + __STACK_SIZE;
+        __StackTop = .;
+        . = ALIGN(8);
+    } > DATA_RAM_SECTION
 
     /* Set stack top to end of TEXT_1_SECTION. */
-    __StackTop = ORIGIN(DATA_RAM_SECTION) + LENGTH(DATA_RAM_SECTION);
+    . = ORIGIN(DATA_RAM_SECTION) + LENGTH(DATA_RAM_SECTION);
 }
 
 

@@ -34,9 +34,9 @@
 #ifndef _ARCH_TASK_H
 #define _ARCH_TASK_H
 
-#include "los_typedef.h"
-#include "arch/cpu.h"
-#include "arch/regs.h"
+//#include "los_typedef.h"
+#include "cpu.h"
+#include "regs.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -55,40 +55,40 @@ extern "C" {
 
 #define LOSCFG_STACK_POINT_ALIGN_SIZE (sizeof(UINTPTR) * 2)
 
-extern VOID *g_runTask;
-extern VOID *g_oldTask;
+extern void *g_runTask;
+extern void *g_oldTask;
 
-STATIC INLINE VOID *ArchCurrTaskGet(VOID)
+static  inline void *ArchCurrTaskGet(void)
 {
     return g_runTask;
 }
 
-STATIC INLINE VOID ArchCurrTaskSet(VOID *val)
+static  inline void ArchCurrTaskSet(void *val)
 {
     g_runTask = val;
 }
 
 typedef struct tagContext {
-    UINT32 R4;
-    UINT32 R5;
-    UINT32 R6;
-    UINT32 R7;
-    UINT32 R8;
-    UINT32 R9;
-    UINT32 R10;
-    UINT32 R11;
-    UINT32 PriMask;
+    unsigned int R4;
+    unsigned int R5;
+    unsigned int R6;
+    unsigned int R7;
+    unsigned int R8;
+    unsigned int R9;
+    unsigned int R10;
+    unsigned int R11;
+    unsigned int PriMask;
 #if FPU_USED
-    UINT32 excReturn;
+    unsigned int excReturn;
 #endif
-    UINT32 R0;
-    UINT32 R1;
-    UINT32 R2;
-    UINT32 R3;
-    UINT32 R12;
-    UINT32 LR;
-    UINT32 PC;
-    UINT32 xPSR;
+    unsigned int R0;
+    unsigned int R1;
+    unsigned int R2;
+    unsigned int R3;
+    unsigned int R12;
+    unsigned int LR;
+    unsigned int PC;
+    unsigned int xPSR;
 } TaskContext;
 
 /*
@@ -98,7 +98,7 @@ typedef struct tagContext {
  *               topStack  -- stack top of task (low address)
  * Return      : pointer to the task context
  */
-extern VOID *OsTaskStackInit(UINT32 taskId, UINT32 stackSize, VOID *topStack);
+extern void *OsTaskStackInit(unsigned int taskId, unsigned int stackSize, void *topStack);
 
 #ifdef __cplusplus
 #if __cplusplus

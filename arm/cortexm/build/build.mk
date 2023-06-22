@@ -80,9 +80,10 @@ qemu:
 gdbserver:
 	qemu-system-arm -machine $(board) -cpu $(CPU_TYPE) -m $(MEM_SIZE) \
 			    -nographic -serial mon:stdio -kernel $(TARGET) \
-			    -S -s 
+			    -S -gdb tcp::8885
 gdb: $(TARGET)
-	$(GDB) $^ -ex "target remote:1234"
+	#$(GDB) $^ -ex "target remote:1234"
+	gdb-multiarch $(TARGET)
 
 
 gdbqemu:

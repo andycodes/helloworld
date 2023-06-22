@@ -1,1 +1,1 @@
-ARCH_FLAGS += -mcpu=cortex-m55
+ARCH_FLAGS += -mcpu=cortex-m55 
