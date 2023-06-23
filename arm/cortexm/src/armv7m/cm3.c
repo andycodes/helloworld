@@ -10,23 +10,7 @@ extern uint32_t SystemCoreClock;
 
 void init_systick(uint32_t ms)
 {
-#if 0
-    systick_t *systick_p = (systick_t *)SYSTICK_BASE;
-    uint8_t *sys_prio_p = (uint8_t *)SYSTICK_PRIO_REG;
-    *sys_prio_p = 0xf0;
-    //#define SystemCoreClock     12000000UL
-    systick_p->load = ms * (12000000UL / 1000) - 1;
-    systick_p->val = 0;
-    systick_p->ctrl = 0x7;
-#else
-SysTick_Config(ms * (12000000UL / 1000) - 1);
-#endif
-}
-
-void SysTick_Handler(void)
-{
-    /*DEBUG("SysTick_Handler\n");*/
-    task_system_tick_handler();
+    SysTick_Config(ms * (12000000UL / 1000) - 1);
 }
 
 void switch_to_psp(void)

@@ -8,12 +8,6 @@ extern unsigned int __StackTop;
 extern unsigned int __PspTop;
 
 
-void SysTick_Handler(void)
-{
-    DEBUG("SysTick_Handler\n");
-    task_system_tick_handler();
-}
-
 void switch_to_psp(void)
 {
     uint32_t ctrl;

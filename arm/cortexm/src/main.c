@@ -2,6 +2,16 @@
 #include "lib.h"
 #include "module.h"
 #include "os.h"
+#include "os.h"
+#include <stdint.h>
+#include "arch.h"
+#include "task.h"
+#include "os.h"
+#include "memblock.h"
+#include "timer.h"
+#include "mutex.h"
+#include "flag_group.h"
+#include "lib.h"
 
 extern uint32_t _bss;
 extern uint32_t _ebss;
@@ -17,28 +27,6 @@ void clear_bss(void)
     }
 }
 
-extern int os_main(void);
-
-void __PROGRAM_START(void)
-{
-    clear_bss();
-    board_init();
-
-    printk("hello %s ^-^^-^^-^^-^\n", board_info());
-    os_main();
-}
-
-#include "os.h"
-#include <stdint.h>
-#include "arch.h"
-#include "task.h"
-#include "os.h"
-#include "memblock.h"
-#include "timer.h"
-#include "mutex.h"
-#include "flag_group.h"
-#include "lib.h"
-//#include <ARMCM55.h>
 
 extern unsigned int __StackTop;
 extern unsigned int __PspTop;
@@ -112,4 +100,18 @@ int os_main(void)
     task_run_first();
     for(;;);
     return 0;
+}
+
+void __PROGRAM_START(void)
+{
+    clear_bss();
+    dfx_init();
+    board_init();
+
+    printk("hello %s ^-^^-^^-^^-^\n", board_info());
+
+    module_init();
+
+    printk("hello RTOS ^-^^-^^-^^-^\n");
+    os_main();
 }
