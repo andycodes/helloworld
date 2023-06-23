@@ -34,8 +34,6 @@
 #ifndef _ARCH_TASK_H
 #define _ARCH_TASK_H
 
-//#include "los_typedef.h"
-#include "cpu.h"
 #include "regs.h"
 
 #ifdef __cplusplus

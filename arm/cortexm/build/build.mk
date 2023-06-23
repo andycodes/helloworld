@@ -10,7 +10,7 @@ OPT_LEVEL := z
 C_STD     := c11
 DBG_LEVEL := 3
 
-include build/$(ARCH).mk
+include build/filelist.mk
 
 OUT := bin/$(board)
 OBJ := $(addprefix $(OUT)/, $(CSRC:.c=.o))

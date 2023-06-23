@@ -1,26 +1,16 @@
-#include "SMM_MPS3.h"
-#include <ARMCM85.h>
-#include <core_cm85.h>
+#if 0
 #include "os.h"
-#include "system_ARMCM85.h"
 #include "uart.h"
 
 char *board_info(void)
 {
-    return "CM85,CM85";
+    return "CM3";
 }
 
-void fault_init(void)
+void mpu_init(void)
 {
-    SCB->SHCSR |=  SCB_SHCSR_SECUREFAULTENA_Msk | SCB_SHCSR_USGFAULTENA_Msk
-    | SCB_SHCSR_BUSFAULTENA_Msk | SCB_SHCSR_MEMFAULTENA_Msk;
-
-    SCB->CCR |= SCB_CCR_UNALIGN_TRP_Msk | SCB_CCR_DIV_0_TRP_Msk;
-}
-
-static void Core_Debug(void)
-{
-    CoreDebug->DHCSR |= CoreDebug_DHCSR_C_DEBUGEN_Msk;
+    MPU->CTRL &= ~MPU_CTRL_HFNMIENA_Msk;
+    MPU->CTRL &= ~MPU_CTRL_PRIVDEFENA_Msk;
 }
 
 void board_init(void)
@@ -41,13 +31,10 @@ void board_init(void)
     NVIC->ICPR[6] = 0xFFFFFFFF;         /* Clear all pending interrupts */
     NVIC->ICPR[7] = 0xFFFFFFFF;         /* Clear all pending interrupts */
 
-    fault_init();
-
+    mpu_init();
     printk ("Version 1.1.0" " Build date: " __DATE__ "\n");
-
-    extern void cpuidle(void);
-    cpuidle();
 
     extern void overlay_main(void);
     overlay_main();
 }
+#endif
