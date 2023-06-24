@@ -41,5 +41,5 @@ SECTIONS
     . = ALIGN(32);
     _p_StackLimit = .;
     . = . + 0x4000;
-    _p_StackTop = .;
+    __PspTop = .;
 }

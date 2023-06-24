@@ -13,6 +13,19 @@
 #include "flag_group.h"
 #include "lib.h"
 
+extern unsigned int __StackTop;
+extern unsigned int __PspTop;
+
+
+void switch_to_psp(void)
+{
+    uint32_t ctrl;
+
+    __set_PSP((uint32_t)(&__PspTop));
+    ctrl = __get_CONTROL();
+    __set_CONTROL(ctrl | CONTROL_SPSEL_Msk); // switch to PSP
+}
+
 extern uint32_t _bss;
 extern uint32_t _ebss;
 

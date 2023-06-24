@@ -2,7 +2,7 @@
 .code 16
 .syntax unified
 /*Export*/
-.global _p_StackTop
+.global __PspTop
 .global get_psp
 .global set_psp
 .global get_msp

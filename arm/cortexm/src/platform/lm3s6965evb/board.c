@@ -1,4 +1,4 @@
-#if 0
+#if 1
 #include "os.h"
 #include "uart.h"
 
@@ -9,12 +9,15 @@ char *board_info(void)
 
 void mpu_init(void)
 {
+#if 0
     MPU->CTRL &= ~MPU_CTRL_HFNMIENA_Msk;
     MPU->CTRL &= ~MPU_CTRL_PRIVDEFENA_Msk;
+#endif
 }
 
 void board_init(void)
 {
+#if 0
     unsigned int core_clock = MPS3_SCC->CFG_ACLK;
     if(core_clock != 0)
         SystemCoreClockUpdate();
@@ -36,5 +39,6 @@ void board_init(void)
 
     extern void overlay_main(void);
     overlay_main();
+#endif
 }
 #endif

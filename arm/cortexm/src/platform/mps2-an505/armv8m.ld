@@ -88,7 +88,7 @@ SECTIONS
     _p_StackLimit = .;
     . = . + __STACK_SIZE;
     . = ALIGN(8);
-    _p_StackTop = .;
+    __PspTop = .;
 
     . = ALIGN(8);
     __StackLimit = .;

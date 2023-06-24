@@ -16,18 +16,6 @@ typedef struct __attribute__((packed)) ContextStateFrame {
   uint32_t xpsr;
 } sContextStateFrame;
 
-#define HARDFAULT_HANDLING_ASM(_x)               \
-  __asm volatile(                                \
-      "tst lr, #4 \n"                            \
-      "ite eq \n"                                \
-      "mrseq r0, msp \n"                         \
-      "mrsne r0, psp \n"                         \
-      "b my_fault_handler_c \n"                  \
-                                                 )
-
-
-
-
 //CMB_USING_OS_PLATFORM
 #if 0
 void dump_stack(void)
@@ -49,42 +37,14 @@ void dump_stack(void)
     }    
 }
 
-
-void recover(void)
-{
-  // Clear any logged faults from the CFSR
-  *cfsr |= *cfsr;
-  // the instruction we will return to when we exit from the exception
-  frame->return_address = (uint32_t)recover_from_task_fault;
-  // the function we are returning to should never branch
-  // so set lr to a pattern that would fault if it did
-  frame->lr = 0xdeadbeef;
-  // reset the psr state and only leave the
-  // "thumb instruction interworking" bit set
-  frame->xpsr = (1 << 24);
-}
 #endif
-void printBusFaultErrorMsg(uint32_t CFSRValue)
-{
-   printk("Bus fault: ");
-   CFSRValue = ((CFSRValue & 0x0000FF00) >> 8); // mask and right shift to lsb
-}
 
-void printMemoryManagementErrorMsg(uint32_t CFSRValue)
-{
-   printk("Memory Management fault: ");
-   CFSRValue &= 0x000000FF; // mask just mem faults
-}
-
+/*
+# First eight values on stack will always be:
+# r0, r1, r2, r3, r12, LR, pc, xPSR
+*/
 void debugHardfault(unsigned int *sp)
 {
-    unsigned int cfsr  = SCB->CFSR;
-    unsigned int hfsr  = SCB->HFSR;
-    unsigned int mmfar = SCB->MMFAR;
-    unsigned int bfar  = SCB->BFAR;
-    unsigned int dfsr  = SCB->DFSR;    
-    unsigned int afsr  = SCB->AFSR;    
-
     unsigned int r0  = sp[0];
     unsigned int r1  = sp[1];
     unsigned int r2  = sp[2];
@@ -93,6 +53,13 @@ void debugHardfault(unsigned int *sp)
     unsigned int lr  = sp[5];
     unsigned int pc  = sp[6];
     unsigned int psr = sp[7];
+
+    unsigned int cfsr  = SCB->CFSR;
+    unsigned int hfsr  = SCB->HFSR;
+    unsigned int mmfar = SCB->MMFAR;
+    unsigned int bfar  = SCB->BFAR;
+    unsigned int dfsr  = SCB->DFSR;    
+    unsigned int afsr  = SCB->AFSR;    
 
     printk("HardFault:\n");
     printk("SCB->HFSR   0x%08lx\n", hfsr);
@@ -118,10 +85,10 @@ void debugHardfault(unsigned int *sp)
     }
 
     if((SCB->CFSR & 0xFF00) != 0) {
-        printBusFaultErrorMsg(SCB->CFSR);
+        printk("Bus fault: ");
     }
     if((SCB->CFSR & 0xFF) != 0) {
-        printMemoryManagementErrorMsg(SCB->CFSR);
+        printk("Memory Management fault: ");
     }   
 
     printk("SP          0x%08lx\n", (unsigned int)sp);
@@ -134,10 +101,28 @@ void debugHardfault(unsigned int *sp)
     printk("PC          0x%08lx\n", pc);
     printk("PSR         0x%08lx\n", psr);
 
+#if 0
+    SCB->CFSR = cfsr;
+    // Clear any logged faults from the CFSR
+    *cfsr |= *cfsr;
+    // the instruction we will return to when we exit from the exception
+    frame->return_address = (uint32_t)recover_from_task_fault;
+    // the function we are returning to should never branch
+    // so set lr to a pattern that would fault if it did
+    frame->lr = 0xdeadbeef;
+    // reset the psr state and only leave the
+    // "thumb instruction interworking" bit set
+    frame->xpsr = (1 << 24);
+    __get_xPSR
+#else
     while(1);
+#endif
 }
 
-//__attribute__((optimize("O0")))
+/*
+# psp was active prior to exception if bit 2 is set
+# otherwise, the msp was active
+*/
 __attribute__( (naked) )
 void HardFault_Handler(void)
 {
@@ -147,9 +132,7 @@ void HardFault_Handler(void)
         "ite eq                                        \n"
         "mrseq r0, msp                                 \n"
         "mrsne r0, psp                                 \n"
-        "ldr r1, debugHardfault_address                \n"
-        "bx r1                                         \n"
-        "debugHardfault_address: .word debugHardfault  \n"
+        "b debugHardfault                             \n"
     );
 }
 

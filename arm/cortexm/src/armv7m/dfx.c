@@ -56,3 +56,13 @@ void HardFault_Handler(void)
 printk("HardFault:\n");
  while(1);
 }
+
+void dfx_init(void)
+{
+    SCB->SHCSR |=  SCB_SHCSR_USGFAULTENA_Msk
+    | SCB_SHCSR_BUSFAULTENA_Msk | SCB_SHCSR_MEMFAULTENA_Msk;
+
+    SCB->CCR |= SCB_CCR_UNALIGN_TRP_Msk | 
+                SCB_CCR_DIV_0_TRP_Msk |
+                SCB_CCR_BFHFNMIGN_Msk;
+}

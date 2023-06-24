@@ -2,7 +2,7 @@
 .code 16
 .syntax unified
 /*Export*/
-.global _p_StackTop
+.global __PspTop
 .global get_control_reg
 .global pendsv_handler
 .global set_primask

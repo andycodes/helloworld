@@ -1,5 +1,4 @@
-CSRC := src/$(ARCH)/arch.c \
-		src/$(ARCH)/main.c \
+CSRC := src/main.c \
 		src/platform/$(board)/cmsdk_uart.c \
 		src/platform/$(board)/board.c
 

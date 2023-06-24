@@ -1,10 +1,5 @@
-/* Linker script to configure memory regions. */
-MEMORY
-{
-    TEXT_1_SECTION (rx) : ORIGIN = 0x00000000, LENGTH = 256K
-    SRAM (rwx) : ORIGIN = 0x20000000, LENGTH = 256K /* 0x20040000 */
-}
 
+INCLUDE src/platform/lm3s6965evb/mem.ld
 SECTIONS
 {
     .text :
@@ -40,22 +35,31 @@ SECTIONS
         *(.data*)
         _edata = .;
 	. = ALIGN(8);
-    } > SRAM
+    } > DATA_RAM_SECTION
 
     .bss :
     {
-    	. = ALIGN(8);
+        . = ALIGN(8);
         _bss = .;
         *(.bss*)
         *(COMMON)
         _ebss = .;
-	. = ALIGN(8);
-    } > SRAM
+        . = ALIGN(8);
+    } > DATA_RAM_SECTION
 
-    . = ALIGN(32);
-    _p_StackLimit = .;
-    . = . + 0x4000;
-    _p_StackTop = .;
-    . = . + 0x4000;
-    __StackTop = .;
+    .stack : {
+        . = ALIGN(8);
+        __StackLimit = .;
+        . = . + __STACK_SIZE;
+        __PspStart = .;
+        . = . + __STACK_SIZE;
+         __PspTop = .;
+        . = . + __STACK_SIZE;
+        __StackTop = .;
+        . = ALIGN(8);
+    } > DATA_RAM_SECTION
+
+    /* Set stack top to end of TEXT_1_SECTION. */
+    . = ORIGIN(DATA_RAM_SECTION) + LENGTH(DATA_RAM_SECTION);
 }
+
