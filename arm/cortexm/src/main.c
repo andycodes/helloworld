@@ -15,7 +15,7 @@
 
 extern unsigned int __StackTop;
 extern unsigned int __PspTop;
-
+extern unsigned int __PspStart[1024 * 2];
 
 void switch_to_psp(void)
 {
@@ -40,19 +40,8 @@ void clear_bss(void)
     }
 }
 
-
-extern unsigned int __StackTop;
-extern unsigned int __PspTop;
-
 task_t task1;
-task_t task2;
-task_t task3;
 task_t task4;
-task_stack_t task1_stk[2048];
-//task_stack_t task2_stk[1024];
-//task_stack_t task3_stk[1024];
-task_stack_t task4_stk[2048];
-
 flag_group_t flag_group;
 
 void task1_entry(void *param)
@@ -92,7 +81,6 @@ void task4_entry(void *param)
     }
 }
 
-
 int os_main(void)
 {
     DEBUG("Hello FAN RTOS \n");
@@ -105,12 +93,12 @@ int os_main(void)
     init_task_module();
     timer_module_init();
 
-    task_init(&task1, task1_entry, (void *)0x11111111, 0, &task1_stk[1024]);
-//  task_init(&task2, task2_entry, (void *)0x22222222, 1, &task2_stk[1024]);
-//  task_init(&task3, task3_entry, (void *)0x33333333, 0, &task3_stk[1024]);
-    task_init(&task4, task4_entry, (void *)0x44444444, 1, &task4_stk[1024]);
+    task_init(&task1, task1_entry, (void *)0x11111111, 0, &__PspStart[1024]);
+    task_init(&task4, task4_entry, (void *)0x44444444, 1, &__PspStart[1024 *2]);
     g_next_task = task_highest_ready();
     task_run_first();
+
+
     for(;;);
     return 0;
 }
