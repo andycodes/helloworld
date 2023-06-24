@@ -5,119 +5,88 @@
 #include "clib.h"
 #include "os.h"
 
-typedef struct __attribute__((packed)) ContextStateFrame {
-  uint32_t r0;
-  uint32_t r1;
-  uint32_t r2;
-  uint32_t r3;
-  uint32_t r12;
-  uint32_t lr;
-  uint32_t return_address;
-  uint32_t xpsr;
-} sContextStateFrame;
-
-//CMB_USING_OS_PLATFORM
-#if 0
-void dump_stack(void)
-{
-    if (stack_pointer < stack_start_addr || stack_pointer > stack_start_addr + stack_size) {
-        stack_is_overflow = true;
-    }
-
-    if (stack_is_overflow) {
-        if ((uint32_t) stack_pointer < stack_start_addr) {
-            stack_pointer = (uint32_t *) stack_start_addr;
-        } else if ((uint32_t) stack_pointer > stack_start_addr + stack_size) {
-            stack_pointer = (uint32_t *) (stack_start_addr + stack_size);
-        }        
-    }
-    
-    for (; (uint32_t) stack_pointer < stack_start_addr + stack_size; stack_pointer++) {
-        cmb_println("  addr: %08x    data: %08x", stack_pointer, *stack_pointer);
-    }    
-}
-
-#endif
+struct ContextStateFrame {
+    unsigned int r0;
+    unsigned int r1;
+    unsigned int r2;
+    unsigned int r3;
+    unsigned int r12;
+    unsigned int lr;
+    unsigned int pc;
+    unsigned int xpsr;
+};
 
 /*
 # First eight values on stack will always be:
 # r0, r1, r2, r3, r12, LR, pc, xPSR
 */
-void debugHardfault(unsigned int *sp)
+
+#if 1
+void debugHardfault(struct ContextStateFrame *fp)
 {
-    unsigned int r0  = sp[0];
-    unsigned int r1  = sp[1];
-    unsigned int r2  = sp[2];
-    unsigned int r3  = sp[3];
-    unsigned int r12 = sp[4];
-    unsigned int lr  = sp[5];
-    unsigned int pc  = sp[6];
-    unsigned int psr = sp[7];
-
-    unsigned int cfsr  = SCB->CFSR;
-    unsigned int hfsr  = SCB->HFSR;
-    unsigned int mmfar = SCB->MMFAR;
-    unsigned int bfar  = SCB->BFAR;
-    unsigned int dfsr  = SCB->DFSR;    
-    unsigned int afsr  = SCB->AFSR;    
-
-    printk("HardFault:\n");
-    printk("SCB->HFSR   0x%08lx\n", hfsr);
-    printk("SCB->CFSR   0x%08lx\n", cfsr);
-    printk("SCB->MMFAR  0x%08lx\n", mmfar);
-    printk("SCB->BFAR   0x%08lx\n", bfar);
-    printk("SCB->DFSR   0x%08lx\n", dfsr);
-    printk("SCB->AFSR   0x%08lx\n", afsr);
+    printk("debugHardfault:\n");
+    printk("SCB->HFSR   0x%08lx\n", SCB->HFSR);
+    printk("SCB->CFSR   0x%08lx\n", SCB->CFSR);  // UFSR|BFSR|MMFSR
+    printk("SCB->MMFAR  0x%08lx\n", SCB->MMFAR);//MemManage Fault Address Register
+    printk("SCB->BFAR   0x%08lx\n", SCB->BFAR);
+    printk("SCB->DFSR   0x%08lx\n", SCB->DFSR);//调试fault状态寄存器
+    printk("SCB->AFSR   0x%08lx\n", SCB->AFSR);//辅助fault状态寄存器
 
     printk("\n");
 
-    if ((SCB->HFSR & (1 << 30)) != 0) { 
+    if ((SCB->HFSR & SCB_HFSR_FORCED_Msk) != 0) { 
         printk("Forced Hard Fault\n");
     }
 
-    if((SCB->CFSR & 0xFFFF0000) != 0) {
-        unsigned int CFSRValue = SCB->CFSR >>= 16;
+    if((SCB->CFSR & SCB_CFSR_USGFAULTSR_Msk) != 0) {
         printk("UFSR Fault:");
-
-        if((CFSRValue & (1 << 9)) != 0) {
+        if((SCB->CFSR & SCB_CFSR_DIVBYZERO_Msk) != 0) {
             printk("Divide by zero\n");
         }
     }
 
-    if((SCB->CFSR & 0xFF00) != 0) {
-        printk("Bus fault: ");
+    if((SCB->CFSR & SCB_CFSR_BUSFAULTSR_Msk) != 0) {
+        printk("BFSR Bus fault: ");
     }
-    if((SCB->CFSR & 0xFF) != 0) {
-        printk("Memory Management fault: ");
+
+    if((SCB->CFSR & SCB_CFSR_MEMFAULTSR_Msk) != 0) {
+        printk("MMFSR Memory Management fault: ");
     }   
 
-    printk("SP          0x%08lx\n", (unsigned int)sp);
-    printk("R0          0x%08lx\n", r0);
-    printk("R1          0x%08lx\n", r1);
-    printk("R2          0x%08lx\n", r2);
-    printk("R3          0x%08lx\n", r3);
-    printk("R12         0x%08lx\n", r12);
-    printk("LR          0x%08lx\n", lr);
-    printk("PC          0x%08lx\n", pc);
-    printk("PSR         0x%08lx\n", psr);
+    printk("SP          0x%08lx\n", (unsigned int)fp);
+    printk("R0          0x%08lx\n", fp->r0);
+    printk("R1          0x%08lx\n", fp->r1);
+    printk("R2          0x%08lx\n", fp->r2);
+    printk("R3          0x%08lx\n", fp->r3);
+    printk("R12         0x%08lx\n", fp->r12);
+    printk("LR          0x%08lx\n", fp->lr);
+    printk("PC          0x%08lx\n", fp->pc);
+    printk("XPSR        0x%08lx\n", fp->xpsr);
 
-#if 0
-    SCB->CFSR = cfsr;
-    // Clear any logged faults from the CFSR
-    *cfsr |= *cfsr;
-    // the instruction we will return to when we exit from the exception
-    frame->return_address = (uint32_t)recover_from_task_fault;
-    // the function we are returning to should never branch
-    // so set lr to a pattern that would fault if it did
-    frame->lr = 0xdeadbeef;
-    // reset the psr state and only leave the
-    // "thumb instruction interworking" bit set
-    frame->xpsr = (1 << 24);
-    __get_xPSR
-#else
+    /*recovery*/
+
+    SCB->HFSR = SCB->HFSR;
+    SCB->CFSR = SCB->CFSR;
+
     while(1);
-#endif
 }
+#else
+__attribute__((naked, used))
+void debugHardfault(struct ContextStateFrame *fp)
+{
+    /*recovery*/
+    SCB->HFSR = SCB->HFSR;
+    SCB->CFSR = SCB->CFSR;
+
+    __asm volatile
+    (
+        "MRS R0, PSR    \n"
+        "ORR  R0,R0, #0x1000000 \n"
+        "MSR PSR,R0     \n"
+        "bx lr \n"
+    );
+}
+#endif
 
 /*
 # psp was active prior to exception if bit 2 is set

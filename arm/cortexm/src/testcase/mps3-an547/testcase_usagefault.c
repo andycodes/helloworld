@@ -4,6 +4,11 @@
 #include <utest_log.h>
 #include <ARMCM55.h>
 
+void after_div_zero(void)
+{
+  printk("%s\n", __func__);
+}
+
 void div_by_zero( void )
 {
   volatile unsigned int a, b, c;
@@ -12,13 +17,16 @@ void div_by_zero( void )
   b = 0;
   c = a / b;
 
+  after_div_zero();
   printk("c is %u\n", c);
 }  
 
 void testcase_usagefault_tc(void)
 {
   printk("start %s\n", __func__);
+
   div_by_zero();
+
   printk("end %s\n", __func__);
 }
 

@@ -10,6 +10,8 @@ void tc_dfx_fpu(void)
     volatile float  a, b;
     volatile double x, y;
 
+  printk("%s\n", __func__);
+
     a = b = 1.0e30f;
     a *= b; /* overflow; will be wrapped to a moderate number */
     printk("%g\n", a);
@@ -24,7 +26,6 @@ void tc_dfx_fpu(void)
     printk("%g\n", x);
     x /= y; /* underflow; will wrap back */
     printk("%g\n", x);
-    return 0;
 }
 
 UTEST_TC_EXPORT(tc_dfx_fpu, "tc_dfx_fpu", RT_NULL, RT_NULL, 0);

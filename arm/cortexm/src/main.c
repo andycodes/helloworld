@@ -84,12 +84,6 @@ void task4_entry(void *param)
 int os_main(void)
 {
     DEBUG("Hello FAN RTOS \n");
-
-    DEBUG("psp msp:0x%x, 0x%x\n", &__PspTop, &__StackTop);
-    switch_to_psp();
-    DEBUG("psp:0x%x\n", __get_PSP());
-    DEBUG("msp:0x%x\n", __get_MSP());
-
     init_task_module();
     timer_module_init();
 
@@ -97,8 +91,6 @@ int os_main(void)
     task_init(&task4, task4_entry, (void *)0x44444444, 1, &__PspStart[1024 *2]);
     g_next_task = task_highest_ready();
     task_run_first();
-
-
     for(;;);
     return 0;
 }

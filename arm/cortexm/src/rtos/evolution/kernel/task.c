@@ -27,7 +27,6 @@ static void idle_task_entry(void *param)
 
 void task_init (task_t * task, void (*entry)(void *), void *param, uint32_t prio, uint32_t * stack)
 {
-    DEBUG("%s\n", __func__);
     *(--stack) = (uint32_t) (1 << 24);      /*XPSR, Thumb Mode*/
     *(--stack) = (uint32_t) entry;            /*PC*/
     *(--stack) = (uint32_t) 14;                 /*LR*/
@@ -68,7 +67,6 @@ void task_init (task_t * task, void (*entry)(void *), void *param, uint32_t prio
     task->wait_event = (event_t *)NULL;
     task->event_msg = (void *)0;
     task->wait_event_result = NO_ERROR;
-
 }
 
 void task_sched(void)
@@ -99,6 +97,9 @@ void task_switch(void)
 void task_run_first(void)
 {
     DEBUG("%s\n", __func__);
+    DEBUG("psp:0x%x\n", __get_PSP());
+    DEBUG("msp:0x%x\n", __get_MSP());
+    switch_to_psp();
     NVIC_SetPriority(PendSV_IRQn, NVIC_PENDSV_PRI);
     asm __volatile__ ("mov r0,0");
     SCB->ICSR = SCB_ICSR_PENDSVSET_Msk;
