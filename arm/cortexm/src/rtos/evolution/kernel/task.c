@@ -22,7 +22,9 @@ extern void timer_module_tick_notify(void);
 
 static void idle_task_entry(void *param)
 {
-    for(;;);
+    for(;;) {
+        __WFI();
+    };
 }
 
 void task_init (task_t * task, void (*entry)(void *), void *param, uint32_t prio, uint32_t * stack)

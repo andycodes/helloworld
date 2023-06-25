@@ -46,7 +46,7 @@ flag_group_t flag_group;
 
 void task1_entry(void *param)
 {
-    SysTick_Config(100 * (12000000UL / 1000) - 1);
+    SysTick_Config(10 * (12000000UL / 1000) - 1);
     flag_group_init(&flag_group, 0xff);
     for(;;) {
         printk("%s\n", __func__);
