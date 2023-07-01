@@ -36,7 +36,7 @@ include_directories(
     "${BASE_DIR}/src/include"
     "${BASE_DIR}/src/armv7m"
     "${BASE_DIR}/src/libs"
-    "${BASE_DIR}/src/rtos/evolution/include"
+    "${BASE_DIR}/src/rtos/include"
 )
 
 # 查找当前目录下的所有源文件
