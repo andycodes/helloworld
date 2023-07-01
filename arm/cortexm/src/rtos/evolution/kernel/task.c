@@ -190,15 +190,15 @@ void init_task_module()
 
 uint32_t task_enter_critical(void)
 {
-    uint32_t ret = get_primask();
-    disable_irq();
+    uint32_t ret = __get_PRIMASK();
+    __disable_irq();
     return ret;
 }
 
 void task_exit_critical(uint32_t status)
 {
-    set_primask(status);
-    enable_irq();
+    __set_PRIMASK(status);
+    __enable_irq();
 }
 
 void task_sched_disable(void)

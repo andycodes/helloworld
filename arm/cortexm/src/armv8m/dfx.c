@@ -1,7 +1,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "uart.h"
-#include "ARMCM55.h"
+#include "arch.h"
 #include "clib.h"
 #include "os.h"
 

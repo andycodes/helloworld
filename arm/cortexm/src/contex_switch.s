@@ -1,25 +1,10 @@
 .text
 .code 16
 .syntax unified
-/*Export*/
-.global __PspTop
-.global get_control_reg
 .global pendsv_handler
-.global set_primask
-.global get_primask
-.global disable_irq
-.global enable_irq
-
-/*Import*/
 .global g_current_task
 .global g_next_task
-.global main
 .global g_os_first_switch
-
-
-get_control_reg:
-    mrs     r0, CONTROL
-    blx     lr
 
 pendsv_handler:
     /*CM3 will push the r0-r3, r12, r14, r15, xpsr by hardware*/
@@ -54,19 +39,3 @@ switch_to_thread:
     msr     psp, r0
     orr     lr, lr, #0x04   /*Swtich to PSP*/
     bx      lr
-
-get_primask:
-    mrs     r0, PRIMASK
-    blx     lr
-
-set_primask:
-    msr     PRIMASK, r0
-    blx     lr
-
-disable_irq:
-    cpsid   i
-    blx     lr
-
-enable_irq:
-    cpsie   i
-    blx     lr

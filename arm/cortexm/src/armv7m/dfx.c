@@ -1,66 +1,115 @@
 #include <stdint.h>
+#include <stdbool.h>
 #include "uart.h"
-#include "ARMCM3.h"
+#include "arch.h"
+#include "clib.h"
+#include "os.h"
 
-void debugHardfault(unsigned int *sp)
+struct ContextStateFrame {
+    unsigned int r0;
+    unsigned int r1;
+    unsigned int r2;
+    unsigned int r3;
+    unsigned int r12;
+    unsigned int lr;
+    unsigned int pc;
+    unsigned int xpsr;
+};
+
+/*
+# First eight values on stack will always be:
+# r0, r1, r2, r3, r12, LR, pc, xPSR
+*/
+
+#if 1
+void debugHardfault(struct ContextStateFrame *fp)
 {
-    unsigned int cfsr  = SCB->CFSR;
-    unsigned int hfsr  = SCB->HFSR;
-    unsigned int mmfar = SCB->MMFAR;
-    unsigned int bfar  = SCB->BFAR;
+    printk("debugHardfault:\n");
+    printk("SCB->HFSR   0x%08lx\n", SCB->HFSR);
+    printk("SCB->CFSR   0x%08lx\n", SCB->CFSR);  // UFSR|BFSR|MMFSR
+    printk("SCB->MMFAR  0x%08lx\n", SCB->MMFAR);//MemManage Fault Address Register
+    printk("SCB->BFAR   0x%08lx\n", SCB->BFAR);
+    printk("SCB->DFSR   0x%08lx\n", SCB->DFSR);//??fault?????
+    printk("SCB->AFSR   0x%08lx\n", SCB->AFSR);//??fault?????
 
-    unsigned int r0  = sp[0];
-    unsigned int r1  = sp[1];
-    unsigned int r2  = sp[2];
-    unsigned int r3  = sp[3];
-    unsigned int r12 = sp[4];
-    unsigned int lr  = sp[5];
-    unsigned int pc  = sp[6];
-    unsigned int psr = sp[7];
-
-    printk("HardFault:\n");
-    printk("SCB->CFSR   0x%08lx\n", cfsr);
-    printk("SCB->HFSR   0x%08lx\n", hfsr);
-    printk("SCB->MMFAR  0x%08lx\n", mmfar);
-    printk("SCB->BFAR   0x%08lx\n", bfar);
     printk("\n");
 
-    printk("SP          0x%08lx\n", (unsigned int)sp);
-    printk("R0          0x%08lx\n", r0);
-    printk("R1          0x%08lx\n", r1);
-    printk("R2          0x%08lx\n", r2);
-    printk("R3          0x%08lx\n", r3);
-    printk("R12         0x%08lx\n", r12);
-    printk("LR          0x%08lx\n", lr);
-    printk("PC          0x%08lx\n", pc);
-    printk("PSR         0x%08lx\n", psr);
+    if ((SCB->HFSR & SCB_HFSR_FORCED_Msk) != 0) { 
+        printk("Forced Hard Fault\n");
+    }
+
+    if((SCB->CFSR & SCB_CFSR_USGFAULTSR_Msk) != 0) {
+        printk("UFSR Fault:");
+        if((SCB->CFSR & SCB_CFSR_DIVBYZERO_Msk) != 0) {
+            printk("Divide by zero\n");
+        }
+    }
+
+    if((SCB->CFSR & SCB_CFSR_BUSFAULTSR_Msk) != 0) {
+        printk("BFSR Bus fault: ");
+    }
+
+    if((SCB->CFSR & SCB_CFSR_MEMFAULTSR_Msk) != 0) {
+        printk("MMFSR Memory Management fault: ");
+    }   
+
+    printk("SP          0x%08lx\n", (unsigned int)fp);
+    printk("R0          0x%08lx\n", fp->r0);
+    printk("R1          0x%08lx\n", fp->r1);
+    printk("R2          0x%08lx\n", fp->r2);
+    printk("R3          0x%08lx\n", fp->r3);
+    printk("R12         0x%08lx\n", fp->r12);
+    printk("LR          0x%08lx\n", fp->lr);
+    printk("PC          0x%08lx\n", fp->pc);
+    printk("XPSR        0x%08lx\n", fp->xpsr);
+
+    /*recovery*/
+
+    SCB->HFSR = SCB->HFSR;
+    SCB->CFSR = SCB->CFSR;
 
     while(1);
 }
+#else
+__attribute__((naked, used))
+void debugHardfault(struct ContextStateFrame *fp)
+{
+    /*recovery*/
+    SCB->HFSR = SCB->HFSR;
+    SCB->CFSR = SCB->CFSR;
 
+    __asm volatile
+    (
+        "MRS R0, PSR    \n"
+        "ORR  R0,R0, #0x1000000 \n"
+        "MSR PSR,R0     \n"
+        "bx lr \n"
+    );
+}
+#endif
+
+/*
+# psp was active prior to exception if bit 2 is set
+# otherwise, the msp was active
+*/
 __attribute__( (naked) )
 void HardFault_Handler(void)
 {
-#if 0
     __asm volatile
     (
         "tst lr, #4                                    \n"
         "ite eq                                        \n"
         "mrseq r0, msp                                 \n"
         "mrsne r0, psp                                 \n"
-        "ldr r1, debugHardfault_address                \n"
-        "bx r1                                         \n"
-        "debugHardfault_address: .word debugHardfault  \n"
+        "b debugHardfault                             \n"
     );
-#endif
-printk("HardFault:\n");
- while(1);
 }
 
 void dfx_init(void)
 {
-    SCB->SHCSR |=  SCB_SHCSR_USGFAULTENA_Msk
-    | SCB_SHCSR_BUSFAULTENA_Msk | SCB_SHCSR_MEMFAULTENA_Msk;
+    SCB->SHCSR |=   SCB_SHCSR_USGFAULTENA_Msk | 
+                    SCB_SHCSR_BUSFAULTENA_Msk | 
+                    SCB_SHCSR_MEMFAULTENA_Msk;
 
     SCB->CCR |= SCB_CCR_UNALIGN_TRP_Msk | 
                 SCB_CCR_DIV_0_TRP_Msk |
