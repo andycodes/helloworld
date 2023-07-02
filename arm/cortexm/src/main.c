@@ -12,6 +12,7 @@
 #include "mutex.h"
 #include "flag_group.h"
 #include "lib.h"
+#include "kalloc.h"
 
 extern unsigned int __StackTop;
 extern unsigned int __PspTop;
@@ -102,7 +103,7 @@ void __PROGRAM_START(void)
     board_init();
 
     printk("hello %s ^-^^-^^-^^-^\n", board_info());
-
+    kinit();
     module_init();
 
     printk("hello RTOS ^-^^-^^-^^-^\n");
