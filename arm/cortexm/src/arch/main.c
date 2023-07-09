@@ -2,11 +2,10 @@
 #include "lib.h"
 #include "module.h"
 #include "os.h"
-#include "os.h"
+#include "systick.h"
 #include <stdint.h>
 #include "arch.h"
 #include "task.h"
-#include "os.h"
 #include "memblock.h"
 #include "timer.h"
 #include "mutex.h"
@@ -17,6 +16,10 @@
 extern unsigned int __StackTop;
 extern unsigned int __PspTop;
 extern unsigned int __PspStart[1024 * 2];
+
+#define PLATFORM_SYSTICK    (10 * (12000000UL / 1000) - 1)
+unsigned int g_os_startflag = 0;
+
 
 void switch_to_psp(void)
 {
@@ -103,7 +106,7 @@ void __PROGRAM_START(void)
     board_init();
 
     printk("hello %s ^-^^-^^-^^-^\n", board_info());
-    kinit();
+    kmalloc_init();
     module_init();
 
     printk("hello RTOS ^-^^-^^-^^-^\n");

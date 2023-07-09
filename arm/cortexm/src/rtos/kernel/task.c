@@ -127,7 +127,7 @@ void task_delay_s(uint32_t seconds)
     task_delay(seconds * 100);
 }
 
-void SysTick_Handler(void)
+void task_scheduler(void)
 {
     uint32_t status = task_enter_critical();
     list_node_t *head = &(g_task_delay_list.head);

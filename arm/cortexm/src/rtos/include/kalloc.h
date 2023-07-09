@@ -3,6 +3,6 @@
 
 void*           kalloc(void);
 void            kfree(void *);
-void            kinit(void);
+void            kmalloc_init(void);
 
 #endif /*KALLOC_H*/

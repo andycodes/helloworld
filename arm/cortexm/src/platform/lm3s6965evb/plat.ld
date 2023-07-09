@@ -59,7 +59,10 @@ SECTIONS
         . = ALIGN(8);
     } > DATA_RAM_SECTION
 
-    /* Set stack top to end of TEXT_1_SECTION. */
-    . = ORIGIN(DATA_RAM_SECTION) + LENGTH(DATA_RAM_SECTION);
+    .heap : {
+      __heap_start = .;
+      . = . + 4096 * 6;
+      __heap_end = .;
+    } > DATA_RAM_SECTION
 }
 

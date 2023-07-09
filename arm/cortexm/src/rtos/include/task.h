@@ -85,5 +85,6 @@ extern uint8_t is_task_request_delete(void);
 extern void task_delete_self(void);
 extern void task_get_info(task_t *task, task_info_t *info);
 extern void dump_task_info(task_info_t *info);
+void task_scheduler(void);
 
 #endif /*TASK_H*/

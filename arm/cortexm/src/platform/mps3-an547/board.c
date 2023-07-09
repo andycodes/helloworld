@@ -4,17 +4,14 @@
 #include "os.h"
 #include "system_ARMCM55.h"
 #include "uart.h"
+#include "mpu.h"
 
 char *board_info(void)
 {
     return "CM55,mps3-an547";
 }
 
-void mpu_init(void)
-{
-    MPU->CTRL &= ~MPU_CTRL_HFNMIENA_Msk;
-    MPU->CTRL &= ~MPU_CTRL_PRIVDEFENA_Msk;
-}
+extern void mpu_init(void);
 
 void board_init(void)
 {

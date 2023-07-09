@@ -12,4 +12,5 @@ CSRC  += src/rtos/kernel/task.c \
 		src/rtos/kernel/timer.c \
 		src/rtos/kernel/mutex.c \
 		src/rtos/kernel/kalloc.c \
-		src/rtos/kernel/flag_group.c
+		src/rtos/kernel/flag_group.c \
+		src/rtos/kernel/systick.c 

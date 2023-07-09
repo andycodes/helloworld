@@ -1,9 +1,4 @@
-CSRC := src/main.c \
-		src/platform/$(board)/cmsdk_uart.c \
-		src/platform/$(board)/board.c
-
-SSRC := src/contex_switch.s
-
+include src/arch/arch.mk
 include src/platform/$(board)/board.mk
 include src/cmsis/cmsis.mk
 include src/rtos/rtos.mk
