@@ -12,13 +12,13 @@ struct ContextStateFrame {
     unsigned int r3;
     unsigned int r12;
     unsigned int lr;
-    unsigned int pc;
-    unsigned int xpsr;
+    unsigned int returnaddress;
+    unsigned int retpsr;
 };
 
 /*
 # First eight values on stack will always be:
-# r0, r1, r2, r3, r12, LR, pc, xPSR
+# 0~R3、R12、LR、ReturnAddress、RETPSR
 */
 
 #if 1
@@ -60,8 +60,8 @@ void debugHardfault(struct ContextStateFrame *fp)
     printk("R3          0x%08lx\n", fp->r3);
     printk("R12         0x%08lx\n", fp->r12);
     printk("LR          0x%08lx\n", fp->lr);
-    printk("PC          0x%08lx\n", fp->pc);
-    printk("XPSR        0x%08lx\n", fp->xpsr);
+    printk("RETURNADDRESS 0x%08lx\n", fp->returnaddress);
+    printk("RETPSR        0x%08lx\n", fp->retpsr);
 
     /*recovery*/
 

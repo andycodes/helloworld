@@ -20,6 +20,8 @@ TARGET:=$(OUT)/$(PRJ).elf
 TARGET_LST:=$(OUT)/$(PRJ).lst
 TARGET_BIN:=$(OUT)/$(PRJ).bin
 TARGET_ELFHEADER:=$(OUT)/$(PRJ).readelf
+TARGET_SIZE:=$(OUT)/$(PRJ).size
+
 
 LDFLAGS := -T $(LDSCRIPT)
 
@@ -31,7 +33,7 @@ endif
 
 .PHONY: all clean list size rebuild qemu
 
-all: $(TARGET) $(TARGET_BIN) $(TARGET_LST) $(TARGET_ELFHEADER)
+all: $(TARGET) $(TARGET_BIN) $(TARGET_LST) $(TARGET_ELFHEADER) $(TARGET_SIZE)
 
 $(OUT)/%.o: %.c
 	@echo CC $^
@@ -56,7 +58,7 @@ $(TARGET_BIN): $(TARGET)
 	@echo COPY to $@
 	$(Q)$(COPY) -O binary $< $@
 
-size: $(TARGET)
+$(TARGET_SIZE): $(TARGET)
 	$(Q)$(SIZE) $<
 
 clean:
