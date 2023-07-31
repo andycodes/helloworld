@@ -10,4 +10,5 @@ LD = $(PREFIX)ld
 COPY = $(PREFIX)objcopy
 DUMP = $(PREFIX)objdump
 SIZE = $(PREFIX)size
+NM = $(PREFIX)nm
 READELF = readelf

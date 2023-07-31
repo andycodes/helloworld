@@ -60,6 +60,7 @@ $(TARGET_BIN): $(TARGET)
 
 $(TARGET_SIZE): $(TARGET)
 	$(Q)$(SIZE) $<
+	$(NM) --print-size --size-sort --radix=d $< | tail -30
 
 clean:
 	@echo CLEAN
