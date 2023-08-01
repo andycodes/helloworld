@@ -7,9 +7,8 @@ endif
 
 SSRC += src/arch/contex_switch.s
 
-CSRC += src/arch/main.c 
-
-
-CSRC += src/arch/$(ARCH)/dfx.c \
+CSRC += src/arch/main.c \
+	src/arch/dwt_cyccnt.c \
+	src/arch/$(ARCH)/dfx.c \
 	src/arch/$(ARCH)/mpu.c \
-	src/arch/$(ARCH)/arm_mpu.c
+	src/arch/$(ARCH)/arm_mpu.c 
