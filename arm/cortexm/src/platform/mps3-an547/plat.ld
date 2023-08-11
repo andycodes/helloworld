@@ -1,7 +1,5 @@
 
 INCLUDE src/platform/mps3-an547/mem.ld
-
-/* Entry Point */
 ENTRY(Reset_Handler)
 
 SECTIONS
@@ -16,12 +14,17 @@ SECTIONS
         *(.rodata*)
         _etext = .;
 
+        . = ALIGN(8);
+        _init_fn_start = .;
+        KEEP(*(.initcall6.init))
+        _init_fn_end = .;
+	      . = ALIGN(8);
+
         /* section information for utest */
-        . = ALIGN(4);
+        . = ALIGN(8);
         __rt_utest_tc_tab_start = .;
         KEEP(*(UtestTcTab))
         __rt_utest_tc_tab_end = .;
-
     } > TEXT_1_SECTION
 
     .cpuidle_fn :
@@ -48,15 +51,6 @@ SECTIONS
           . = ALIGN(8);
       }
     } > TEXT_RAM_DYN_SECTION AT> TEXT_ROM_DYN_SECTION
-
-    .init_fn :
-    {
-        . = ALIGN(8);
-        _init_fn_start = .;
-        KEEP(*(.initcall6.init))
-        _init_fn_end = .;
-	      . = ALIGN(8);
-    } > TEXT_1_SECTION
 
     .data :
     {

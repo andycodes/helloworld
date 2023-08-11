@@ -1,41 +1,70 @@
 
 INCLUDE src/platform/lm3s6965evb/mem.ld
+ENTRY(Reset_Handler)
+
 SECTIONS
 {
     .text :
     {
-	    . = ALIGN(8);
+        . = ALIGN(8);
         _text = .;
         KEEP(*(.vectors))
-        *(.text*)
+        *(EXCLUDE_FILE(*cpuidle.o *overlay*.o) .text)    
+        *(EXCLUDE_FILE(*cpuidle.o *overlay*.o) .text*)   
         *(.rodata*)
         _etext = .;
 
-        /* section information for utest */
-        . = ALIGN(4);
-        __rt_utest_tc_tab_start = .;
-        KEEP(*(UtestTcTab))
-        __rt_utest_tc_tab_end = .;
-    } > TEXT_1_SECTION
-
-    .init_fn :
-    {
         . = ALIGN(8);
         _init_fn_start = .;
         KEEP(*(.initcall6.init))
         _init_fn_end = .;
 	      . = ALIGN(8);
+
+        /* section information for utest */
+        . = ALIGN(8);
+        __rt_utest_tc_tab_start = .;
+        KEEP(*(UtestTcTab))
+        __rt_utest_tc_tab_end = .;
     } > TEXT_1_SECTION
 
-    .data : 
+    .cpuidle_fn :
     {
-	. = ALIGN(8);
-        _data = .;
-        *(vtable)
-        *(.data*)
-        _edata = .;
-	. = ALIGN(8);
-    } > DATA_RAM_SECTION
+        . = ALIGN(8);
+          *cpuidle.o(.text)    
+          *cpuidle.o(.text*)      
+	      . = ALIGN(8);
+    } > TEXT_2_SECTION
+
+    OVERLAY : NOCROSSREFS
+    {
+      .dyn_fn0  {
+          . = ALIGN(8);
+            *overlay0.o(.text)
+            *overlay0.o(.text*)
+          . = ALIGN(8);
+      }
+
+      .dyn_fn1  {
+          . = ALIGN(8);
+            *overlay1.o(.text)    
+            *overlay1.o(.text*) 
+          . = ALIGN(8);
+      }
+    } > TEXT_RAM_DYN_SECTION AT> TEXT_ROM_DYN_SECTION
+
+    .data :
+    {
+        *(.data)
+    } > DATA_RAM_VDM_SECTION
+
+    .ovlytable_sec :
+    {
+      . = ALIGN(8);
+      __ovly_table = .; 
+      LONG(ABSOLUTE(ADDR(.dyn_fn0))); LONG(SIZEOF(.dyn_fn0)); LONG(LOADADDR(.dyn_fn0));
+      LONG(ABSOLUTE(ADDR(.dyn_fn1))); LONG(SIZEOF(.dyn_fn1)); LONG(LOADADDR(.dyn_fn1));
+      . = ALIGN(8);
+    }  > DATA_RAM_SECTION 
 
     .bss :
     {
@@ -65,4 +94,3 @@ SECTIONS
       __heap_end = .;
     } > DATA_RAM_SECTION
 }
-
