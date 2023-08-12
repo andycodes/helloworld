@@ -54,8 +54,13 @@ SECTIONS
 
     .data :
     {
+        __data_vdm_start = .;
+        __data_ldm_start = ORIGIN(DATA_ROM_LDM_SECTION);
+        LONG(ABSOLUTE(ADDR(.data)));LONG(ABSOLUTE(LOADADDR(.data)));
+        LONG(ABSOLUTE(ADDR(.text))); LONG(SIZEOF(.text)); LONG(LOADADDR(.text));
         *(.data)
-    } > DATA_RAM_VDM_SECTION
+        __data_vdm__end = .;
+    } > DATA_RAM_VDM_SECTION AT> DATA_ROM_LDM_SECTION
 
     .ovlytable_sec :
     {

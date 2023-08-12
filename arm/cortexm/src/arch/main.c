@@ -44,6 +44,21 @@ void clear_bss(void)
     }
 }
 
+extern uint32_t __data_ldm_start;
+extern uint32_t __data_vdm_start;
+extern uint32_t __data_vdm__end;
+void load_data(void)
+{
+    char *src = (char *)&__data_ldm_start;
+    char *dst = (char *)&__data_vdm_start;
+
+    while (dst <= (char *)&__data_vdm__end) {
+        *dst++ = *src++;
+    }
+}
+
+
+
 task_t task1;
 task_t task4;
 flag_group_t flag_group;
@@ -101,6 +116,7 @@ int os_main(void)
 
 void __PROGRAM_START(void)
 {
+    load_data();
     clear_bss();
     dfx_init();
     board_init();
