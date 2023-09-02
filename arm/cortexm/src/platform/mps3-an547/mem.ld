@@ -27,5 +27,5 @@ MEMORY
    /*heap*/
 }
 /*
-hexdump -C bin/mps3-an547/felix.bin -s 0x40000
+hexdump -C -s 0x40000 bin/mps3-an547/felix.bin 
 */

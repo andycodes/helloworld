@@ -2,7 +2,7 @@
 LDSCRIPT  := src/platform/$(board)/plat.ld
 CFLAGS := $(ARCH_FLAGS)
 CFLAGS +=  -fno-builtin -nostdlib -nostartfiles -ffreestanding -Wall -g
-toolchain = /project/gcc/armgcc1202mpacbti_rel1/bin
+toolchain = /project/gcc/arm-gnu-toolchain-1203/bin
 PREFIX = $(toolchain)/arm-none-eabi-
 
 CC = $(PREFIX)gcc

@@ -57,8 +57,6 @@ void load_data(void)
     }
 }
 
-
-
 task_t task1;
 task_t task4;
 flag_group_t flag_group;
@@ -122,6 +120,9 @@ void __PROGRAM_START(void)
     board_init();
 
     printk("hello %s ^-^^-^^-^^-^\n", board_info());
+    printk("%s %x %x %x %x\n", __func__, 
+        __data_ldm_start, &__data_ldm_start, __data_vdm_start, &__data_vdm_start);
+
     kmalloc_init();
     module_init();
 

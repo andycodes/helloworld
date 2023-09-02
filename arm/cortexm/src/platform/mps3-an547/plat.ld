@@ -54,10 +54,18 @@ SECTIONS
 
     .data :
     {
+        #__data_vdm_start并不是一个变量，它只是一个值，并不需要在内存中留出一段空间来保存它；
+        #在C语言中，符号表中会有一个名为__data_vdm_start的项，这个项目中的值（地址值）是0x40000；
+        #注意，这个0x40000并没有实际存在的内存。
+        #编译器处理后，二进制文件直接对0x40000地址处理
+        #这个值只是链接脚本中定义的值，并不表示某个变量的地址。
+        #使用取址符号&去得到它在符号表中的值。      
         __data_vdm_start = .;
         __data_ldm_start = ORIGIN(DATA_ROM_LDM_SECTION);
+        #ORIGIN(memory)  返回名为 memory 的内存区域的起始地址。
+        #ABSOLUTE来强制一个本来是相对地址的表达式变为绝对地址
         LONG(ABSOLUTE(ADDR(.data)));LONG(ABSOLUTE(LOADADDR(.data)));
-        LONG(ABSOLUTE(ADDR(.text))); LONG(SIZEOF(.text)); LONG(LOADADDR(.text));
+        #LONG(ABSOLUTE(ADDR(.text))); LONG(SIZEOF(.text)); LONG(LOADADDR(.text));
         *(.data)
         __data_vdm__end = .;
     } > DATA_RAM_VDM_SECTION AT> DATA_ROM_LDM_SECTION
