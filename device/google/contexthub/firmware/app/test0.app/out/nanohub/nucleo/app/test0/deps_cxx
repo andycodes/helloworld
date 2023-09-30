@@ -1,0 +1,16 @@
+aeabi.o: ../../lib/libc/aeabi.cpp
+cxa.o: ../../lib/libc/cxa.cpp
+new.o: ../../lib/libc/new.cpp ../../os/inc/syscallDo.h \
+ ../../os/cpu/cortexm4/inc/cpu/syscallDo.h ../../os/inc/sensors.h \
+ ../../os/platform/stm32/inc/plat/taggedPtr.h \
+ ../../../../../../device/google/contexthub/firmware/variant/nucleo/inc/variant/variant.h \
+ ../../os/inc/eventnums.h ../../os/inc/toolchain.h \
+ ../../os/inc/sensType.h ../../os/inc/syscall.h ../../os/inc/gpio.h \
+ ../../os/inc/osApi.h ../../os/inc/slab.h ../../os/inc/seos.h \
+ ../../os/platform/stm32/inc/plat/wdt.h ../../os/inc/eventQ.h \
+ ../../os/platform/stm32/inc/plat/app.h ../../os/inc/crc.h \
+ ../../../lib/include/nanohub/crc.h \
+ ../../os/platform/stm32/inc/plat/crc.h \
+ ../../../lib/include/nanohub/nanohub.h \
+ ../../../lib/include/nanohub/aes.h ../../os/inc/util.h \
+ ../../os/platform/stm32/inc/plat/plat.h ../../os/inc/syscall_defs.h

@@ -1,0 +1,64 @@
+test_app0.o: test_app0.c ../../os/inc/seos.h \
+ ../../os/platform/stm32/inc/plat/taggedPtr.h \
+ ../../os/platform/stm32/inc/plat/wdt.h ../../os/inc/eventQ.h \
+ ../../os/platform/stm32/inc/plat/app.h ../../os/inc/eventnums.h \
+ ../../os/inc/toolchain.h \
+ ../../../../../../device/google/contexthub/firmware/variant/nucleo/inc/variant/variant.h \
+ ../../os/inc/crc.h ../../../lib/include/nanohub/crc.h \
+ ../../os/platform/stm32/inc/plat/crc.h \
+ ../../../lib/include/nanohub/nanohub.h \
+ ../../../lib/include/nanohub/aes.h ../../os/inc/timer.h \
+ ../../os/inc/syscallDo.h ../../os/cpu/cortexm4/inc/cpu/syscallDo.h \
+ ../../os/inc/sensors.h ../../os/inc/sensType.h ../../os/inc/syscall.h \
+ ../../os/inc/gpio.h ../../os/inc/osApi.h ../../os/inc/slab.h \
+ ../../os/inc/util.h ../../os/platform/stm32/inc/plat/plat.h \
+ ../../os/inc/syscall_defs.h
+ef_atan2.o: ../../lib/libm/ef_atan2.c ../../lib/libm/fdlibm.h
+ef_asin.o: ../../lib/libm/ef_asin.c ../../lib/libm/fdlibm.h
+ef_exp.o: ../../lib/libm/ef_exp.c ../../lib/libm/fdlibm.h
+ef_fmod.o: ../../lib/libm/ef_fmod.c ../../lib/libm/fdlibm.h
+ef_pow.o: ../../lib/libm/ef_pow.c ../../lib/libm/fdlibm.h
+ef_rem_pio2.o: ../../lib/libm/ef_rem_pio2.c ../../lib/libm/fdlibm.h
+ef_sqrt.o: ../../lib/libm/ef_sqrt.c ../../lib/libm/fdlibm.h
+kf_cos.o: ../../lib/libm/kf_cos.c ../../lib/libm/fdlibm.h
+kf_rem_pio2.o: ../../lib/libm/kf_rem_pio2.c ../../lib/libm/fdlibm.h
+kf_sin.o: ../../lib/libm/kf_sin.c ../../lib/libm/fdlibm.h
+sf_atan.o: ../../lib/libm/sf_atan.c ../../lib/libm/fdlibm.h
+sf_cos.o: ../../lib/libm/sf_cos.c ../../lib/libm/fdlibm.h
+sf_floor.o: ../../lib/libm/sf_floor.c ../../lib/libm/fdlibm.h
+sf_fpclassify.o: ../../lib/libm/sf_fpclassify.c ../../lib/libm/fdlibm.h
+sf_round.o: ../../lib/libm/sf_round.c ../../lib/libm/fdlibm.h
+sf_scalbn.o: ../../lib/libm/sf_scalbn.c ../../lib/libm/fdlibm.h
+sf_sin.o: ../../lib/libm/sf_sin.c ../../lib/libm/fdlibm.h
+wf_atan2.o: ../../lib/libm/wf_atan2.c ../../lib/libm/fdlibm.h
+wf_asin.o: ../../lib/libm/wf_asin.c ../../lib/libm/fdlibm.h
+wf_exp.o: ../../lib/libm/wf_exp.c ../../lib/libm/fdlibm.h
+wf_fmod.o: ../../lib/libm/wf_fmod.c ../../lib/libm/fdlibm.h
+wf_pow.o: ../../lib/libm/wf_pow.c ../../lib/libm/fdlibm.h
+memcmp.o: ../../lib/libc/memcmp.c
+memcpy.o: ../../lib/libc/memcpy.c ../../lib/libc/bcopy.c
+memmove.o: ../../lib/libc/memmove.c ../../lib/libc/bcopy.c
+memset.o: ../../lib/libc/memset.c
+strcasecmp.o: ../../lib/libc/strcasecmp.c
+strncpy.o: ../../lib/libc/strncpy.c
+strlen.o: ../../lib/libc/strlen.c ../../lib/libc/arm_asm.h \
+ ../../lib/libc/acle-compat.h
+crt.o: ../../lib/libc/crt.c ../../lib/libc/crt_priv.h
+divdi3.o: ../../lib/builtins/divdi3.c ../../lib/builtins/int_lib.h
+divmoddi4.o: ../../lib/builtins/divmoddi4.c ../../lib/builtins/int_lib.h
+moddi3.o: ../../lib/builtins/moddi3.c ../../lib/builtins/int_lib.h
+udivmoddi4.o: ../../lib/builtins/udivmoddi4.c \
+ ../../lib/builtins/int_lib.h
+umoddi3.o: ../../lib/builtins/umoddi3.c ../../lib/builtins/int_lib.h
+aeabi_f2d.o: ../../lib/builtins/aeabi_f2d.c \
+ ../../lib/builtins/fp_extend_impl.inc ../../lib/builtins/fp_extend.h \
+ ../../lib/builtins/int_lib.h
+aeabi_llsl.o: ../../lib/builtins/aeabi_llsl.c \
+ ../../lib/builtins/int_lib.h
+aeabi_llsr.o: ../../lib/builtins/aeabi_llsr.c \
+ ../../lib/builtins/int_lib.h
+aeabi_ul2f.o: ../../lib/builtins/aeabi_ul2f.c \
+ ../../lib/builtins/int_lib.h
+aeabi_l2f.o: ../../lib/builtins/aeabi_l2f.c ../../lib/builtins/int_lib.h
+aeabi_f2ulz.o: ../../lib/builtins/aeabi_f2ulz.c \
+ ../../lib/builtins/int_lib.h
