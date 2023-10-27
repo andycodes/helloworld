@@ -1,4 +1,4 @@
 CC = gcc
-ARCH = armv8m
-CPU_TYPE = cortex-m55
+ARCH = riscv
+CPU_TYPE = riscv
 MEM_SIZE = 2048

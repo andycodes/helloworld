@@ -14,7 +14,7 @@
   #include "core_cm55.h"
   #define NVIC_PENDSV_PRI     0x000000FF
 #else
-  #error "Processor not specified or unsupported."
+  //#error "Processor not specified or unsupported."
 #endif
 
 #endif /*__ARCH_H__*/
