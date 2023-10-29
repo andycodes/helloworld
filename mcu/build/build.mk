@@ -1,8 +1,8 @@
 
 $(info "!!!!THE CUR BOARD is $(board)")
-
+LDSCRIPT  := src/platform/$(board)/plat.ld
 include src/platform/$(board)/board_config.mk
-include build/$(CC)/$(CPU_TYPE).mk
+
 include build/$(CC)/$(CC).mk
 
 PRJ       := felix

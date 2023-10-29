@@ -1,9 +1,3 @@
-
-LDSCRIPT  := src/platform/$(board)/plat.ld
-CFLAGS := $(ARCH_FLAGS)
-
-
-ifeq ($(board),riscv)
 	CC = $(PREFIX)gcc
 	AS = $(PREFIX)gas
 	LD = $(PREFIX)ld
@@ -34,17 +28,3 @@ ifeq ($(board),riscv)
 
 	LDFLAGS = -z max-page-size=4096
 	PREFIX = riscv64-unknown-elf-
-else
-	CFLAGS +=  -fno-builtin -nostdlib -nostartfiles -ffreestanding -Wall -g
-	toolchain = /project/gcc/arm-gnu-toolchain-1203/bin
-	PREFIX = $(toolchain)/arm-none-eabi-
-
-	CC = $(PREFIX)gcc
-	LD = $(PREFIX)ld
-	COPY = $(PREFIX)objcopy
-	DUMP = $(PREFIX)objdump
-	SIZE = $(PREFIX)size
-	NM = $(PREFIX)nm
-	READELF = readelf
-endif
-

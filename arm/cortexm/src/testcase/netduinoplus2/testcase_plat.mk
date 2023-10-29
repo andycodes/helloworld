@@ -1,1 +1,0 @@
-CSRC +=	src/testcase/$(board)/testcase_usagefault.c
