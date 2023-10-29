@@ -10,6 +10,8 @@ SECTIONS
   . = 0x80000000;
 
   .text : {
+    *entry.o(.text)    
+    *entry.o(.text*)  
     *(.text .text.*)
     . = ALIGN(0x1000);
     _trampoline = .;
