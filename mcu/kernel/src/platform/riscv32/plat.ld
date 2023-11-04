@@ -1,3 +1,4 @@
+INCLUDE src/platform/riscv32/mem.ld
 OUTPUT_ARCH( "riscv" )
 ENTRY( _entry )
 
@@ -19,28 +20,28 @@ SECTIONS
     . = ALIGN(0x1000);
     ASSERT(. - _trampoline == 0x1000, "error: trampoline larger than one page");
     PROVIDE(etext = .);
-  }
+  } > ram
 
   .rodata : {
     . = ALIGN(16);
     *(.srodata .srodata.*) /* do not need to distinguish this from .rodata */
     . = ALIGN(16);
     *(.rodata .rodata.*)
-  }
+  }> ram
 
   .data : {
     . = ALIGN(16);
     *(.sdata .sdata.*) /* do not need to distinguish this from .data */
     . = ALIGN(16);
     *(.data .data.*)
-  }
+  }> ram
 
   .bss : {
     . = ALIGN(16);
     *(.sbss .sbss.*) /* do not need to distinguish this from .bss */
     . = ALIGN(16);
     *(.bss .bss.*)
-  }
+  }> ram
 
   PROVIDE(end = .);
 }

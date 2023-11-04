@@ -1,4 +1,7 @@
-ifeq ($(board),riscv)
+ifeq ($(board),riscv64)
+	CFLAGS := $(ARCH_FLAGS)
+	include build/gcc/riscv.mk
+else ifeq ($(board),riscv32)
 	CFLAGS := $(ARCH_FLAGS)
 	include build/gcc/riscv.mk
 else
