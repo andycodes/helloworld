@@ -3,7 +3,10 @@
 
 #include "riscv.h"
 #include "lib.h"
+#include "task.h"
 
+extern void user_init();
+extern void os_kernel();
 extern int  os_main(void);
 
 #endif

@@ -1,24 +1,26 @@
 #include "os.h"
 
-#define STACK_SIZE 1024
-reg_t task0_stack[STACK_SIZE];
-struct context ctx_os;
-struct context ctx_task;
+void os_kernel() {
+	task_os();
+}
 
-extern void sys_switch();
-
-void user_task0(void)
-{
-	lib_puts("Task0: Context Switch Success !\n");
-	while (1) {} // stop here.
+void os_start() {
+	lib_puts("OS start\n");
+	user_init();
 }
 
 int os_main(void)
 {
-	lib_puts("OS start\n");
-	ctx_task.ra = (reg_t) user_task0;
-	ctx_task.sp = (reg_t) &task0_stack[STACK_SIZE-1];
-	sys_switch(&ctx_os, &ctx_task);
+	os_start();
+	
+	int current_task = 0;
+	while (1) {
+		lib_puts("OS: Activate next task\n");
+		task_go(current_task);
+		lib_puts("OS: Back to OS\n");
+		current_task = (current_task + 1) % taskTop; // Round Robin Scheduling
+		lib_puts("\n");
+	}
 	return 0;
 }
 
