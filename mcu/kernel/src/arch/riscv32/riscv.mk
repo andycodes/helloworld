@@ -10,3 +10,5 @@ CSRC += src/arch/$(ARCH)/os.c
 CSRC += src/arch/$(ARCH)/task.c 
 CSRC += src/arch/$(ARCH)/user.c
 CSRC += src/arch/$(ARCH)/timer.c
+CSRC += src/arch/$(ARCH)/trap.c
+CSRC += src/arch/$(ARCH)/lock.c

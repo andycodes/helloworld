@@ -4,8 +4,9 @@
 #include "riscv.h"
 #include "sys.h"
 #include "lib.h"
+#include "task.h"
 
-extern reg_t timer_handler(reg_t epc, reg_t cause);
+extern void timer_handler();
 extern void timer_init();
 
 #endif

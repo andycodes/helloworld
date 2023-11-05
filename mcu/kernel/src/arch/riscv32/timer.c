@@ -1,6 +1,9 @@
 #include "timer.h"
 
-#define interval 10000000 // cycles; about 1 second in qemu.
+// a scratch area per CPU for machine-mode timer interrupts.
+reg_t timer_scratch[NCPU][5];
+
+#define interval 20000000 // cycles; about 2 second in qemu.
 
 void timer_init()
 {
@@ -8,28 +11,28 @@ void timer_init()
   int id = r_mhartid();
 
   // ask the CLINT for a timer interrupt.
-  *(reg_t*)CLINT_MTIMECMP(id) = *(reg_t*)CLINT_MTIME + interval;
+  // int interval = 1000000; // cycles; about 1/10th second in qemu.
 
-  // set the machine-mode trap handler.
-  w_mtvec((reg_t)sys_timer);
+  *(reg_t *)CLINT_MTIMECMP(id) = *(reg_t *)CLINT_MTIME + interval;
 
-  // enable machine-mode interrupts.
-  w_mstatus(r_mstatus() | MSTATUS_MIE);
+  // prepare information in scratch[] for timervec.
+  // scratch[0..2] : space for timervec to save registers.
+  // scratch[3] : address of CLINT MTIMECMP register.
+  // scratch[4] : desired interval (in cycles) between timer interrupts.
+  reg_t *scratch = &timer_scratch[id][0];
+  scratch[3] = CLINT_MTIMECMP(id);
+  scratch[4] = interval;
+  w_mscratch((reg_t)scratch);
 
   // enable machine-mode timer interrupts.
   w_mie(r_mie() | MIE_MTIE);
 }
 
 static int timer_count = 0;
-reg_t timer_handler(reg_t epc, reg_t cause)
+
+void timer_handler()
 {
-  reg_t return_pc = epc;
-  // disable machine-mode timer interrupts.
-  w_mie(~((~r_mie()) | (1 << 7)));
   lib_printf("timer_handler: %d\n", ++timer_count);
   int id = r_mhartid();
   *(reg_t *)CLINT_MTIMECMP(id) = *(reg_t *)CLINT_MTIME + interval;
-  // enable machine-mode timer interrupts.
-  w_mie(r_mie() | MIE_MTIE);
-  return return_pc;
 }
