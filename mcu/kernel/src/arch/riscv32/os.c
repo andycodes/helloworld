@@ -12,7 +12,7 @@ void os_start() {
 int os_main(void)
 {
 	os_start();
-	
+	timer_init(); // start timer interrupt ...
 	int current_task = 0;
 	while (1) {
 		lib_puts("OS: Activate next task\n");
@@ -20,6 +20,7 @@ int os_main(void)
 		lib_puts("OS: Back to OS\n");
 		current_task = (current_task + 1) % taskTop; // Round Robin Scheduling
 		lib_puts("\n");
+		lib_delay(500);
 	}
 	return 0;
 }

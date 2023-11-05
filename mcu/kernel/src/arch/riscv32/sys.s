@@ -50,3 +50,24 @@ sys_switch:
         ctx_save a0  # a0 => struct context *old
         ctx_load a1  # a1 => struct context *new
         ret          # pc=ra; swtch to new task (new->ra)
+
+
+.extern ctx_os
+
+.globl sys_timer
+.align 4
+sys_timer:
+	# call the C timer_handler(reg_t epc, reg_t cause)
+	csrr	a0, mepc
+	csrr	a1, mcause
+	la      a2, ctx_os
+	ctx_save a2
+
+	call	timer_handler
+
+	# timer_handler will return the return address via a0.
+	csrw	mepc, a0
+
+	la      a2, ctx_os
+	ctx_load a2
+	mret # back to interrupt location (pc=mepc)
