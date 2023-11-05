@@ -2,6 +2,14 @@
 
 extern void trap_init(void);
 
+void panic(char *s)
+{
+	lib_puts(s);
+	for (;;)
+	{
+	}
+}
+
 void os_kernel()
 {
 	task_os();
@@ -9,9 +17,11 @@ void os_kernel()
 
 void os_start()
 {
+	uart_init();
 	lib_puts("OS start\n");
 	user_init();
 	trap_init();
+	plic_init();
 	timer_init(); // start timer interrupt ...
 }
 

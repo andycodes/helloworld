@@ -5,9 +5,24 @@ void trap_init()
 {
   // set the machine-mode trap handler.
   w_mtvec((reg_t)trap_vector);
+}
 
-  // enable machine-mode interrupts.
-  w_mstatus(r_mstatus() | MSTATUS_MIE);
+void external_handler()
+{
+  int irq = plic_claim();
+  if (irq == UART0_IRQ)
+  {
+    lib_isr();
+  }
+  else if (irq)
+  {
+    lib_printf("unexpected interrupt irq = %d\n", irq);
+  }
+
+  if (irq)
+  {
+    plic_complete(irq);
+  }
 }
 
 reg_t trap_handler(reg_t epc, reg_t cause)
@@ -26,7 +41,7 @@ reg_t trap_handler(reg_t epc, reg_t cause)
     case 7:
       lib_puts("timer interruption!\n");
       // disable machine-mode timer interrupts.
-      w_mie(~((~r_mie()) | (1 << 7)));
+      w_mie(r_mie() & ~(1 << 7));
       timer_handler();
       return_pc = (reg_t)&os_kernel;
       // enable machine-mode timer interrupts.
@@ -34,6 +49,7 @@ reg_t trap_handler(reg_t epc, reg_t cause)
       break;
     case 11:
       lib_puts("external interruption!\n");
+      external_handler();
       break;
     default:
       lib_puts("unknown async exception!\n");

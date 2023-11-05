@@ -45,7 +45,7 @@ void user_task3(void)
 	lib_puts("Task3: Created!\n");
 	while (1)
 	{
-		lib_puts("Tryin to get the lock... \n");
+		lib_puts("Trying to get the lock... \n");
 		lock_acquire(&lock);
 		lib_puts("Get the lock!\n");
 		lock_free(&lock);

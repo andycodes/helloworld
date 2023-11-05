@@ -1,5 +1,5 @@
 CC = riscv32-unknown-elf-gcc
-CFLAGS = -nostdlib -fno-builtin -mcmodel=medany 
+CFLAGS = -nostdlib -fno-builtin -mcmodel=medany  -g -Wall
 GDB = riscv32-unknown-elf-gdb
 
 OBJ = \
@@ -11,7 +11,8 @@ task.c \
 os.c \
 user.c \
 trap.c \
-lock.c
+lock.c \
+plic.c
 
 QEMU = qemu-system-riscv32
 QFLAGS = -nographic -smp 4 -machine virt -bios none
@@ -21,7 +22,7 @@ OBJDUMP = riscv32-unknown-elf-objdump
 all: os.elf
 
 os.elf: $(OBJ)
-	$(CC) $(CFLAGS) -g -Wall -T os.ld -o os.elf $^
+	$(CC) $(CFLAGS) -T os.ld -o os.elf $^
 
 qemu: $(TARGET)
 	@qemu-system-riscv32 -M ? | grep virt >/dev/null || exit

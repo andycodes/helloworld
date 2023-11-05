@@ -6,9 +6,17 @@
 #include "task.h"
 #include "timer.h"
 
+extern void panic(char *);
 extern void user_init();
 extern void os_kernel();
 extern int os_main(void);
+
+// PLIC
+extern void plic_init();
+extern int plic_claim();
+extern void plic_complete(int);
+
+// lock
 extern void basic_lock();
 extern void basic_unlock();
 
