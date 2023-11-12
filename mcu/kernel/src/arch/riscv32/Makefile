@@ -1,5 +1,5 @@
 CC = riscv32-unknown-elf-gcc
-CFLAGS = -I./include -nostdlib -fno-builtin -mcmodel=medany  -g -Wall -w
+CFLAGS = -I./include -nostdlib -fno-builtin -mcmodel=medany  -g -Wall -w -D CONFIG_SYSCALL
 GDB = riscv32-unknown-elf-gdb
 SOURCE = src/
 
@@ -9,15 +9,17 @@ $(SOURCE)sys.s \
 $(SOURCE)mem.s \
 $(SOURCE)lib.c \
 $(SOURCE)timer.c \
-$(SOURCE)task.c \
 $(SOURCE)os.c \
+$(SOURCE)task.c \
 $(SOURCE)user.c \
 $(SOURCE)trap.c \
 $(SOURCE)lock.c \
 $(SOURCE)plic.c \
 $(SOURCE)virtio.c \
 $(SOURCE)string.c \
-$(SOURCE)alloc.c
+$(SOURCE)alloc.c \
+$(SOURCE)syscall.c \
+$(SOURCE)usys.s \
 
 QEMU = qemu-system-riscv32
 QFLAGS = -nographic -smp 4 -machine virt -bios none
@@ -42,7 +44,7 @@ clean:
 	rm -f *.elf *.img
 
 hdd.dsk:
-	dd if=/dev/urandom of=hdd.dsk bs=1M count=32
+	dd if=/dev/urandom of=hdd.dsk bs=1048576 count=32
 
 .PHONY : debug
 debug: clean os.elf hdd.dsk

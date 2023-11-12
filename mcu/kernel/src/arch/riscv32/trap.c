@@ -1,5 +1,8 @@
 #include "os.h"
+#include "riscv.h"
 extern void trap_vector();
+extern void virtio_disk_isr();
+extern void do_syscall(struct context *ctx);
 
 void trap_init()
 {
@@ -25,7 +28,7 @@ void external_handler()
   }
 }
 
-reg_t trap_handler(reg_t epc, reg_t cause)
+reg_t trap_handler(reg_t epc, reg_t cause, struct context *ctx)
 {
   reg_t return_pc = epc;
   reg_t cause_code = cause & 0xfff;
@@ -69,18 +72,25 @@ reg_t trap_handler(reg_t epc, reg_t cause)
     case 7:
       lib_puts("Fault store!\n");
       break;
+    case 8:
+        lib_puts("Environment call from U-mode!\n");
+	do_syscall(ctx);
+	return_pc += 4;
+        break;
     case 11:
-      lib_puts("Machine mode ecall!\n");
+        lib_puts("Environment call from M-mode!\n");
+        do_syscall(ctx);
+	return_pc += 4;
       break;
     default:
       /* Synchronous trap - exception */
       lib_printf("Sync exceptions! cause code: %d\n", cause_code);
       break;
     }
-    for (;;)
-    {
+  //  for (;;)
+  //  {
       /* code */
-    }
+  //  }
   }
   return return_pc;
 }

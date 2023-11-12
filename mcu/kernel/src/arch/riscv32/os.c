@@ -1,5 +1,5 @@
 #include "os.h"
-
+#include "riscv.h"
 extern void page_init(void);
 extern void page_test(void);
 extern void trap_init(void);

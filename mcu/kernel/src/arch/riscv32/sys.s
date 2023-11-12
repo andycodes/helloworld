@@ -17,6 +17,8 @@
         sw s9, 44(\base)
         sw s10, 48(\base)
         sw s11, 52(\base)
+	sw a0, 56(\base)
+	sw a7, 60(\base)
 .endm
 
 .macro ctx_load base
@@ -34,6 +36,8 @@
         lw s9, 44(\base)
         lw s10, 48(\base)
         lw s11, 52(\base)
+        lw a0, 56(\base)
+        lw a7, 60(\base)
 .endm
 
 .macro reg_save base
@@ -68,7 +72,6 @@
         sw t3, 108(\base)
         sw t4, 112(\base)
         sw t5, 116(\base)
-        sw t6, 120(\base)
 .endm
 
 .macro reg_load base
@@ -76,7 +79,7 @@
         lw ra, 0(\base)
         lw sp, 4(\base)
         lw gp, 8(\base)
-        # not this, in case we moved CPUs: lw tp, 12(\base)
+        lw tp, 12(\base)
         lw t0, 16(\base)
         lw t1, 20(\base)
         lw t2, 24(\base)
@@ -113,13 +116,16 @@
 # 
 # Save current registers in old. Load from new.
 
+.text
+
 .globl sys_switch
 .align 4
 sys_switch:
 
         ctx_save a0  # a0 => struct context *old
         ctx_load a1  # a1 => struct context *new
-        ret          # pc=ra; swtch to new task (new->ra)
+        
+	ret          # pc=ra; swtch to new task (new->ra)
 
 .globl atomic_swap
 .align 4
@@ -137,9 +143,15 @@ trap_vector:
 	csrrw	t6, mscratch, t6	# swap t6 and mscratch
         reg_save t6
 	csrw	mscratch, t6
+
+	# save mepc to context of current task
+	csrr	a0, mepc
+	sw	a0, 124(t6)
+
 	# call the C trap handler in trap.c
 	csrr	a0, mepc
 	csrr	a1, mcause
+	csrr	a2, mscratch
 	call	trap_handler
 
 	# trap_handler will return the return address via a0.
@@ -150,3 +162,24 @@ trap_vector:
 	reg_load t6
 	mret
 
+# void switch_to(struct context *next);
+# a0: pointer to the context of the next task
+.globl switch_to
+.align 4
+switch_to:
+	# switch mscratch to point to the context of the next task
+	csrw	mscratch, a0
+	# set mepc to the pc of the next task
+	lw	a1, 124(a0)
+	csrw	mepc, a1
+
+	# Restore all GP registers
+	# Use t6 to point to the context of the new task
+	mv	t6, a0
+	reg_load t6
+
+	# Do actual context switching.
+	# Notice this will enable global interrupt
+	mret
+
+.end
