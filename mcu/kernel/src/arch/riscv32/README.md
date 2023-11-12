@@ -1,17 +1,39 @@
-# 07-ExternInterrupt
+# 09-MemoryAllocator
 
 ## Build & Run
 
 ```sh
-IAN@DESKTOP-9AEMEPL MINGW64 ~/Desktop/mini-riscv-os/07-ExterInterrupt (feat/getchar)
-$ make
-riscv32-unknown-elf-gcc -nostdlib -fno-builtin -mcmodel=medany  -g -Wall -T os.ld -o os.elf start.s sys.s lib.c timer.c task.c os.c user.c trap.c lock.c plic.c
-
-IAN@DESKTOP-9AEMEPL MINGW64 ~/Desktop/mini-riscv-os/07-ExterInterrupt (feat/getchar)
-$ make qemu
+IAN@DESKTOP-9AEMEPL MINGW64 ~/Desktop/mini-riscv-os/09-MemoryAllocator (feat/memoryAlloc)
+$ make all
+rm -f *.elf *.img
+riscv32-unknown-elf-gcc -I./include -nostdlib -fno-builtin -mcmodel=medany  -g -Wall -w -T os.ld -o os.elf src/start.s src/sys.s src/mem.s src/lib.c src/timer.c src/task.c src/os.c src/user.c src/trap.c src/lock.c src/plic.c src/virtio.c src/string.c src/alloc.c
 Press Ctrl-A and then X to exit QEMU
-qemu-system-riscv32 -nographic -smp 4 -machine virt -bios none -kernel os.elf
+qemu-system-riscv32 -nographic -smp 4 -machine virt -bios none -drive if=none,format=raw,file=hdd.dsk,id=x0 -device virtio-blk-device,drive=x0,bus=virtio-mmio-bus.0 -kernel os.elf
+HEAP_START = 8001100c, HEAP_SIZE = 07feeff4, num of pages = 521967
+TEXT:   0x80000000 -> 0x8000ac78
+RODATA: 0x8000ac78 -> 0x8000b09f
+DATA:   0x8000c000 -> 0x8000c004
+BSS:    0x8000d000 -> 0x8001100c
+HEAP:   0x80091100 -> 0x88000000
 OS start
+Disk init work is success!
+buffer init...
+block read...
+Virtio IRQ
+000000fd
+000000af
+000000f8
+000000ab
+00000088
+00000042
+000000cc
+00000017
+00000022
+0000008e
+
+p = 0x80091700
+p2 = 0x80091300
+p3 = 0x80091100
 OS: Activate next task
 Task0: Created!
 Task0: Running...
@@ -19,26 +41,13 @@ Task0: Running...
 Task0: Running...
 Task0: Running...
 Task0: Running...
-external interruption!
-j
-Task0: Running...
-Task0: Running...
-external interruption!
-k
 Task0: Running...
 Task0: Running...
 Task0: Running...
-external interruption!
-j
 Task0: Running...
-external interruption!
-k
-external interruption!
-j
 Task0: Running...
-timer interruption!
-timer_handler: 1
-OS: Back to OS
+Task0: Running...
+Task0: Running...
 QEMU: Terminated
 ```
 

@@ -1,5 +1,7 @@
 #include "os.h"
 
+extern void page_init(void);
+extern void page_test(void);
 extern void trap_init(void);
 
 void panic(char *s)
@@ -18,6 +20,7 @@ void os_kernel()
 void os_start()
 {
 	uart_init();
+	page_init();
 	lib_puts("OS start\n");
 	user_init();
 	trap_init();
@@ -29,6 +32,7 @@ int os_main(void)
 {
 	os_start();
 
+	page_test();
 	int current_task = 0;
 	while (1)
 	{

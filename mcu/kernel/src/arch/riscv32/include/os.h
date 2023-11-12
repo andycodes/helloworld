@@ -5,6 +5,7 @@
 #include "lib.h"
 #include "task.h"
 #include "timer.h"
+#include "string.h"
 
 extern void panic(char *);
 extern void user_init();
@@ -32,5 +33,10 @@ extern void lock_init(lock_t *lock);
 extern void lock_acquire(lock_t *lock);
 
 extern void lock_free(lock_t *lock);
+
+// memory allocator
+
+extern void *malloc(size_t size);
+extern void free(void *p);
 
 #endif

@@ -58,9 +58,26 @@ reg_t trap_handler(reg_t epc, reg_t cause)
   }
   else
   {
-    /* Synchronous trap - exception */
-    lib_puts("Sync exceptions!\n");
-    while (1)
+    switch (cause_code)
+    {
+    case 2:
+      lib_puts("Illegal instruction!\n");
+      break;
+    case 5:
+      lib_puts("Fault load!\n");
+      break;
+    case 7:
+      lib_puts("Fault store!\n");
+      break;
+    case 11:
+      lib_puts("Machine mode ecall!\n");
+      break;
+    default:
+      /* Synchronous trap - exception */
+      lib_printf("Sync exceptions! cause code: %d\n", cause_code);
+      break;
+    }
+    for (;;)
     {
       /* code */
     }
