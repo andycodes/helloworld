@@ -4,7 +4,7 @@ GDB = riscv32-unknown-elf-gdb
 SOURCE = src/
 
 OBJ = \
-$(SOURCE)start.s \
+$(SOURCE)entry.s \
 $(SOURCE)sys.s \
 $(SOURCE)mem.s \
 $(SOURCE)lib.c \

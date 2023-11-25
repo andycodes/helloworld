@@ -2,11 +2,12 @@
 
 CFLAGS += -Isrc/arch/$(ARCH)/include  -Wno-pointer-to-int-cast
 
-SSRC += src/arch/$(ARCH)/start.s 
+SSRC += src/arch/$(ARCH)/entry.s 
 SSRC += src/arch/$(ARCH)/sys.s
 SSRC += src/arch/$(ARCH)/mem.s
 SSRC += src/arch/$(ARCH)/usys.s
 
+CSRC += src/arch/$(ARCH)/start.c
 CSRC += src/arch/$(ARCH)/alloc.c
 CSRC += src/arch/$(ARCH)/lib.c 
 CSRC += src/arch/$(ARCH)/os.c

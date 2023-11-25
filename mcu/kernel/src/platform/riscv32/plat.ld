@@ -1,6 +1,6 @@
 OUTPUT_ARCH( "riscv" )
 
-ENTRY( _start )
+ENTRY( _entry )
 
 MEMORY
 {
@@ -18,8 +18,8 @@ SECTIONS
 {
   .text : {
     PROVIDE(_text_start = .);
-    *start.o(.text)    
-    *start.o(.text*)  
+    *entry.o(.text)    
+    *entry.o(.text*)  
     *(.text.init) *(.text .text.*)
     PROVIDE(_text_end = .);
   } >ram AT>ram :text

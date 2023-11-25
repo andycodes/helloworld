@@ -1,3 +1,4 @@
+#include "memlayout.h"
 #include "timer.h"
 
 // a scratch area per CPU for machine-mode timer interrupts.
