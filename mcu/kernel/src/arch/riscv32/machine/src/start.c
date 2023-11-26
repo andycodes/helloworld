@@ -25,7 +25,7 @@ start()
 
   // set M Exception Program Counter to os_main, for mret.
   // requires gcc -mcmodel=medany
-  //w_mepc((reg_t)os_main);
+  //w_mepc((reg_t)s_main);
 
   // disable paging for now.
   w_satp(0);
@@ -47,7 +47,7 @@ start()
   int id = r_mhartid();
   w_tp(id);
 
+  os_main();
   // switch to supervisor mode and jump to os_main().
   //asm volatile("mret");
-  os_main();
 }
