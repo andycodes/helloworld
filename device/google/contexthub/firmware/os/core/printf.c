@@ -18,13 +18,6 @@
 #include <printf.h>
 #include <cpu/cpuMath.h>
 
-size_t strlen(const char * str)
-{
-    const char *s;
-    for (s = str; *s; ++s) {}
-    return(s - str);
-}
-
 #define FLAG_ALT            (1 << 0)
 #define FLAG_ZERO_EXTEND    (1 << 1)
 #define FLAG_IS_SIGNED      (1 << 2)

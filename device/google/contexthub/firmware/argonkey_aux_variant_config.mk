@@ -54,7 +54,6 @@ NANO_VARIANT_C_INCLUDES_$(my_variant) := \
     device/google/contexthub/firmware/variant/$(my_variant)/inc \
 
 # this is relative to NANOHUB_OS_PATH
-ifeq ("x", "y")
 NANO_VARIANT_OSCFG_SRC_FILES_$(my_variant) :=                  \
     os/algos/calibration/accelerometer/accel_cal.c             \
     os/algos/calibration/gyroscope/gyro_cal.c                  \
@@ -78,4 +77,3 @@ NANO_VARIANT_OSCFG_SRC_FILES_$(my_variant) :=                  \
     os/drivers/st_lsm6dsm/st_lsm6dsm.c                         \
     os/drivers/tilt_detection/tilt_detection.c                 \
     os/drivers/window_orientation/window_orientation.c         \
-endif

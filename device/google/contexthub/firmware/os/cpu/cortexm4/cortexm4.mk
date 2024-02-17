@@ -55,10 +55,10 @@ SRCS_os += external/arm/arm_sin_cos_f32.c
 FLAGS += -DARM_MATH_CM4 -D__FPU_PRESENT
 
 #floating point runtime (FreeBSD)
-#SRCS_os += \
-#    external/freebsd/lib/msun/src/e_atan2f.c \
-#    external/freebsd/lib/msun/src/e_expf.c \
-#    external/freebsd/lib/msun/src/s_atanf.c \
+SRCS_os += \
+    external/freebsd/lib/msun/src/e_atan2f.c \
+    external/freebsd/lib/msun/src/e_expf.c \
+    external/freebsd/lib/msun/src/s_atanf.c \
 
 FLAGS += -DFLT_EVAL_METHOD -Iexternal/freebsd/lib/msun/src
 

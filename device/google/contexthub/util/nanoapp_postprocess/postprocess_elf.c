@@ -16,8 +16,8 @@
 
 #include <assert.h>
 #include <fcntl.h>
-#include "./elfutils/gelf.h"
-#include "./elfutils/libelf.h"
+#include <gelf.h>
+#include <libelf.h>
 #include <sys/types.h>
 #include <stdbool.h>
 #include <unistd.h>
@@ -96,15 +96,6 @@ struct ElfNanoApp {
     // Not parsed from file, but constructed via genElfNanoRelocs
     struct ElfAppSection packedNanoRelocs;
 };
-
-unsigned int elf_version (unsigned int __version){return 1;}
-Elf *elf_begin (int __fildes, Elf_Cmd __cmd, Elf *__ref){return NULL;}
-int elf_getshdrstrndx(){return 0;}
-Elf_Scn *elf_nextscn (Elf *__elf, Elf_Scn *__scn){return NULL;}
-GElf_Shdr *gelf_getshdr (Elf_Scn *__scn, GElf_Shdr *__dst){return NULL;}
-char *elf_strptr (Elf *__elf, size_t __index, size_t __offset){return NULL;}
-Elf_Data *elf_getdata (Elf_Scn *__scn, Elf_Data *__data){return NULL;}
- const char *elf_errmsg (int __error){ return NULL;}
 
 static void fatalUsage(const char *name, const char *msg, const char *arg)
 {

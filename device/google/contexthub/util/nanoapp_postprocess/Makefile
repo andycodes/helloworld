@@ -15,14 +15,12 @@
 #
 
 APP = nanoapp_postprocess
-SRC = postprocess_elf.c ../../lib/nanohub/nanoapp.c 
+SRC = postprocess_elf.c ../../lib/nanohub/nanoapp.c
 CC ?= gcc
-$(warning $(shell pwd))
-$(warning $(CC))
-#CC_FLAGS = -Wall -Wextra -Werror -I../../lib/include  --std=c99
-CC_FLAGS =  -I../../lib/include -Ielfutils --std=c99
+CC_FLAGS = -Wall -Wextra -Werror -I../../lib/include --std=c99
+
 $(APP): $(SRC) Makefile
-	$(CC) $(CC_FLAGS) -o $(APP) -O2 $(SRC) 
+	$(CC) $(CC_FLAGS) -o $(APP) -O2 $(SRC) -lelf
 
 clean:
 	rm -f $(APP)

@@ -22,8 +22,6 @@
 # Configuration ################################################################
 
 # Toolchain Prefix
-CROSS_COMPILE ?= /project/gcc/arm-gnu-toolchain-1203/bin/arm-none-eabi-
-
 ifndef CROSS_COMPILE
   $(error Please set the environment variable CROSS_COMPILE to the complete \
           path to the toolchain directory plus the binary prefix, e.g. export \
@@ -34,11 +32,6 @@ PREFIX = $(CROSS_COMPILE)
 TOOLCHAIN_DIR = $(shell dirname `which $(CROSS_COMPILE)gcc`)/..
 
 # NANOHUB_DIR is relative to CWD (which is always APP Makefile dir)
-
-$(warning "++++++++++++++++")
-
-$(warning $(NANOHUB_DIR))
-$(warning $(shell pwd))
 
 NANOAPP_POSTPROCESS := $(NANOHUB_DIR)/../util/nanoapp_postprocess/nanoapp_postprocess
 NANOAPP_SIGN := $(NANOHUB_DIR)/../util/nanoapp_sign/nanoapp_sign
@@ -127,8 +120,7 @@ CFLAGS += -I$(NANOHUB_DIR)/os/platform/$(PLATFORM)/inc
 CFLAGS += -I$(NANOHUB_DIR)/os/cpu/$(CPU)/inc
 CFLAGS += -I$(VARIANT_PATH)/inc
 CFLAGS += -I$(NANOHUB_DIR)/../lib/include
-CFLAGS += -I$(NANOHUB_DIR)/external/elfutils
-$(warning "CFLAGS" $(CFLAGS))
+
 # Warnings/error configuration.
 CFLAGS += -Wall
 CFLAGS += -Werror

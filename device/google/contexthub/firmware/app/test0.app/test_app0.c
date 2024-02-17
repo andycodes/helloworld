@@ -74,7 +74,3 @@ static void handle_event(uint32_t evtType, const void* evtData)
 }
 
 APP_INIT(0, start_task, end_task, handle_event);
-
-
-
-

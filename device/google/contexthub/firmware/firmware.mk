@@ -14,8 +14,6 @@
 # limitations under the License.
 #
 
-CROSS_COMPILE ?= /project/gcc/arm-gnu-toolchain-1203/bin/arm-none-eabi-
-
 #find build target
 PLATFORM ?= stm32
 CHIP ?= stm32f411
@@ -37,8 +35,7 @@ VARIANT_PATH := variant/$(VARIANT)
 endif
 
 MAKE_VAR = $(VARIANT_PATH)/$(VARIANT).mk
-$(warning $(shell pwd))
-$(warning $(MAKE_VAR))
+
 #top make target
 SRCS_os :=
 SRCS_bl :=
@@ -52,7 +49,6 @@ include $(MAKE_PLAT)
 include $(MAKE_CPU)
 include $(MAKE_VAR)
 
-FLAGS += -Ichre
 FLAGS += -Ios/algos
 FLAGS += -Ios/cpu/$(CPU)/inc
 FLAGS += -Ios/inc
@@ -63,7 +59,7 @@ FLAGS += -I../lib/include
 FLAGS += -I../../../../system/chre/chre_api/include/chre_api
 FLAGS += -I../../../../system/chre/util/include
 
-FLAGS += -Wall #-Werror
+FLAGS += -Wall -Werror
 #help avoid commmon embedded C mistakes
 FLAGS += -Wmissing-declarations -Wlogical-op -Waddress -Wempty-body -Wpointer-arith -Wenum-compare -Wdouble-promotion -Wfloat-equal -Wshadow -fno-strict-aliasing
 

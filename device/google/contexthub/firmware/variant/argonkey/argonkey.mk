@@ -30,7 +30,7 @@ SRCS_os += $(VARIANT_PATH)/src/os/i2c.c
 SRCS_os += $(VARIANT_PATH)/src/os/led.c
 SRCS_os += $(VARIANT_PATH)/src/os/spi.c
 #keys
-ifeq ("x", "y")
+
 SRCS_os += \
     os/algos/calibration/accelerometer/accel_cal.c \
     os/algos/calibration/gyroscope/gyro_cal.c \
@@ -75,7 +75,7 @@ SRCS_os += os/drivers/leds/leds_lp3943.c
 
 # Tilt detection
 SRCS_os += os/drivers/tilt_detection/tilt_detection.c
-endif
+
 # Digital microphone
 # FIXME
 

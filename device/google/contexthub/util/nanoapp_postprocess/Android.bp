@@ -25,6 +25,7 @@ package {
 
 cc_binary_host {
     name: "nanoapp_postprocess",
+    defaults: ["elfutils_transitive_defaults"],
 
     srcs: ["postprocess_elf.c"],
 
@@ -37,9 +38,8 @@ cc_binary_host {
     static_libs: [
         "libnanohub_common",
 
-        // libelf needed for ELF parsing support, libz required by libelf
+        // libelf needed for ELF parsing support
         "libelf",
-        "libz",
     ],
 
     // Statically linking libc++ so this binary can be copied out of the tree and

@@ -18,9 +18,9 @@
 
 VENDOR := google
 VARIANT := linux
-CPU := cortexm4
-CHIP := stm32f411
-PLATFORM := stm32
+CPU := x86
+CHIP := x86
+PLATFORM := native
 
 # VARIANT_PATH is relative to ANDROID TOP
 VARIANT_PATH := device/google/contexthub/firmware/variant/$(VARIANT)
