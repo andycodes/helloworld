@@ -27,4 +27,4 @@
 	endif
 
 	LDFLAGS = -z max-page-size=4096
-	PREFIX = riscv32-unknown-elf-
+	PREFIX = /project/gcc/riscv/bin/riscv32-unknown-elf-

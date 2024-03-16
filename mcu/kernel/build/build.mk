@@ -13,15 +13,16 @@ DBG_LEVEL := 3
 include build/filelist.mk
 
 OUT := bin/$(board)
+OBJECT ?= $(OUT)/$(PRJ)
 OBJ := $(addprefix $(OUT)/, $(CSRC:.c=.o))
 OBJ += $(addprefix $(OUT)/, $(SSRC:.s=.o))
 
-TARGET:=$(OUT)/$(PRJ).elf
-TARGET_OBJDUMP:=$(OUT)/$(PRJ).dump
-TARGET_BIN:=$(OUT)/$(PRJ).bin
-TARGET_ELFHEADER:=$(OUT)/$(PRJ).readelf
-TARGET_SIZE:=$(OUT)/$(PRJ).size
-
+TARGET:=$(OBJECT).elf
+TARGET_OBJDUMP:=$(OBJECT).dump
+TARGET_BIN:=$(OBJECT).bin
+TARGET_READELF:=$(OBJECT).readelf
+TARGET_SIZE:=$(OBJECT).size
+TARGET_MAP ?= $(OBJECT).map
 
 LDFLAGS := -T $(LDSCRIPT)
 
@@ -33,7 +34,7 @@ endif
 
 .PHONY: all clean list size rebuild qemu
 
-all: $(TARGET) $(TARGET_BIN) $(TARGET_OBJDUMP) $(TARGET_ELFHEADER) $(TARGET_SIZE)
+all: $(TARGET) $(TARGET_BIN) $(TARGET_OBJDUMP) $(TARGET_READELF) $(TARGET_SIZE)
 
 $(OUT)/%.o: %.c
 	@echo CC $^
@@ -45,13 +46,13 @@ $(OUT)/%.o: %.s
 
 $(TARGET): $(OBJ)
 	@echo LD $@
-	$(Q)$(LD) $(LDFLAGS) -o $@ $(OBJ)
+	$(Q)$(LD) $(LDFLAGS) -o $@ $(OBJ) --cref -M=$(TARGET_MAP)
 
 $(TARGET_OBJDUMP): $(TARGET)
 	@echo LIST on $@
 	$(Q)$(DUMP) -x -s -S $< > $@
 
-$(TARGET_ELFHEADER): $(TARGET)
+$(TARGET_READELF): $(TARGET)
 	$(Q)$(READELF) -a $< > $@
 
 $(TARGET_BIN): $(TARGET)
