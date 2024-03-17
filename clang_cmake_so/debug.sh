@@ -1,0 +1,1 @@
+/project/gcc/arm-gnu-toolchain-13.2.Rel/bin/arm-none-eabi-objdump -x -s -S /project/helloworld/clang_cmake_so/bin/frank >bin/frank.dump
