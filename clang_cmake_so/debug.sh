@@ -15,3 +15,9 @@ LIB=${LIB_PATH}libadd.a
 file ${LIB}
 ${DUMPTOOL} -D  --disassemble-zeroes ${LIB} >${LIB_PATH}add.dump
 ${READELF} --all ${LIB} >${LIB_PATH}add.readelf
+
+LIB_PATH=${MAIN_PATH}lib/
+LIB=${LIB_PATH}libmath.a
+file ${LIB}
+${DUMPTOOL} -D  --disassemble-zeroes ${LIB} >${LIB_PATH}math.dump
+${READELF} --all ${LIB} >${LIB_PATH}math.readelf
