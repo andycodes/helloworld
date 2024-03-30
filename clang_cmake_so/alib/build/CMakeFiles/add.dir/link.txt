@@ -1,0 +1,2 @@
+/project/compiler/llvm_clang/clang/bin/llvm-ar qc /project/helloworld/clang_cmake_so/lib/libadd.a CMakeFiles/add.dir/lib_add.c.obj
+/project/compiler/llvm_clang/clang/bin/llvm-ranlib /project/helloworld/clang_cmake_so/lib/libadd.a

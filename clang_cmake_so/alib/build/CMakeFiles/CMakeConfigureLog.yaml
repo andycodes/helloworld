@@ -1,0 +1,87 @@
+
+---
+events:
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake-3.27/Modules/CMakeDetermineSystem.cmake:206 (message)"
+      - "CMakeLists.txt:5 (PROJECT)"
+    message: |
+      The target system is: Generic -  - arm
+      The host system is: Linux - 6.5.0-26-generic - x86_64
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake-3.27/Modules/CMakeDetermineCompilerId.cmake:17 (message)"
+      - "/usr/share/cmake-3.27/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "/usr/share/cmake-3.27/Modules/CMakeDetermineCCompiler.cmake:123 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:5 (PROJECT)"
+    message: |
+      Compiling the C compiler identification source file "CMakeCCompilerId.c" succeeded.
+      Compiler: /project/compiler/llvm_clang/clang/bin/clang 
+      Build flags: -fno-builtin;-nostdlib;-nostartfiles;-ffreestanding;-Wall;-g;-mcpu=cortex-a710
+      Id flags:  
+      
+      The output was:
+      0
+      ld.lld: warning: cannot find entry symbol _start; not setting start address
+      
+      
+      Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "a.out"
+      
+      The C compiler identification is Clang, found in:
+        /project/helloworld/clang_cmake_so/so/build/CMakeFiles/3.27.4/CompilerIdC/a.out
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake-3.27/Modules/CMakeDetermineCompilerId.cmake:17 (message)"
+      - "/usr/share/cmake-3.27/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "/usr/share/cmake-3.27/Modules/CMakeDetermineCXXCompiler.cmake:126 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:5 (PROJECT)"
+    message: |
+      Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
+      Compiler: /project/compiler/llvm_clang/clang/bin/clang++ 
+      Build flags: 
+      Id flags:  
+      
+      The output was:
+      1
+      ld.lld: error: cannot open Scrt1.o: No such file or directory
+      ld.lld: error: cannot open crti.o: No such file or directory
+      ld.lld: error: cannot open crtbeginS.o: No such file or directory
+      ld.lld: error: unable to find library -lstdc++
+      ld.lld: error: unable to find library -lm
+      ld.lld: error: unable to find library -lgcc_s
+      ld.lld: error: unable to find library -lgcc
+      ld.lld: error: unable to find library -lc
+      ld.lld: error: unable to find library -lgcc_s
+      ld.lld: error: unable to find library -lgcc
+      ld.lld: error: cannot open crtendS.o: No such file or directory
+      ld.lld: error: cannot open crtn.o: No such file or directory
+      clang++: error: linker command failed with exit code 1 (use -v to see invocation)
+      
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake-3.27/Modules/CMakeDetermineCompilerId.cmake:17 (message)"
+      - "/usr/share/cmake-3.27/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "/usr/share/cmake-3.27/Modules/CMakeDetermineCXXCompiler.cmake:126 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:5 (PROJECT)"
+    message: |
+      Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
+      Compiler: /project/compiler/llvm_clang/clang/bin/clang++ 
+      Build flags: 
+      Id flags: -c 
+      
+      The output was:
+      0
+      
+      
+      Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "CMakeCXXCompilerId.o"
+      
+      The CXX compiler identification is Clang, found in:
+        /project/helloworld/clang_cmake_so/so/build/CMakeFiles/3.27.4/CompilerIdCXX/CMakeCXXCompilerId.o
+      
+...

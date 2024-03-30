@@ -1,0 +1,3 @@
+/project/helloworld/clang_cmake_so/so/build/CMakeFiles/add.dir
+/project/helloworld/clang_cmake_so/so/build/CMakeFiles/edit_cache.dir
+/project/helloworld/clang_cmake_so/so/build/CMakeFiles/rebuild_cache.dir
