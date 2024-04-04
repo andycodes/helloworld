@@ -9,6 +9,59 @@
 #include <linux/sched.h>
 #include <linux/err.h>
 
+/*
+@val:	Value passed unmodified to notifier function
+@v:		Pointer passed unmodified to notifier function
+
+static int notifier_call_chain(struct notifier_block **nl,
+			       unsigned long val, void *v,
+			       int nr_to_call, int *nr_calls)
+{
+	int ret = NOTIFY_DONE;
+	struct notifier_block *nb, *next_nb;
+
+	nb = rcu_dereference_raw(*nl);
+
+	while (nb && nr_to_call) {
+		next_nb = rcu_dereference_raw(nb->next);
+
+#ifdef CONFIG_DEBUG_NOTIFIERS
+		if (unlikely(!func_ptr_is_kernel_text(nb->notifier_call))) {
+			WARN(1, "Invalid notifier called!");
+			nb = next_nb;
+			continue;
+		}
+#endif
+		trace_notifier_run((void *)nb->notifier_call);
+		ret = nb->notifier_call(nb, val, v);
+
+		if (nr_calls)
+			(*nr_calls)++;
+
+		if (ret & NOTIFY_STOP_MASK)
+			break;
+		nb = next_nb;
+		nr_to_call--;
+	}
+	return ret;
+}
+NOKPROBE_SYMBOL(notifier_call_chain);
+
+int atomic_notifier_call_chain(struct atomic_notifier_head *nh,
+			       unsigned long val, void *v)
+{
+	int ret;
+
+	rcu_read_lock();
+	ret = notifier_call_chain(&nh->head, val, v, -1, NULL);
+	rcu_read_unlock();
+
+	return ret;
+}
+
+
+*/
+
 
 static struct task_struct * task_test0 = NULL;
 static struct task_struct * task_test1 = NULL;

@@ -1,4 +1,4 @@
-
+#include <string.h>
 #include "os.h"
 #include "clib.h"
 #include "utest.h"
@@ -76,7 +76,7 @@ static const char *file_basename(const char *file)
 
     if (!((end_ptr = strrchr(file, '\\')) != RT_NULL || \
         (end_ptr = strrchr(file, '/')) != RT_NULL) || \
-        (rt_strlen(file) < 2))
+        (strlen(file) < 2))
     {
         rst = (char *)file;
     }
@@ -137,7 +137,7 @@ static void utest_run(const char *utest_name)
                 {
                     len -= 1;
                 }
-                if (rt_memcmp(tc_table[i].name, utest_name, len) != 0)
+                if (memcmp(tc_table[i].name, utest_name, len) != 0)
                 {
                     i++;
                     continue;
@@ -202,7 +202,7 @@ static void utest_run(const char *utest_name)
 void utest_testcase_run(int argc, char** argv)
 {
     static char utest_name[UTEST_NAME_MAX_LEN];
-    rt_memset(utest_name, 0x0, sizeof(utest_name));
+    memset(utest_name, 0x0, sizeof(utest_name));
 
     tc_loop = 1;
 
@@ -221,7 +221,7 @@ void utest_testcase_run(int argc, char** argv)
         }
         else
         {
-            rt_strncpy(utest_name, argv[1], sizeof(utest_name) -1);
+            strncpy(utest_name, argv[1], sizeof(utest_name) -1);
             if (argc == 3) tc_loop = atoi(argv[2]);
             utest_run(utest_name);
         }
@@ -308,7 +308,7 @@ void utest_assert_buf(const char *a, const char *b, rt_size_t sz, rt_bool_t equa
 
     if (equal)
     {
-        if (rt_memcmp(a, b, sz) == 0)
+        if (memcmp(a, b, sz) == 0)
         {
             utest_assert(1, file, line, func, msg);
         }
@@ -319,7 +319,7 @@ void utest_assert_buf(const char *a, const char *b, rt_size_t sz, rt_bool_t equa
     }
     else
     {
-        if (rt_memcmp(a, b, sz) == 0)
+        if (memcmp(a, b, sz) == 0)
         {
             utest_assert(0, file, line, func, msg);
         }
