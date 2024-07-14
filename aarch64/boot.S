@@ -1,11 +1,31 @@
-.section ".text.boot", "ax"
-.balign 4
-.global _start
-_start:
+    .section ".text.boot", "ax"
+    .balign 4
+
+    .global start64
+    .type start64, "function"
+    .global vec_tbl_el1
+
+start64:
+    MRS x0, MPIDR_EL1
+    AND x0, x0, #0xFFFF
+    CBZ x0, boot
+
+sleep:
+    WFI
+    B sleep
+
+    .global boot
+boot:
     // We will default reset to EL1, because Qemu default not support EL2/3
     // Initialize VBAR_EL1
     LDR X1, =vec_tbl_el1
     MSR VBAR_EL1, X1
+
+    /*
+     * Disable trapping of CPTR_EL3 accesses or use of Adv.SIMD/FPU
+     */
+    // MSR      CPTR_EL3, xzr
+
     // Enable async exception
     // If an interrupt is not routed to EL3 or EL2,
     // it is routed to EL1 by default.
@@ -16,8 +36,8 @@ _start:
 
     // We ignore initializing general purpose registers
     // Initialize the SP_EL1
-    LDR X1, =_stack_top
-    MOV SP, X1
+    // LDR X1, =_stack_top
+    // MOV SP, X1
 
     // Initialize system control registers
     // SA, SA0, CP15BEN, EOS, nTWI, nTWE, EIS, SPAN, nTLSMD, LSMAOE bits is set

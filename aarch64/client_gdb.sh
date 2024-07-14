@@ -1,2 +1,2 @@
-gdb-multiarch kernel.elf
+gdb-multiarch felix.elf
     target remote :8888
