@@ -1,36 +1,26 @@
-PREFIX ?= aarch64-linux-gnu-
+osname := $(shell uname -s)
 
-asm-objs = boot.o el0_entry.o
+#use Android toolchain on OS X
+#use linaro bare metal toolchain on linux
+ifeq ($(osname), Darwin)
+CROSS_PREFIX=aarch64-linux-android-
+else
+CROSS_PREFIX=aarch64-none-elf-
+endif
 
-CC = $(PREFIX)gcc
-LD = $(PREFIX)ld
-DUMP = $(PREFIX)objdump
-READELF = readelf
+all: test64.elf
 
-OBJECT?=felix
-TARGET:=$(OBJECT).elf
-TARGET_OBJDUMP:=$(OBJECT).dump
-TARGET_READELF:=$(OBJECT).readelf
-TARGET_MAP ?= $(OBJECT).map
+test64.o: test64.c
+	$(CROSS_PREFIX)gcc -c $< -o $@
 
-.PHONY: all
+startup64.o: startup64.s
+	$(CROSS_PREFIX)as -c $< -o $@
 
-all: $(TARGET) $(TARGET_OBJDUMP) $(TARGET_READELF)
+test64.elf: test64.o startup64.o
+	$(CROSS_PREFIX)ld -Ttest64.ld $^ -o $@
 
+test64.bin: test64.elf
+	$(CROSS_PREFIX)objcopy -O binary $< $@
 
-$(asm-objs): %.o: %.S
-	${CC} -nostdlib -nostartfiles -g -c $< -o $@
-
-$(TARGET): $(asm-objs)
-	$(LD) -T linker.ld -g -static $(asm-objs) -o $(TARGET) --entry=start64  --cref -M=$(TARGET_MAP)
-
-$(TARGET_OBJDUMP): $(TARGET)
-	@echo LIST on $@
-	$(Q)$(DUMP) -x -s -S $< > $@
-
-$(TARGET_READELF): $(TARGET)
-	$(Q)$(READELF) -a $< > $@
-
-.PHONY: clean
 clean:
-	rm -f *.o $(TARGET) $(TARGET_OBJDUMP) $(TARGET_READELF) $(TARGET_MAP)
+	rm -f test65.bin test64.elf startup64.o test64.o
