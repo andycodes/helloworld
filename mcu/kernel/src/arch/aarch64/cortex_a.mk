@@ -1,10 +1,7 @@
-	CFLAGS +=  -fno-builtin -nostdlib -nostartfiles -ffreestanding -Wall -g
-	PREFIX = aarch64-none-elf-
-	
-	CC = $(PREFIX)gcc
-	LD = $(PREFIX)ld
-	COPY = $(PREFIX)objcopy
-	DUMP = $(PREFIX)objdump
-	SIZE = $(PREFIX)size
-	NM = $(PREFIX)nm
-	READELF = readelf
+
+ARM_PATH ?= src/arch/aarch64
+
+CFLAGS += -I$(ARM_PATH)
+
+SSRC += $(ARM_PATH)/boot.s
+CSRC += $(ARM_PATH)/kernel.c 

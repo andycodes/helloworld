@@ -2,8 +2,10 @@ ENTRY(_Reset)
 SECTIONS
 {
 	. = 0x40000000;
-	.boot . : { build/boot.o(.text) }
-	.text : { *(.text) }
+	.text : 
+	{ 
+		*(.text) 
+	}
 	.data : { *(.data) }
 	.bss : { *(.bss COMMON) }
 	. = ALIGN(8);

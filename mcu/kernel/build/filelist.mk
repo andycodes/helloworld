@@ -4,6 +4,8 @@ include src/platform/$(board)/board.mk
 else ifeq ($(board),riscv64)
 include src/arch/riscv64/riscv.mk
 include src/platform/$(board)/board.mk
+else ifeq ($(board),a710)
+include src/arch/aarch64/cortex_a.mk
 else
 include src/arch/arm/arch.mk
 include src/platform/$(board)/board.mk

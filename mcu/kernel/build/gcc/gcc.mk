@@ -8,8 +8,11 @@ ifeq ($(board),riscv64)
 else ifeq ($(board),riscv32)
 	CFLAGS += $(ARCH_FLAGS)
 	include build/gcc/$(board).mk
+else ifeq ($(board),a710)
+	CFLAGS += $(ARCH_FLAGS)
+	include build/$(CC)/cortex-a710.mk
 else
 	include build/$(CC)/$(CPU_TYPE).mk
 	CFLAGS += $(ARCH_FLAGS)
-	include build/$(CC)/cortex.mk
+	include build/$(CC)/cortex_m.mk
 endif
