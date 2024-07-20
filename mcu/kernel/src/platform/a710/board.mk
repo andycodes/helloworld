@@ -1,0 +1,1 @@
+CSRC += src/platform/$(board)/a710_uart.c 

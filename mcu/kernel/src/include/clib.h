@@ -13,4 +13,11 @@ size_t strlen(const char *str);
 char *strrchr(const char *t, int c);
 int atoi(const char* s);
 
+#define rt_memset memset
+#define rt_memcpy memcpy
+#define rt_memcmp memcmp
+#define rt_strncmp strncmp
+#define rt_strlen strlen
+#define rt_strncpy strncpy
+
 #endif /*__CLIB_H__*/
