@@ -1,4 +1,5 @@
 #include "os.h"
+#include "testcase.h"
 
 volatile unsigned int * const UART0DR = (unsigned int *) 0x09000000;
  
@@ -12,6 +13,8 @@ void print_uart0(const char *s) {
 void c_entry() {
      print_uart0("Hello world!\n");
      printk("Hello felix!\n");
+
+     dump_smmu_idr0();
 }
 
 

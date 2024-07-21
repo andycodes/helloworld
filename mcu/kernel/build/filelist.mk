@@ -8,6 +8,7 @@ else ifeq ($(board),a710)
 include src/arch/aarch64/cortex_a.mk
 include src/libs/libs.mk
 include src/platform/$(board)/board.mk
+include src/testcase/$(board)/testcase_a710.mk
 else
 include src/arch/arm/arch.mk
 include src/platform/$(board)/board.mk
