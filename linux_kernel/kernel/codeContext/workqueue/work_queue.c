@@ -61,6 +61,6 @@ static void wq_exit(void)
 module_init(wq_init);
 module_exit(wq_exit);
 
-MODULE_LICENSE("Dual BSD/GPL");
+MODULE_LICENSE("GPL");
 MODULE_AUTHOR("FANSAIHUA");
 

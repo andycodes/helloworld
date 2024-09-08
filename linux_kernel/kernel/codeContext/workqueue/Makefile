@@ -2,7 +2,7 @@ ifneq ($(KERNELRELEASE),)
 
 #kbuild syntax. dependency relationshsip of files and target modules are listed here.
 
-module-objs := workQueue.o
+module-objs := work_queue.o
 
 obj-m := $(module-objs)
 
@@ -20,6 +20,6 @@ all:
 
 clean:
 
-	rm -rf .*.cmd *.o *.mod.c *.ko .tmp_versions *.ko  *.mod.* *.bak  *.symvers *.order
+	rm -rf .*.cmd *.o *.mod.c *.ko .tmp_versions *.ko  *.mod* *.bak  *.symvers *.order 
 
 endif
