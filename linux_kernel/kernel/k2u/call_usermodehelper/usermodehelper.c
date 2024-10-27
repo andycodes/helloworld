@@ -14,10 +14,9 @@ static int hello_init(void)
    char* cmdArgv[]= {USER_EXEC_FILE_PATH,"andy","huangyingying",NULL};
    char* cmdEnvp[]= {"HOME=/","PATH=/sbin:/bin:/usr/bin",NULL};
    /*
+      process a user process in kernel space
         static inline int
         call_usermodehelper(char *path, char **argv, char **envp, int wait)
-   */
-   /*
         enum umh_wait {
            UMH_NO_WAIT = -1,     //   don't wait at all 
            UMH_WAIT_EXEC = 0,    //  wait for the exec, but not the process 
