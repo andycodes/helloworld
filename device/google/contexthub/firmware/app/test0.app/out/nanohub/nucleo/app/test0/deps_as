@@ -1,2 +1,0 @@
-aeabi_ldivmod.o: ../../lib/builtins/aeabi_ldivmod.S
-aeabi_uldivmod.o: ../../lib/builtins/aeabi_uldivmod.S
