@@ -1,3 +1,5 @@
+CONFIG_MODULE_SIG=n
+
 ifneq ($(KERNELRELEASE),)
 
 #kbuild syntax. dependency relationshsip of files and target modules are listed here.
@@ -20,6 +22,6 @@ all:
 
 clean:
 
-	rm -rf .*.cmd *.o *.mod.c *.ko .tmp_versions *.ko  *.mod.* *.bak  *.symvers *.order
+	rm -rf .*.cmd *.o *.mod.c *.ko .tmp_versions *.ko  *.mod.* *.bak  *.symvers *.order *.mod
 
 endif

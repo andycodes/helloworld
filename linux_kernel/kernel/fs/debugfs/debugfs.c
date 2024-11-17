@@ -106,6 +106,25 @@ static int clk_rate_fops_set(void *data, u64 rate)
 DEFINE_SIMPLE_ATTRIBUTE(clk_rate_fops, clk_rate_fops_get, clk_rate_fops_set, "%llu\n");
 
 
+struct s_test_data g_test_define_debugfs;
+static int define_debugfs_fops_get(void *data, u64 *rate)
+{
+	struct s_test_data *clk = data;
+	*rate = clk->rate;
+
+	return 0;
+};
+
+static int define_debugfs_fops_set(void *data, u64 rate)
+{
+	struct s_test_data *clk = data;
+	clk->rate = rate;
+	return 0;
+};
+
+DEFINE_DEBUGFS_ATTRIBUTE(define_debugfs_fops, define_debugfs_fops_get, define_debugfs_fops_set, "%llu\n");
+
+
 static int __init mydebugfs_init(void)
 {
 	struct dentry *sub_dir;
@@ -137,12 +156,20 @@ static int __init mydebugfs_init(void)
 	if (!s_c)
 		goto Fail;
 
-	s_d = debugfs_create_file("d_name", 0644,my_debugfs_root, NULL, &d_fops);
+	s_d = debugfs_create_file("d_name", 0644, my_debugfs_root, NULL, &d_fops);
 	if (!s_d)
 		goto Fail;
 
 	s_d = debugfs_create_file("clk_rate", S_IWUSR | S_IRUGO, my_debugfs_root,
 		&g_test_data, &clk_rate_fops);
+
+
+	struct dentry *define_debugfs_test = NULL;
+	define_debugfs_test = debugfs_create_file("define_debugfs_test", S_IWUSR | S_IRUGO, my_debugfs_root,
+		&g_test_data, &clk_rate_fops);
+
+
+	printk(KERN_INFO "mydebugfs_init\n");
 	return 0;
 
 Fail:
@@ -167,12 +194,12 @@ MODULE_DESCRIPTION("debugfs test");
 MODULE_LICENSE("GPL");
 
 /*
-root@fan-VirtualBox:/sys/kernel/debug/mydebug# cat a
+root@fan-VirtualBox:/sys/kernel/debug/felix_debug# cat a
 0
-root@fan-VirtualBox:/sys/kernel/debug/mydebug# echo 1 >a
-root@fan-VirtualBox:/sys/kernel/debug/mydebug# cat a
+root@fan-VirtualBox:/sys/kernel/debug/felix_debug# echo 1 >a
+root@fan-VirtualBox:/sys/kernel/debug/felix_debug# cat a
 1
-root@fan-VirtualBox:/sys/kernel/debug/mydebug# 
+root@fan-VirtualBox:/sys/kernel/debug/felix_debug# 
 
 */
 
