@@ -1,6 +1,7 @@
 CFLAGS ?= -D_FORTIFY_SOURCE=2 -O2
-#-fstack-protector-all
-#-fno-stack-protector
+#CFLAGS += -fstack-protector-strong
+CFLAGS += -fno-stack-protector
+CFLAGS += -Wstack-usage=2048  -Wframe-larger-than=512
 
 ifeq ($(board),riscv64)
 	CFLAGS += $(ARCH_FLAGS)
