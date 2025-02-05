@@ -1,0 +1,71 @@
+root@hyy-ubuntu:/project/helloworld/qemu/qemu_arm64_atf# ./qemu_tfa.sh
+输入了 8+1 块记录
+输出了 8+1 块记录
+33621 字节 (34 kB, 33 KiB) 已复制，6.5861e-05 s，510 MB/s
+输入了 291+1 块记录
+输出了 291+1 块记录
+1195805 字节 (1.2 MB, 1.1 MiB) 已复制，0.000937058 s，1.3 GB/s
+输入了 16384+0 块记录
+输出了 16384+0 块记录
+67108864 字节 (67 MB, 64 MiB) 已复制，0.0432508 s，1.6 GB/s
+NOTICE:  Booting Trusted Firmware
+NOTICE:  BL1: v2.10.12(debug):
+NOTICE:  BL1: Built : 10:52:46, Feb  5 2025
+INFO:    BL1: RAM 0xe0ee000 - 0xe0f6000
+INFO:    BL1: cortex_a710: CPU workaround for CVE 2024_5660 was applied
+WARNING: BL1: cortex_a710: CPU workaround for erratum 2058056 was missing!
+WARNING: BL1: cortex_a710: CPU workaround for erratum 2282622 was missing!
+WARNING: BL1: cortex_a710: CPU workaround for erratum 2742423 was missing!
+WARNING: BL1: cortex_a710: CPU workaround for erratum 2768515 was missing!
+WARNING: BL1: cortex_a710: CPU workaround for erratum 2778471 was missing!
+INFO:    BL1: cortex_a710: CPU workaround for CVE 2022_23960 was applied
+INFO:    BL1: Loading BL2
+INFO:    Loading image id=1 at address 0xe06b000
+INFO:    Image id=1 loaded: 0xe06b000 - 0xe073201
+NOTICE:  BL1: Booting BL2
+INFO:    Entry point address = 0xe06b000
+INFO:    SPSR = 0x3c5
+NOTICE:  BL2: v2.10.12(debug):
+NOTICE:  BL2: Built : 10:52:46, Feb  5 2025
+INFO:    BL2: Doing platform setup
+INFO:    BL2: Loading image id 3
+INFO:    Loading image id=3 at address 0xe0a0000
+INFO:    Image id=3 loaded: 0xe0a0000 - 0xe0af0c4
+INFO:    BL2: Loading image id 5
+INFO:    Loading image id=5 at address 0x60000000
+INFO:    Image id=5 loaded: 0x60000000 - 0x6010cba8
+NOTICE:  BL1: Booting BL31
+INFO:    Entry point address = 0xe0a0000
+INFO:    SPSR = 0x3cd
+NOTICE:  BL31: v2.10.12(debug):
+NOTICE:  BL31: Built : 10:52:46, Feb  5 2025
+INFO:    ARM GICv2 driver initialized
+INFO:    BL31: Initializing runtime services
+INFO:    BL31: cortex_a710: CPU workaround for CVE 2024_5660 was applied
+WARNING: BL31: cortex_a710: CPU workaround for erratum 2058056 was missing!
+WARNING: BL31: cortex_a710: CPU workaround for erratum 2282622 was missing!
+WARNING: BL31: cortex_a710: CPU workaround for erratum 2742423 was missing!
+WARNING: BL31: cortex_a710: CPU workaround for erratum 2768515 was missing!
+WARNING: BL31: cortex_a710: CPU workaround for erratum 2778471 was missing!
+INFO:    BL31: cortex_a710: CPU workaround for CVE 2022_23960 was applied
+INFO:    BL31: Preparing for EL3 exit to normal world
+INFO:    Entry point address = 0x60000000
+INFO:    SPSR = 0x3c5
+
+
+U-Boot 2025.01 (Feb 04 2025 - 23:04:54 +0800)
+
+DRAM:  1 GiB
+Core:  51 devices, 14 uclasses, devicetree: board
+Flash: 32 MiB
+Loading Environment from Flash... *** Warning - bad CRC, using default environment
+
+In:    serial,usbkbd
+Out:   serial,vidconsole
+Err:   serial,vidconsole
+No USB controllers found
+Net:   eth0: virtio-net#32
+
+starting USB...
+No USB controllers found
+Hit any key to stop autoboot:  0
