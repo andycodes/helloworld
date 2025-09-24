@@ -26,3 +26,5 @@ if __name__ == "__main__":
         print(stock[0], stock[1])
         stock_hk_hist = ak.stock_hk_hist(symbol=stock[1], period="daily", start_date=get_n_days_ago(7), end_date=get_date_today())
         print(stock_hk_hist.head())
+
+#stock_hk_financial_indicator_em
