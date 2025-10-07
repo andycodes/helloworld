@@ -50,11 +50,11 @@ def get_car_sale_data(soup, months):
     print("表格数据:", month_sale)
     return month_sale
 
-def picture_show(months, values):
+def lineplot_show(who, months, values):
     data = {'X': months, 'Y': values}
     df = pd.DataFrame(data)
     # 绘制折线图
-    sns.lineplot(x='X', y='Y', data=df, label='xiaomi')
+    sns.lineplot(x='X', y='Y', data=df, label=who)
 
     # 在每个数据点上标注Y值
     for i, (xi, yi) in enumerate(zip(months, values)):
@@ -68,17 +68,27 @@ def picture_show(months, values):
                     fontsize=10,
                     bbox=dict(boxstyle="round,pad=0.3", facecolor="white", alpha=0.8))
 
-    plt.title('xiaomi', fontsize=14, fontweight='bold')
-    plt.show()
+
 
 if __name__ == "__main__":
-    soup = scrape_website('https://price.pcauto.com.cn/salescar/nb8714/')
-    if soup:
-        title = soup.find('title')
-        print(title.text if title else "No title found")
+    weblist = []
+    weblist.append(["xiaomi", 'https://price.pcauto.com.cn/salescar/nb8714/'])
+    weblist.append(["lixiang", 'https://price.pcauto.com.cn/salescar/nb7721/'])
+    weblist.append(["lingpao", 'https://price.pcauto.com.cn/salescar/nb7421/'])
+    weblist.append(["weilai", 'https://price.pcauto.com.cn/salescar/nb7250/'])
+    weblist.append(["xiaopeng", 'https://price.pcauto.com.cn/salescar/nb7210/'])
 
-    months = get_car_sale_date(soup)
-    values = get_car_sale_data(soup, len(months))
-    print("表格数据1:", values)
-    picture_show(months, values)
+    for web in weblist:
+        soup = scrape_website(web[1])
+        if soup:
+            title = soup.find('title')
+            print(title.text if title else "No title found")
+
+        months = get_car_sale_date(soup)
+        values = get_car_sale_data(soup, len(months))
+        print("表格数据1:", values)
+        lineplot_show(web[0], months, values)
+
+    plt.title('car sale', fontsize=14, fontweight='bold')
+    plt.show()
 
