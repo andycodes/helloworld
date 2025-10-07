@@ -55,3 +55,6 @@ if __name__ == "__main__":
              style=my_style, 
              volume=True,  # 现在可以正确显示成交量了
              mav=(5, 10, 20))  # 添加5日、10日和20日移动平均线
+
+#https://cloud.tencent.cn/developer/article/2144798?policyId=1003
+#https://cloud.tencent.cn/developer/article/2454419?policyId=1003
