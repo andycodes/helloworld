@@ -91,4 +91,3 @@ if __name__ == "__main__":
 
     plt.title('car sale', fontsize=14, fontweight='bold')
     plt.show()
-

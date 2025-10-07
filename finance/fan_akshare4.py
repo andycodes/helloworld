@@ -1,7 +1,5 @@
 import akshare as ak
 from datetime import datetime, date, timedelta
-import mplfinance as mpf
-import pandas as pd
 
 stocks_l = []
 def stock_init():
@@ -20,11 +18,5 @@ if __name__ == "__main__":
     for stock in stocks_l:
         print(stock[0], stock[1])
         stock_hk_hist = ak.stock_hk_hist(symbol=stock[1], period="daily", start_date=get_n_days_ago(7), end_date=get_date_today())
-        #print(stock_hk_hist)
-        df = stock_hk_hist.iloc[-20:,0:5]
-        print(df)
-        data1 = df.loc['2025-10-01 00:00:00+00:00':'2025-10-11 00:00:00+00:00']
-        mpf.plot(data1, type='candle', volume=True)
+        print(stock_hk_hist)
 
-#https://cloud.tencent.cn/developer/article/2144798?policyId=1003
-#https://cloud.tencent.cn/developer/article/2454419?policyId=1003
