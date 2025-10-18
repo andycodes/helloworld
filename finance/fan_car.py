@@ -1,7 +1,7 @@
 import requests
 import copy
 from bs4 import BeautifulSoup
-
+from datetime import datetime
 import seaborn as sns
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -89,5 +89,13 @@ if __name__ == "__main__":
         print("表格数据1:", values)
         lineplot_show(web[0], months, values)
 
-    plt.title('car sale', fontsize=14, fontweight='bold')
+    title_name = 'car_sale'
+    plt.title(title_name, fontsize=14, fontweight='bold')
+    current_year_month = datetime.now().strftime("%Y%m")
+    full_path = 'C:/family/finance/' + title_name+ current_year_month +'.png'
+    plt.savefig(full_path,
+           dpi=300,
+           bbox_inches='tight',
+           facecolor='white',
+           edgecolor='black')
     plt.show()
