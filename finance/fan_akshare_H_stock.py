@@ -10,6 +10,9 @@ def stock_init():
     stocks_l.append(["xiaoimi", "01810"])
     stocks_l.append(["meituan", "03690"])  
     stocks_l.append(["dipingxian", "09660"])  
+    stocks_l.append(["zhongxinguoji", "00981"])  
+    stocks_l.append(["huahong", "01347"])  
+    stocks_l.append(["fudan", "01385"])  
 
 com_name = []
 roe_v = []
