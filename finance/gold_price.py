@@ -3,16 +3,16 @@ import mplfinance as mpf
 import pandas as pd
 
 
-if __name__ == "__main__":
+def get_gold_data():
     # 获取黄金延期合约 Au(T+D) 的历史数据
-    gold_td_data = ak.spot_hist_sge(symbol='Au(T+D)')
-    print(gold_td_data)
+    return ak.spot_hist_sge(symbol='Au(T+D)')  
 
-    dates = gold_td_data['date']
-    open_prices = gold_td_data['open'].tolist()  # 改名为 open_prices，避免与内置函数open冲突
-    close_prices = gold_td_data['close'].tolist()  # 改名为 close_prices
-    low_prices = gold_td_data['low'].tolist()    # 改名为 low_prices
-    high_prices = gold_td_data['high'].tolist()   # 改名为 high_prices
+def plot_gold_data(last_3_months):
+    dates = last_3_months['date']
+    open_prices = last_3_months['open'].tolist()  # 改名为 open_prices，避免与内置函数open冲突
+    close_prices = last_3_months['close'].tolist()  # 改名为 close_prices
+    low_prices = last_3_months['low'].tolist()    # 改名为 low_prices
+    high_prices = last_3_months['high'].tolist()   # 改名为 high_prices
     
     # 创建日期索引
     index_date = pd.DatetimeIndex(dates)
@@ -42,3 +42,5 @@ if __name__ == "__main__":
              title='gold price', 
              style=my_style, 
              mav=(5, 10, 20))  # 添加5日、10日和20日移动平均线
+    
+    mpf.show()
