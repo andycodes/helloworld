@@ -1,18 +1,18 @@
 import akshare as ak
 import mplfinance as mpf
 import pandas as pd
-
+from datetime import datetime
 
 def get_gold_data():
     # 获取黄金延期合约 Au(T+D) 的历史数据
     return ak.spot_hist_sge(symbol='Au(T+D)')  
 
-def plot_gold_data(last_3_months):
-    dates = last_3_months['date']
-    open_prices = last_3_months['open'].tolist()  # 改名为 open_prices，避免与内置函数open冲突
-    close_prices = last_3_months['close'].tolist()  # 改名为 close_prices
-    low_prices = last_3_months['low'].tolist()    # 改名为 low_prices
-    high_prices = last_3_months['high'].tolist()   # 改名为 high_prices
+def plot_gold_data(title_name,gold_data):
+    dates = gold_data['date']
+    open_prices = gold_data['open'].tolist()  # 改名为 open_prices，避免与内置函数open冲突
+    close_prices = gold_data['close'].tolist()  # 改名为 close_prices
+    low_prices = gold_data['low'].tolist()    # 改名为 low_prices
+    high_prices = gold_data['high'].tolist()   # 改名为 high_prices
     
     # 创建日期索引
     index_date = pd.DatetimeIndex(dates)
@@ -36,11 +36,17 @@ def plot_gold_data(last_3_months):
     
     my_style = mpf.make_mpf_style(marketcolors=mc)
     
+    current_year_month = datetime.now().strftime("%Y%m")
+    full_path = 'C:/family/finance/' + title_name+ current_year_month +'.png'
+
     # 绘制蜡烛图，包含成交量
     mpf.plot(data, 
              type='candle', 
-             title='gold price', 
+             title=title_name, 
              style=my_style, 
+             figratio=(20, 9),
+             figscale=3, 
+             savefig=full_path,
              mav=(5, 10, 20))  # 添加5日、10日和20日移动平均线
-    
+        
     mpf.show()
