@@ -4,8 +4,7 @@ import pandas as pd
 from datetime import datetime
 
 def get_gold_data():
-    # 获取黄金延期合约 Au(T+D) 的历史数据
-    return ak.spot_hist_sge(symbol='Au(T+D)')  
+    return ak.spot_hist_sge(symbol='Au99.99')  
 
 def plot_gold_data(title_name,gold_data):
     dates = gold_data['date']
